@@ -206,6 +206,7 @@ enum ArtifactType {
     PhotoidCannon,
     BloomFilter,
     BlackDomain,
+    FuckYou,
     ShipMothership,
     ShipCrescent,
     ShipWhale,

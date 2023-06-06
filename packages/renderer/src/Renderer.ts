@@ -142,6 +142,7 @@ export interface RendererGameContext extends DiagnosticUpdater {
     energy: number
   ): number;
   getIsChoosingTargetPlanet(): boolean;
+  getIsFuckingYou(): boolean;
   getWormholes(): Iterable<Wormhole>;
   getRadiusOfPlanetLevel(planetRarity: PlanetLevel): number;
   getDistCoords(from: WorldCoords, to: WorldCoords): number;

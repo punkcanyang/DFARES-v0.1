@@ -127,8 +127,15 @@ const biomeSpriteInfo = (): BiomeSpriteLocations => {
         };
       }
     }
-    result[type] = biomeInfo as BiomeToSprite;
+
+    if (type === ArtifactType.FuckYou) {
+      result[type] = result[ArtifactType.Wormhole];
+    } else {
+      result[type] = biomeInfo as BiomeToSprite;
+    }
   }
+
+  console.log(result);
 
   return result as BiomeSpriteLocations;
 };

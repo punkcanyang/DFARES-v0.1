@@ -43,8 +43,10 @@ export class UIRenderer implements UIRendererType {
 
     if (mouseDownPlanet && from && to) {
       if (uiManager.getIsChoosingTargetPlanet()) {
-        lR.queueLineWorld(from, to, purpleA, 2, RenderZIndex.Voyages);
-        tR.queueTextWorld(`Wormhole Target`, { x: to.x, y: to.y }, purpleA);
+        const showText = uiManager.getIsFuckingYou() ? `Fuck Target` : `Wormhole Target`;
+        const lineColor = uiManager.getIsFuckingYou() ? redA : purpleA;
+        lR.queueLineWorld(from, to, lineColor, 2, RenderZIndex.Voyages);
+        tR.queueTextWorld(showText, { x: to.x, y: to.y }, lineColor);
       } else {
         const myPlanet = uiManager.getPlanetWithCoords(from);
         if (myPlanet && isLocatable(myPlanet) && to !== from) {

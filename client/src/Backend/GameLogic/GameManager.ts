@@ -2433,6 +2433,11 @@ class GameManager extends EventEmitter {
       // Always await the submitTransaction so we can catch rejections
       const tx = await this.contractsAPI.submitTransaction(txIntent);
 
+      wormholeTo &&
+        tx.confirmedPromise.then(() => {
+          this.hardRefreshPlanet(wormholeTo);
+        });
+
       return tx;
     } catch (e) {
       this.getNotificationsManager().txInitError('activateArtifact', e.message);

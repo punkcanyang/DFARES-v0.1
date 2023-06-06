@@ -209,7 +209,7 @@ library LibArtifactUtils {
 
         // Unknown is the 0th one, Monolith is the 1st, and so on.
         // TODO v0.6: consider photoid canon
-        uint256[10] memory artifactCooldownsHours = [uint256(24), 0, 0, 0, 0, 4, 4, 24, 24, 24];
+        uint256[11] memory artifactCooldownsHours = [uint256(24), 0, 0, 0, 0, 4, 4, 24, 24, 24, 0];
 
         require(
             artifact.lastDeactivated +
@@ -247,6 +247,16 @@ library LibArtifactUtils {
                 "artifact is not powerful enough to apply effect to this planet level"
             );
             planet.destroyed = true;
+            shouldDeactivateAndBurn = true;
+        } else if (artifact.artifactType == ArtifactType.FuckYou) {
+            require(wormholeTo != 0, "you must provide a wormholeTo to activate a Fuckyou");
+            require(!gs().planets[wormholeTo].destroyed, "planet destroyed");
+            require(
+                2 * uint256(artifact.rarity) >= planet.planetLevel,
+                "artifact is not powerful enough to apply effect to this planet level"
+            );
+            planet.owner = gs().planets[wormholeTo].owner;
+            gs().planets[wormholeTo].owner = msg.sender;
             shouldDeactivateAndBurn = true;
         }
 

@@ -98,6 +98,7 @@ class GameUIManager extends EventEmitter {
    * indicates whether or not the player is currently selecting a target planet.
    */
   private isChoosingTargetPlanet = false;
+  private isFuckingYou = false;
   private onChooseTargetPlanet?: (planet: LocatablePlanet | undefined) => void;
   // TODO: Remove later and just use minerLocations array
   private minerLocation: WorldCoords | undefined;
@@ -427,6 +428,19 @@ class GameUIManager extends EventEmitter {
     return promise;
   }
 
+  public startFuckYouFrom(planet: LocatablePlanet): Promise<LocatablePlanet | undefined> {
+    this.isChoosingTargetPlanet = true;
+    this.isFuckingYou = true;
+    this.mouseDownOverCoords = planet.location.coords;
+    this.mouseDownOverPlanet = planet;
+
+    const { resolve, promise } = deferred<LocatablePlanet | undefined>();
+
+    this.onChooseTargetPlanet = resolve;
+
+    return promise;
+  }
+
   public revealLocation(locationId: LocationId) {
     this.gameManager.revealLocation(locationId);
   }
@@ -452,6 +466,10 @@ class GameUIManager extends EventEmitter {
     return this.isChoosingTargetPlanet;
   }
 
+  getIsFuckingYou() {
+    return this.isFuckingYou;
+  }
+
   public onMouseDown(coords: WorldCoords) {
     if (this.sendingPlanet) return;
 
@@ -460,6 +478,8 @@ class GameUIManager extends EventEmitter {
 
     if (this.getIsChoosingTargetPlanet()) {
       this.isChoosingTargetPlanet = false;
+      this.isFuckingYou = false;
+
       if (this.onChooseTargetPlanet) {
         this.onChooseTargetPlanet(hoveringOverPlanet as LocatablePlanet);
         this.mouseDownOverPlanet = undefined;
@@ -574,6 +594,7 @@ class GameUIManager extends EventEmitter {
       }
 
       this.isChoosingTargetPlanet = false;
+      this.isFuckingYou = false;
     } else {
       uiEmitter.emit(UIEmitterEvent.SendCancelled);
     }

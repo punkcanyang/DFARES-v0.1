@@ -9,7 +9,7 @@ import {
   MIN_BIOME,
   MAX_BIOME,
   //@ts-ignore
-} from 'https://cdn.skypack.dev/@darkforest_eth/constants';
+} from '@darkforest_eth/constants';
 //@ts-ignore
 import { getPlanetNameHash } from 'https://cdn.skypack.dev/@darkforest_eth/procedural';
 import {
@@ -28,7 +28,7 @@ import {
   PlanetTypeNames,
   WorldCoords,
   //@ts-ignore
-} from 'https://cdn.skypack.dev/@darkforest_eth/types';
+} from '@darkforest_eth/types';
 import {
   html,
   render,
@@ -266,6 +266,7 @@ function shipOptions() {
 
 function artifactOptions() {
   const options = [] as HTMLOptionElement[];
+  console.log(ArtifactTypeNames);
   for (let i = MIN_ARTIFACT_TYPE; i < MIN_SPACESHIP_TYPE; i++) {
     options.push(html`<option value=${i}>${ArtifactTypeNames[i]}</option>`);
   }

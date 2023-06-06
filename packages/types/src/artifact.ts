@@ -23,11 +23,12 @@ export const ArtifactType = {
   PhotoidCannon: 7 as ArtifactType,
   BloomFilter: 8 as ArtifactType,
   BlackDomain: 9 as ArtifactType,
-  ShipMothership: 10 as ArtifactType,
-  ShipCrescent: 11 as ArtifactType,
-  ShipWhale: 12 as ArtifactType,
-  ShipGear: 13 as ArtifactType,
-  ShipTitan: 14 as ArtifactType,
+  FuckYou: 10 as ArtifactType,
+  ShipMothership: 11 as ArtifactType,
+  ShipCrescent: 12 as ArtifactType,
+  ShipWhale: 13 as ArtifactType,
+  ShipGear: 14 as ArtifactType,
+  ShipTitan: 15 as ArtifactType,
 
   // Don't forget to update MIN_ARTIFACT_TYPE and/or MAX_ARTIFACT_TYPE in the `constants` package
 } as const;
@@ -46,6 +47,7 @@ export const ArtifactTypeNames = {
   [ArtifactType.BlackDomain]: 'Black Domain',
   [ArtifactType.PhotoidCannon]: 'Photoid Cannon',
   [ArtifactType.BloomFilter]: 'Bloom Filter',
+  [ArtifactType.FuckYou]: 'Fuck You',
   [ArtifactType.ShipMothership]: 'Mothership',
   [ArtifactType.ShipCrescent]: 'Crescent',
   [ArtifactType.ShipWhale]: 'Whale',

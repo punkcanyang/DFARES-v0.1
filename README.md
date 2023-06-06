@@ -54,6 +54,8 @@ To run a local copy of thegraph make sure docker is installed and running, `yarn
 - contracts\DFTypes.sol
 - contracts\libraries\LibArtifactUtils.sol
   artifact logic & cooldown
+- eth\contracts\libraries\LibGameUtils.sol
+  random find
 - packages\renderer\TextureManager.ts
   artifact icon
 - packages\renderer\src\UIRenderer.ts
@@ -64,3 +66,5 @@ To run a local copy of thegraph make sure docker is installed and running, `yarn
   some special activate effects
 - client\src\Backend\GameLogic\GameUIManager.ts
   activating logic
+- client\src\Backend\GameLogic\GameManager.ts
+  activating artifact tx infos

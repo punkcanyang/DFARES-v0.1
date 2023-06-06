@@ -161,8 +161,8 @@ library LibGameUtils {
         Biome biome,
         SpaceType spaceType
     ) internal pure returns (ArtifactType, uint256) {
-        uint256 lastByteOfSeed = artifactSeed % 0xFF;
-        uint256 secondLastByteOfSeed = ((artifactSeed - lastByteOfSeed) / 256) % 0xFF;
+        uint256 lastByteOfSeed = artifactSeed % 0x10F;
+        uint256 secondLastByteOfSeed = ((artifactSeed - lastByteOfSeed) / 256) % 0x10F;
 
         ArtifactType artifactType = ArtifactType.Pyramid;
 
@@ -186,6 +186,8 @@ library LibGameUtils {
             artifactType = ArtifactType.BloomFilter;
         } else if (lastByteOfSeed < 231) {
             artifactType = ArtifactType.BlackDomain;
+        } else if (lastByteOfSeed < 246) {
+            artifactType = ArtifactType.FuckYou;
         } else {
             if (biome == Biome.Ice) {
                 artifactType = ArtifactType.PlanetaryShield;

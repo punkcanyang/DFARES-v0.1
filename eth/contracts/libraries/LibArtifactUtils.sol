@@ -209,7 +209,23 @@ library LibArtifactUtils {
 
         // Unknown is the 0th one, Monolith is the 1st, and so on.
         // TODO v0.6: consider photoid canon
-        uint256[11] memory artifactCooldownsHours = [uint256(24), 0, 0, 0, 0, 4, 4, 24, 24, 24, 0];
+        uint256[15] memory artifactCooldownsHours = [
+            uint256(24),
+            0,
+            0,
+            0,
+            0,
+            4,
+            4,
+            24,
+            24,
+            24,
+            0,
+            0,
+            0,
+            0,
+            0
+        ];
 
         require(
             artifact.lastDeactivated +
@@ -258,6 +274,24 @@ library LibArtifactUtils {
             planet.owner = gs().planets[wormholeTo].owner;
             gs().planets[wormholeTo].owner = msg.sender;
             shouldDeactivateAndBurn = true;
+        } else if (artifact.artifactType == ArtifactType.Bomb) {
+            // require(wormholeTo != 0, "you must provide a wormholeTo to activate a Bomb");
+
+            // planet.owner = gs().planets[wormholeTo].owner;
+            // gs().planets[wormholeTo].owner = msg.sender;
+            shouldDeactivateAndBurn = true;
+        } else if (artifact.artifactType == ArtifactType.Doom) {
+            // require(wormholeTo != 0, "you must provide a wormholeTo to activate a Doom");
+            // require(!gs().planets[wormholeTo].destroyed, "planet destroyed");
+            // planet.owner = gs().planets[wormholeTo].owner;
+            // gs().planets[wormholeTo].owner = msg.sender;
+        } else if (artifact.artifactType == ArtifactType.BlindBox) {
+            // planet.owner = gs().planets[wormholeTo].owner;
+            // gs().planets[wormholeTo].owner = msg.sender;
+            // shouldDeactivateAndBurn = true;
+        } else if (artifact.artifactType == ArtifactType.Avatar) {
+            // planet.owner = gs().planets[wormholeTo].owner;
+            // gs().planets[wormholeTo].owner = msg.sender;
         }
 
         if (shouldDeactivateAndBurn) {

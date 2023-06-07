@@ -56,12 +56,22 @@ To run a local copy of thegraph make sure docker is installed and running, `yarn
   artifact logic & cooldown
 - eth\contracts\libraries\LibGameUtils.sol
   random find
+
+packages modified needed yarn build
+
+- packages\types\src\artifact.ts
+  enum types
+- packages\constants\src\index.ts
+  constants of artifacts
 - packages\renderer\TextureManager.ts
   artifact icon
 - packages\renderer\src\UIRenderer.ts
   artifact ui effects
 - packages\renderer\src\Renderer.ts
   extra artifact properties
+- packages\gamelogic\src\artifact.ts
+  artifact frontend properties like cooldown
+
 - client\src\Frontend\Panes\ManagePlanetArtifacts\ArtifactActions.tsx
   some special activate effects
 - client\src\Backend\GameLogic\GameUIManager.ts

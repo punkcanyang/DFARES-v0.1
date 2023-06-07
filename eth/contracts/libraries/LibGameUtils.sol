@@ -161,33 +161,41 @@ library LibGameUtils {
         Biome biome,
         SpaceType spaceType
     ) internal pure returns (ArtifactType, uint256) {
-        uint256 lastByteOfSeed = artifactSeed % 0x10F;
-        uint256 secondLastByteOfSeed = ((artifactSeed - lastByteOfSeed) / 256) % 0x10F;
+        uint256 lastByteOfSeed = artifactSeed % 0xFFF;
+        uint256 secondLastByteOfSeed = ((artifactSeed - lastByteOfSeed) / 0x1000) % 0xFFF;
 
         ArtifactType artifactType = ArtifactType.Pyramid;
 
-        if (lastByteOfSeed < 39) {
+        if (lastByteOfSeed < 256) {
             artifactType = ArtifactType.Monolith;
-        } else if (lastByteOfSeed < 78) {
+        } else if (lastByteOfSeed < 512) {
             artifactType = ArtifactType.Colossus;
         }
         // else if (lastByteOfSeed < 117) {
         //     artifactType = ArtifactType.Spaceship;
         // }
-        else if (lastByteOfSeed < 156) {
+        else if (lastByteOfSeed < 768) {
             artifactType = ArtifactType.Pyramid;
-        } else if (lastByteOfSeed < 171) {
+        } else if (lastByteOfSeed < 1024) {
             artifactType = ArtifactType.Wormhole;
-        } else if (lastByteOfSeed < 186) {
+        } else if (lastByteOfSeed < 1280) {
             artifactType = ArtifactType.PlanetaryShield;
-        } else if (lastByteOfSeed < 201) {
+        } else if (lastByteOfSeed < 1536) {
             artifactType = ArtifactType.PhotoidCannon;
-        } else if (lastByteOfSeed < 216) {
+        } else if (lastByteOfSeed < 1792) {
             artifactType = ArtifactType.BloomFilter;
-        } else if (lastByteOfSeed < 231) {
+        } else if (lastByteOfSeed < 2048) {
             artifactType = ArtifactType.BlackDomain;
-        } else if (lastByteOfSeed < 246) {
+        } else if (lastByteOfSeed < 2304) {
             artifactType = ArtifactType.FuckYou;
+        } else if (lastByteOfSeed < 2560) {
+            artifactType = ArtifactType.Bomb;
+        } else if (lastByteOfSeed < 2816) {
+            artifactType = ArtifactType.Doom;
+        } else if (lastByteOfSeed < 3072) {
+            artifactType = ArtifactType.BlindBox;
+        } else if (lastByteOfSeed < 3328) {
+            artifactType = ArtifactType.Avatar;
         } else {
             if (biome == Biome.Ice) {
                 artifactType = ArtifactType.PlanetaryShield;

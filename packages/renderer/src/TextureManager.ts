@@ -128,7 +128,8 @@ const biomeSpriteInfo = (): BiomeSpriteLocations => {
       }
     }
 
-    if (type === ArtifactType.FuckYou) {
+    if (type >= ArtifactType.FuckYou && type < ArtifactType.ShipMothership) {
+      //new added artifact use wormhole icon temporarily
       result[type] = result[ArtifactType.Wormhole];
     } else {
       result[type] = biomeInfo as BiomeToSprite;

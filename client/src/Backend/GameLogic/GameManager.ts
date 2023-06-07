@@ -25,6 +25,7 @@ import { getPlanetName } from '@darkforest_eth/procedural';
 import {
   artifactIdToDecStr,
   isUnconfirmedActivateArtifactTx,
+  isUnconfirmedBuyArtifactTx,
   isUnconfirmedBuyHatTx,
   isUnconfirmedCapturePlanetTx,
   isUnconfirmedDeactivateArtifactTx,
@@ -46,6 +47,7 @@ import {
   ArtifactId,
   ArtifactRarity,
   ArtifactType,
+  Biome,
   CaptureZone,
   Chunk,
   ClaimedCoords,
@@ -71,6 +73,7 @@ import {
   Transaction,
   TxIntent,
   UnconfirmedActivateArtifact,
+  UnconfirmedBuyArtifact,
   UnconfirmedBuyHat,
   UnconfirmedCapturePlanet,
   UnconfirmedClaimReward,
@@ -808,6 +811,11 @@ class GameManager extends EventEmitter {
             gameManager.hardRefreshArtifact(tx.intent.artifactId),
           ]);
         } else if (isUnconfirmedDeactivateArtifactTx(tx)) {
+          await Promise.all([
+            gameManager.hardRefreshPlanet(tx.intent.locationId),
+            gameManager.hardRefreshArtifact(tx.intent.artifactId),
+          ]);
+        } else if (isUnconfirmedBuyArtifactTx(tx)) {
           await Promise.all([
             gameManager.hardRefreshPlanet(tx.intent.locationId),
             gameManager.hardRefreshArtifact(tx.intent.artifactId),
@@ -2470,6 +2478,83 @@ class GameManager extends EventEmitter {
       return tx;
     } catch (e) {
       this.getNotificationsManager().txInitError('deactivateArtifact', e.message);
+      throw e;
+    }
+  }
+
+  public async buyArtifact(
+    locationId: LocationId,
+    rarity: ArtifactRarity,
+    biome: Biome,
+    type: ArtifactType,
+    bypassChecks = false
+  ): Promise<Transaction<UnconfirmedBuyArtifact>> {
+    try {
+      if (!bypassChecks) {
+        const planet = this.entityStore.getPlanetWithId(locationId);
+        if (!planet) {
+          throw new Error('tried to buy artifact on an unknown planet');
+        }
+      }
+
+      localStorage.setItem(`${this.getAccount()?.toLowerCase()}-buyArtifactOnPlanet`, locationId);
+      localStorage.setItem(
+        `${this.getAccount()?.toLowerCase()}-buyArtifactRarity`,
+        Number(rarity).toString()
+      );
+
+      // localStorage.setItem(`${this.getAccount()?.toLowerCase()}-buyArtifact`, artifactId);
+
+      function random256Id() {
+        const alphabet = '0123456789ABCDEF'.split('');
+        let result = '0x';
+        for (let i = 0; i < 256 / 4; i++) {
+          result += alphabet[Math.floor(Math.random() * alphabet.length)];
+        }
+
+        result = result.toLowerCase();
+        return result;
+      }
+
+      function price() {
+        if (rarity === ArtifactRarity.Common) return 1;
+        else if (rarity === ArtifactRarity.Rare) return 2;
+        else if (rarity === ArtifactRarity.Epic) return 4;
+        else if (rarity === ArtifactRarity.Legendary) return 8;
+        else return 0;
+      }
+      const artifactId: ArtifactId = random256Id() as ArtifactId;
+
+      const args = Promise.resolve([
+        {
+          tokenId: artifactId,
+          discoverer: this.account,
+          planetId: locationIdToDecStr(locationId),
+          rarity,
+          biome,
+          artifactType: type,
+          owner: this.account,
+          controller: '0x0000000000000000000000000000000000000000',
+        },
+      ]);
+
+      const txIntent: UnconfirmedBuyArtifact = {
+        methodName: 'buyArtifact',
+        contract: this.contractsAPI.contract,
+        args: args,
+        locationId,
+        artifactId,
+      };
+
+      // Always await the submitTransaction so we can catch rejections
+      const tx = await this.contractsAPI.submitTransaction(txIntent, {
+        gasLimit: 500000 * 4,
+        value: bigInt(1000000000000000000).multiply(price()).toString(),
+      });
+
+      return tx;
+    } catch (e) {
+      this.getNotificationsManager().txInitError('buyArtifact', e.message);
       throw e;
     }
   }

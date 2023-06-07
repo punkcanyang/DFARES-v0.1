@@ -8,6 +8,8 @@ import { isUnconfirmedMoveTx } from '@darkforest_eth/serde';
 import {
   Artifact,
   ArtifactId,
+  ArtifactRarity,
+  ArtifactType,
   BaseRenderer,
   Biome,
   Chunk,
@@ -399,6 +401,18 @@ class GameUIManager extends EventEmitter {
     if (!confirm(confirmationText)) return;
 
     this.gameManager.deactivateArtifact(locationId, artifactId);
+  }
+
+  public buyArtifact(
+    locationId: LocationId,
+    rarity: ArtifactRarity,
+    biome: Biome,
+    type: ArtifactType
+  ) {
+    this.terminal.current?.printShellLn(
+      `df.buyArtifact('${locationId}','${rarity}','${biome}','${type}')`
+    );
+    this.gameManager.buyArtifact(locationId, rarity, biome, type);
   }
 
   public withdrawSilver(locationId: LocationId, amount: number) {

@@ -16,6 +16,7 @@ export type ContractMethodName =
   | 'withdrawArtifact'
   | 'activateArtifact'
   | 'deactivateArtifact'
+  | 'buyArtifact'
   | 'withdrawSilver'
   | 'useKey'
   | 'adminUseKey'
@@ -152,6 +153,15 @@ export type UnconfirmedActivateArtifact = TxIntent & {
  */
 export type UnconfirmedDeactivateArtifact = TxIntent & {
   methodName: 'deactivateArtifact';
+  locationId: LocationId;
+  artifactId: ArtifactId;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedBuyArtifact = TxIntent & {
+  methodName: 'buyArtifact';
   locationId: LocationId;
   artifactId: ArtifactId;
 };

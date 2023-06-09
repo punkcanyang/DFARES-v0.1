@@ -110,7 +110,7 @@ export function decodeArtifact(rawArtifactWithMetadata: RawArtifactWithMetadata)
     lastActivated: artifact.lastActivated.toNumber(),
     lastDeactivated: artifact.lastDeactivated.toNumber(),
     controller: address(artifact.controller),
-    wormholeTo: artifact.wormholeTo.eq(0) ? undefined : locationIdFromEthersBN(artifact.wormholeTo),
+    linkTo: artifact.linkTo.eq(0) ? undefined : locationIdFromEthersBN(artifact.linkTo),
     currentOwner: address(owner),
     upgrade: decodeUpgrade(upgrade),
     timeDelayedUpgrade: decodeUpgrade(timeDelayedUpgrade),

@@ -74,6 +74,11 @@ export function ArtifactActions({
           targetPlanetId = targetPlanet?.locationId;
         }
 
+        if (artifact.artifactType === ArtifactType.IceLink) {
+          const targetPlanet = await uiManager.startIceLinkFrom(onPlanet);
+          targetPlanetId = targetPlanet?.locationId;
+        }
+
         uiManager.activateArtifact(onPlanet.locationId, artifact.id, targetPlanetId);
       }
     },

@@ -144,7 +144,7 @@ export type UnconfirmedActivateArtifact = TxIntent & {
   methodName: 'activateArtifact';
   locationId: LocationId;
   artifactId: ArtifactId;
-  wormholeTo?: LocationId;
+  linkTo?: LocationId;
 };
 
 /**

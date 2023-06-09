@@ -52,6 +52,7 @@ import {
   ClaimedLocation,
   Diagnostics,
   EthAddress,
+  Link,
   LocatablePlanet,
   LocationId,
   NetworkHealthSummary,
@@ -90,7 +91,6 @@ import {
   VoyageId,
   WorldCoords,
   WorldLocation,
-  Wormhole,
 } from '@darkforest_eth/types';
 import bigInt, { BigInteger } from 'big-integer';
 import delay from 'delay';
@@ -1545,10 +1545,10 @@ class GameManager extends EventEmitter {
     return this.entityStore.transactions.getTransactions(isUnconfirmedUpgradeTx);
   }
 
-  getUnconfirmedWormholeActivations(): Transaction<UnconfirmedActivateArtifact>[] {
+  getUnconfirmedLinkActivations(): Transaction<UnconfirmedActivateArtifact>[] {
     return this.entityStore.transactions
       .getTransactions(isUnconfirmedActivateArtifactTx)
-      .filter((tx) => tx.intent.wormholeTo !== undefined);
+      .filter((tx) => tx.intent.linkTo !== undefined);
   }
 
   /**
@@ -2393,7 +2393,7 @@ class GameManager extends EventEmitter {
   public async activateArtifact(
     locationId: LocationId,
     artifactId: ArtifactId,
-    wormholeTo: LocationId | undefined,
+    linkTo: LocationId | undefined,
     bypassChecks = false
   ): Promise<Transaction<UnconfirmedActivateArtifact>> {
     try {
@@ -2423,15 +2423,20 @@ class GameManager extends EventEmitter {
         args: Promise.resolve([
           locationIdToDecStr(locationId),
           artifactIdToDecStr(artifactId),
-          wormholeTo ? locationIdToDecStr(wormholeTo) : '0',
+          linkTo ? locationIdToDecStr(linkTo) : '0',
         ]),
         locationId,
         artifactId,
-        wormholeTo,
+        linkTo,
       };
 
       // Always await the submitTransaction so we can catch rejections
       const tx = await this.contractsAPI.submitTransaction(txIntent);
+
+      linkTo &&
+        tx.confirmedPromise.then(() => {
+          this.hardRefreshPlanet(linkTo);
+        });
 
       return tx;
     } catch (e) {
@@ -3043,7 +3048,7 @@ class GameManager extends EventEmitter {
 
   /**
    * Gets the distance between two planets. Throws an exception if you don't
-   * know the location of either planet. Takes into account wormholes.
+   * know the location of either planet. Takes into account links.
    */
   getDist(fromId: LocationId, toId: LocationId): number {
     const from = this.entityStore.getPlanetWithId(fromId);
@@ -3182,14 +3187,14 @@ class GameManager extends EventEmitter {
 
     if (
       fromActiveArtifact?.artifactType === ArtifactType.Wormhole &&
-      fromActiveArtifact.wormholeTo === toPlanet.locationId
+      fromActiveArtifact.linkTo === toPlanet.locationId
     ) {
       greaterRarity = fromActiveArtifact.rarity;
     }
 
     if (
       toActiveArtifact?.artifactType === ArtifactType.Wormhole &&
-      toActiveArtifact.wormholeTo === fromPlanet.locationId
+      toActiveArtifact.linkTo === fromPlanet.locationId
     ) {
       if (greaterRarity === undefined) {
         greaterRarity = toActiveArtifact.rarity;
@@ -3320,8 +3325,8 @@ class GameManager extends EventEmitter {
     return NotificationManager.getInstance();
   }
 
-  getWormholes(): Iterable<Wormhole> {
-    return this.entityStore.getWormholes();
+  getLinks(): Iterable<Link> {
+    return this.entityStore.getLinks();
   }
 
   /** Return a reference to the planet map */
@@ -3383,7 +3388,7 @@ class GameManager extends EventEmitter {
 
   /**
    * Gets a reference to the game's internal representation of the world state. This includes
-   * voyages, planets, artifacts, and active wormholes,
+   * voyages, planets, artifacts, and active links,
    */
   public getGameObjects(): GameObjects {
     return this.entityStore;

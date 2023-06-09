@@ -191,15 +191,15 @@ contract DFArtifactFacet is WithStorage, ERC721 {
     function activateArtifact(
         uint256 locationId,
         uint256 artifactId,
-        uint256 wormholeTo
+        uint256 linkTo
     ) public notPaused {
         LibPlanet.refreshPlanet(locationId);
 
-        if (wormholeTo != 0) {
-            LibPlanet.refreshPlanet(wormholeTo);
+        if (linkTo != 0) {
+            LibPlanet.refreshPlanet(linkTo);
         }
 
-        LibArtifactUtils.activateArtifact(locationId, artifactId, wormholeTo);
+        LibArtifactUtils.activateArtifact(locationId, artifactId, linkTo);
         // event is emitted in the above library function
     }
 

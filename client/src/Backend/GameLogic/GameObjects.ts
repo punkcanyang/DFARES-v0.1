@@ -42,6 +42,7 @@ import {
   Chunk,
   ClaimedLocation,
   EthAddress,
+  Link,
   LocatablePlanet,
   LocationId,
   Planet,
@@ -56,7 +57,6 @@ import {
   VoyageId,
   WorldCoords,
   WorldLocation,
-  Wormhole,
 } from '@darkforest_eth/types';
 import autoBind from 'auto-bind';
 import bigInt from 'big-integer';
@@ -138,9 +138,9 @@ export class GameObjects {
   private readonly myArtifacts: Map<ArtifactId, Artifact>;
 
   /**
-   * Map from artifact ids to wormholes.
+   * Map from artifact ids to links.
    */
-  private readonly wormholes: Map<ArtifactId, Wormhole>;
+  private readonly links: Map<ArtifactId, Link>;
 
   /**
    * Set of all planet ids that we know have been interacted-with on-chain.
@@ -253,7 +253,7 @@ export class GameObjects {
     const planetArrivalIds = new Map();
     const arrivals = new Map();
     this.transactions = new TxCollection();
-    this.wormholes = new Map();
+    this.links = new Map();
     this.layeredMap = new LayeredMap(worldRadius);
 
     this.planetUpdated$ = monomitter();
@@ -336,8 +336,8 @@ export class GameObjects {
     }, 120 * 1000);
   }
 
-  public getWormholes(): Iterable<Wormhole> {
-    return this.wormholes.values();
+  public getLinks(): Iterable<Link> {
+    return this.links.values();
   }
 
   public getArtifactById(artifactId?: ArtifactId): Artifact | undefined {
@@ -1034,13 +1034,13 @@ export class GameObjects {
    */
   private setArtifact(artifact: Artifact) {
     if (artifact.artifactType === ArtifactType.Wormhole && artifact.onPlanetId) {
-      if (artifact.wormholeTo && isActivated(artifact)) {
-        this.wormholes.set(artifact.id, {
+      if (artifact.linkTo && isActivated(artifact)) {
+        this.links.set(artifact.id, {
           from: artifact.onPlanetId,
-          to: artifact.wormholeTo,
+          to: artifact.linkTo,
         });
       } else {
-        this.wormholes.delete(artifact.id);
+        this.links.delete(artifact.id);
       }
     }
 
@@ -1396,6 +1396,7 @@ export class GameObjects {
       prospectedBlockNumber: undefined,
       heldArtifactIds: [],
       destroyed: false,
+      frozen: false,
       isInContract: this.touchedPlanetIds.has(hex),
       syncedWithContract: false,
       needsServerRefresh: false,

@@ -144,14 +144,16 @@ export class Overlay2DRenderer {
 
     ctx.globalAlpha = hovering ? 0.3 : 1;
 
-    ctx.fillStyle = fill1;
-    for (const pathStr of hat.bottomLayer) {
-      ctx.fill(new Path2D(pathStr));
-    }
+    if (hat.legacy) {
+      ctx.fillStyle = fill1;
+      for (const pathStr of hat.bottomLayer) {
+        ctx.fill(new Path2D(pathStr));
+      }
 
-    ctx.fillStyle = fill2;
-    for (const pathStr of hat.topLayer) {
-      ctx.fill(new Path2D(pathStr));
+      ctx.fillStyle = fill2;
+      for (const pathStr of hat.topLayer) {
+        ctx.fill(new Path2D(pathStr));
+      }
     }
 
     ctx.globalAlpha = 1;

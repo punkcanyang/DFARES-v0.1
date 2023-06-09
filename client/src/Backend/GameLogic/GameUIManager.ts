@@ -99,6 +99,7 @@ class GameUIManager extends EventEmitter {
    */
   private isChoosingTargetPlanet = false;
   private isFuckingYou = false;
+  private isBombing = false;
   private onChooseTargetPlanet?: (planet: LocatablePlanet | undefined) => void;
   // TODO: Remove later and just use minerLocations array
   private minerLocation: WorldCoords | undefined;
@@ -441,6 +442,20 @@ class GameUIManager extends EventEmitter {
     return promise;
   }
 
+  public startBombFrom(planet: LocatablePlanet): Promise<LocatablePlanet | undefined> {
+    //bomb immediately or wait for arrival?
+    this.isChoosingTargetPlanet = true;
+    this.isBombing = true;
+    this.mouseDownOverCoords = planet.location.coords;
+    this.mouseDownOverPlanet = planet;
+
+    const { resolve, promise } = deferred<LocatablePlanet | undefined>();
+
+    this.onChooseTargetPlanet = resolve;
+
+    return promise;
+  }
+
   public revealLocation(locationId: LocationId) {
     this.gameManager.revealLocation(locationId);
   }
@@ -468,6 +483,10 @@ class GameUIManager extends EventEmitter {
 
   getIsFuckingYou() {
     return this.isFuckingYou;
+  }
+
+  getIsBombing() {
+    return this.isBombing;
   }
 
   public onMouseDown(coords: WorldCoords) {

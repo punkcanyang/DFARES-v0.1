@@ -79,6 +79,11 @@ export function ArtifactActions({
           targetPlanetId = targetPlanet?.locationId;
         }
 
+        if (artifact.artifactType === ArtifactType.Bomb) {
+          const targetPlanet = await uiManager.startBombFrom(onPlanet);
+          targetPlanetId = targetPlanet?.locationId;
+        }
+
         uiManager.activateArtifact(onPlanet.locationId, artifact.id, targetPlanetId);
       }
     },

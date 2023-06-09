@@ -68,9 +68,14 @@ packages modified needed yarn build
 - packages\renderer\src\UIRenderer.ts
   artifact ui effects
 - packages\renderer\src\Renderer.ts
-  extra artifact properties
+  render methods extra artifact properties
+- packages\renderer\src\Overlay2DRenderer.ts
+  render hats
 - packages\gamelogic\src\artifact.ts
   artifact frontend properties like cooldown
+
+- packages\renderer\src\EngineConsts.ts
+  colors
 
 - client\src\Frontend\Panes\ManagePlanetArtifacts\ArtifactActions.tsx
   some special activate effects

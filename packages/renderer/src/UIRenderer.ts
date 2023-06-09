@@ -12,7 +12,7 @@ import { engineConsts } from './EngineConsts';
 import { Renderer } from './Renderer';
 import { GameGLManager } from './WebGL/GameGLManager';
 
-const { orangeA, red, redA, white, whiteA, purpleA } = engineConsts.colors;
+const { orangeA, red, redA, white, whiteA, purpleA, greenA } = engineConsts.colors;
 
 export class UIRenderer implements UIRendererType {
   renderer: Renderer;
@@ -31,7 +31,12 @@ export class UIRenderer implements UIRendererType {
   }
 
   queueMousePath() {
-    const { context: uiManager, lineRenderer: lR, textRenderer: tR } = this.renderer;
+    const {
+      context: uiManager,
+      lineRenderer: lR,
+      textRenderer: tR,
+      circleRenderer: cR,
+    } = this.renderer;
     const mouseDownPlanet = uiManager.getMouseDownPlanet();
     const loc = mouseDownPlanet
       ? uiManager.getLocationOfPlanet(mouseDownPlanet.locationId)
@@ -43,10 +48,21 @@ export class UIRenderer implements UIRendererType {
 
     if (mouseDownPlanet && from && to) {
       if (uiManager.getIsChoosingTargetPlanet()) {
-        const showText = uiManager.getIsFuckingYou() ? `Fuck Target` : `Wormhole Target`;
-        const lineColor = uiManager.getIsFuckingYou() ? redA : purpleA;
+        const showText = uiManager.getIsFuckingYou()
+          ? `Fuck Target`
+          : uiManager.getIsBombing()
+          ? 'Bomb Target'
+          : `Wormhole Target`;
+        const lineColor = uiManager.getIsFuckingYou()
+          ? greenA
+          : uiManager.getIsBombing()
+          ? redA
+          : purpleA;
         lR.queueLineWorld(from, to, lineColor, 2, RenderZIndex.Voyages);
         tR.queueTextWorld(showText, { x: to.x, y: to.y }, lineColor);
+        if (uiManager.getIsBombing()) {
+          cR.queueCircleWorld(to, 60, redA, 2);
+        }
       } else {
         const myPlanet = uiManager.getPlanetWithCoords(from);
         if (myPlanet && isLocatable(myPlanet) && to !== from) {

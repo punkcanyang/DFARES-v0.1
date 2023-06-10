@@ -154,6 +154,7 @@ export type UnconfirmedDeactivateArtifact = TxIntent & {
   methodName: 'deactivateArtifact';
   locationId: LocationId;
   artifactId: ArtifactId;
+  linkTo: LocationId | undefined;
 };
 
 /**

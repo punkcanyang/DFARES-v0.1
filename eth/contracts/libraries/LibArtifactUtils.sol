@@ -307,13 +307,13 @@ library LibArtifactUtils {
             "you must own the planet you are deactivating an artifact on"
         );
 
-        require(!gs().planets[locationId].destroyed, "planet is destroyed");
+        require(!planet.destroyed, "planet is destroyed");
         Artifact memory artifact = LibGameUtils.getActiveArtifact(locationId);
 
         require(artifact.isInitialized, "this artifact is not activated on this planet");
 
         if (artifact.artifactType != ArtifactType.IceLink) {
-            require(artifact.artifactType == ArtifactType.IceLink, "planet is frozen");
+            require(!planet.frozen, "planet is frozen");
         } else {
             Planet storage toPlanet = gs().planets[artifact.linkTo];
             planet.frozen = false;

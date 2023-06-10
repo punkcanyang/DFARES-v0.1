@@ -1044,6 +1044,17 @@ export class GameObjects {
       }
     }
 
+    if (artifact.artifactType === ArtifactType.IceLink && artifact.onPlanetId) {
+      if (artifact.linkTo && isActivated(artifact)) {
+        this.links.set(artifact.id, {
+          from: artifact.onPlanetId,
+          to: artifact.linkTo,
+        });
+      } else {
+        this.links.delete(artifact.id);
+      }
+    }
+
     setObjectSyncState<Artifact, ArtifactId>(
       this.artifacts,
       this.myArtifacts,

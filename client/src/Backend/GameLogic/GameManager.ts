@@ -811,6 +811,7 @@ class GameManager extends EventEmitter {
           await Promise.all([
             gameManager.hardRefreshPlanet(tx.intent.locationId),
             gameManager.hardRefreshArtifact(tx.intent.artifactId),
+            gameManager.hardRefreshPlanet(tx.intent.linkTo),
           ]);
         } else if (isUnconfirmedWithdrawSilverTx(tx)) {
           await gameManager.softRefreshPlanet(tx.intent.locationId);
@@ -890,7 +891,8 @@ class GameManager extends EventEmitter {
     this.entityStore.replacePlanetFromContractData(planet);
   }
 
-  public async hardRefreshPlanet(planetId: LocationId): Promise<void> {
+  public async hardRefreshPlanet(planetId: LocationId | undefined): Promise<void> {
+    if (planetId === undefined) return;
     const planet = await this.contractsAPI.getPlanetById(planetId);
     if (!planet) return;
     const arrivals = await this.contractsAPI.getArrivalsForPlanet(planetId);
@@ -2461,12 +2463,15 @@ class GameManager extends EventEmitter {
       localStorage.setItem(`${this.getAccount()?.toLowerCase()}-deactivatePlanet`, locationId);
       localStorage.setItem(`${this.getAccount()?.toLowerCase()}-deactivateArtifact`, artifactId);
 
+      const artifact = this.entityStore.getArtifactById(artifactId);
+
       const txIntent: UnconfirmedDeactivateArtifact = {
         methodName: 'deactivateArtifact',
         contract: this.contractsAPI.contract,
         args: Promise.resolve([locationIdToDecStr(locationId)]),
         locationId,
         artifactId,
+        linkTo: artifact!.linkTo,
       };
 
       // Always await the submitTransaction so we can catch rejections

@@ -1192,6 +1192,10 @@ class GameUIManager extends EventEmitter {
     return this.gameManager.getLocationOfPlanet(planetId);
   }
 
+  public getActiveArtifact(planet: Planet): Artifact | undefined {
+    return this.gameManager.getActiveArtifact(planet);
+  }
+
   public getExploredChunks(): Iterable<Chunk> {
     return this.gameManager.getExploredChunks();
   }

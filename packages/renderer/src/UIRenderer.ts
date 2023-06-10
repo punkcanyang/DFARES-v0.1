@@ -50,7 +50,7 @@ export class UIRenderer implements UIRendererType {
         let lineColor = purpleA;
 
         if (artifactType === ArtifactType.IceLink) {
-          showText = 'Ice Link Target';
+          showText = 'IceLink Target';
           lineColor = blueA;
         }
 

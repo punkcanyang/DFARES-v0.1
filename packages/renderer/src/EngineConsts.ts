@@ -28,8 +28,8 @@ export const engineConsts = {
     whiteA: [255, 255, 255, 255] as RGBAVec,
     purpleA: [255, 0, 255, 255] as RGBAVec,
     purple: [255, 0, 255] as RGBVec,
-    blueA: [137, 207, 240, 255] as RGBAVec,
-    blue: [137, 207, 240] as RGBVec,
+    blueA: [0, 255, 255, 255] as RGBAVec,
+    blue: [0, 255, 255] as RGBVec,
     red: [255, 0, 0] as RGBVec,
     redA: [255, 0, 0, 255] as RGBAVec,
     range: {

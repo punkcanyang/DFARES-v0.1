@@ -119,6 +119,7 @@ export interface RendererGameContext extends DiagnosticUpdater {
   getMouseDownPlanet(): LocatablePlanet | undefined;
   getLocationsAndChunks(): { chunks: Set<Chunk>; cachedPlanets: Map<LocationId, PlanetRenderInfo> };
   getLocationOfPlanet(planetId: LocationId): WorldLocation | undefined;
+  getActiveArtifact(planet: Planet): Artifact | undefined;
   getPlanetWithId(planetId: LocationId | undefined): Planet | undefined;
   getAccount(): EthAddress | undefined;
   getAllVoyages(): QueuedArrival[];

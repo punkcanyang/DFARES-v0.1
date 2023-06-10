@@ -1,8 +1,14 @@
-import { LinkRendererType, LocationId, RendererType, RenderZIndex } from '@darkforest_eth/types';
+import {
+  ArtifactType,
+  LinkRendererType,
+  LocationId,
+  RendererType,
+  RenderZIndex,
+} from '@darkforest_eth/types';
 import { engineConsts } from '../EngineConsts';
 import { Renderer } from '../Renderer';
 import { GameGLManager } from '../WebGL/GameGLManager';
-const { purpleA } = engineConsts.colors;
+const { purpleA, blueA } = engineConsts.colors;
 
 export class LinkRenderer implements LinkRendererType {
   renderer: Renderer;
@@ -37,14 +43,27 @@ export class LinkRenderer implements LinkRendererType {
     const fromPlanet = gameUIManager.getPlanetWithId(from);
     const toLoc = gameUIManager.getLocationOfPlanet(to);
     const toPlanet = gameUIManager.getPlanetWithId(to);
+
     if (!fromPlanet || !fromLoc || !toLoc || !toPlanet) {
       return;
+    }
+
+    const artifact = gameUIManager.getActiveArtifact(fromPlanet);
+
+    if (!artifact) {
+      return;
+    }
+
+    let lineColor = purpleA;
+
+    if (artifact.artifactType === ArtifactType.IceLink) {
+      lineColor = blueA;
     }
 
     this.renderer.lineRenderer.queueLineWorld(
       fromLoc.coords,
       toLoc.coords,
-      purpleA,
+      lineColor,
       confirmed ? 2 : 1,
       RenderZIndex.Voyages,
       confirmed ? false : true

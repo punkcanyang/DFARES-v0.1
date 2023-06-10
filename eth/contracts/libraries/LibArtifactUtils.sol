@@ -271,6 +271,11 @@ library LibArtifactUtils {
                 2 * uint256(artifact.rarity) >= planet.planetLevel,
                 "artifact is not powerful enough to apply effect to this planet level"
             );
+            require(
+                planet.population > (planet.populationCap * 9) / 10,
+                "from planet energy need gt 90%"
+            );
+
             planet.owner = gs().planets[wormholeTo].owner;
             gs().planets[wormholeTo].owner = msg.sender;
             shouldDeactivateAndBurn = true;

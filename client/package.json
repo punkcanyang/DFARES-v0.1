@@ -32,7 +32,6 @@
     "emoji-picker-react": "^3.4.8",
     "ethers": "^5.5.1",
     "events": "^3.0.0",
-    "fabric": "^6.0.0-beta8",
     "fastq": "^1.10.0",
     "file-saver": "^2.0.5",
     "gl-matrix": "^3.3.0",

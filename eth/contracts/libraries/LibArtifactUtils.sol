@@ -365,7 +365,10 @@ library LibArtifactUtils {
         );
         require(!isSpaceship(artifact.artifactType), "cannot deposit spaceships");
 
-        require(gs().planetArtifacts[locationId].length < 5, "too many artifacts on this planet");
+        require(
+            gs().planetArtifacts[locationId].length < gameConstants().MAX_ARTIFACT_PER_PLANET,
+            "too many artifacts on this planet"
+        );
 
         LibGameUtils._putArtifactOnPlanet(artifactId, locationId);
 

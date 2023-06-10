@@ -539,6 +539,8 @@ library LibGameUtils {
         uint8 arrivalsFromOwner = 0;
         uint8 arrivalsFromOthers = 0;
 
+        uint8 arrivalArtifacts = 0;
+
         for (uint8 i = 0; i < gs().planetEvents[locationId].length; i++) {
             if (gs().planetEvents[locationId][i].eventType == PlanetEventType.ARRIVAL) {
                 if (
@@ -549,15 +551,37 @@ library LibGameUtils {
                 } else {
                     arrivalsFromOthers++;
                 }
+
+                //pending arrival artifacts count
+                if (
+                    gs().planetArrivals[gs().planetEvents[locationId][i].id].carriedArtifactId != 0
+                ) {
+                    arrivalArtifacts++;
+                }
             }
         }
         if (sender == gs().planets[locationId].owner) {
-            require(arrivalsFromOwner < 6, "Planet is rate-limited");
+            require(
+                arrivalsFromOwner < gameConstants().MAX_RECEIVING_PLANET,
+                "Planet is rate-limited"
+            );
         } else {
-            require(arrivalsFromOthers < 6, "Planet is rate-limited");
+            require(
+                arrivalsFromOthers < gameConstants().MAX_RECEIVING_PLANET,
+                "Planet is rate-limited"
+            );
         }
 
-        require(arrivalsFromOwner + arrivalsFromOthers < 12, "Planet is rate-limited");
+        require(
+            arrivalsFromOwner + arrivalsFromOthers < gameConstants().MAX_RECEIVING_PLANET * 2,
+            "Planet is rate-limited"
+        );
+
+        require(
+            arrivalArtifacts + gs().planetArtifacts[locationId].length <
+                gameConstants().MAX_ARTIFACT_PER_PLANET,
+            "Planet's artifacts are rate-limited"
+        );
     }
 
     function updateWorldRadius() public {

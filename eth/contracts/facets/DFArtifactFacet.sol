@@ -350,8 +350,10 @@ contract DFArtifactFacet is WithStorage, ERC721 {
         else if(args.rarity == ArtifactRarity.Epic) cost = 4 ether;
         else if(args.rarity == ArtifactRarity.Legendary) cost = 8 ether;
 
-
         require(msg.value == cost, "Wrong value sent");
+
+        uint256 id = uint256(keccak256(abi.encodePacked(args.planetId, gs().miscNonce++)));
+        args.tokenId = id;
 
         Artifact memory artifact = createArtifactToSell(args);
         transferArtifactToSell(artifact.id, address(this));

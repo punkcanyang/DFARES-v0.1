@@ -133,12 +133,15 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
     }
 
     if (!disableHats) {
-      this.queueHat(planet, planet.location.coords, renderInfo.radii.radiusWorld);
-      this.queueNewHat(
-        planet.location.coords,
-        renderInfo.radii.radiusWorld * 2,
-        artifacts.find((a) => a.lastActivated > a.lastDeactivated)
+      const activatedAvatar = artifacts.find(
+        (a) => a.artifactType === ArtifactType.Avatar && a.lastActivated > a.lastDeactivated
       );
+
+      if (activatedAvatar) {
+        this.queueNewHat(planet.location.coords, renderInfo.radii.radiusWorld * 2, activatedAvatar);
+      } else {
+        this.queueHat(planet, planet.location.coords, renderInfo.radii.radiusWorld);
+      }
     }
 
     /* draw text */
@@ -430,9 +433,9 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
       this.renderer.overlay2dRenderer.drawNewHat(
         this.newHats[avatarType],
         center,
-        1.2 * 2 ** (artifact.rarity - 1) * radius,
-        1.2 * 2 ** (artifact.rarity - 1) * radius,
-        2 ** (artifact.rarity - 1) * radius,
+        radius === 1 ? 3 : 1.2 * 2 ** (artifact.rarity - 1) * radius,
+        radius === 1 ? 3 : 1.2 * 2 ** (artifact.rarity - 1) * radius,
+        radius === 1 ? 2 : 2 ** (artifact.rarity - 1) * radius,
         hoveringPlanet,
         hoverCoords
       );

@@ -6,6 +6,8 @@ import { TxCollection } from '@darkforest_eth/network';
 import {
   isUnconfirmedActivateArtifact,
   isUnconfirmedActivateArtifactTx,
+  isUnconfirmedBuyArtifact,
+  isUnconfirmedBuyArtifactTx,
   isUnconfirmedBuyHat,
   isUnconfirmedBuyHatTx,
   isUnconfirmedCapturePlanetTx,
@@ -773,6 +775,17 @@ export class GameObjects {
         artifact.transactions?.addTransaction(tx);
         this.setArtifact(artifact);
       }
+    } else if (isUnconfirmedBuyArtifactTx(tx)) {
+      const planet = this.getPlanetWithId(tx.intent.locationId);
+      const artifact = this.getArtifactById(tx.intent.artifactId);
+      if (planet) {
+        planet.transactions?.addTransaction(tx);
+        this.setPlanet(planet);
+      }
+      if (artifact) {
+        artifact.transactions?.addTransaction(tx);
+        this.setArtifact(artifact);
+      }
     } else if (isUnconfirmedWithdrawSilverTx(tx)) {
       const planet = this.getPlanetWithId(tx.intent.locationId);
       if (planet) {
@@ -894,6 +907,17 @@ export class GameObjects {
         this.setArtifact(artifact);
       }
     } else if (isUnconfirmedDeactivateArtifact(tx.intent)) {
+      const planet = this.getPlanetWithId(tx.intent.locationId);
+      const artifact = this.getArtifactById(tx.intent.artifactId);
+      if (planet) {
+        planet.transactions?.removeTransaction(tx);
+        this.setPlanet(planet);
+      }
+      if (artifact) {
+        artifact.transactions?.removeTransaction(tx);
+        this.setArtifact(artifact);
+      }
+    } else if (isUnconfirmedBuyArtifact(tx.intent)) {
       const planet = this.getPlanetWithId(tx.intent.locationId);
       const artifact = this.getArtifactById(tx.intent.artifactId);
       if (planet) {

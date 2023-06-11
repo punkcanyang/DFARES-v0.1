@@ -972,11 +972,14 @@ class GameManager extends EventEmitter {
 
   public async hardRefreshArtifact(artifactId: ArtifactId): Promise<void> {
     const oldArtifact = this.getArtifactWithId(artifactId);
-    await this.hardRefreshPlanet(oldArtifact?.linkTo);
+    if (!oldArtifact) return;
+    if (oldArtifact.artifactType === ArtifactType.IceLink)
+      await this.hardRefreshPlanet(oldArtifact.linkTo);
 
     const artifact = await this.contractsAPI.getArtifactById(artifactId);
     if (!artifact) return;
-    await this.hardRefreshPlanet(artifact.linkTo);
+    if (oldArtifact.artifactType === ArtifactType.IceLink)
+      await this.hardRefreshPlanet(artifact.linkTo);
     this.entityStore.replaceArtifactFromContractData(artifact);
   }
 

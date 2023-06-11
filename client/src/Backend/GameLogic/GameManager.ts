@@ -806,6 +806,7 @@ class GameManager extends EventEmitter {
           await Promise.all([
             gameManager.hardRefreshPlanet(tx.intent.locationId),
             gameManager.hardRefreshArtifact(tx.intent.artifactId),
+            gameManager.hardRefreshPlanet(tx.intent.linkTo),
           ]);
         } else if (isUnconfirmedDeactivateArtifactTx(tx)) {
           await Promise.all([
@@ -970,8 +971,12 @@ class GameManager extends EventEmitter {
   }
 
   public async hardRefreshArtifact(artifactId: ArtifactId): Promise<void> {
+    const oldArtifact = this.getArtifactWithId(artifactId);
+    await this.hardRefreshPlanet(oldArtifact?.linkTo);
+
     const artifact = await this.contractsAPI.getArtifactById(artifactId);
     if (!artifact) return;
+    await this.hardRefreshPlanet(artifact.linkTo);
     this.entityStore.replaceArtifactFromContractData(artifact);
   }
 
@@ -2450,6 +2455,7 @@ class GameManager extends EventEmitter {
   public async deactivateArtifact(
     locationId: LocationId,
     artifactId: ArtifactId,
+    linkTo: LocationId | undefined,
     bypassChecks = false
   ): Promise<Transaction<UnconfirmedDeactivateArtifact>> {
     try {
@@ -2463,15 +2469,13 @@ class GameManager extends EventEmitter {
       localStorage.setItem(`${this.getAccount()?.toLowerCase()}-deactivatePlanet`, locationId);
       localStorage.setItem(`${this.getAccount()?.toLowerCase()}-deactivateArtifact`, artifactId);
 
-      const artifact = this.entityStore.getArtifactById(artifactId);
-
       const txIntent: UnconfirmedDeactivateArtifact = {
         methodName: 'deactivateArtifact',
         contract: this.contractsAPI.contract,
         args: Promise.resolve([locationIdToDecStr(locationId)]),
         locationId,
         artifactId,
-        linkTo: artifact!.linkTo,
+        linkTo,
       };
 
       // Always await the submitTransaction so we can catch rejections

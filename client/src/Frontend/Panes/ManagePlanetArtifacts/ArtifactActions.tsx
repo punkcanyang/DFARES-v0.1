@@ -87,7 +87,7 @@ export function ArtifactActions({
 
   const deactivate = useCallback(
     (artifact: Artifact) => {
-      onPlanet && uiManager.deactivateArtifact(onPlanet.locationId, artifact.id);
+      onPlanet && uiManager.deactivateArtifact(onPlanet.locationId, artifact.id, artifact.linkTo);
     },
     [onPlanet, uiManager]
   );

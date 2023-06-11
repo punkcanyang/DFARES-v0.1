@@ -395,7 +395,11 @@ class GameUIManager extends EventEmitter {
     this.gameManager.activateArtifact(locationId, id, linkTo);
   }
 
-  public deactivateArtifact(locationId: LocationId, artifactId: ArtifactId) {
+  public deactivateArtifact(
+    locationId: LocationId,
+    artifactId: ArtifactId,
+    linkTo: LocationId | undefined
+  ) {
     const confirmationText =
       `Are you sure you want to deactivate this artifact? ` +
       `After deactivation, you must wait for a long cooldown` +
@@ -403,7 +407,7 @@ class GameUIManager extends EventEmitter {
 
     if (!confirm(confirmationText)) return;
 
-    this.gameManager.deactivateArtifact(locationId, artifactId);
+    this.gameManager.deactivateArtifact(locationId, artifactId, linkTo);
   }
 
   public withdrawSilver(locationId: LocationId, amount: number) {

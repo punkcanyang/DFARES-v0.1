@@ -7,7 +7,8 @@ export type Hat = {
   // image?: () => Promise<HTMLImageElement>;
 };
 
-const URL = 'http://localhost:8081';
+// const URL = 'http://localhost:8081';
+const URL = 'https://dfares.xyz/public';
 
 const santaHat = {
   legacy: true,
@@ -236,7 +237,7 @@ const MarrowDAO = {
 
 const OrdenGG = {
   legacy: false,
-  topLayer: [URL + '/img/logo/MarrowDAO.png'],
+  topLayer: [URL + '/img/logo/OrdenGG.png'],
   bottomLayer: [],
 };
 

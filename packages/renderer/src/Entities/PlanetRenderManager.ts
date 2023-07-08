@@ -139,7 +139,7 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
       );
     }
 
-    if (!disableHats) {
+    if (!disableHats && planet.canShow) {
       const activatedAvatar = artifacts.find(
         (a) => a.artifactType === ArtifactType.Avatar && a.lastActivated > a.lastDeactivated
       );

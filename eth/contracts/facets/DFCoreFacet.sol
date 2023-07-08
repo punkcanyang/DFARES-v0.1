@@ -244,6 +244,12 @@ contract DFCoreFacet is WithStorage {
         );
     }
 
+    function setPlanetCanShow(uint256 _location, bool _canShow) public onlyAdmin {
+        require(gs().planets[_location].isInitialized == true, "Planet is not initialized");
+        refreshPlanet(_location);
+        gs().planets[_location].canShow = _canShow;
+    }
+
     // withdraw silver
     function withdrawSilver(uint256 locationId, uint256 amount) public notPaused {
         refreshPlanet(locationId);

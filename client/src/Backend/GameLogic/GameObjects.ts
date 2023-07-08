@@ -1478,6 +1478,7 @@ export class GameObjects {
       protected: false,
       destroyed: false,
       frozen: false,
+      canShow: true,
       isInContract: this.touchedPlanetIds.has(hex),
       syncedWithContract: false,
       needsServerRefresh: false,

@@ -172,6 +172,11 @@ library LibPlanet {
         _planet.energyGroDoublers = 0;
         _planet.silverGroDoublers = 0;
 
+        _planet.protected = defaultPlanet.protected;
+        _planet.destroyed = defaultPlanet.destroyed;
+        _planet.frozen = defaultPlanet.frozen;
+        _planet.canShow = defaultPlanet.canShow;
+
         if (args.isHomePlanet) {
             _planet.isHomePlanet = true;
             _planet.owner = msg.sender;

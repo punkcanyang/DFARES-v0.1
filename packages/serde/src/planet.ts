@@ -83,6 +83,7 @@ export function decodePlanet(rawLocationId: string, rawPlanet: RawPlanet): Plane
     protected: rawPlanet.protected,
     destroyed: rawPlanet.destroyed,
     frozen: rawPlanet.frozen,
+    canShow: rawPlanet.canShow,
     heldArtifactIds: [], // this is stale and will be updated in GameObjects
     bonus: bonusFromHex(locationId),
     pausers: rawPlanet.pausers.toNumber(),

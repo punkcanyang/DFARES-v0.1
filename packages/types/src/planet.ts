@@ -122,6 +122,7 @@ export type Planet = {
   protected: boolean;
   destroyed: boolean;
   frozen: boolean;
+  canShow: boolean;
   prospectedBlockNumber?: number;
   localPhotoidUpgrade?: Upgrade;
 

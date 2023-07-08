@@ -413,6 +413,29 @@ async function setPlanetHat(planet: LocatablePlanet | undefined, level: number, 
   return tx;
 }
 
+async function setPlanetCanShow(planet: LocatablePlanet | undefined, canShow: boolean) {
+  if (!planet) {
+    alert('no selected planet');
+    return;
+  }
+
+  await initPlanet(planet);
+
+  const args = Promise.resolve([locationIdToDecStr(planet.locationId), canShow]);
+
+  const tx = await df.submitTransaction({
+    locationId: planet.locationId,
+    canShow: canShow,
+    args,
+    contract: df.getContract(),
+    methodName: 'setPlanetCanShow',
+  });
+
+  tx.confirmedPromise.then(() => df.hardRefreshPlanet(planet.locationId));
+
+  return tx;
+}
+
 function PlanetLink({ planetId }: { planetId?: LocationId }) {
   if (planetId) {
     return html`<a
@@ -493,6 +516,14 @@ function hatLevelOptions() {
   for (let i = 0; i <= 10; i++) {
     options.push(html`<option value=${i}>${i.toString()}</option>`);
   }
+  return options;
+}
+
+function planetCanShowOptions() {
+  const options = [] as HTMLOptionElement[];
+
+  options.push(html`<option value=${1}>${'true'}</option>`);
+  options.push(html`<option value=${0}>${'false'}</option>`);
   return options;
 }
 
@@ -579,7 +610,8 @@ function PlanetCreator() {
 
   return html`
     <div style=${{ width: '100%' }}>
-      <h2>Create Planet</h2>
+      <${Heading} title="Create Planet" />
+
       <div style=${rowStyle}>
         <df-slider
           label="Planet Level"
@@ -625,7 +657,7 @@ function ChangeTimeFactor() {
 
   return html`
     <div style=${{ width: '100%' }}>
-      <h2>Change Time Factor</h2>
+      <${Heading} title="Change Time Factor" />
       <div style=${rowStyle}>
         <df-slider
           label="Time Factor"
@@ -663,6 +695,8 @@ function App() {
 
   const [hatLevel, setHatLevel] = useState(1);
   const [hatType, setHatType] = useState(1);
+
+  const [canShow, setCanShow] = useState(0);
 
   useEffect(() => {
     const account = df.getAccount();
@@ -843,7 +877,24 @@ function App() {
         />
 
         <df-button onClick=${() => setPlanetHat(selectedPlanet, hatLevel, hatType)}>
-          Give Planet
+          Set Hat
+        </df-button>
+      </div>
+
+      <${Heading} title="Set Planet Can Show" />
+
+      <div style=${rowStyle}>
+        <span> Planet: <${PlanetLink} planetId=${(selectedPlanet as Planet)?.locationId} /> </span>
+
+        <${Select}
+          style=${{ flex: '1' }}
+          value=${canShow}
+          onChange=${(e: InputEvent) => setCanShow((e.target as HTMLSelectElement).value)}
+          items=${planetCanShowOptions()}
+        />
+
+        <df-button onClick=${() => setPlanetCanShow(selectedPlanet, canShow)}>
+          Set Planet Can Show
         </df-button>
       </div>
     </div>

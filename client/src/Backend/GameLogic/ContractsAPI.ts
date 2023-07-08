@@ -669,7 +669,7 @@ export class ContractsAPI extends EventEmitter {
     const player = decodePlayer(rawPlayer);
 
     //MyDelete:
-    console.warn(player);
+    // console.warn(player);
 
     return player;
   }

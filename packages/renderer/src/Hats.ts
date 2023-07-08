@@ -7,6 +7,8 @@ export type Hat = {
   // image?: () => Promise<HTMLImageElement>;
 };
 
+const URL = 'http://localhost:8081';
+
 const santaHat = {
   legacy: true,
   topLayer: [
@@ -108,7 +110,7 @@ const squid = {
 
 const doge = {
   legacy: false,
-  topLayer: ['http://localhost:8081/img/meme/doge.png'],
+  topLayer: [URL + '/img/meme/doge.png'],
   bottomLayer: [],
   // image: () =>
   //   new Promise<HTMLImageElement>((resolve) => {
@@ -120,145 +122,294 @@ const doge = {
 
 const cat = {
   legacy: false,
-  topLayer: ['http://localhost:8081/img/meme/Cat.png'],
+  topLayer: [URL + '/img/meme/Cat.png'],
   bottomLayer: [],
 };
 
 const chunZhen = {
   legacy: false,
-  topLayer: ['http://localhost:8081/img/meme/chunZhen.png'],
+  topLayer: [URL + '/img/meme/chunZhen.png'],
   bottomLayer: [],
 };
 
 const iKunBird = {
   legacy: false,
-  topLayer: ['http://localhost:8081/img/meme/iKunBird.png'],
+  topLayer: [URL + '/img/meme/iKunBird.png'],
   bottomLayer: [],
 };
 
 const mike = {
   legacy: false,
-  topLayer: ['http://localhost:8081/img/meme/mike.png'],
+  topLayer: [URL + '/img/meme/mike.png'],
   bottomLayer: [],
 };
 
 const panda = {
   legacy: false,
-  topLayer: ['http://localhost:8081/img/meme/panda.png'],
+  topLayer: [URL + '/img/meme/panda.png'],
   bottomLayer: [],
 };
 
 const pepe = {
   legacy: false,
-  topLayer: ['http://localhost:8081/img/meme/pepe.png'],
+  topLayer: [URL + '/img/meme/pepe.png'],
   bottomLayer: [],
 };
 
 const pigMan = {
   legacy: false,
-  topLayer: ['http://localhost:8081/img/meme/pigMan.png'],
+  topLayer: [URL + '/img/meme/pigMan.png'],
   bottomLayer: [],
 };
 
 const robotCat = {
   legacy: false,
-  topLayer: ['http://localhost:8081/img/meme/robotCat.png'],
+  topLayer: [URL + '/img/meme/robotCat.png'],
   bottomLayer: [],
 };
 
 const taiKuLa = {
   legacy: false,
-  topLayer: ['http://localhost:8081/img/meme/taiKuLa.png'],
+  topLayer: [URL + '/img/meme/taiKuLa.png'],
   bottomLayer: [],
 };
 
 const wojak1 = {
   legacy: false,
-  topLayer: ['http://localhost:8081/img/meme/wojak1.png'],
+  topLayer: [URL + '/img/meme/wojak1.png'],
   bottomLayer: [],
 };
 
 const wojak2 = {
   legacy: false,
-  topLayer: ['http://localhost:8081/img/meme/wojak2.png'],
+  topLayer: [URL + '/img/meme/wojak2.png'],
   bottomLayer: [],
 };
 
 const wojak3 = {
   legacy: false,
-  topLayer: ['http://localhost:8081/img/meme/wojak3.png'],
+  topLayer: [URL + '/img/meme/wojak3.png'],
   bottomLayer: [],
 };
 
 const wojak4 = {
   legacy: false,
-  topLayer: ['http://localhost:8081/img/meme/wojak4.png'],
+  topLayer: [URL + '/img/meme/wojak4.png'],
   bottomLayer: [],
 };
 
-const zero1a1 = {
+const DFArchon = {
   legacy: false,
-  topLayer: ['http://localhost:8081/img/logo/01a1.png'],
+  topLayer: [URL + '/img/logo/DFArchon.png'],
   bottomLayer: [],
 };
 
-const AGLD = {
+const AltLayer = {
   legacy: false,
-  topLayer: ['http://localhost:8081/img/logo/AGLD.png'],
+  topLayer: [URL + '/img/logo/AltLayer.png'],
   bottomLayer: [],
 };
 
-const altlayer = {
+const DeGame = {
   legacy: false,
-  topLayer: ['http://localhost:8081/img/logo/altlayer.png'],
+  topLayer: [URL + '/img/logo/DeGame.png'],
   bottomLayer: [],
 };
 
-const df = {
+const FunBlocks = {
   legacy: false,
-  topLayer: ['http://localhost:8081/img/logo/df.png'],
+  topLayer: [URL + '/img/logo/FunBlocks.png'],
   bottomLayer: [],
 };
 
-const dfAres = {
+const GamePhylum = {
   legacy: false,
-  topLayer: ['http://localhost:8081/img/logo/dfAres.png'],
+  topLayer: [URL + '/img/logo/GamePhylum.png'],
   bottomLayer: [],
 };
 
-const dfdao = {
+const MarrowDAO = {
   legacy: false,
-  topLayer: ['http://localhost:8081/img/logo/dfdao.png'],
+  topLayer: [URL + '/img/logo/MarrowDAO.png'],
   bottomLayer: [],
 };
 
-const kawaiidoge = {
+const OrdenGG = {
   legacy: false,
-  topLayer: ['http://localhost:8081/img/logo/kawaiidoge.png'],
+  topLayer: [URL + '/img/logo/MarrowDAO.png'],
   bottomLayer: [],
 };
 
-const mask = {
+const DFDAO = {
   legacy: false,
-  topLayer: ['http://localhost:8081/img/logo/mask.svg'],
+  topLayer: [URL + '/img/logo/DFDAO.png'],
   bottomLayer: [],
 };
 
-const netherscape = {
+const Two77DAO = {
   legacy: false,
-  topLayer: ['http://localhost:8081/img/logo/netherscape.png'],
+  topLayer: [URL + '/img/logo/277DAO.png'],
   bottomLayer: [],
 };
 
-const ordengg = {
+const Web3MQ = {
   legacy: false,
-  topLayer: ['http://localhost:8081/img/logo/ordengg.png'],
+  topLayer: [URL + '/img/logo/Web3MQ.png'],
+  bottomLayer: [],
+};
+const Mask = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/Mask.svg'],
   bottomLayer: [],
 };
 
-const web3mq = {
+const AGLDDAO = {
   legacy: false,
-  topLayer: ['http://localhost:8081/img/logo/web3mq.png'],
+  topLayer: [URL + '/img/logo/AGLDDAO.png'],
+  bottomLayer: [],
+};
+
+const Zero1a1 = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/01a1.png'],
+  bottomLayer: [],
+};
+
+const WeirdaoGhostGang = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/WeirdoGhostGang.png'],
+  bottomLayer: [],
+};
+
+const Briq = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/Briq.png'],
+  bottomLayer: [],
+};
+
+const BlockBeats = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/BlockBeats.png'],
+  bottomLayer: [],
+};
+
+const Cointime = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/Cointime.png'],
+  bottomLayer: [],
+};
+
+const ChainCatcher = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/ChainCatcher.png'],
+  bottomLayer: [],
+};
+
+const ForesightNews = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/ForesightNews.png'],
+  bottomLayer: [],
+};
+
+const SeeDAO = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/SeeDAO.png'],
+  bottomLayer: [],
+};
+
+const AWHouse = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/AWHouse.png'],
+  bottomLayer: [],
+};
+
+const PaladinsDAO = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/PaladinsDAO.png'],
+  bottomLayer: [],
+};
+
+const NetherScape = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/NetherScape.png'],
+  bottomLayer: [],
+};
+
+const UpchainDAO = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/UpchainDAO.svg'],
+  bottomLayer: [],
+};
+
+const LXDAO = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/LXDAO.png'],
+  bottomLayer: [],
+};
+
+const MatrixWorld = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/MatrixWorld.png'],
+  bottomLayer: [],
+};
+
+const CryptoChasers = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/CryptoChasers.png'],
+  bottomLayer: [],
+};
+
+const AWResearch = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/AWResearch.png'],
+  bottomLayer: [],
+};
+
+const BlockPi = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/BlockPi.png'],
+  bottomLayer: [],
+};
+
+const WhaleDAO = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/WhaleDAO.png'],
+  bottomLayer: [],
+};
+
+const Gametaverse = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/Gametaverse.png'],
+  bottomLayer: [],
+};
+
+const BuidlerDAO = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/BuidlerDAO.png'],
+  bottomLayer: [],
+};
+
+const THUBA = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/THUBA.png'],
+  bottomLayer: [],
+};
+
+const NJUBA = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/NJUBA.png'],
+  bottomLayer: [],
+};
+
+const RUChain = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/RUChain.png'],
+  bottomLayer: [],
+};
+
+const DFARES = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/DFARES.png'],
   bottomLayer: [],
 };
 
@@ -285,17 +436,42 @@ export const avatarFromArtifactIdAndImageType = (
     HatType.Wojak2,
     HatType.Wojak3,
     HatType.Wojak4,
-    HatType.zero1a1,
-    HatType.AGLD,
+    HatType.DFArchon,
     HatType.AltLayer,
-    HatType.DF,
-    HatType.DFARES,
-    HatType.DFDAO,
-    HatType.Kawaiidoge,
-    HatType.Mask,
-    HatType.NetherScape,
+    HatType.DeGame,
+    HatType.FunBlocks,
+    HatType.GamePhylum,
+    HatType.MarrowDAO,
     HatType.OrdenGG,
+    HatType.DFDAO,
+    HatType.Two77DAO,
     HatType.Web3MQ,
+    HatType.Mask,
+    HatType.AGLDDAO,
+    HatType.Zero1a1,
+    HatType.WeirdaoGhostGang,
+    HatType.Briq,
+    HatType.BlockBeats,
+    HatType.Cointime,
+    HatType.ChainCatcher,
+    HatType.ForesightNews,
+    HatType.SeeDAO,
+    HatType.AWHouse,
+    HatType.PaladinsDAO,
+    HatType.NetherScape,
+    HatType.UpchainDAO,
+    HatType.LXDAO,
+    HatType.MatrixWorld,
+    HatType.CryptoChasers,
+    HatType.AWResearch,
+    HatType.BlockPi,
+    HatType.WhaleDAO,
+    HatType.Gametaverse,
+    HatType.BuidlerDAO,
+    HatType.THUBA,
+    HatType.NJUBA,
+    HatType.RUChain,
+    HatType.DFARES,
   ];
   if (ifRandom) return avatars[parseInt(id.substring(id.length - 2), 16) % avatars.length];
   else return avatars[parseInt(imageType.toString()) % avatars.length];
@@ -326,15 +502,40 @@ export const hats: Record<HatType, Hat> = {
   [HatType.Wojak2]: wojak2,
   [HatType.Wojak3]: wojak3,
   [HatType.Wojak4]: wojak4,
-  [HatType.zero1a1]: zero1a1,
-  [HatType.AGLD]: AGLD,
-  [HatType.AltLayer]: altlayer,
-  [HatType.DF]: df,
-  [HatType.DFARES]: dfAres,
-  [HatType.DFDAO]: dfdao,
-  [HatType.Kawaiidoge]: kawaiidoge,
-  [HatType.Mask]: mask,
-  [HatType.NetherScape]: netherscape,
-  [HatType.OrdenGG]: ordengg,
-  [HatType.Web3MQ]: web3mq,
+  [HatType.DFArchon]: DFArchon,
+  [HatType.AltLayer]: AltLayer, // 'AltLayer',
+  [HatType.DeGame]: DeGame, //'DeGame',
+  [HatType.FunBlocks]: FunBlocks, //'Fun Blocks',
+  [HatType.GamePhylum]: GamePhylum, //'GamePhylum',
+  [HatType.MarrowDAO]: MarrowDAO, //'MarrowDAO|Guild W',
+  [HatType.OrdenGG]: OrdenGG, //'Orden GG',
+  [HatType.DFDAO]: DFDAO, //'DFDAO',
+  [HatType.Two77DAO]: Two77DAO, //'277 DAO',
+  [HatType.Web3MQ]: Web3MQ, //'Web3MQ',
+  [HatType.Mask]: Mask, //'Mask Network',
+  [HatType.AGLDDAO]: AGLDDAO, // 'AGLD DAO',
+  [HatType.Zero1a1]: Zero1a1, //'01a1',
+  [HatType.WeirdaoGhostGang]: WeirdaoGhostGang, //'Weirdao Ghost Gang',
+  [HatType.Briq]: Briq, //'Briq',
+  [HatType.BlockBeats]: BlockBeats, //'BlockBeats',
+  [HatType.Cointime]: Cointime, //'Cointime',
+  [HatType.ChainCatcher]: ChainCatcher, //'ChainCatcher',
+  [HatType.ForesightNews]: ForesightNews, //'ForesightNews',
+  [HatType.SeeDAO]: SeeDAO, //'SeeDAO',
+  [HatType.AWHouse]: AWHouse, //'AWHouse',
+  [HatType.PaladinsDAO]: PaladinsDAO, //'PaladinsDAO',
+  [HatType.NetherScape]: NetherScape, // 'NetherScape',
+  [HatType.UpchainDAO]: UpchainDAO, //'UpchainDAO',
+  [HatType.LXDAO]: LXDAO, // 'LXDAO',
+  [HatType.MatrixWorld]: MatrixWorld, //'Matrix World',
+  [HatType.CryptoChasers]: CryptoChasers, //'Crypto Chasers',
+  [HatType.AWResearch]: AWResearch, //'AW Research',
+  [HatType.BlockPi]: BlockPi, //'BlockPi',
+  [HatType.WhaleDAO]: WhaleDAO, //'WhaleDAO',
+  [HatType.Gametaverse]: Gametaverse, //'Gametaverse',
+  [HatType.BuidlerDAO]: BuidlerDAO, //'BuidlerDAO',
+  [HatType.THUBA]: THUBA, //'THUBA',
+  [HatType.NJUBA]: NJUBA, // 'NJUBA',
+  [HatType.RUChain]: RUChain, // 'RUChain',
+  [HatType.DFARES]: DFARES, // 'RUChain',
 };

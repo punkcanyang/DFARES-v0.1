@@ -416,6 +416,9 @@ contract DFMoveFacet is WithStorage {
         target planet.
      */
     function _transferPlanetSpaceJunkToPlayer(DFPMoveArgs memory args) private {
+        // Planet storage sourcePlanet = gs().planets[args.oldLoc];
+        // Planet storage targetPlanet = gs().planets[args.newLoc];
+
         require(
             (gs().players[msg.sender].spaceJunk + gs().planets[args.newLoc].spaceJunk <=
                 gs().players[msg.sender].spaceJunkLimit),

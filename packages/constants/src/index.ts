@@ -197,14 +197,20 @@ export const HAT_SIZES = [
   'HAAAAT',
 ];
 
-export const MIN_NORMAL_HAT_TYPE = 1;
-export const MAX_NORMAL_HAT_TYPE = 10;
+export const MIN_HAT_TYPE = 1;
+export const MAX_HAT_TYPE = 10;
 
-export const MIN_MEME_HAT_TYPE = 11;
-export const MAX_MEME_HAT_TYPE = 24;
+export const PICTURE_URL = 'http://localhost:8081';
+//export const PICTURE_URL =  'https://dfares.xyz/public';
 
-export const MIN_LOGO_HAT_TYPE = 25;
-export const MAX_LOGO_HAT_TYPE = 60;
+export const MIN_MEME_TYPE = 1;
+export const MAX_MEME_TYPE = 14;
+
+export const MIN_LOGO_TYPE = 1;
+export const MAX_LOGO_TYPE = 40;
+
+export const MIN_AVATAR_TYPE = 1;
+export const MAX_AVATAR_TYPE = 8;
 
 /**
  * This should be updated every round.

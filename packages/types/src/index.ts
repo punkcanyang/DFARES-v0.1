@@ -25,6 +25,7 @@
 
 export * from './arrival';
 export * from './artifact';
+export * from './avatar';
 export * from './capture_zones';
 export * from './claim';
 export * from './database_types';
@@ -34,6 +35,8 @@ export * from './game_types';
 export * from './gas_prices';
 export * from './hat';
 export * from './identifier';
+export * from './logo';
+export * from './meme';
 export * from './modal';
 export * from './planet';
 export * from './planetmessage';

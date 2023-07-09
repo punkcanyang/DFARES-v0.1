@@ -1,7 +1,15 @@
 import {
   EMPTY_ADDRESS,
   HAT_SIZES,
+  MAX_AVATAR_TYPE,
+  MAX_HAT_TYPE,
+  MAX_LOGO_TYPE,
+  MAX_MEME_TYPE,
   MAX_PLANET_LEVEL,
+  MIN_AVATAR_TYPE,
+  MIN_HAT_TYPE,
+  MIN_LOGO_TYPE,
+  MIN_MEME_TYPE,
   MIN_PLANET_LEVEL,
 } from '@darkforest_eth/constants';
 import { getPlanetRank, isLocatable } from '@darkforest_eth/gamelogic';
@@ -9,11 +17,14 @@ import { seededRandom } from '@darkforest_eth/hashing';
 import { hashToInt } from '@darkforest_eth/serde';
 import {
   ArtifactId,
+  AvatarType,
   Biome,
   EthAddress,
   HatType,
   HSLVec,
   LocationId,
+  LogoType,
+  MemeType,
   Planet,
   PlanetCosmeticInfo,
   RGBAVec,
@@ -172,6 +183,84 @@ export function hatTypeFromHash(hatType: number): HatType {
   //   default:
   //     return HatType.GraduationCap;
   // }
+}
+
+// this is for hatType
+const minHatLimit = MIN_HAT_TYPE; // 1
+const maxHatLimit = MAX_HAT_TYPE;
+const minMemeLimit = maxHatLimit + MIN_MEME_TYPE;
+const maxMemeLimit = maxHatLimit + MAX_MEME_TYPE;
+const minLogoLimit = maxMemeLimit + MIN_LOGO_TYPE;
+const maxLogoLimit = maxMemeLimit + MAX_LOGO_TYPE;
+const minAvatarLimit = maxLogoLimit + MIN_AVATAR_TYPE;
+const maxAvatarLimit = maxLogoLimit + MAX_AVATAR_TYPE;
+
+export function isHat(hatType: number): boolean {
+  return hatType >= minHatLimit && hatType <= maxHatLimit;
+}
+
+export function isMeme(hatType: number): boolean {
+  return hatType >= minMemeLimit && hatType <= maxMemeLimit;
+}
+
+export function isLogo(hatType: number): boolean {
+  return hatType >= minLogoLimit && hatType <= maxLogoLimit;
+}
+
+export function isAvatar(hatType: number): boolean {
+  return hatType >= minAvatarLimit && hatType <= maxAvatarLimit;
+}
+
+export function numToHatType(num: number): HatType {
+  if (isHat(num) === false) return HatType.Unknown;
+  const res = num;
+  return res as HatType;
+}
+
+export function numbToMemeType(num: number): MemeType {
+  if (isMeme(num) === false) return MemeType.Unknown;
+  const res = num - minMemeLimit + 1;
+  return res as MemeType;
+}
+
+export function numToLogoType(num: number): LogoType {
+  if (isLogo(num) === false) return LogoType.Unknown;
+  const res = num - minLogoLimit + 1;
+  return res as LogoType;
+}
+
+export function numToAvatarType(num: number): AvatarType {
+  if (isLogo(num) === false) return AvatarType.Unknown;
+  const res = num - minAvatarLimit + 1;
+  return res as AvatarType;
+}
+
+export function hatTypeToNum(hatType: HatType): number {
+  if (hatType === HatType.Unknown) return 0;
+  const res = hatType;
+  if (isHat(res) === false) return 0;
+  return res as number;
+}
+
+export function memeTypeToNum(memeType: MemeType): number {
+  if (memeType === MemeType.Unknown) return 0;
+  const res = memeType + minMemeLimit - 1;
+  if (isHat(res) === false) return 0;
+  return res as number;
+}
+
+export function logoTypeToNum(logoType: LogoType): number {
+  if (logoType === LogoType.Unknown) return 0;
+  const res = logoType + minLogoLimit - 1;
+  if (isLogo(res) === false) return 0;
+  return res as number;
+}
+
+export function avatarTypeToNum(avatarType: AvatarType): number {
+  if (avatarType === AvatarType.Unknown) return 0;
+  const res = avatarType + minAvatarLimit - 1;
+  if (isAvatar(res) === false) return 0;
+  return res as number;
 }
 
 export function hslStr(h: number, s: number, l: number): string {

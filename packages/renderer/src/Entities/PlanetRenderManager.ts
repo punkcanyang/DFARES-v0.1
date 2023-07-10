@@ -1,10 +1,4 @@
-import {
-  EMPTY_ADDRESS,
-  MAX_LOGO_HAT_TYPE,
-  MAX_MEME_HAT_TYPE,
-  MIN_LOGO_HAT_TYPE,
-  MIN_MEME_HAT_TYPE,
-} from '@darkforest_eth/constants';
+import { EMPTY_ADDRESS } from '@darkforest_eth/constants';
 import {
   formatNumber,
   getRange,
@@ -12,14 +6,27 @@ import {
   isLocatable,
   isSpaceShip,
 } from '@darkforest_eth/gamelogic';
-import { getOwnerColorVec, getPlanetCosmetic } from '@darkforest_eth/procedural';
+import {
+  artifactImageTypeToNum,
+  avatarTypeToNum,
+  getOwnerColorVec,
+  getPlanetCosmetic,
+  isAvatar,
+  isLogo,
+  isMeme,
+  logoTypeToNum,
+  memeTypeToNum,
+} from '@darkforest_eth/procedural';
 import { isUnconfirmedMoveTx } from '@darkforest_eth/serde';
 import {
   Artifact,
   ArtifactType,
+  AvatarType,
   HatType,
   LocatablePlanet,
   LocationId,
+  LogoType,
+  MemeType,
   Planet,
   PlanetRenderInfo,
   PlanetRenderManagerType,
@@ -29,10 +36,13 @@ import {
   TextAnchor,
   WorldCoords,
 } from '@darkforest_eth/types';
+import { avatars } from '../Avatars';
 import { engineConsts } from '../EngineConsts';
-import { avatarFromArtifactIdAndImageType, hats } from '../Hats';
+import { logos } from '../Logos';
+import { memes } from '../Memes';
 import { Renderer } from '../Renderer';
 import { GameGLManager } from '../WebGL/GameGLManager';
+
 const { whiteA, barbsA, gold } = engineConsts.colors;
 const { maxRadius } = engineConsts.planet;
 
@@ -45,35 +55,77 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
 
   rendererType = RendererType.PlanetManager;
 
-  newHats: Record<HatType, HTMLImageElement> = {};
+  HTMLImages: Record<number, HTMLImageElement> = {};
   constructor(gl: GameGLManager) {
     this.renderer = gl.renderer;
-    this.loadNewHats();
+    this.loadHTMLImages();
+    // this.loadNewHats();
   }
 
-  loadNewHats(): void {
-    const keys = Object.keys(hats);
-    // for (let i = 0; i < keys.length; ++i) {
-    //   const key = keys[i];
-    //   const hat = hats[key as HatType];
-    //   hat.image &&
-    //     hat.image().then((img) => {
-    //       this.newHats[key as HatType] = img;
-    //     });
-    // }
-    for (let i = 0; i < keys.length; ++i) {
-      const key = keys[i];
+  loadHTMLImages(): void {
+    const memeKeys = Object.keys(memes);
+    const logoKeys = Object.keys(logos);
+    const avatarKeys = Object.keys(avatars);
 
-      const hat = hats[Number(key) as HatType];
-      if (!hat.legacy) {
-        const img = new Image();
-        img.src = hat.topLayer[0];
-        img.onload = () => {
-          this.newHats[Number(key) as HatType] = img;
-        };
-      }
+    for (let i = 0; i < memeKeys.length; ++i) {
+      const memeKey = memeKeys[i];
+      const meme = memes[Number(memeKey) as MemeType];
+      const num = memeTypeToNum(Number(memeKey) as MemeType);
+
+      const img = new Image();
+      img.src = meme.topLayer[0];
+      img.onload = () => {
+        this.HTMLImages[num] = img;
+      };
+    }
+
+    for (let i = 0; i < logoKeys.length; ++i) {
+      const logoKey = logoKeys[i];
+      const logo = logos[Number(logoKey) as LogoType];
+      const num = logoTypeToNum(Number(logoKey) as LogoType);
+
+      const img = new Image();
+      img.src = logo.topLayer[0];
+      img.onload = () => {
+        this.HTMLImages[num] = img;
+      };
+    }
+
+    for (let i = 0; i < avatarKeys.length; ++i) {
+      const avatarKey = avatarKeys[i];
+      const avatar = avatars[Number(avatarKey) as AvatarType];
+      const num = avatarTypeToNum(Number(avatarKey) as AvatarType);
+      const img = new Image();
+      img.src = avatar.topLayer[0];
+      img.onload = () => {
+        this.HTMLImages[num] = img;
+      };
     }
   }
+  // loadNewHats(): void {
+  //   const keys = Object.keys(hats);
+  //   // for (let i = 0; i < keys.length; ++i) {
+  //   //   const key = keys[i];
+  //   //   const hat = hats[key as HatType];
+  //   //   hat.image &&
+  //   //     hat.image().then((img) => {
+  //   //       this.newHats[key as HatType] = img;
+  //   //     });
+  //   // }
+
+  //   for (let i = 0; i < keys.length; ++i) {
+  //     const key = keys[i];
+
+  //     const hat = hats[Number(key) as HatType];
+  //     if (!hat.legacy) {
+  //       const img = new Image();
+  //       img.src = hat.topLayer[0];
+  //       img.onload = () => {
+  //         this.newHats[Number(key) as HatType] = img;
+  //       };
+  //     }
+  //   }
+  // }
 
   queueLocation(
     renderInfo: PlanetRenderInfo,
@@ -144,35 +196,38 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
         (a) => a.artifactType === ArtifactType.Avatar && a.lastActivated > a.lastDeactivated
       );
 
-      const haveMemeHat =
-        planet.hatLevel !== 0 &&
-        planet.hatType >= MIN_MEME_HAT_TYPE &&
-        planet.hatType <= MAX_MEME_HAT_TYPE;
-
-      const haveLogoHat =
-        planet.hatLevel !== 0 &&
-        planet.hatType >= MIN_LOGO_HAT_TYPE &&
-        planet.hatType <= MAX_LOGO_HAT_TYPE;
-
       //MyTodo: change the limit for logoHat & memeHat
 
       if (activatedAvatar) {
-        this.queueNewHat(planet.location.coords, renderInfo.radii.radiusWorld * 2, activatedAvatar);
-      } else if (haveMemeHat) {
-        this.queueMemeHat(
+        // artifact image
+        this.queueArtifactImage(
+          planet.location.coords,
+          renderInfo.radii.radiusWorld * 2,
+          activatedAvatar
+        );
+      } else if (isMeme(planet.hatLevel)) {
+        this.queueMemeImage(
           planet.location.coords,
           renderInfo.radii.radiusWorld * 2,
           planet.hatType as HatType,
           planet.hatLevel as number
         );
-      } else if (haveLogoHat) {
-        this.queueLogoHat(
+      } else if (isLogo(planet.hatLevel)) {
+        this.queueLogoImage(
+          planet.location.coords,
+          renderInfo.radii.radiusWorld * 2,
+          planet.hatType as HatType,
+          planet.hatLevel as number
+        );
+      } else if (isAvatar(planet.hatLevel)) {
+        this.queueAvatarImage(
           planet.location.coords,
           renderInfo.radii.radiusWorld * 2,
           planet.hatType as HatType,
           planet.hatLevel as number
         );
       } else {
+        // normal hat
         this.queueHat(
           planet,
           planet.location.coords,
@@ -251,17 +306,14 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
         // && artifacts[i].lastActivated <= artifacts[i].lastDeactivated
       ) {
         //draw special hat
-        const avatarType = avatarFromArtifactIdAndImageType(
-          artifacts[i].id,
-          artifacts[i].imageType,
-          false
-        );
-        this.newHats[avatarType] &&
-          this.renderer.overlay2dRenderer.drawImageHat(
-            this.newHats[avatarType],
+        const avatarType = artifactImageTypeToNum(artifacts[i].imageType);
+
+        this.HTMLImages[avatarType] &&
+          this.renderer.overlay2dRenderer.drawHTMLImage(
+            this.HTMLImages[avatarType],
             { x, y },
-            1.2 * radiusW,
-            1.2 * radiusW,
+            radiusW,
+            radiusW,
             radiusW,
             false
           );
@@ -472,16 +524,20 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
     }
   }
 
-  queueNewHat(center: WorldCoords, radius: number, artifact?: Artifact) {
+  queueArtifactImage(center: WorldCoords, radius: number, artifact?: Artifact) {
     if (!artifact) return;
     const { context } = this.renderer;
     const hoveringPlanet = context.getHoveringOverPlanet() !== undefined;
     const hoverCoords = context.getHoveringOverCoords();
 
-    const avatarType = avatarFromArtifactIdAndImageType(artifact.id, artifact.imageType, false);
-    this.newHats[avatarType] &&
-      this.renderer.overlay2dRenderer.drawImageHat(
-        this.newHats[avatarType],
+    // const avatarType = avatarFromArtifactIdAndImageType(artifact.id,
+    // artifact.imageType, false);
+
+    const imageType = artifactImageTypeToNum(artifact.imageType);
+
+    this.HTMLImages[imageType] &&
+      this.renderer.overlay2dRenderer.drawHTMLImage(
+        this.HTMLImages[imageType],
         center,
         // radius === 1 ? 2 : 1.2 * 1.3 ** (artifact.rarity - 1) * radius,
         // radius === 1 ? 2 : 1.2 * 1.3 ** (artifact.rarity - 1) * radius,
@@ -494,20 +550,20 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
       );
   }
 
-  queueMemeHat(center: WorldCoords, radius: number, hatType: HatType, hatLevel: number) {
+  queueMemeImage(center: WorldCoords, radius: number, hatType: HatType, hatLevel: number) {
     if (hatType === HatType.Unknown) return;
 
     // MyTodo: determine the size limit
-    // hatLevel = Math.min(hatLevel, 1);
+    hatLevel = Math.min(hatLevel, 1);
 
     const { context } = this.renderer;
     const hoveringPlanet = context.getHoveringOverPlanet() !== undefined;
     const hoverCoords = context.getHoveringOverCoords();
     // const hatScale = 1.65 ** (hatLevel - 1);
 
-    this.newHats[hatType] &&
-      this.renderer.overlay2dRenderer.drawImageHat(
-        this.newHats[hatType],
+    this.HTMLImages[hatType] &&
+      this.renderer.overlay2dRenderer.drawHTMLImage(
+        this.HTMLImages[hatType],
         center,
         // 1.2 * radius * hatScale,
         // 1.2 * radius * hatScale,
@@ -519,7 +575,7 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
       );
   }
 
-  queueLogoHat(center: WorldCoords, radius: number, hatType: HatType, hatLevel: number) {
+  queueLogoImage(center: WorldCoords, radius: number, hatType: HatType, hatLevel: number) {
     if (hatType === HatType.Unknown) return;
 
     //MyTodo: determine the size limit
@@ -529,9 +585,31 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
     const hoveringPlanet = context.getHoveringOverPlanet() !== undefined;
     const hoverCoords = context.getHoveringOverCoords();
     const hatScale = 1.65 ** (hatLevel - 1);
-    this.newHats[hatType] &&
-      this.renderer.overlay2dRenderer.drawImageHat(
-        this.newHats[hatType],
+    this.HTMLImages[hatType] &&
+      this.renderer.overlay2dRenderer.drawHTMLImage(
+        this.HTMLImages[hatType],
+        center,
+        1.2 * radius * hatScale,
+        1.2 * radius * hatScale,
+        radius,
+        hoveringPlanet,
+        hoverCoords
+      );
+  }
+
+  queueAvatarImage(center: WorldCoords, radius: number, hatType: HatType, hatLevel: number) {
+    if (hatType === HatType.Unknown) return;
+
+    //MyTodo: determine the size limit
+    hatLevel = Math.min(hatLevel, 1);
+
+    const { context } = this.renderer;
+    const hoveringPlanet = context.getHoveringOverPlanet() !== undefined;
+    const hoverCoords = context.getHoveringOverCoords();
+    const hatScale = 1.65 ** (hatLevel - 1);
+    this.HTMLImages[hatType] &&
+      this.renderer.overlay2dRenderer.drawHTMLImage(
+        this.HTMLImages[hatType],
         center,
         1.2 * radius * hatScale,
         1.2 * radius * hatScale,

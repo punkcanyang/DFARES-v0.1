@@ -1,12 +1,5 @@
 import { isUnconfirmedChangeArtifactImageTypeTx } from '@darkforest_eth/serde';
-import {
-  Artifact,
-  ArtifactId,
-  ArtifactType,
-  HatType,
-  LocationId,
-  Planet,
-} from '@darkforest_eth/types';
+import { Artifact, ArtifactId, ArtifactType, LocationId, Planet } from '@darkforest_eth/types';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Btn } from '../../Components/Btn';
@@ -50,7 +43,7 @@ export function ArtifactChangeImageType({
 
   // const otherArtifactsOnPlanet = usePlanetArtifacts(onPlanetWrapper, uiManager);
 
-  const [imageType, setImageType] = useState(HatType.Doge.toString());
+  const [imageType, setImageType] = useState('0');
 
   if (!artifact || (!onPlanet && !depositPlanet) || !account) return null;
 

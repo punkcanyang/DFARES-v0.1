@@ -164,7 +164,7 @@ export class Overlay2DRenderer {
     }
   }
 
-  drawImageHat(
+  drawHTMLImage(
     image: HTMLImageElement,
     center: WorldCoords, // center of planet
     width: number, // width of hat

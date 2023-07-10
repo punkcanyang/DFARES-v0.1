@@ -863,11 +863,15 @@ export interface PlanetRenderManagerType {
     hatLevel: number
   ): void;
 
-  queueNewHat(center: WorldCoords, radius: number, artifact?: Artifact): void;
+  queueArtifactImage(center: WorldCoords, radius: number, artifact?: Artifact): void;
 
-  queueMemeHat(center: WorldCoords, radius: number, hatType: HatType, hatLevel: number): void;
+  // queueNewHat(center: WorldCoords, radius: number, artifact?: Artifact): void;
 
-  queueLogoHat(center: WorldCoords, radius: number, hatType: HatType, hatLevel: number): void;
+  queueMemeImage(center: WorldCoords, radius: number, hatType: HatType, hatLevel: number): void;
+
+  queueLogoImage(center: WorldCoords, radius: number, hatType: HatType, hatLevel: number): void;
+
+  queueAvatarImage(center: WorldCoords, radius: number, hatType: HatType, hatLevel: number): void;
 
   flush(): void;
 }

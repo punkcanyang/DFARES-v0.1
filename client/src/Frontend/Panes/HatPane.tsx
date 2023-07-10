@@ -1,16 +1,8 @@
-import {
-  MAX_LOGO_HAT_TYPE,
-  MAX_MEME_HAT_TYPE,
-  MAX_NORMAL_HAT_TYPE,
-  MIN_LOGO_HAT_TYPE,
-  MIN_MEME_HAT_TYPE,
-  MIN_NORMAL_HAT_TYPE,
-  TOKEN_NAME,
-} from '@darkforest_eth/constants';
+import { MAX_HAT_TYPE, MIN_HAT_TYPE, TOKEN_NAME } from '@darkforest_eth/constants';
 import { weiToEth } from '@darkforest_eth/network';
 import { getHatSizeName, getPlanetCosmetic } from '@darkforest_eth/procedural';
 import { isUnconfirmedBuyHatTx } from '@darkforest_eth/serde';
-import { HatType, HatTypeNames, LocationId, Planet } from '@darkforest_eth/types';
+import { HatTypeNames, LocationId, Planet } from '@darkforest_eth/types';
 import { BigNumber } from 'ethers';
 import React, { useState } from 'react';
 import styled from 'styled-components';
@@ -63,24 +55,24 @@ export function HatPane({
     planet?.owner === account &&
     balanceEth > getHatCostEth(planet);
 
-  const [hatType, setHatType] = useState(HatType.Mask.toString());
+  const [hatType, setHatType] = useState('0');
 
   const values = [];
   const labels = [];
-  for (let i = MIN_NORMAL_HAT_TYPE; i <= MAX_NORMAL_HAT_TYPE; i++) {
+  for (let i = MIN_HAT_TYPE; i <= MAX_HAT_TYPE; i++) {
     values.push(i.toString());
     labels.push(HatTypeNames[i]);
   }
 
-  for (let i = MIN_MEME_HAT_TYPE; i <= MAX_MEME_HAT_TYPE; i++) {
-    values.push(i.toString());
-    labels.push(HatTypeNames[i]);
-  }
+  // for (let i = MIN_MEME_HAT_TYPE; i <= MAX_MEME_HAT_TYPE; i++) {
+  //   values.push(i.toString());
+  //   labels.push(HatTypeNames[i]);
+  // }
 
-  for (let i = MIN_LOGO_HAT_TYPE; i <= MAX_LOGO_HAT_TYPE; i++) {
-    values.push(i.toString());
-    labels.push(HatTypeNames[i]);
-  }
+  // for (let i = MIN_LOGO_HAT_TYPE; i <= MAX_LOGO_HAT_TYPE; i++) {
+  //   values.push(i.toString());
+  //   labels.push(HatTypeNames[i]);
+  // }
 
   if (planet && planet.owner === account) {
     return (

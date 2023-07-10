@@ -1,5 +1,5 @@
 import { isAncient } from '@darkforest_eth/gamelogic';
-import { avatarFromArtifactIdAndImageType } from '@darkforest_eth/renderer';
+import { artifactImageTypeToNum } from '@darkforest_eth/procedural';
 import {
   Artifact,
   ArtifactRarity,
@@ -27,7 +27,7 @@ export const ArtifactTypeText = ({ artifact }: { artifact: Artifact }) => (
   <>
     {ArtifactTypeNames[artifact.artifactType]}
     {artifact.artifactType === ArtifactType.Avatar &&
-      ':' + HatTypeNames[avatarFromArtifactIdAndImageType(artifact.id, artifact.imageType, false)]}
+      ':' + HatTypeNames[artifactImageTypeToNum(artifact.imageType)]}
   </>
 );
 

@@ -263,6 +263,12 @@ export function avatarTypeToNum(avatarType: AvatarType): number {
   return res as number;
 }
 
+export function artifactImageTypeToNum(artifactImageType: number): number {
+  if (isMeme(artifactImageType) || isLogo(artifactImageType) || isAvatar(artifactImageType))
+    return artifactImageType;
+  return 0;
+}
+
 export function hslStr(h: number, s: number, l: number): string {
   return `hsl(${h % 360},${s}%,${l}%)`;
 }

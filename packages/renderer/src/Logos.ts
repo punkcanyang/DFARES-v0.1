@@ -243,6 +243,24 @@ const SIEA = {
   bottomLayer: [],
 };
 
+const DappChaser = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/dappchaser.png'],
+  bottomLayer: [],
+};
+
+const Cellular = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/cellular.png'],
+  bottomLayer: [],
+};
+
+const PTADAO = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/PTADAO.svg'],
+  bottomLayer: [],
+};
+
 export const logoFromType = (type: LogoType): Logo => logos[type];
 
 export const logos: Record<LogoType, Logo> = {
@@ -284,6 +302,9 @@ export const logos: Record<LogoType, Logo> = {
   [LogoType.NJUBA]: NJUBA,
   [LogoType.RUChain]: RUChain,
   [LogoType.SIEA]: SIEA,
+  [LogoType.DappChaser]: DappChaser,
+  [LogoType.Cellular]: Cellular,
+  [LogoType.PTADAO]: PTADAO,
 };
 
 // export const avatarFromArtifactIdAndImageType = (

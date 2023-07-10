@@ -62,9 +62,9 @@ export function ArtifactChangeImageType({
   const depositPlanet = depositPlanetWrapper.value;
   const onPlanet = onPlanetWrapper.value;
 
-  // const otherArtifactsOnPlanet = usePlanetArtifacts(onPlanetWrapper, uiManager);
-
   const [imageType, setImageType] = useState(logoTypeToNum(LogoType.DFARES).toString());
+
+  // const otherArtifactsOnPlanet = usePlanetArtifacts(onPlanetWrapper, uiManager);
 
   if (!artifact || (!onPlanet && !depositPlanet) || !account) return null;
 

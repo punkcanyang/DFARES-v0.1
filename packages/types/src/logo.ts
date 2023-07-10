@@ -45,6 +45,9 @@ export const LogoType = {
   NJUBA: 36 as LogoType,
   RUChain: 37 as LogoType,
   SIEA: 38 as LogoType,
+  DappChaser: 39 as LogoType,
+  Cellular: 40 as LogoType,
+  PTADAO: 41 as LogoType,
 
   // Don't forget to update MIN_LOGO_TYPE and/or MAX_LOGO_TYPE in the `constants` package
 };
@@ -92,4 +95,7 @@ export const LogoTypeNames = {
   [LogoType.NJUBA]: 'NJUBA',
   [LogoType.RUChain]: 'RUChain',
   [LogoType.SIEA]: 'SIEA',
+  [LogoType.DappChaser]: 'DAppChaser',
+  [LogoType.Cellular]: 'Cellular',
+  [LogoType.PTADAO]: 'PTADAO',
 } as const;

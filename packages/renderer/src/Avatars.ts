@@ -64,6 +64,12 @@ const Blue = {
   bottomLayer: [],
 };
 
+const DeFi3 = {
+  legacy: false,
+  topLayer: [URL + '/img/avatar/defi3.png'],
+  bottomLayer: [],
+};
+
 export const avatarFromType = (type: AvatarType): Avatar => avatars[type];
 
 export const avatars: Record<AvatarType, Avatar> = {
@@ -75,4 +81,5 @@ export const avatars: Record<AvatarType, Avatar> = {
   [AvatarType.BaliGee]: BaliGee,
   [AvatarType.DDY]: DDY,
   [AvatarType.Blue]: Blue,
+  [AvatarType.DeFi3]: DeFi3,
 };

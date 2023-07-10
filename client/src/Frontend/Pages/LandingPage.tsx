@@ -8,6 +8,7 @@ import { EmSpacer, Link, Spacer, Title } from '../Components/CoreUI';
 import { Modal } from '../Components/Modal';
 import { Text, White } from '../Components/Text';
 import dfstyles from '../Styles/dfstyles';
+import { LandingPageRoundArt } from '../Views/LandingPageRoundArt';
 
 export const enum LandingPageZIndex {
   Background = 0,
@@ -84,16 +85,16 @@ export default function LandingPage() {
               <Link to={links.plugins}>plugins</Link>
               <Spacer width={4} />
               <Link to={links.wiki}>wiki</Link>
-            </LinkContainer> */}
-            {/*
+            </LinkContainer>
+
             <OnlyMobile>
               <Spacer height={4} />
             </OnlyMobile>
             <HideOnMobile>
               <Spacer height={16} />
-            </HideOnMobile>
+            </HideOnMobile> */}
+            <LandingPageRoundArt />
 
-            <LandingPageRoundArt /> */}
             {/*
             <p>
               <White>Dark Forest</White> <Text>zkSNARK space warfare</Text>
@@ -102,7 +103,7 @@ export default function LandingPage() {
               <White>The Junk Wars</White>
             </p> */}
 
-            <Spacer height={280} />
+            <Spacer height={20} />
 
             <p>
               <White>DF ARES v0.1 </White> <Text> </Text>

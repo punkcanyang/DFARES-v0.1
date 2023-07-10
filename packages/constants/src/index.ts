@@ -207,7 +207,7 @@ export const MIN_MEME_TYPE = 1;
 export const MAX_MEME_TYPE = 14;
 
 export const MIN_LOGO_TYPE = 1;
-export const MAX_LOGO_TYPE = 40;
+export const MAX_LOGO_TYPE = 38;
 
 export const MIN_AVATAR_TYPE = 1;
 export const MAX_AVATAR_TYPE = 8;

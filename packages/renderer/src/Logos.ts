@@ -243,12 +243,6 @@ const SIEA = {
   bottomLayer: [],
 };
 
-const KawaiiDoge = {
-  legacy: false,
-  topLayer: [URL + '/img/logo/kawaiidoge.png'],
-  bottomLayer: [],
-};
-
 export const logoFromType = (type: LogoType): Logo => logos[type];
 
 export const logos: Record<LogoType, Logo> = {
@@ -290,7 +284,6 @@ export const logos: Record<LogoType, Logo> = {
   [LogoType.NJUBA]: NJUBA,
   [LogoType.RUChain]: RUChain,
   [LogoType.SIEA]: SIEA,
-  [LogoType.KawaiiDoge]: KawaiiDoge,
 };
 
 // export const avatarFromArtifactIdAndImageType = (

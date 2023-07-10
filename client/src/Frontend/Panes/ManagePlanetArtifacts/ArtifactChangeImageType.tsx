@@ -1,5 +1,26 @@
+import {
+  MAX_AVATAR_TYPE,
+  MAX_LOGO_TYPE,
+  MAX_MEME_TYPE,
+  MIN_AVATAR_TYPE,
+  MIN_LOGO_TYPE,
+  MIN_MEME_TYPE,
+} from '@darkforest_eth/constants';
+import { avatarTypeToNum, logoTypeToNum, memeTypeToNum } from '@darkforest_eth/procedural';
 import { isUnconfirmedChangeArtifactImageTypeTx } from '@darkforest_eth/serde';
-import { Artifact, ArtifactId, ArtifactType, LocationId, Planet } from '@darkforest_eth/types';
+import {
+  Artifact,
+  ArtifactId,
+  ArtifactType,
+  AvatarType,
+  AvatarTypeNames,
+  LocationId,
+  LogoType,
+  LogoTypeNames,
+  MemeType,
+  MemeTypeNames,
+  Planet,
+} from '@darkforest_eth/types';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Btn } from '../../Components/Btn';
@@ -43,7 +64,7 @@ export function ArtifactChangeImageType({
 
   // const otherArtifactsOnPlanet = usePlanetArtifacts(onPlanetWrapper, uiManager);
 
-  const [imageType, setImageType] = useState('0');
+  const [imageType, setImageType] = useState(logoTypeToNum(LogoType.DFARES).toString());
 
   if (!artifact || (!onPlanet && !depositPlanet) || !account) return null;
 
@@ -58,6 +79,24 @@ export function ArtifactChangeImageType({
 
   const enabled = (planet: Planet): boolean => !imageTypeChangeing && planet?.owner === account;
 
+  const values = [];
+  const labels = [];
+
+  for (let i = MIN_MEME_TYPE; i <= MAX_MEME_TYPE; i++) {
+    values.push(memeTypeToNum(Number(i) as MemeType).toString());
+    labels.push(MemeTypeNames[i]);
+  }
+
+  for (let i = MIN_LOGO_TYPE; i <= MAX_LOGO_TYPE; i++) {
+    values.push(logoTypeToNum(Number(i) as LogoType).toString());
+    labels.push(LogoTypeNames[i]);
+  }
+
+  for (let i = MIN_AVATAR_TYPE; i <= MAX_AVATAR_TYPE; i++) {
+    values.push(avatarTypeToNum(Number(i) as AvatarType).toString());
+    labels.push(AvatarTypeNames[i]);
+  }
+
   // MyTodo: make more show state
   // const canHandleImageTypeChange = depositPlanetWrapper.value && ;
 
@@ -69,112 +108,8 @@ export function ArtifactChangeImageType({
             <div> Image Type </div>
             {/* MyTodo: change to like buyHatPane */}
             <SelectFrom
-              values={[
-                '0',
-                '1',
-                '2',
-                '3',
-                '4',
-                '5',
-                '6',
-                '7',
-                '8',
-                '9',
-                '10',
-                '11',
-                '12',
-                '13',
-                '14',
-                '15',
-                '16',
-                '17',
-                '18',
-                '19',
-                '20',
-                '21',
-                '22',
-                '23',
-                '24',
-                '25',
-                '26',
-                '27',
-                '28',
-                '29',
-                '30',
-                '31',
-                '32',
-                '33',
-                '34',
-                '35',
-                '36',
-                '37',
-                '38',
-                '39',
-                '40',
-                '41',
-                '42',
-                '43',
-                '44',
-                '45',
-                '46',
-                '47',
-                '48',
-                '49',
-                '50',
-              ]}
-              labels={[
-                'DF ARES',
-                'Doge',
-                'Cat',
-                'ChunZhen',
-                'IKunBird',
-                'Mike',
-                'Panda',
-                'Pepe',
-                'PigMan',
-                'RobotCat',
-                'TaiKuLa',
-                'Wojak1',
-                'Wojak2',
-                'Wojak3',
-                'Wojak4',
-                'DF Archon',
-                'AltLayer',
-                'DeGame',
-                'Fun Blocks',
-                'GamePhylum',
-                'MarrowDAO|Guild W',
-                'Orden GG',
-                'DFDAO',
-                '277 DAO',
-                'Web3MQ',
-                'Mask Network',
-                'AGLD DAO',
-                '01a1',
-                'Weirdao Ghost Gang',
-                'Briq',
-                'BlockBeats',
-                'Cointime',
-                'ChainCatcher',
-                'ForesightNews',
-                'SeeDAO',
-                'AWHouse',
-                'PaladinsDAO',
-                'NetherScape',
-                'UpchainDAO',
-                'LXDAO',
-                'Matrix World',
-                'Crypto Chasers',
-                'AW Research',
-                'BlockPi',
-                'WhaleDAO',
-                'Gametaverse',
-                'BuidlerDAO',
-                'THUBA',
-                'NJUBA',
-                'RUChain',
-                'DFARES',
-              ]}
+              values={values}
+              labels={labels}
               value={imageType.toString()}
               setValue={setImageType}
             />

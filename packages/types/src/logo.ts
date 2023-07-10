@@ -40,12 +40,12 @@ export const LogoType = {
   BlockPi: 31 as LogoType,
   WhaleDAO: 32 as LogoType,
   Gametaverse: 33 as LogoType,
-  BuidlerDAO: 35 as LogoType,
-  THUBA: 36 as LogoType,
-  NJUBA: 37 as LogoType,
-  RUChain: 38 as LogoType,
-  SIEA: 39 as LogoType,
-  KawaiiDoge: 40 as LogoType,
+  BuidlerDAO: 34 as LogoType,
+  THUBA: 35 as LogoType,
+  NJUBA: 36 as LogoType,
+  RUChain: 37 as LogoType,
+  SIEA: 38 as LogoType,
+
   // Don't forget to update MIN_LOGO_TYPE and/or MAX_LOGO_TYPE in the `constants` package
 };
 
@@ -92,5 +92,4 @@ export const LogoTypeNames = {
   [LogoType.NJUBA]: 'NJUBA',
   [LogoType.RUChain]: 'RUChain',
   [LogoType.SIEA]: 'SIEA',
-  [LogoType.KawaiiDoge]: 'Kawaii Doge',
 } as const;

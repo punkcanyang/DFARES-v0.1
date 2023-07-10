@@ -230,7 +230,7 @@ export function numToLogoType(num: number): LogoType {
 }
 
 export function numToAvatarType(num: number): AvatarType {
-  if (isLogo(num) === false) return AvatarType.Unknown;
+  if (isAvatar(num) === false) return AvatarType.Unknown;
   const res = num - minAvatarLimit + 1;
   return res as AvatarType;
 }

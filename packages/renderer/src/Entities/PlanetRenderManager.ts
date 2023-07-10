@@ -67,6 +67,15 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
     const logoKeys = Object.keys(logos);
     const avatarKeys = Object.keys(avatars);
 
+    {
+      //set default image
+      const img = new Image();
+      img.src = logos[LogoType.DFARES].topLayer[0];
+      img.onload = () => {
+        this.HTMLImages[0] = img;
+      };
+    }
+
     for (let i = 0; i < memeKeys.length; ++i) {
       const memeKey = memeKeys[i];
       const meme = memes[Number(memeKey) as MemeType];

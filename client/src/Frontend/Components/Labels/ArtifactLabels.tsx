@@ -1,13 +1,22 @@
 import { isAncient } from '@darkforest_eth/gamelogic';
-import { artifactImageTypeToNum } from '@darkforest_eth/procedural';
+import {
+  isAvatar,
+  isLogo,
+  isMeme,
+  numToAvatarType,
+  numToLogoType,
+  numToMemeType,
+} from '@darkforest_eth/procedural';
 import {
   Artifact,
   ArtifactRarity,
   ArtifactRarityNames,
   ArtifactType,
   ArtifactTypeNames,
+  AvatarTypeNames,
   BiomeNames,
-  HatTypeNames,
+  LogoTypeNames,
+  MemeTypeNames,
 } from '@darkforest_eth/types';
 import React from 'react';
 import styled from 'styled-components';
@@ -23,13 +32,25 @@ export const ArtifactBiomeText = ({ artifact }: { artifact: Artifact }) => (
   <>{isAncient(artifact) ? 'Ancient' : BiomeNames[artifact.planetBiome]}</>
 );
 
-export const ArtifactTypeText = ({ artifact }: { artifact: Artifact }) => (
-  <>
-    {ArtifactTypeNames[artifact.artifactType]}
-    {artifact.artifactType === ArtifactType.Avatar &&
-      ':' + HatTypeNames[artifactImageTypeToNum(artifact.imageType)]}
-  </>
-);
+export const ArtifactTypeText = ({ artifact }: { artifact: Artifact }) => {
+  const imageType = artifact.imageType;
+  let content = '';
+
+  if (isMeme(imageType)) content = MemeTypeNames[numToMemeType(imageType)];
+  else if (isLogo(imageType)) content = LogoTypeNames[numToLogoType(imageType)];
+  else if (isAvatar(imageType)) content = AvatarTypeNames[numToAvatarType(imageType)];
+
+  // console.log(imageType);
+  // console.log(isAvatar(imageType));
+  // console.log(content);
+
+  return (
+    <>
+      {ArtifactTypeNames[artifact.artifactType]}
+      {artifact.artifactType === ArtifactType.Avatar && ':' + content}
+    </>
+  );
+};
 
 // colored labels
 

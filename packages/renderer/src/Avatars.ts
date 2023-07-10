@@ -24,43 +24,43 @@ const Jasonlool = {
 
 const Santagnel = {
   legacy: false,
-  topLayer: [URL + '/img/logo/Santagnel.png'],
+  topLayer: [URL + '/img/avatar/Santagnel.png'],
   bottomLayer: [],
 };
 
 const OriginTiger = {
   legacy: false,
-  topLayer: [URL + '/img/logo/OriginTiger.png'],
+  topLayer: [URL + '/img/avatar/OriginTiger.png'],
   bottomLayer: [],
 };
 
 const zeroxviviyorg = {
   legacy: false,
-  topLayer: [URL + '/img/logo/zeroxviviyorg.png'],
+  topLayer: [URL + '/img/avatar/zeroxviviyorg.png'],
   bottomLayer: [],
 };
 
 const ikun = {
   legacy: false,
-  topLayer: [URL + '/img/logo/ikun.png'],
+  topLayer: [URL + '/img/avatar/ikun.png'],
   bottomLayer: [],
 };
 
 const BaliGee = {
   legacy: false,
-  topLayer: [URL + '/img/logo/BaliGee.png'],
+  topLayer: [URL + '/img/avatar/BaliGee.png'],
   bottomLayer: [],
 };
 
 const DDY = {
   legacy: false,
-  topLayer: [URL + '/img/logo/ddy.png'],
+  topLayer: [URL + '/img/avatar/ddy.png'],
   bottomLayer: [],
 };
 
 const Blue = {
   legacy: false,
-  topLayer: [URL + '/img/logo/Blue.png'],
+  topLayer: [URL + '/img/avatar/Blue.png'],
   bottomLayer: [],
 };
 

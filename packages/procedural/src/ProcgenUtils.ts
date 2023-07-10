@@ -217,7 +217,7 @@ export function numToHatType(num: number): HatType {
   return res as HatType;
 }
 
-export function numbToMemeType(num: number): MemeType {
+export function numToMemeType(num: number): MemeType {
   if (isMeme(num) === false) return MemeType.Unknown;
   const res = num - minMemeLimit + 1;
   return res as MemeType;
@@ -245,7 +245,7 @@ export function hatTypeToNum(hatType: HatType): number {
 export function memeTypeToNum(memeType: MemeType): number {
   if (memeType === MemeType.Unknown) return 0;
   const res = memeType + minMemeLimit - 1;
-  if (isHat(res) === false) return 0;
+  if (isMeme(res) === false) return 0;
   return res as number;
 }
 

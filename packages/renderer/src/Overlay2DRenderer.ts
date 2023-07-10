@@ -1,17 +1,30 @@
 import { isEmojiFlagMessage } from '@darkforest_eth/gamelogic';
 import {
+  isAvatar,
+  isHat,
+  isLogo,
+  isMeme,
+  numToAvatarType,
+  numToHatType,
+  numToLogoType,
+  numToMemeType,
+} from '@darkforest_eth/procedural';
+import {
   Artifact,
   CanvasCoords,
   Chunk,
   EmojiFlagBody,
-  HatType,
+  LogoType,
   PlanetMessage,
   PlanetRenderInfo,
   TextAlign,
   WorldCoords,
 } from '@darkforest_eth/types';
+import { avatarFromType } from './Avatars';
 import { engineConsts } from './EngineConsts';
 import { hatFromType } from './Hats';
+import { logoFromType } from './Logos';
+import { memeFromType } from './Memes';
 import { Renderer } from './Renderer';
 /*
    this is mostly migration code from the old renderer; it holds all of the old renderer primitives,
@@ -81,7 +94,7 @@ export class Overlay2DRenderer {
   }
 
   drawHat(
-    hatType: HatType,
+    hatType: number,
     pathHeight: number, // height of svg path
     pathWidth: number, // width of svg path
     center: WorldCoords, // center of planet
@@ -97,7 +110,15 @@ export class Overlay2DRenderer {
     const { ctx } = this;
     const viewport = this.renderer.getViewport();
 
-    const hat = hatFromType(hatType);
+    const getHat = (num: number) => {
+      if (isHat(num)) return hatFromType(numToHatType(num));
+      else if (isMeme(num)) return memeFromType(numToMemeType(num));
+      else if (isLogo(num)) return logoFromType(numToLogoType(num));
+      else if (isAvatar(num)) return avatarFromType(numToAvatarType(num));
+      else return logoFromType(LogoType.DFARES);
+    };
+
+    const hat = getHat(hatType);
 
     // const hat = hatFromType(HatType.Doge);
 
@@ -128,8 +149,6 @@ export class Overlay2DRenderer {
         hoverCoords.y > hatTopLeft.y &&
         hoverCoords.y < hatTopLeft.y + height) ||
       hoveringPlanet;
-
-    // console.warn(hat);
 
     // now draw the hat
     if (hat.legacy) {

@@ -205,21 +205,22 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
           renderInfo.radii.radiusWorld * 2,
           activatedAvatar
         );
-      } else if (isMeme(planet.hatLevel)) {
+      } else if (isMeme(planet.hatType)) {
         this.queueMemeImage(
           planet.location.coords,
           renderInfo.radii.radiusWorld * 2,
           planet.hatType as HatType,
           planet.hatLevel as number
         );
-      } else if (isLogo(planet.hatLevel)) {
+      } else if (isLogo(planet.hatType)) {
         this.queueLogoImage(
           planet.location.coords,
           renderInfo.radii.radiusWorld * 2,
-          planet.hatType as HatType,
-          planet.hatLevel as number
+          planet.hatType as number,
+          planet.hatLevel as number,
+          planet.protected as boolean
         );
-      } else if (isAvatar(planet.hatLevel)) {
+      } else if (isAvatar(planet.hatType)) {
         this.queueAvatarImage(
           planet.location.coords,
           renderInfo.radii.radiusWorld * 2,
@@ -508,7 +509,7 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
 
       const hatScale = 1.65 ** (hatLevel - 1);
       this.renderer.overlay2dRenderer.drawHat(
-        hatType as HatType, // cosmetic.hatType,
+        hatType as number, // cosmetic.hatType,
         512,
         512,
         center,
@@ -551,7 +552,7 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
   }
 
   queueMemeImage(center: WorldCoords, radius: number, hatType: HatType, hatLevel: number) {
-    if (hatType === HatType.Unknown) return;
+    if (isMeme(hatType) === false) return;
 
     // MyTodo: determine the size limit
     hatLevel = Math.min(hatLevel, 1);
@@ -567,38 +568,46 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
         center,
         // 1.2 * radius * hatScale,
         // 1.2 * radius * hatScale,
-        radius,
-        radius,
+        radius * hatLevel,
+        radius * hatLevel,
         radius,
         hoveringPlanet,
         hoverCoords
       );
   }
 
-  queueLogoImage(center: WorldCoords, radius: number, hatType: HatType, hatLevel: number) {
-    if (hatType === HatType.Unknown) return;
+  queueLogoImage(
+    center: WorldCoords,
+    radius: number,
+    hatType: number,
+    hatLevel: number,
+    ifAdminSet: boolean
+  ) {
+    if (isLogo(hatType) === false) return;
 
     //MyTodo: determine the size limit
-    hatLevel = Math.min(hatLevel, 3);
+    if (ifAdminSet === false) hatLevel = Math.min(hatLevel, 1);
 
     const { context } = this.renderer;
     const hoveringPlanet = context.getHoveringOverPlanet() !== undefined;
     const hoverCoords = context.getHoveringOverCoords();
-    const hatScale = 1.65 ** (hatLevel - 1);
+    // const hatScale = 1.65 ** (hatLevel - 1);
+    const hatScale = 1;
+
     this.HTMLImages[hatType] &&
       this.renderer.overlay2dRenderer.drawHTMLImage(
         this.HTMLImages[hatType],
         center,
-        1.2 * radius * hatScale,
-        1.2 * radius * hatScale,
+        radius * hatScale,
+        radius * hatScale,
         radius,
         hoveringPlanet,
         hoverCoords
       );
   }
 
-  queueAvatarImage(center: WorldCoords, radius: number, hatType: HatType, hatLevel: number) {
-    if (hatType === HatType.Unknown) return;
+  queueAvatarImage(center: WorldCoords, radius: number, hatType: number, hatLevel: number) {
+    if (isAvatar(hatType) === false) return;
 
     //MyTodo: determine the size limit
     hatLevel = Math.min(hatLevel, 1);
@@ -606,13 +615,16 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
     const { context } = this.renderer;
     const hoveringPlanet = context.getHoveringOverPlanet() !== undefined;
     const hoverCoords = context.getHoveringOverCoords();
-    const hatScale = 1.65 ** (hatLevel - 1);
+    // const hatScale = 1.65 ** (hatLevel - 1);
+    const hatScale = 1;
     this.HTMLImages[hatType] &&
       this.renderer.overlay2dRenderer.drawHTMLImage(
         this.HTMLImages[hatType],
         center,
-        1.2 * radius * hatScale,
-        1.2 * radius * hatScale,
+        // 1.2 * radius * hatScale,
+        // 1.2 * radius * hatScale,
+        radius * hatScale,
+        radius * hatScale,
         radius,
         hoveringPlanet,
         hoverCoords

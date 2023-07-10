@@ -1,8 +1,36 @@
-import { MAX_HAT_TYPE, MIN_HAT_TYPE, TOKEN_NAME } from '@darkforest_eth/constants';
+import {
+  MAX_AVATAR_TYPE,
+  MAX_HAT_TYPE,
+  MAX_LOGO_TYPE,
+  MAX_MEME_TYPE,
+  MIN_AVATAR_TYPE,
+  MIN_HAT_TYPE,
+  MIN_LOGO_TYPE,
+  MIN_MEME_TYPE,
+  TOKEN_NAME,
+} from '@darkforest_eth/constants';
 import { weiToEth } from '@darkforest_eth/network';
-import { getHatSizeName, getPlanetCosmetic } from '@darkforest_eth/procedural';
+import {
+  avatarTypeToNum,
+  getHatSizeName,
+  getPlanetCosmetic,
+  hatTypeToNum,
+  logoTypeToNum,
+  memeTypeToNum,
+} from '@darkforest_eth/procedural';
 import { isUnconfirmedBuyHatTx } from '@darkforest_eth/serde';
-import { HatTypeNames, LocationId, Planet } from '@darkforest_eth/types';
+import {
+  AvatarType,
+  AvatarTypeNames,
+  HatType,
+  HatTypeNames,
+  LocationId,
+  LogoType,
+  LogoTypeNames,
+  MemeType,
+  MemeTypeNames,
+  Planet,
+} from '@darkforest_eth/types';
 import { BigNumber } from 'ethers';
 import React, { useState } from 'react';
 import styled from 'styled-components';
@@ -55,24 +83,30 @@ export function HatPane({
     planet?.owner === account &&
     balanceEth > getHatCostEth(planet);
 
-  const [hatType, setHatType] = useState('0');
+  const [hatType, setHatType] = useState(logoTypeToNum(LogoType.DFARES).toString());
 
   const values = [];
   const labels = [];
+
   for (let i = MIN_HAT_TYPE; i <= MAX_HAT_TYPE; i++) {
-    values.push(i.toString());
+    values.push(hatTypeToNum(Number(i) as HatType).toString());
     labels.push(HatTypeNames[i]);
   }
 
-  // for (let i = MIN_MEME_HAT_TYPE; i <= MAX_MEME_HAT_TYPE; i++) {
-  //   values.push(i.toString());
-  //   labels.push(HatTypeNames[i]);
-  // }
+  for (let i = MIN_MEME_TYPE; i <= MAX_MEME_TYPE; i++) {
+    values.push(memeTypeToNum(Number(i) as MemeType).toString());
+    labels.push(MemeTypeNames[i]);
+  }
 
-  // for (let i = MIN_LOGO_HAT_TYPE; i <= MAX_LOGO_HAT_TYPE; i++) {
-  //   values.push(i.toString());
-  //   labels.push(HatTypeNames[i]);
-  // }
+  for (let i = MIN_LOGO_TYPE; i <= MAX_LOGO_TYPE; i++) {
+    values.push(logoTypeToNum(Number(i) as LogoType).toString());
+    labels.push(LogoTypeNames[i]);
+  }
+
+  for (let i = MIN_AVATAR_TYPE; i <= MAX_AVATAR_TYPE; i++) {
+    values.push(avatarTypeToNum(Number(i) as AvatarType).toString());
+    labels.push(AvatarTypeNames[i]);
+  }
 
   if (planet && planet.owner === account) {
     return (

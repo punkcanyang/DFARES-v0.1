@@ -55,6 +55,7 @@ export const LogoType = {
   FFGDAO: 46 as LogoType,
   Rooch: 47 as LogoType,
   ggQuest: 48 as LogoType,
+  CryptoChasersRobot: 49 as LogoType,
   // Don't forget to update MIN_LOGO_TYPE and/or MAX_LOGO_TYPE in the `constants` package
 };
 
@@ -73,13 +74,12 @@ export const LogoTypeNames = {
   [LogoType.DeGame]: 'DeGame',
   [LogoType.FunBlocks]: 'Fun Blocks',
   [LogoType.GamePhylum]: 'GamePhylum',
-  [LogoType.MarrowDAO]: 'MarrowDAO|Guild W',
+  [LogoType.MarrowDAO]: 'MarrowDAO | Guild W',
   [LogoType.OrdenGG]: 'Orden GG',
   [LogoType.DFDAO]: 'DFDAO',
   [LogoType.Two77DAO]: '277 DAO',
   [LogoType.Zero1a1]: '01a1',
   [LogoType.WeirdaoGhostGang]: 'Weirdao Ghost Gang',
-
   [LogoType.Briq]: 'Briq',
   [LogoType.SeeDAO]: 'SeeDAO',
   [LogoType.NetherScape]: 'NetherScape',
@@ -112,4 +112,5 @@ export const LogoTypeNames = {
   [LogoType.FFGDAO]: 'FFG DAO',
   [LogoType.Rooch]: 'Rooch',
   [LogoType.ggQuest]: 'ggQuest',
+  [LogoType.CryptoChasersRobot]: 'CryptoChasers Robot',
 } as const;

@@ -53,6 +53,6 @@ export const MemeTypeNames = {
   [MemeType.Harold]: 'Hide the Pain Harold',
   [MemeType.TheMerge]: 'The Merge by Pak',
   [MemeType.Undream]: 'Undream by Pak',
-  [MemeType.KakaiKiki]: 'Kakai Kiki',
+  [MemeType.KakaiKiki]: 'Kaikai Kiki',
   [MemeType.SucessfulKid]: 'Successul Kid',
 } as const;

@@ -126,7 +126,7 @@ const Undream = {
 
 const KakaiKiki = {
   legacy: false,
-  topLayer: [URL + '/img/meme/KakaiKiki.png'],
+  topLayer: [URL + '/img/meme/KaikaiKiki.png'],
   bottomLayer: [],
 };
 

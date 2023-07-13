@@ -100,6 +100,42 @@ const wojak4 = {
   bottomLayer: [],
 };
 
+const NyanCat = {
+  legacy: false,
+  topLayer: [URL + '/img/meme/NyanCat.png'],
+  bottomLayer: [],
+};
+
+const Harold = {
+  legacy: false,
+  topLayer: [URL + '/img/meme/Hide_the_Pain_harold.png'],
+  bottomLayer: [],
+};
+
+const TheMerge = {
+  legacy: false,
+  topLayer: [URL + '/img/meme/TheMerge.png'],
+  bottomLayer: [],
+};
+
+const Undream = {
+  legacy: false,
+  topLayer: [URL + '/img/meme/Undream.png'],
+  bottomLayer: [],
+};
+
+const KakaiKiki = {
+  legacy: false,
+  topLayer: [URL + '/img/meme/KakaiKiki.png'],
+  bottomLayer: [],
+};
+
+const SuccessfulKid = {
+  legacy: false,
+  topLayer: [URL + '/img/meme/sucessful-kid.png'],
+  bottomLayer: [],
+};
+
 export const memeFromType = (type: MemeType): Meme => memes[type];
 
 export const memes: Record<MemeType, Meme> = {
@@ -117,4 +153,10 @@ export const memes: Record<MemeType, Meme> = {
   [MemeType.Wojak2]: wojak2,
   [MemeType.Wojak3]: wojak3,
   [MemeType.Wojak4]: wojak4,
+  [MemeType.NyanCat]: NyanCat,
+  [MemeType.Harold]: Harold,
+  [MemeType.TheMerge]: TheMerge,
+  [MemeType.Undream]: Undream,
+  [MemeType.KakaiKiki]: KakaiKiki,
+  [MemeType.SucessfulKid]: SuccessfulKid,
 };

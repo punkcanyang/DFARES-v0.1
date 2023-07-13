@@ -204,7 +204,7 @@ export const PICTURE_URL = 'http://localhost:8081';
 //export const PICTURE_URL =  'https://dfares.xyz/public';
 
 export const MIN_MEME_TYPE = 1;
-export const MAX_MEME_TYPE = 14;
+export const MAX_MEME_TYPE = 20;
 
 export const MIN_LOGO_TYPE = 1;
 export const MAX_LOGO_TYPE = 49;

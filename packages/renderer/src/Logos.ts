@@ -5,6 +5,8 @@ export type Logo = {
   legacy: boolean;
   topLayer: Array<string>;
   bottomLayer: Array<string>;
+  color: string;
+  desc: string;
   // image?: () => Promise<HTMLImageElement>;
 };
 

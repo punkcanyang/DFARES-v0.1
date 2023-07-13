@@ -1,5 +1,6 @@
 import { isLocatable } from '@darkforest_eth/gamelogic';
-import { getPlanetName } from '@darkforest_eth/procedural';
+import { getPlanetName, isLogo, numToLogoType } from '@darkforest_eth/procedural';
+import { logoFromType } from '@darkforest_eth/renderer';
 import { Planet, TooltipName } from '@darkforest_eth/types';
 import React from 'react';
 import styled from 'styled-components';
@@ -39,9 +40,18 @@ export function PlanetCardTitle({
   if (!planet.value) return <></>;
   if (small) return <>{getPlanetName(planet.value)}</>;
 
+  const p = planet.value;
+  let planetNameDiv = <div> {getPlanetName(planet.value)} </div>;
+  if (p.hatLevel > 0 && isLogo(p.hatType)) {
+    const logoType = numToLogoType(p.hatType);
+    const logo = logoFromType(logoType);
+    const logoColor = logo.color;
+    planetNameDiv = <div style={{ color: logoColor }}> {getPlanetName(p)} </div>;
+  }
+
   return (
     <AlignCenterHorizontally style={{ width: 'initial', display: 'inline-flex' }}>
-      {getPlanetName(planet.value)}
+      {planetNameDiv}
       <EmSpacer width={0.5} />
       <PlanetIcons planet={planet.value} />
     </AlignCenterHorizontally>
@@ -74,6 +84,17 @@ export function PlanetCard({
 
   if (!planet || !isLocatable(planet)) return <></>;
 
+  let showLogoDesc = <div></div>;
+
+  if (planet.hatLevel > 0 && isLogo(planet.hatType)) {
+    const logoType = numToLogoType(planet.hatType);
+    const logo = logoFromType(logoType);
+
+    const logoColor = logo.color;
+
+    showLogoDesc = <div style={{ color: logoColor }}> {logo.desc} </div>;
+  }
+
   return (
     <>
       {standalone && (
@@ -98,6 +119,8 @@ export function PlanetCard({
             <PlanetActiveArtifact artifact={active} planet={planet} />
           </>
         )}
+
+        <StatRow>{showLogoDesc}</StatRow>
 
         <ElevatedContainer>
           <StatRow>

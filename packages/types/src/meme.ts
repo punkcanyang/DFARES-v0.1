@@ -21,6 +21,12 @@ export const MemeType = {
   Wojak2: 12 as MemeType,
   Wojak3: 13 as MemeType,
   Wojak4: 14 as MemeType,
+  NyanCat: 15 as MemeType,
+  Harold: 16 as MemeType,
+  TheMerge: 17 as MemeType,
+  Undream: 18 as MemeType,
+  KakaiKiki: 19 as MemeType,
+  SucessfulKid: 20 as MemeType,
   // Don't forget to update MIN_MEME_TYPE and/or MAX_MEME_TYPE in the `constants` package
 };
 
@@ -43,4 +49,10 @@ export const MemeTypeNames = {
   [MemeType.Wojak2]: 'Wojak2',
   [MemeType.Wojak3]: 'Wojak3',
   [MemeType.Wojak4]: 'Wojak4',
+  [MemeType.NyanCat]: 'Nyan Cat',
+  [MemeType.Harold]: 'Hide the Pain Harold',
+  [MemeType.TheMerge]: 'The Merge by Pak',
+  [MemeType.Undream]: 'Undream by Pak',
+  [MemeType.KakaiKiki]: 'Kakai Kiki',
+  [MemeType.SucessfulKid]: 'Successul Kid',
 } as const;

@@ -15,6 +15,7 @@ import {
   ArtifactTypeNames,
   AvatarTypeNames,
   BiomeNames,
+  LogoType,
   LogoTypeNames,
   MemeTypeNames,
 } from '@darkforest_eth/types';
@@ -39,6 +40,7 @@ export const ArtifactTypeText = ({ artifact }: { artifact: Artifact }) => {
   if (isMeme(imageType)) content = MemeTypeNames[numToMemeType(imageType)];
   else if (isLogo(imageType)) content = LogoTypeNames[numToLogoType(imageType)];
   else if (isAvatar(imageType)) content = AvatarTypeNames[numToAvatarType(imageType)];
+  else content = LogoTypeNames[LogoType.DFARES];
 
   // console.log(imageType);
   // console.log(isAvatar(imageType));

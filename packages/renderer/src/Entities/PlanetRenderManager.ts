@@ -545,6 +545,8 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
 
     const imageType = artifactImageTypeToNum(artifact.imageType);
 
+    const hatScale = 0.7;
+
     this.HTMLImages[imageType] &&
       this.renderer.overlay2dRenderer.drawHTMLImage(
         this.HTMLImages[imageType],
@@ -552,9 +554,9 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
         // radius === 1 ? 2 : 1.2 * 1.3 ** (artifact.rarity - 1) * radius,
         // radius === 1 ? 2 : 1.2 * 1.3 ** (artifact.rarity - 1) * radius,
         // radius === 1 ? 1.5 : 1.3 ** (artifact.rarity - 1) * radius,
-        radius,
-        radius,
-        radius,
+        radius * hatScale,
+        radius * hatScale,
+        radius * hatScale,
         hoveringPlanet,
         hoverCoords
       );
@@ -569,7 +571,7 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
     const { context } = this.renderer;
     const hoveringPlanet = context.getHoveringOverPlanet() !== undefined;
     const hoverCoords = context.getHoveringOverCoords();
-    // const hatScale = 1.65 ** (hatLevel - 1);
+    const hatScale = 1.65 ** (hatLevel - 1);
 
     this.HTMLImages[hatType] &&
       this.renderer.overlay2dRenderer.drawHTMLImage(
@@ -577,8 +579,8 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
         center,
         // 1.2 * radius * hatScale,
         // 1.2 * radius * hatScale,
-        radius * hatLevel,
-        radius * hatLevel,
+        radius * hatScale,
+        radius * hatScale,
         radius,
         hoveringPlanet,
         hoverCoords
@@ -600,8 +602,7 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
     const { context } = this.renderer;
     const hoveringPlanet = context.getHoveringOverPlanet() !== undefined;
     const hoverCoords = context.getHoveringOverCoords();
-    // const hatScale = 1.65 ** (hatLevel - 1);
-    const hatScale = 1;
+    const hatScale = 1.65 ** (hatLevel - 1);
 
     this.HTMLImages[hatType] &&
       this.renderer.overlay2dRenderer.drawHTMLImage(
@@ -624,8 +625,8 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
     const { context } = this.renderer;
     const hoveringPlanet = context.getHoveringOverPlanet() !== undefined;
     const hoverCoords = context.getHoveringOverCoords();
-    // const hatScale = 1.65 ** (hatLevel - 1);
-    const hatScale = 1;
+    const hatScale = 1.65 ** (hatLevel - 1);
+
     this.HTMLImages[hatType] &&
       this.renderer.overlay2dRenderer.drawHTMLImage(
         this.HTMLImages[hatType],

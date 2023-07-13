@@ -24,6 +24,7 @@ import {
   HSLVec,
   LocationId,
   LogoType,
+  LogoTypeNames,
   MemeType,
   Planet,
   PlanetCosmeticInfo,
@@ -555,6 +556,9 @@ export function getPlanetTitle(planet: Planet | undefined) {
 
 export function getPlanetName(planet: Planet | undefined): string {
   if (!planet) return 'Unknown';
+  if (planet.hatLevel > 0 && isLogo(planet.hatType)) {
+    return LogoTypeNames[numToLogoType(planet.hatType)];
+  }
   return getPlanetNameHash(planet.locationId);
 }
 

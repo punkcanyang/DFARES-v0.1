@@ -16,7 +16,7 @@ import {LibPlanet} from "../libraries/LibPlanet.sol";
 import {WithStorage} from "../libraries/LibStorage.sol";
 
 // Type imports
-import {SpaceType, Planet, Player, ArtifactType, DFPInitPlanetArgs, DFPMoveArgs, DFPFindArtifactArgs, AdminCreatePlanetArgs} from "../DFTypes.sol";
+import {SpaceType, Planet, Player, ArtifactType, DFPInitPlanetArgs, DFPMoveArgs, DFPFindArtifactArgs, AdminCreatePlanetArgs, Artifact} from "../DFTypes.sol";
 
 contract DFCoreFacet is WithStorage {
     using ABDKMath64x64 for *;
@@ -206,6 +206,10 @@ contract DFCoreFacet is WithStorage {
             gs().planets[_location].owner == msg.sender,
             "Only owner account can perform that operation on planet."
         );
+
+        Artifact memory activeArtifact = LibGameUtils.getActiveArtifact(_location);
+
+        require(activeArtifact.artifactType != ArtifactType.Avatar, "need no active Avatar");
 
         uint256 cost = (1 << gs().planets[_location].hatLevel) * 1 ether;
 

@@ -62,7 +62,12 @@ export function ArtifactChangeImageType({
   const depositPlanet = depositPlanetWrapper.value;
   const onPlanet = onPlanetWrapper.value;
 
-  const [imageType, setImageType] = useState(logoTypeToNum(LogoType.DFARES).toString());
+  const defaultImageType =
+    onPlanet && artifact && artifact.artifactType === ArtifactType.Avatar && artifact.imageType > 0
+      ? artifact.imageType
+      : logoTypeToNum(LogoType.DFARES);
+
+  const [imageType, setImageType] = useState(defaultImageType.toString());
 
   // const otherArtifactsOnPlanet = usePlanetArtifacts(onPlanetWrapper, uiManager);
 

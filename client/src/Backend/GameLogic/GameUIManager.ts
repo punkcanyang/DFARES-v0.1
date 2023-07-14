@@ -1269,6 +1269,9 @@ class GameUIManager extends EventEmitter {
     return this.gameManager.getPlayerScore(player);
   }
 
+  public getPlayerActivateArtifactAmount(player: EthAddress): number | undefined {
+    return this.gameManager.getPlayerActivateArtifactAmount(player);
+  }
   public getPlayerBuyArtifactAmount(player: EthAddress): number | undefined {
     return this.gameManager.getPlayerBuyArtifactAmount(player);
   }

@@ -211,6 +211,22 @@ library LibArtifactUtils {
 
         require(artifact.isInitialized, "this artifact is not on this planet");
 
+        if (artifact.artifactType != ArtifactType.Avatar) {
+            uint256 totalAmount = gs().players[msg.sender].activateArtifactAmount + 1;
+            uint256 totalGameBlocks = block.number - gameConstants().GAME_START_BLOCK;
+
+            //MyTodo: altlayer 2 sec for 1 block
+            //1 hour 1 artifact
+            //require(totalGameBlocks * 2 >= amount * 60 * 60, "block number
+            //limit");
+
+            // 10 min 1 artifact
+            uint256 deltaTime = 10;
+
+            require(totalGameBlocks * 2 >= totalAmount * 60 * deltaTime, "block number limit");
+            gs().players[msg.sender].activateArtifactAmount++;
+        }
+
         // bool nonAvatarArtifactCanActivateWithAvatarActivated = LibGameUtils.getActiveArtifact(locationId).artifactType == ArtifactType.Avatar && artifact.artifactType != ArtifactType.Avatar;
 
         // Unknown is the 0th one, Monolith is the 1st, and so on.

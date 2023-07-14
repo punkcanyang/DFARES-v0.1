@@ -1294,6 +1294,11 @@ class GameManager extends EventEmitter {
     return player?.spaceJunkLimit;
   }
 
+  public getPlayerActivateArtifactAmount(addr: EthAddress): number | undefined {
+    const player = this.players.get(addr);
+    return player?.activateArtifactAmount;
+  }
+
   public getPlayerBuyArtifactAmount(addr: EthAddress): number | undefined {
     const player = this.players.get(addr);
     return player?.buyArtifactAmount;

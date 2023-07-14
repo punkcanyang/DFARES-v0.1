@@ -28,12 +28,12 @@ import { Green, Red, Sub, Text, Text2, White } from '../Components/Text';
 import { TextPreview } from '../Components/TextPreview';
 import { TimeUntil } from '../Components/TimeUntil';
 import dfstyles from '../Styles/dfstyles';
-import { useArtifact, useUIManager } from '../Utils/AppHooks';
+import { useAccount, useArtifact, useUIManager } from '../Utils/AppHooks';
+import { useEmitterValue } from '../Utils/EmitterHooks';
 import { ModalHandle } from '../Views/ModalPane';
 import { ArtifactActions } from './ManagePlanetArtifacts/ArtifactActions';
 import { ArtifactChangeImageType } from './ManagePlanetArtifacts/ArtifactChangeImageType';
 import { TooltipTrigger } from './Tooltip';
-
 const StatsContainer = styled.div`
   flex-grow: 1;
 `;
@@ -164,14 +164,17 @@ export function ArtifactDetailsBody({
   noActions?: boolean;
 }) {
   const uiManager = useUIManager();
+  const myAccount = useAccount(uiManager);
   const artifactWrapper = useArtifact(uiManager, artifactId);
   const artifact = artifactWrapper.value;
+
+  const currentBlockNumber = useEmitterValue(uiManager.getEthConnection().blockNumber$, undefined);
 
   if (!artifact) {
     return null;
   }
 
-  console.log(ArtifactType);
+  // console.log(ArtifactType);
 
   const account = (addr: EthAddress) => {
     const twitter = uiManager?.getTwitter(addr);
@@ -225,6 +228,25 @@ export function ArtifactDetailsBody({
       />
     );
   }
+
+  // about activate artifact block limit pane
+
+  //myTodo: 10 min 1 artifact
+  const deltaTime = 10;
+
+  const maxAmount = currentBlockNumber
+    ? Math.floor(
+        ((currentBlockNumber - uiManager.contractConstants.GAME_START_BLOCK) * 2.0) /
+          (60 * deltaTime)
+      )
+    : 0;
+
+  const activateArtifactAmountInContract = myAccount
+    ? uiManager.getPlayerActivateArtifactAmount(myAccount)
+    : 0;
+  const activateArtifactAmount = activateArtifactAmountInContract
+    ? activateArtifactAmountInContract
+    : 0;
 
   return (
     <>
@@ -329,6 +351,12 @@ export function ArtifactDetailsBody({
         )}
 
         <ArtifactChangeImageType artifactId={artifactWrapper.value?.id} depositOn={depositOn} />
+        <div>
+          <div>block number: {currentBlockNumber}</div>
+          <div> activate artifact amount {activateArtifactAmount}</div>
+          <div> max artifact amount {maxAmount} </div>
+        </div>
+
         {!noActions && (
           <ArtifactActions artifactId={artifactWrapper.value?.id} depositOn={depositOn} />
         )}

@@ -35,6 +35,7 @@ struct Player {
     bool claimedShips;
     uint256 finalRank;
     bool claimedReward;
+    uint256 activateArtifactAmount;
     uint256 buyArtifactAmount;
 }
 

@@ -48,9 +48,13 @@ export function BuyArtifactPane({
 
   const currentBlockNumber = useEmitterValue(uiManager.getEthConnection().blockNumber$, undefined);
 
+  //myTodo: 10 min 1 artifact
+  const deltaTime = 10;
+
   const maxAmount = currentBlockNumber
     ? Math.floor(
-        ((currentBlockNumber - uiManager.contractConstants.GAME_START_BLOCK) * 2.0) / (60 * 3)
+        ((currentBlockNumber - uiManager.contractConstants.GAME_START_BLOCK) * 2.0) /
+          (60 * deltaTime)
       )
     : 0;
 

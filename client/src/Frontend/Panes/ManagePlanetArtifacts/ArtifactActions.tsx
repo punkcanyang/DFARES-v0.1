@@ -27,6 +27,7 @@ import {
   usePlanetArtifacts,
   useUIManager,
 } from '../../Utils/AppHooks';
+import { useEmitterValue } from '../../Utils/EmitterHooks';
 import { TooltipTrigger, TooltipTriggerProps } from '../Tooltip';
 
 export function ArtifactActions({
@@ -47,6 +48,22 @@ export function ArtifactActions({
   const onPlanet = onPlanetWrapper.value;
 
   const otherArtifactsOnPlanet = usePlanetArtifacts(onPlanetWrapper, uiManager);
+
+  const currentBlockNumber = useEmitterValue(uiManager.getEthConnection().blockNumber$, undefined);
+
+  //myTodo: 10 min 1 artifact
+  const deltaTime = 10;
+
+  const maxAmount = currentBlockNumber
+    ? Math.floor(
+        ((currentBlockNumber - uiManager.contractConstants.GAME_START_BLOCK) * 2.0) /
+          (60 * deltaTime)
+      )
+    : 0;
+
+  const buyArtifactAmountInContract = account ? uiManager.getPlayerBuyArtifactAmount(account) : 0;
+
+  const buyArtifactAmount = buyArtifactAmountInContract ? buyArtifactAmountInContract : 0;
 
   const withdraw = useCallback(
     (artifact: Artifact) => {
@@ -171,7 +188,11 @@ export function ArtifactActions({
     });
   }
 
-  if (canActivateArtifact(artifact, onPlanet, otherArtifactsOnPlanet)) {
+  if (
+    canActivateArtifact(artifact, onPlanet, otherArtifactsOnPlanet) &&
+    ((artifact.artifactType !== ArtifactType.Avatar && maxAmount > buyArtifactAmount) ||
+      artifact.artifactType === ArtifactType.Avatar)
+  ) {
     actions.unshift({
       name: TooltipName.ActivateArtifact,
       children: (

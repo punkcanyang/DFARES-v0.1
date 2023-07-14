@@ -322,8 +322,8 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
           this.renderer.overlay2dRenderer.drawHTMLImage(
             this.HTMLImages[avatarType],
             { x, y },
-            radiusW,
-            radiusW,
+            artifactSize * 1.2,
+            artifactSize * 1.2,
             radiusW,
             false
           );

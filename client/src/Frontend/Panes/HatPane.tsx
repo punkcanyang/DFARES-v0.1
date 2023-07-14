@@ -83,7 +83,10 @@ export function HatPane({
     planet?.owner === account &&
     balanceEth > getHatCostEth(planet);
 
-  const [hatType, setHatType] = useState(logoTypeToNum(LogoType.DFARES).toString());
+  const defaultHatType =
+    planet && planet.hatLevel > 0 ? planet.hatType : logoTypeToNum(LogoType.DFARES);
+
+  const [hatType, setHatType] = useState(defaultHatType.toString());
 
   const values = [];
   const labels = [];

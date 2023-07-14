@@ -61,9 +61,13 @@ export function ArtifactActions({
       )
     : 0;
 
-  const buyArtifactAmountInContract = account ? uiManager.getPlayerBuyArtifactAmount(account) : 0;
+  const activateArtifactAmountInContract = account
+    ? uiManager.getPlayerActivateArtifactAmount(account)
+    : 0;
 
-  const buyArtifactAmount = buyArtifactAmountInContract ? buyArtifactAmountInContract : 0;
+  const activateArtifactAmount = activateArtifactAmountInContract
+    ? activateArtifactAmountInContract
+    : 0;
 
   const withdraw = useCallback(
     (artifact: Artifact) => {
@@ -190,7 +194,7 @@ export function ArtifactActions({
 
   if (
     canActivateArtifact(artifact, onPlanet, otherArtifactsOnPlanet) &&
-    ((artifact.artifactType !== ArtifactType.Avatar && maxAmount > buyArtifactAmount) ||
+    ((artifact.artifactType !== ArtifactType.Avatar && maxAmount > activateArtifactAmount) ||
       artifact.artifactType === ArtifactType.Avatar)
   ) {
     actions.unshift({

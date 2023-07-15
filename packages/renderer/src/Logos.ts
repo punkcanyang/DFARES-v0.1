@@ -300,10 +300,10 @@ const ForesightNews = {
   bottomLayer: [],
 };
 
-const DappChaser = {
+const DAppChaser = {
   legacy: false,
-  topLayer: [URL + "/img/logo/dappchaser.png"],
-  desc: "DAppChaser is a distributed organization focusing on blockchain-based innovations and DApp developments.",
+  topLayer: [URL + "/img/logo/DAppChaser.png"],
+  desc: "DAppChaser is a distributed organization founded in 2018, focusing on blockchain-based innovations and DApp developments.",
 
   color: "#85ddda",
   bottomLayer: [],
@@ -587,7 +587,7 @@ export const logos: Record<LogoType, Logo> = {
   [LogoType.Cointime]: Cointime,
   [LogoType.ChainCatcher]: ChainCatcher,
   [LogoType.ForesightNews]: ForesightNews,
-  [LogoType.DappChaser]: DappChaser,
+  [LogoType.DAppChaser]: DAppChaser,
   [LogoType.MatrixWorld]: MatrixWorld,
   [LogoType.AWHouse]: AWHouse,
   [LogoType.PaladinsDAO]: PaladinsDAO,

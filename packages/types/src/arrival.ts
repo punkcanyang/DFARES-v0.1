@@ -1,5 +1,10 @@
-import type { ArtifactId, EthAddress, LocationId, VoyageId } from './identifier';
-import type { Abstract } from './utility';
+import type {
+  ArtifactId,
+  EthAddress,
+  LocationId,
+  VoyageId,
+} from "./identifier";
+import type { Abstract } from "./utility";
 
 /**
  * Represents a voyage.
@@ -21,7 +26,7 @@ export interface QueuedArrival {
 /**
  * Abstract type representing an arrival type.
  */
-export type ArrivalType = Abstract<number, 'ArrivalType'>;
+export type ArrivalType = Abstract<number, "ArrivalType">;
 
 /**
  * Enumeration of arrival types.

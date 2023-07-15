@@ -1,6 +1,6 @@
 {
   "name": "@dfares/network",
-  "version": "6.8.0-dev.0",
+  "version": "6.8.1",
   "license": "MIT",
   "author": "0xPARC <ivan@0xPARC.org>",
   "engines": {
@@ -21,11 +21,11 @@
     "clean": "del-cli dist node_modules tsconfig.ref.tsbuildinfo"
   },
   "dependencies": {
-    "@dfares/constants": "6.8.0-dev.0",
-    "@dfares/contracts": "6.8.0-dev.0",
-    "@dfares/events": "6.8.0-dev.0",
-    "@dfares/serde": "6.8.0-dev.0",
-    "@dfares/types": "6.8.0-dev.0",
+    "@dfares/constants": "6.8.1",
+    "@dfares/contracts": "6.8.1",
+    "@dfares/events": "6.8.1",
+    "@dfares/serde": "6.8.1",
+    "@dfares/types": "6.8.1",
     "async-mutex": "^0.3.2",
     "ethers": "^5.5.1",
     "json-stable-stringify": "^1.0.1",

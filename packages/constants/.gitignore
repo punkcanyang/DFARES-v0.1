@@ -1,7 +1,10 @@
-dist
 tsconfig.ref.tsbuildinfo
-README.md
 yarn-error.log
 yarn.lock
+package-lock.json
+
+
+dist
 interfaces
 classes
+README.md

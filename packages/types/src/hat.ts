@@ -1,6 +1,6 @@
-import type { Abstract } from './utility';
+import type { Abstract } from "./utility";
 
-export type HatType = Abstract<number, 'HatType'>;
+export type HatType = Abstract<number, "HatType">;
 
 /**
  * Enumeration of hat types.
@@ -25,15 +25,15 @@ export const HatType = {
  * Mapping from HatType to pretty-printed names.
  */
 export const HatTypeNames = {
-  [HatType.Unknown]: 'Unknown',
-  [HatType.GraduationCap]: 'GraduationCap',
-  [HatType.PartyHat]: 'PartyHat',
-  [HatType.Fish]: 'Fish',
-  [HatType.TopHat]: 'TopHat',
-  [HatType.Fez]: 'Fez',
-  [HatType.ChefHat]: 'ChefHat',
-  [HatType.CowboyHat]: 'CoyboyHat',
-  [HatType.PopeHat]: 'PopeHat',
-  [HatType.Squid]: 'Squid',
-  [HatType.SantaHat]: 'SantaHat',
+  [HatType.Unknown]: "Unknown",
+  [HatType.GraduationCap]: "GraduationCap",
+  [HatType.PartyHat]: "PartyHat",
+  [HatType.Fish]: "Fish",
+  [HatType.TopHat]: "TopHat",
+  [HatType.Fez]: "Fez",
+  [HatType.ChefHat]: "ChefHat",
+  [HatType.CowboyHat]: "CoyboyHat",
+  [HatType.PopeHat]: "PopeHat",
+  [HatType.Squid]: "Squid",
+  [HatType.SantaHat]: "SantaHat",
 } as const;

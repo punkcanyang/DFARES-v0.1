@@ -667,10 +667,6 @@ export class ContractsAPI extends EventEmitter {
     const rawPlayer = await this.makeCall(this.contract.players, [playerId]);
     if (!rawPlayer.isInitialized) return undefined;
     const player = decodePlayer(rawPlayer);
-
-    //MyDelete:
-    // console.warn(player);
-
     return player;
   }
 

@@ -217,42 +217,23 @@ library LibGameUtils {
         //     // artifactType = ArtifactType.PhotoidCannon;
         // }
 
-        if (lastByteOfSeed < 256) {
-            // artifactType = ArtifactType.Monolith;
-            artifactType = ArtifactType.StellarShield;
-        } else if (lastByteOfSeed < 512) {
-            // artifactType = ArtifactType.Colossus;
-            artifactType = ArtifactType.PhotoidCannon;
-        } else if (lastByteOfSeed < 117) {
-            // artifactType = ArtifactType.Spaceship;
-            artifactType = ArtifactType.IceLink;
-        } else if (lastByteOfSeed < 768) {
-            // artifactType = ArtifactType.Pyramid;
-            artifactType = ArtifactType.FireLink;
-        } else if (lastByteOfSeed < 1024) {
+        if (lastByteOfSeed < 455) {
             artifactType = ArtifactType.Wormhole;
-        } else if (lastByteOfSeed < 1280) {
+        } else if (lastByteOfSeed < 910) {
             artifactType = ArtifactType.PlanetaryShield;
-        } else if (lastByteOfSeed < 1536) {
+        } else if (lastByteOfSeed < 1365) {
             artifactType = ArtifactType.PhotoidCannon;
-        } else if (lastByteOfSeed < 1792) {
+        } else if (lastByteOfSeed < 1820) {
             artifactType = ArtifactType.BloomFilter;
-        } else if (lastByteOfSeed < 2048) {
+        } else if (lastByteOfSeed < 2275) {
             artifactType = ArtifactType.BlackDomain;
-        } else if (lastByteOfSeed < 2304) {
+        } else if (lastByteOfSeed < 2730) {
             artifactType = ArtifactType.IceLink;
-        } else if (lastByteOfSeed < 2560) {
+        } else if (lastByteOfSeed < 3185) {
             artifactType = ArtifactType.FireLink;
-        } else if (lastByteOfSeed < 2816) {
-            // artifactType = ArtifactType.SoulSwap;
-        } else if (lastByteOfSeed < 3072) {
-            // artifactType = ArtifactType.Bomb;
-        } else if (lastByteOfSeed < 3328) {
+        } else if (lastByteOfSeed < 3640) {
             artifactType = ArtifactType.StellarShield;
-        } else if (lastByteOfSeed < 3584) {
-            // artifactType = ArtifactType.BlindBox;
-            artifactType = ArtifactType.PlanetaryShield;
-        } else if (lastByteOfSeed < 4096) {
+        } else if (lastByteOfSeed < 4095) {
             artifactType = ArtifactType.Avatar;
         } else {
             // if (biome == Biome.Ice) {
@@ -633,7 +614,7 @@ library LibGameUtils {
         }
 
         require(
-            arrivalsFromOwner + arrivalsFromOthers < 2 * gameConstants().MAX_RECEIVING_PLANET,
+            arrivalsFromOwner + arrivalsFromOthers < gameConstants().MAX_RECEIVING_PLANET * 2,
             "Planet is rate-limited"
         );
 

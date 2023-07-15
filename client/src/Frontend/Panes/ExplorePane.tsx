@@ -1,10 +1,4 @@
-import {
-  CursorState,
-  ModalManagerEvent,
-  Setting,
-  TooltipName,
-  WorldCoords,
-} from '@darkforest_eth/types';
+import { CursorState, ModalManagerEvent, Setting, TooltipName, WorldCoords } from '@dfares/types';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import TutorialManager, { TutorialState } from '../../Backend/GameLogic/TutorialManager';

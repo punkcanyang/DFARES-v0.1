@@ -1,7 +1,7 @@
-import { EMPTY_ADDRESS } from '@darkforest_eth/constants';
-import { formatNumber } from '@darkforest_eth/gamelogic';
-import { getPlayerColor } from '@darkforest_eth/procedural';
-import { Planet, PlanetType, PlanetTypeNames } from '@darkforest_eth/types';
+import { EMPTY_ADDRESS } from '@dfares/constants';
+import { formatNumber } from '@dfares/gamelogic';
+import { getPlayerColor } from '@dfares/procedural';
+import { Planet, PlanetType, PlanetTypeNames } from '@dfares/types';
 import React from 'react';
 import { getPlanetRank } from '../../../Backend/Utils/Utils';
 import dfstyles from '../../Styles/dfstyles';

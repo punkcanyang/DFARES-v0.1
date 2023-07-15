@@ -1,5 +1,5 @@
-import type { DarkForest } from '@darkforest_eth/contracts/typechain';
-import { modPBigInt } from '@darkforest_eth/hashing';
+import type { DarkForest } from '@dfares/contracts/typechain';
+import { modPBigInt } from '@dfares/hashing';
 import {
   buildContractCallArgs,
   SnarkJSProofAndSignals,
@@ -7,9 +7,9 @@ import {
   WhitelistSnarkInput,
   whitelistSnarkWasmPath,
   whitelistSnarkZkeyPath,
-} from '@darkforest_eth/snarks';
-import { ArtifactRarity, ArtifactType, Biome } from '@darkforest_eth/types';
-import { bigIntFromKey } from '@darkforest_eth/whitelist';
+} from '@dfares/snarks';
+import { ArtifactRarity, ArtifactType, Biome } from '@dfares/types';
+import { bigIntFromKey } from '@dfares/whitelist';
 import bigInt from 'big-integer';
 import { BigNumber, BigNumberish } from 'ethers';
 import { ethers, waffle } from 'hardhat';

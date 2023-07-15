@@ -1,6 +1,6 @@
 // These are loaded as URL paths by a webpack loader
-import diamondContractAbiUrl from '@darkforest_eth/contracts/abis/DarkForest.json';
-import { createContract, createEthConnection, EthConnection } from '@darkforest_eth/network';
+import diamondContractAbiUrl from '@dfares/contracts/abis/DarkForest.json';
+import { createContract, createEthConnection, EthConnection } from '@dfares/network';
 import type { Contract, providers, Wallet } from 'ethers';
 
 /**

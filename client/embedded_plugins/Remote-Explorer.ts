@@ -1,7 +1,7 @@
 // organize-imports-ignore
-import type { Chunk, WorldCoords } from '@darkforest_eth/types';
+import type { Chunk, WorldCoords } from '@dfares/types';
 //@ts-ignore
-import { locationIdFromDecStr } from 'https://cdn.skypack.dev/@darkforest_eth/serde';
+import { locationIdFromDecStr } from 'https://cdn.skypack.dev/@dfares/serde';
 import {
   html,
   render,

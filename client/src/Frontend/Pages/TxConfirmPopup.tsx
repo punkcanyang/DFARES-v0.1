@@ -1,7 +1,7 @@
-import { TOKEN_NAME } from '@darkforest_eth/constants';
-import { gweiToWei, weiToEth } from '@darkforest_eth/network';
-import { address } from '@darkforest_eth/serde';
-import { Setting } from '@darkforest_eth/types';
+import { TOKEN_NAME } from '@dfares/constants';
+import { gweiToWei, weiToEth } from '@dfares/network';
+import { address } from '@dfares/serde';
+import { Setting } from '@dfares/types';
 import React, { useState } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import styled, { css, keyframes } from 'styled-components';

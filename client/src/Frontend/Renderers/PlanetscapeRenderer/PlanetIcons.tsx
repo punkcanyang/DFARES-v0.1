@@ -1,8 +1,8 @@
-import { EMPTY_ADDRESS, MAX_PLANET_LEVEL } from '@darkforest_eth/constants';
-import { isLocatable } from '@darkforest_eth/gamelogic';
-import { bonusFromHex } from '@darkforest_eth/hexgen';
-import { getPlanetName } from '@darkforest_eth/procedural';
-import { Planet, PlanetType, TooltipName } from '@darkforest_eth/types';
+import { EMPTY_ADDRESS, MAX_PLANET_LEVEL } from '@dfares/constants';
+import { isLocatable } from '@dfares/gamelogic';
+import { bonusFromHex } from '@dfares/hexgen';
+import { getPlanetName } from '@dfares/procedural';
+import { Planet, PlanetType, TooltipName } from '@dfares/types';
 import React from 'react';
 import styled from 'styled-components';
 import { getPlanetRank } from '../../../Backend/Utils/Utils';

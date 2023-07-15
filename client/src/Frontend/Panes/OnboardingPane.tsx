@@ -1,5 +1,5 @@
-import { BLOCKCHAIN_NAME, HOST_TEAM_NAME } from '@darkforest_eth/constants';
-import { ModalName } from '@darkforest_eth/types';
+import { BLOCKCHAIN_NAME, HOST_TEAM_NAME } from '@dfares/constants';
+import { ModalName } from '@dfares/types';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Btn } from '../Components/Btn';

@@ -1,9 +1,9 @@
-import { BLOCK_EXPLORER_URL } from '@darkforest_eth/constants';
-import { CONTRACT_ADDRESS } from '@darkforest_eth/contracts';
-import { DarkForest } from '@darkforest_eth/contracts/typechain';
-import { EthConnection, neverResolves, weiToEth } from '@darkforest_eth/network';
-import { address } from '@darkforest_eth/serde';
-import { bigIntFromKey } from '@darkforest_eth/whitelist';
+import { BLOCK_EXPLORER_URL } from '@dfares/constants';
+import { CONTRACT_ADDRESS } from '@dfares/contracts';
+import { DarkForest } from '@dfares/contracts/typechain';
+import { EthConnection, neverResolves, weiToEth } from '@dfares/network';
+import { address } from '@dfares/serde';
+import { bigIntFromKey } from '@dfares/whitelist';
 import { utils, Wallet } from 'ethers';
 import { reverse } from 'lodash';
 import React, { useCallback, useEffect, useRef, useState } from 'react';

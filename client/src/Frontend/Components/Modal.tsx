@@ -1,4 +1,4 @@
-import { DarkForestModal, PositionChangedEvent } from '@darkforest_eth/ui';
+import { DarkForestModal, PositionChangedEvent } from '@dfares/ui';
 import { createComponent } from '@lit-labs/react';
 import React from 'react';
 

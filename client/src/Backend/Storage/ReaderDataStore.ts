@@ -1,5 +1,5 @@
-import { isLocatable } from '@darkforest_eth/gamelogic';
-import { EthConnection } from '@darkforest_eth/network';
+import { isLocatable } from '@dfares/gamelogic';
+import { EthConnection } from '@dfares/network';
 import {
   ArtifactId,
   Biome,
@@ -9,7 +9,7 @@ import {
   Planet,
   SpaceType,
   WorldLocation,
-} from '@darkforest_eth/types';
+} from '@dfares/types';
 import { ContractConstants } from '../../_types/darkforest/api/ContractsAPITypes';
 import { AddressTwitterMap } from '../../_types/darkforest/api/UtilityServerAPITypes';
 import { arrive, updatePlanetToTime } from '../GameLogic/ArrivalUtils';

@@ -1,4 +1,4 @@
-import { ArtifactId } from '@darkforest_eth/types';
+import { ArtifactId } from '@dfares/types';
 import React from 'react';
 import { Padded } from '../Components/CoreUI';
 import { useUIManager } from '../Utils/AppHooks';

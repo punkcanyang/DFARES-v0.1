@@ -1,5 +1,5 @@
-import { BLOCKCHAIN_NAME } from '@darkforest_eth/constants';
-import { PlanetType, TooltipName } from '@darkforest_eth/types';
+import { BLOCKCHAIN_NAME } from '@dfares/constants';
+import { PlanetType, TooltipName } from '@dfares/types';
 import React from 'react';
 import { getPlanetRank, isFullRank } from '../../Backend/Utils/Utils';
 import { ScoreLabel, SilverLabel } from '../Components/Labels/KeywordLabels';

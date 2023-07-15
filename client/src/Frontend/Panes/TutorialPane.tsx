@@ -1,5 +1,5 @@
-import { BLOCKCHAIN_NAME } from '@darkforest_eth/constants';
-import { Setting } from '@darkforest_eth/types';
+import { BLOCKCHAIN_NAME } from '@dfares/constants';
+import { Setting } from '@dfares/types';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import TutorialManager, {

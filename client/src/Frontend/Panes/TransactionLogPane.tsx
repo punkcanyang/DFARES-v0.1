@@ -1,5 +1,5 @@
-import { RECOMMENDED_MODAL_WIDTH } from '@darkforest_eth/constants';
-import { getPlanetName } from '@darkforest_eth/procedural';
+import { RECOMMENDED_MODAL_WIDTH } from '@dfares/constants';
+import { getPlanetName } from '@dfares/procedural';
 import {
   isUnconfirmedActivateArtifactTx,
   isUnconfirmedBuyArtifactTx,
@@ -17,9 +17,9 @@ import {
   isUnconfirmedUpgradeTx,
   isUnconfirmedWithdrawArtifactTx,
   isUnconfirmedWithdrawSilverTx,
-} from '@darkforest_eth/serde';
-import { ModalName, Planet, TooltipName, Transaction } from '@darkforest_eth/types';
-import { IconType } from '@darkforest_eth/ui';
+} from '@dfares/serde';
+import { ModalName, Planet, TooltipName, Transaction } from '@dfares/types';
+import { IconType } from '@dfares/ui';
 import { isEmpty, reverse, startCase, values } from 'lodash';
 import React, { useCallback } from 'react';
 import Loader from 'react-loader-spinner';

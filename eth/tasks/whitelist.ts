@@ -1,4 +1,4 @@
-import { generateKeys, keyHash, keysPerTx } from '@darkforest_eth/whitelist';
+import { generateKeys, keyHash, keysPerTx } from '@dfares/whitelist';
 import * as fs from 'fs';
 import { subtask, task, types } from 'hardhat/config';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';

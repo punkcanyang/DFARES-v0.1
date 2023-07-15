@@ -1,9 +1,9 @@
-import { INIT_ADDRESS } from '@darkforest_eth/contracts';
+import { INIT_ADDRESS } from '@dfares/contracts';
 // This is loaded as URL paths by a webpack loader
-import initContractAbiUrl from '@darkforest_eth/contracts/abis/DFInitialize.json';
-import { EthConnection } from '@darkforest_eth/network';
-import { address } from '@darkforest_eth/serde';
-import { ArtifactRarity, EthAddress, UnconfirmedCreateLobby } from '@darkforest_eth/types';
+import initContractAbiUrl from '@dfares/contracts/abis/DFInitialize.json';
+import { EthConnection } from '@dfares/network';
+import { address } from '@dfares/serde';
+import { ArtifactRarity, EthAddress, UnconfirmedCreateLobby } from '@dfares/types';
 import { Contract } from 'ethers';
 import _ from 'lodash';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';

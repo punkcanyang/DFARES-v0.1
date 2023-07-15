@@ -1,5 +1,5 @@
-import { perlin } from '@darkforest_eth/hashing';
-import { SpaceType, WorldCoords } from '@darkforest_eth/types';
+import { perlin } from '@dfares/hashing';
+import { SpaceType, WorldCoords } from '@dfares/types';
 import { DrawMessage, MinimapConfig } from './MinimapUtils';
 
 const ctx = self as unknown as Worker;

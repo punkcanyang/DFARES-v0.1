@@ -4,8 +4,6 @@ Dark Forest Game on Blockchain.
 
 To run this project you will need to be on Node 14 OR Node 16.
 
-
-
 ## use ganache
 
 seems faster & can store blocks
@@ -16,8 +14,6 @@ yarn workspace eth ganache
 yarn workspace eth deploy:dev deploy
 yarn workspace client start
 ```
-
-
 
 ## local development
 
@@ -42,7 +38,7 @@ If you wish to restart the game from scratch, you will need to clear local stora
 
 ## Contract Addresses
 
-Both localhost development and production contract addresses are stored in [`@darkforest_eth/contracts` package](./packages/contracts). If you deploy contracts locally in a fresh node, this file will never change. If the file does change **do not** check in this file, as you probably have a `hardhat node` process running in the background.
+Both localhost development and production contract addresses are stored in [`@dfares/contracts` package](./packages/contracts). If you deploy contracts locally in a fresh node, this file will never change. If the file does change **do not** check in this file, as you probably have a `hardhat node` process running in the background.
 
 Production deploys **must** check in this file, but those will likely be done from CI and committed on a separate (non-development) branch.
 
@@ -54,7 +50,7 @@ The Dark Forest monorepo is managed using [yarn workspaces](https://classic.yarn
 
 The `packages/` directory is a place to store workspace packages that should be published to something like the https://npmjs.com registry, which allows players to build plugins, game clients, etc using the same code that Dark Forest itself uses.
 
-To add a new package, create a new directory inside the `packages/` directory. The package name for anything in `packages/` should be prefixed with `@darkforest_eth/` to be published to our scope.
+To add a new package, create a new directory inside the `packages/` directory. The package name for anything in `packages/` should be prefixed with `@dfares/` to be published to our scope.
 
 ## circom and snarkjs
 

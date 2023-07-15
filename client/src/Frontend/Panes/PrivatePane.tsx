@@ -1,4 +1,4 @@
-import { ModalName } from '@darkforest_eth/types';
+import { ModalName } from '@dfares/types';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Sub } from '../Components/Text';

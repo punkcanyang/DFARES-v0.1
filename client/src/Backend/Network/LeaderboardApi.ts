@@ -1,4 +1,4 @@
-import { Leaderboard } from '@darkforest_eth/types';
+import { Leaderboard } from '@dfares/types';
 
 export async function loadLeaderboard(): Promise<Leaderboard> {
   if (!process.env.DF_WEBSERVER_URL) {

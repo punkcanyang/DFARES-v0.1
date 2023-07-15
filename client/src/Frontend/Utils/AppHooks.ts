@@ -1,4 +1,4 @@
-import { getActivatedArtifact, isActivated } from '@darkforest_eth/gamelogic';
+import { getActivatedArtifact, isActivated } from '@dfares/gamelogic';
 import {
   Artifact,
   ArtifactId,
@@ -9,7 +9,7 @@ import {
   Player,
   Transaction,
   TransactionId,
-} from '@darkforest_eth/types';
+} from '@dfares/types';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import GameUIManager from '../../Backend/GameLogic/GameUIManager';
 import { loadLeaderboard } from '../../Backend/Network/LeaderboardApi';

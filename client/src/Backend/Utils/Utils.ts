@@ -1,5 +1,5 @@
-import { formatNumber } from '@darkforest_eth/gamelogic';
-import { EthAddress, Planet, SpaceType, Upgrade, UpgradeBranchName } from '@darkforest_eth/types';
+import { formatNumber } from '@dfares/gamelogic';
+import { EthAddress, Planet, SpaceType, Upgrade, UpgradeBranchName } from '@dfares/types';
 import * as bigInt from 'big-integer';
 import { BigInteger } from 'big-integer';
 import { StatIdx } from '../../_types/global/GlobalTypes';

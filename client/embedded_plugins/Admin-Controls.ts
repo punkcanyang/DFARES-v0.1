@@ -1,5 +1,11 @@
 // organize-imports-ignore
-import type { EthAddress, LocatablePlanet, LocationId, Planet } from '@darkforest_eth/types';
+import type {
+  EthAddress,
+  LocatablePlanet,
+  LocationId,
+  Planet,
+  //@ts-ignore
+} from 'https://cdn.skypack.dev/@dfares/types';
 import {
   MAX_ARTIFACT_RARITY,
   MIN_ARTIFACT_RARITY,
@@ -9,18 +15,18 @@ import {
   MIN_BIOME,
   MAX_BIOME,
   //@ts-ignore
-} from 'https://cdn.skypack.dev/@darkforest_eth/constants';
+} from 'https://cdn.skypack.dev/@dfares/constants';
 const MIN_ARTIFACT_TYPE = 1;
 const MIN_SPACESHIP_TYPE = 17;
 const MAX_SPACESHIP_TYPE = 21;
 //@ts-ignore
-import { getPlanetNameHash } from 'https://cdn.skypack.dev/@darkforest_eth/procedural';
+import { getPlanetNameHash } from 'https://cdn.skypack.dev/@dfares/procedural';
 import {
   locationIdToDecStr,
   artifactIdFromHexStr,
   locationIdFromDecStr,
   //@ts-ignore
-} from 'https://cdn.skypack.dev/@darkforest_eth/serde';
+} from 'https://cdn.skypack.dev/@dfares/serde';
 import {
   ArtifactRarityNames,
   // ArtifactType,
@@ -31,7 +37,7 @@ import {
   PlanetTypeNames,
   WorldCoords,
   //@ts-ignore
-} from 'https://cdn.skypack.dev/@darkforest_eth/types';
+} from 'https://cdn.skypack.dev/@dfares/types';
 enum ArtifactType {
   Unknown,
   Monolith,

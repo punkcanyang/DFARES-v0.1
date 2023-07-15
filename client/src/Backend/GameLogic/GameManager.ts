@@ -3,25 +3,25 @@ import {
   CONTRACT_PRECISION,
   EMPTY_ADDRESS,
   MIN_PLANET_LEVEL,
-} from '@darkforest_eth/constants';
-import type { DarkForest } from '@darkforest_eth/contracts/typechain';
-import { monomitter, Monomitter, Subscription } from '@darkforest_eth/events';
+} from '@dfares/constants';
+import type { DarkForest } from '@dfares/contracts/typechain';
+import { monomitter, Monomitter, Subscription } from '@dfares/events';
 import {
   getRange,
   isActivated,
   isLocatable,
   isSpaceShip,
   timeUntilNextBroadcastAvailable,
-} from '@darkforest_eth/gamelogic';
-import { fakeHash, mimcHash, perlin } from '@darkforest_eth/hashing';
+} from '@dfares/gamelogic';
+import { fakeHash, mimcHash, perlin } from '@dfares/hashing';
 import {
   createContract,
   EthConnection,
   ThrottledConcurrentQueue,
   verifySignature,
   weiToEth,
-} from '@darkforest_eth/network';
-import { getPlanetName } from '@darkforest_eth/procedural';
+} from '@dfares/network';
+import { getPlanetName } from '@dfares/procedural';
 import {
   artifactIdToDecStr,
   isUnconfirmedActivateArtifactTx,
@@ -42,7 +42,7 @@ import {
   isUnconfirmedWithdrawSilverTx,
   locationIdFromBigInt,
   locationIdToDecStr,
-} from '@darkforest_eth/serde';
+} from '@dfares/serde';
 import {
   Artifact,
   ArtifactId,
@@ -97,7 +97,7 @@ import {
   VoyageId,
   WorldCoords,
   WorldLocation,
-} from '@darkforest_eth/types';
+} from '@dfares/types';
 import bigInt, { BigInteger } from 'big-integer';
 import delay from 'delay';
 import { BigNumber, Contract, ContractInterface, providers } from 'ethers';

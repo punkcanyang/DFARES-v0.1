@@ -1,4 +1,4 @@
-import { ArtifactType } from '@darkforest_eth/types';
+import { ArtifactType } from '@dfares/types';
 import { expect } from 'chai';
 import {
   conquerUnownedPlanet,

@@ -1,10 +1,10 @@
-import { EMPTY_ADDRESS } from '@darkforest_eth/constants';
-import { Monomitter, monomitter } from '@darkforest_eth/events';
-import { biomeName, isLocatable, isSpaceShip } from '@darkforest_eth/gamelogic';
-import { planetHasBonus } from '@darkforest_eth/hexgen';
-import { EthConnection } from '@darkforest_eth/network';
-import { GameGLManager, Renderer } from '@darkforest_eth/renderer';
-import { isUnconfirmedMoveTx } from '@darkforest_eth/serde';
+import { EMPTY_ADDRESS } from '@dfares/constants';
+import { Monomitter, monomitter } from '@dfares/events';
+import { biomeName, isLocatable, isSpaceShip } from '@dfares/gamelogic';
+import { planetHasBonus } from '@dfares/hexgen';
+import { EthConnection } from '@dfares/network';
+import { GameGLManager, Renderer } from '@dfares/renderer';
+import { isUnconfirmedMoveTx } from '@dfares/serde';
 import {
   Artifact,
   ArtifactId,
@@ -36,7 +36,7 @@ import {
   UpgradeBranchName,
   WorldCoords,
   WorldLocation,
-} from '@darkforest_eth/types';
+} from '@dfares/types';
 import autoBind from 'auto-bind';
 import { BigNumber } from 'ethers';
 import EventEmitter from 'events';

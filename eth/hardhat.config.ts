@@ -19,7 +19,7 @@ import * as diamondUtils from './utils/diamond';
 import * as subgraphUtils from './utils/subgraph';
 import * as path from 'path';
 import * as settings from './settings';
-import { decodeContracts, decodeInitializers, decodeAdminPlanets } from '@darkforest_eth/settings';
+import { decodeContracts, decodeInitializers, decodeAdminPlanets } from '@dfares/settings';
 import './tasks/artifact';
 import './tasks/circom';
 import './tasks/debug';
@@ -39,8 +39,8 @@ const { DEPLOYER_MNEMONIC, ADMIN_PUBLIC_ADDRESS } = process.env;
 
 // Ensure we can lookup the needed workspace packages
 const packageDirs = {
-  '@darkforest_eth/contracts': settings.resolvePackageDir('@darkforest_eth/contracts'),
-  '@darkforest_eth/snarks': settings.resolvePackageDir('@darkforest_eth/snarks'),
+  '@dfares/contracts': settings.resolvePackageDir('@dfares/contracts'),
+  '@dfares/snarks': settings.resolvePackageDir('@dfares/snarks'),
 };
 
 extendEnvironment((env: HardhatRuntimeEnvironment) => {
@@ -51,7 +51,7 @@ extendEnvironment((env: HardhatRuntimeEnvironment) => {
   env.packageDirs = packageDirs;
 
   env.contracts = lazyObject(() => {
-    const contracts = require('@darkforest_eth/contracts');
+    const contracts = require('@dfares/contracts');
     return settings.parse(decodeContracts, contracts);
   });
 
@@ -154,7 +154,7 @@ const config: HardhatUserConfig = {
   },
   circom: {
     inputBasePath: '../circuits/',
-    outputBasePath: packageDirs['@darkforest_eth/snarks'],
+    outputBasePath: packageDirs['@dfares/snarks'],
     ptau: 'powersOfTau28_hez_final_15.ptau',
     circuits: [
       {
@@ -190,7 +190,7 @@ const config: HardhatUserConfig = {
     ],
   },
   typechain: {
-    outDir: path.join(packageDirs['@darkforest_eth/contracts'], 'typechain'),
+    outDir: path.join(packageDirs['@dfares/contracts'], 'typechain'),
     target: 'ethers-v5',
   },
   diamondAbi: {
@@ -215,8 +215,8 @@ const config: HardhatUserConfig = {
   },
   abiExporter: [
     {
-      // This plugin will copy the ABI from the DarkForest artifact into our `@darkforest_eth/contracts` package as `abis/DarkForest.json`
-      path: path.join(packageDirs['@darkforest_eth/contracts'], 'abis'),
+      // This plugin will copy the ABI from the DarkForest artifact into our `@dfares/contracts` package as `abis/DarkForest.json`
+      path: path.join(packageDirs['@dfares/contracts'], 'abis'),
       runOnCompile: true,
       // We don't want additional directories created, so we just return the contractName
       rename(_sourceName, contractName) {
@@ -226,7 +226,7 @@ const config: HardhatUserConfig = {
       only: [':DarkForest$', ':DFInitialize$'],
     },
     {
-      path: path.join(packageDirs['@darkforest_eth/contracts'], 'abis'),
+      path: path.join(packageDirs['@dfares/contracts'], 'abis'),
       runOnCompile: true,
       // This is a "stripped" version for the subgraph, so we append `_stripped`
       rename(_sourceName, contractName) {

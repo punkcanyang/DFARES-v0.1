@@ -1,5 +1,5 @@
-import { EthConnection, isPurchase, weiToEth } from '@darkforest_eth/network';
-import { EthAddress, Setting, TransactionId, TxIntent } from '@darkforest_eth/types';
+import { EthConnection, isPurchase, weiToEth } from '@dfares/network';
+import { EthAddress, Setting, TransactionId, TxIntent } from '@dfares/types';
 import { providers } from 'ethers';
 import { getBooleanSetting } from '../Utils/SettingsHooks';
 

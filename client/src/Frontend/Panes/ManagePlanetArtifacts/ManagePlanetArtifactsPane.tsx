@@ -1,5 +1,5 @@
-import { isLocatable } from '@darkforest_eth/gamelogic';
-import { LocationId } from '@darkforest_eth/types';
+import { isLocatable } from '@dfares/gamelogic';
+import { LocationId } from '@dfares/types';
 import React from 'react';
 import { CenterBackgroundSubtext, Underline } from '../../Components/CoreUI';
 import { useAccount, useMyArtifactsList, usePlanet, useUIManager } from '../../Utils/AppHooks';

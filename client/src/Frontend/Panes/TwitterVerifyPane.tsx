@@ -1,5 +1,5 @@
-import { RECOMMENDED_MODAL_WIDTH } from '@darkforest_eth/constants';
-import { ModalName } from '@darkforest_eth/types';
+import { RECOMMENDED_MODAL_WIDTH } from '@dfares/constants';
+import { ModalName } from '@dfares/types';
 import React, { useState } from 'react';
 import { Btn } from '../Components/Btn';
 import { Expand, Spacer } from '../Components/CoreUI';
@@ -31,8 +31,8 @@ export function TwitterVerifyPane({ visible, onClose }: { visible: boolean; onCl
     if (uiManager) {
       const tweetText = await uiManager.generateVerificationTweet(twitterHandleInputValue);
 
-      // const str = `Verifying my @darkforest_eth v0.6 account (https://zkga.me): ${tweetText}`;
-      const str = `Verifying my DF ARES v0.1.1 account (https://ares.netlify.app/)\nDF ARES are @darkforest_eth Community Rounds hosted by @DFArchon: ${tweetText}`;
+      // const str = `Verifying my @dfares v0.6 account (https://zkga.me): ${tweetText}`;
+      const str = `Verifying my DF ARES v0.1.1 account (https://ares.netlify.app/)\nDF ARES are @dfares Community Rounds hosted by @DFArchon: ${tweetText}`;
 
       window.open(`https://twitter.com/intent/tweet?hashtags=darkforest&text=${encodeURI(str)}`);
     }

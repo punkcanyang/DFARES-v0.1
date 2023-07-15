@@ -1,6 +1,6 @@
-import { EMPTY_ADDRESS } from '@darkforest_eth/constants';
-import { getPlayerColor } from '@darkforest_eth/procedural';
-import { EthAddress } from '@darkforest_eth/types';
+import { EMPTY_ADDRESS } from '@dfares/constants';
+import { getPlayerColor } from '@dfares/procedural';
+import { EthAddress } from '@dfares/types';
 import colorFn from 'color';
 import React from 'react';
 import { usePlayer, useUIManager } from '../../Utils/AppHooks';

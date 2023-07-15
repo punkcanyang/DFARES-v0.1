@@ -1,7 +1,7 @@
-import { isLocatable } from '@darkforest_eth/gamelogic';
-import { getPlanetName, isLogo, numToLogoType } from '@darkforest_eth/procedural';
-import { logoFromType } from '@darkforest_eth/renderer';
-import { Planet, TooltipName } from '@darkforest_eth/types';
+import { isLocatable } from '@dfares/gamelogic';
+import { getPlanetName, isLogo, numToLogoType } from '@dfares/procedural';
+import { logoFromType } from '@dfares/renderer';
+import { Planet, TooltipName } from '@dfares/types';
 import React from 'react';
 import styled from 'styled-components';
 import { Wrapper } from '../../Backend/Utils/Wrapper';

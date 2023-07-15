@@ -1,4 +1,4 @@
-import { SpaceType } from '@darkforest_eth/types';
+import { SpaceType } from '@dfares/types';
 
 export type MinimapConfig = {
   worldRadius: number;

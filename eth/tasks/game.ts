@@ -1,4 +1,4 @@
-import { fakeHash, mimcHash, modPBigInt, perlin } from '@darkforest_eth/hashing';
+import { fakeHash, mimcHash, modPBigInt, perlin } from '@dfares/hashing';
 import {
   buildContractCallArgs,
   fakeProof,
@@ -6,7 +6,7 @@ import {
   revealSnarkWasmPath,
   revealSnarkZkeyPath,
   SnarkJSProofAndSignals,
-} from '@darkforest_eth/snarks';
+} from '@dfares/snarks';
 import { BigNumber } from 'ethers';
 import { task, types } from 'hardhat/config';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';

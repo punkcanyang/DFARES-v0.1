@@ -1,5 +1,5 @@
-import { isSpaceShip } from '@darkforest_eth/gamelogic';
-import { Artifact } from '@darkforest_eth/types';
+import { isSpaceShip } from '@dfares/gamelogic';
+import { Artifact } from '@dfares/types';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import styled, { css } from 'styled-components';
 import { ArtifactImage } from '../Components/ArtifactImage';

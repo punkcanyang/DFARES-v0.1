@@ -1,5 +1,5 @@
-import { RECOMMENDED_MODAL_WIDTH } from '@darkforest_eth/constants';
-import { Diagnostics, ModalName, Setting } from '@darkforest_eth/types';
+import { RECOMMENDED_MODAL_WIDTH } from '@dfares/constants';
+import { Diagnostics, ModalName, Setting } from '@dfares/types';
 import React, { useEffect, useState } from 'react';
 import { Wrapper } from '../../Backend/Utils/Wrapper';
 import { EmSpacer, Separator, SpreadApart } from '../Components/CoreUI';

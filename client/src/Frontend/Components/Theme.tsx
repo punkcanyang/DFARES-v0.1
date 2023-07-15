@@ -1,4 +1,4 @@
-import { DarkForestTheme } from '@darkforest_eth/ui';
+import { DarkForestTheme } from '@dfares/ui';
 import { createComponent } from '@lit-labs/react';
 import React from 'react';
 

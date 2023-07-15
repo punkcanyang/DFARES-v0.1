@@ -1,4 +1,4 @@
-import { Artifact, ArtifactId } from '@darkforest_eth/types';
+import { Artifact, ArtifactId } from '@dfares/types';
 import React from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import ReaderDataStore from '../../Backend/Storage/ReaderDataStore';

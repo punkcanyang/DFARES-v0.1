@@ -1,5 +1,5 @@
-import { isLocatable } from '@darkforest_eth/gamelogic';
-import { Planet } from '@darkforest_eth/types';
+import { isLocatable } from '@dfares/gamelogic';
+import { Planet } from '@dfares/types';
 import React from 'react';
 import { Link } from '../Components/CoreUI';
 import dfstyles from '../Styles/dfstyles';

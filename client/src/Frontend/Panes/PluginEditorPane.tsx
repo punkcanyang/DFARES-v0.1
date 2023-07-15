@@ -1,4 +1,4 @@
-import { PluginId } from '@darkforest_eth/types';
+import { PluginId } from '@dfares/types';
 import * as Prism from 'prismjs';
 import * as React from 'react';
 import { useState } from 'react';

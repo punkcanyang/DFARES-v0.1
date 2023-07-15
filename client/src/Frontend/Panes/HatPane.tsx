@@ -8,8 +8,8 @@ import {
   MIN_LOGO_TYPE,
   MIN_MEME_TYPE,
   TOKEN_NAME,
-} from '@darkforest_eth/constants';
-import { weiToEth } from '@darkforest_eth/network';
+} from '@dfares/constants';
+import { weiToEth } from '@dfares/network';
 import {
   avatarTypeToNum,
   getHatSizeName,
@@ -17,8 +17,8 @@ import {
   hatTypeToNum,
   logoTypeToNum,
   memeTypeToNum,
-} from '@darkforest_eth/procedural';
-import { isUnconfirmedBuyHatTx } from '@darkforest_eth/serde';
+} from '@dfares/procedural';
+import { isUnconfirmedBuyHatTx } from '@dfares/serde';
 import {
   AvatarType,
   AvatarTypeNames,
@@ -30,7 +30,7 @@ import {
   MemeType,
   MemeTypeNames,
   Planet,
-} from '@darkforest_eth/types';
+} from '@dfares/types';
 import { BigNumber } from 'ethers';
 import React, { useState } from 'react';
 import styled from 'styled-components';

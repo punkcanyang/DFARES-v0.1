@@ -1,6 +1,6 @@
-import { fakeHash, perlin, seededRandom } from '@darkforest_eth/hashing';
-import { locationIdFromBigInt } from '@darkforest_eth/serde';
-import { Rectangle, WorldCoords, WorldLocation } from '@darkforest_eth/types';
+import { fakeHash, perlin, seededRandom } from '@dfares/hashing';
+import { locationIdFromBigInt } from '@dfares/serde';
+import { Rectangle, WorldCoords, WorldLocation } from '@dfares/types';
 
 type IdxWithRand = {
   idx: number;

@@ -1,4 +1,4 @@
-import { TOKEN_NAME } from '@darkforest_eth/constants';
+import { TOKEN_NAME } from '@dfares/constants';
 import _ from 'lodash';
 import React from 'react';
 import { DarkForestNumberInput, NumberInput } from '../../Components/Input';

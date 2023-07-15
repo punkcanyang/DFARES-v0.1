@@ -1,8 +1,8 @@
-import { EMPTY_ADDRESS, MAX_PLANET_LEVEL, MIN_PLANET_LEVEL } from '@darkforest_eth/constants';
-import { Monomitter, monomitter } from '@darkforest_eth/events';
-import { hasOwner, isActivated, isLocatable } from '@darkforest_eth/gamelogic';
-import { bonusFromHex, getBytesFromHex } from '@darkforest_eth/hexgen';
-import { TxCollection } from '@darkforest_eth/network';
+import { EMPTY_ADDRESS, MAX_PLANET_LEVEL, MIN_PLANET_LEVEL } from '@dfares/constants';
+import { Monomitter, monomitter } from '@dfares/events';
+import { hasOwner, isActivated, isLocatable } from '@dfares/gamelogic';
+import { bonusFromHex, getBytesFromHex } from '@dfares/hexgen';
+import { TxCollection } from '@dfares/network';
 import {
   isUnconfirmedActivateArtifact,
   isUnconfirmedActivateArtifactTx,
@@ -35,7 +35,7 @@ import {
   isUnconfirmedWithdrawArtifactTx,
   isUnconfirmedWithdrawSilver,
   isUnconfirmedWithdrawSilverTx,
-} from '@darkforest_eth/serde';
+} from '@dfares/serde';
 import {
   Abstract,
   ArrivalWithTimer,
@@ -61,7 +61,7 @@ import {
   VoyageId,
   WorldCoords,
   WorldLocation,
-} from '@darkforest_eth/types';
+} from '@dfares/types';
 import autoBind from 'auto-bind';
 import bigInt from 'big-integer';
 import { ethers } from 'ethers';

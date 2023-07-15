@@ -1,5 +1,5 @@
-import { isLocatable } from '@darkforest_eth/gamelogic';
-import { Planet, PlanetType } from '@darkforest_eth/types';
+import { isLocatable } from '@dfares/gamelogic';
+import { Planet, PlanetType } from '@dfares/types';
 import { css, keyframes } from 'styled-components';
 import { BiomeBackgroundColors } from './Colors';
 

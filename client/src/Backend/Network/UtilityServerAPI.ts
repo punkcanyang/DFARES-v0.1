@@ -3,7 +3,7 @@ import {
   RegisterResponse,
   SignedMessage,
   WhitelistStatusResponse,
-} from '@darkforest_eth/types';
+} from '@dfares/types';
 import * as EmailValidator from 'email-validator';
 import timeout from 'p-timeout';
 import { TerminalHandle } from '../../Frontend/Views/Terminal';

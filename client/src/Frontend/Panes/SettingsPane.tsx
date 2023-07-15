@@ -1,6 +1,6 @@
-import { BLOCKCHAIN_NAME } from '@darkforest_eth/constants';
-import { EthConnection } from '@darkforest_eth/network';
-import { Chunk, ModalName, Setting } from '@darkforest_eth/types';
+import { BLOCKCHAIN_NAME } from '@dfares/constants';
+import { EthConnection } from '@dfares/network';
+import { Chunk, ModalName, Setting } from '@dfares/types';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import TutorialManager from '../../Backend/GameLogic/TutorialManager';

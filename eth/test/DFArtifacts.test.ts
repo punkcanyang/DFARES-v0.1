@@ -1,4 +1,4 @@
-import { ArtifactRarity, ArtifactType, Biome } from '@darkforest_eth/types';
+import { ArtifactRarity, ArtifactType, Biome } from '@dfares/types';
 import { expect } from 'chai';
 import { BigNumberish } from 'ethers';
 import hre from 'hardhat';

@@ -1,6 +1,6 @@
-import { EMPTY_ARTIFACT_ID } from '@darkforest_eth/constants';
-import { ArtifactFileColor, artifactFileName, setForceAncient } from '@darkforest_eth/gamelogic';
-import { ArtifactRarity, ArtifactType, Biome } from '@darkforest_eth/types';
+import { EMPTY_ARTIFACT_ID } from '@dfares/constants';
+import { ArtifactFileColor, artifactFileName, setForceAncient } from '@dfares/gamelogic';
+import { ArtifactRarity, ArtifactType, Biome } from '@dfares/types';
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { ARTIFACT_URL } from '../Components/ArtifactImage';

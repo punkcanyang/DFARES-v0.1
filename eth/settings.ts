@@ -1,4 +1,4 @@
-import { AdminPlanets, Contracts, Initializers } from '@darkforest_eth/settings';
+import { AdminPlanets, Contracts, Initializers } from '@dfares/settings';
 import toml from '@iarna/toml';
 import chalk from 'chalk';
 import { cosmiconfigSync } from 'cosmiconfig';
@@ -15,8 +15,8 @@ declare module 'hardhat/types/runtime' {
     ADMIN_PUBLIC_ADDRESS: string | undefined;
 
     packageDirs: {
-      '@darkforest_eth/contracts': string;
-      '@darkforest_eth/snarks': string;
+      '@dfares/contracts': string;
+      '@dfares/snarks': string;
     };
 
     contracts: Contracts;

@@ -5,9 +5,9 @@ import {
   MIN_AVATAR_TYPE,
   MIN_LOGO_TYPE,
   MIN_MEME_TYPE,
-} from '@darkforest_eth/constants';
-import { avatarTypeToNum, logoTypeToNum, memeTypeToNum } from '@darkforest_eth/procedural';
-import { isUnconfirmedChangeArtifactImageTypeTx } from '@darkforest_eth/serde';
+} from '@dfares/constants';
+import { avatarTypeToNum, logoTypeToNum, memeTypeToNum } from '@dfares/procedural';
+import { isUnconfirmedChangeArtifactImageTypeTx } from '@dfares/serde';
 import {
   Artifact,
   ArtifactId,
@@ -20,7 +20,7 @@ import {
   MemeType,
   MemeTypeNames,
   Planet,
-} from '@darkforest_eth/types';
+} from '@dfares/types';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Btn } from '../../Components/Btn';

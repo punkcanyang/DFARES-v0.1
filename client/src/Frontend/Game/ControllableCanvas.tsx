@@ -1,5 +1,5 @@
-import { Renderer } from '@darkforest_eth/renderer';
-import { CursorState, ModalManagerEvent, Setting } from '@darkforest_eth/types';
+import { Renderer } from '@dfares/renderer';
+import { CursorState, ModalManagerEvent, Setting } from '@dfares/types';
 // import * as fabric from 'fabric'; // v6
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import styled from 'styled-components';

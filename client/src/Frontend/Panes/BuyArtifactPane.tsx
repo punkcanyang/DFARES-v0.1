@@ -1,7 +1,7 @@
-import { TOKEN_NAME } from '@darkforest_eth/constants';
-import { weiToEth } from '@darkforest_eth/network';
-import { isUnconfirmedBuyArtifactTx } from '@darkforest_eth/serde';
-import { ArtifactRarity, ArtifactType, Biome, LocationId, Planet } from '@darkforest_eth/types';
+import { TOKEN_NAME } from '@dfares/constants';
+import { weiToEth } from '@dfares/network';
+import { isUnconfirmedBuyArtifactTx } from '@dfares/serde';
+import { ArtifactRarity, ArtifactType, Biome, LocationId, Planet } from '@dfares/types';
 import { BigNumber } from 'ethers';
 import React, { useState } from 'react';
 import styled from 'styled-components';

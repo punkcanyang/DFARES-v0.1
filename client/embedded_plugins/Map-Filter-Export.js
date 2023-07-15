@@ -1,38 +1,38 @@
-// 
+//
 //  author: https://twitter.com/DfArchon
-// 
+//
 //  Map Filter Export
-//  
+//
 //  Export filtered planets with or without background.
-//  
-//  the speed of export and import is faster :-)   
-//  
-//  notice 1: If the number of planets is too large, the website may crash, 
+//
+//  the speed of export and import is faster :-)
+//
+//  notice 1: If the number of planets is too large, the website may crash,
 //            so we recommend choose a reasonable planetLevel range, such as [3,9].
-//            We don't recommend to choose the planetLevel 0, 
+//            We don't recommend to choose the planetLevel 0,
 //            because the planets's amount maybe very large.
-//           
-//  notice 2: If you choose to [Download Map With Background], 
+//
+//  notice 2: If you choose to [Download Map With Background],
 //            plugin will export the map which has a lot of 16x16 pixel blocks,
 //            the import speed is fast, but you may need to wait the planets to show up for a while.
-//            Click the button [Show Planets] and Use the middle mouse button to zoom in 
+//            Click the button [Show Planets] and Use the middle mouse button to zoom in
 //            and out may help to make the planets show up more quickly.
 //
 //  notice 3: Your planets can still be attacked by other's small planets which you can't see.
-// 
+//
 //  When writing this plugin, we learn a lot from the plugin named map export,
 //  Thanks to the authors of map export !
 //
 
 
 import { PlanetLevel, PlanetType, SpaceType } from
-  "https://cdn.skypack.dev/@darkforest_eth/types";
+  "https://cdn.skypack.dev/@dfares/types";
 
 import { html, render, useState } from
   "https://unpkg.com/htm/preact/standalone.module.js";
 
 import { getPlayerColor } from
-  "https://cdn.skypack.dev/@darkforest_eth/procedural";
+  "https://cdn.skypack.dev/@dfares/procedural";
 
 let showPlanets = [];
 
@@ -116,7 +116,7 @@ function mapFilterExport() {
   const [info2, setInfo2] = useState('');
 
 
-  //functions 
+  //functions
   function judgeLevel(plt) {
     let minLevel = Math.min(leftLevel, rightLevel);
     let maxLevel = Math.max(leftLevel, rightLevel);
@@ -159,7 +159,7 @@ function mapFilterExport() {
 
     for (let i = 0; i < chunksAsArray.length; i++) {
       const chunk = chunksAsArray[i];
-   
+
       let chunkFootprint = chunk.chunkFootprint;
       let bottomLeft = chunkFootprint.bottomLeft;
       let sideLength = chunkFootprint.sideLength;
@@ -295,8 +295,8 @@ function mapFilterExport() {
 
     let planetsCount = 0;
 
-   
-    
+
+
     let res = [];
 
     for (let i = 0; i < chunksAsArray.length; i++) {
@@ -310,24 +310,24 @@ function mapFilterExport() {
       newChunk.perlin = chunk.perlin;
 
 
-      planetLocations.forEach(item=>{
+      planetLocations.forEach(item => {
         const coords = item.coords;
         let plt = df.getPlanetWithCoords(coords);
         let flag = true;
-        if(judgeLevel(plt)===false) flag =  false;
-        if(judgePlanetType(plt)===false) flag =  false;
-        if(judgeSpaceType(plt)===false) flag = false;
-        if(judgeOwner(plt)===false) flag =  false;
-        if(destroyedFilter(plt)===false) flag = false;
-        if(flag){
+        if (judgeLevel(plt) === false) flag = false;
+        if (judgePlanetType(plt) === false) flag = false;
+        if (judgeSpaceType(plt) === false) flag = false;
+        if (judgeOwner(plt) === false) flag = false;
+        if (destroyedFilter(plt) === false) flag = false;
+        if (flag) {
           planetLocationsWithMark.push(item);
 
         }
       });
-      
+
       newChunk.planetLocations = planetLocationsWithMark;
       res.push(newChunk);
-      planetsCount+=planetLocationsWithMark.length;
+      planetsCount += planetLocationsWithMark.length;
     }
 
     let newInfo = html`<div>
@@ -436,7 +436,7 @@ function mapFilterExport() {
     showPlanets = [];
   }
 
-  // css style 
+  // css style
   let divStyle = {
     textAlign: 'center',
     justifyContent: "space-around",
@@ -472,7 +472,7 @@ function mapFilterExport() {
     </select>
   `;
 
-  let levelComponent = html`<div style=${planetLevelStyle}> 
+  let levelComponent = html`<div style=${planetLevelStyle}>
       ${leftLevelSelect}
       ${' '}
       ${rightLevelSelect}
@@ -525,7 +525,7 @@ function mapFilterExport() {
 
   let spaceTypeComponent = html`
     <div style=${{ marginLeft: '20px', textAlign: 'left', float: 'left' }}>
-  
+
     ${theBlackSpaceComponent}
     ${theGreenSpaceComponent}
     ${theBlueSpaceComponent}
@@ -534,20 +534,20 @@ function mapFilterExport() {
 
   let ownerComponent = html`
   <div style=${{ marginLeft: '20px', textAlign: 'left', float: 'left' }}>
-   <input type="checkbox" checked=${!onlyMe} onChange=${() => setOnlyMe(!onlyMe)}/> 
-    
+   <input type="checkbox" checked=${!onlyMe} onChange=${() => setOnlyMe(!onlyMe)}/>
+
   ${' All '}
-   <input type="checkbox" checked=${onlyMe} onChange=${() => setOnlyMe(!onlyMe)}/> 
+   <input type="checkbox" checked=${onlyMe} onChange=${() => setOnlyMe(!onlyMe)}/>
    ${' Me '}
   </div>`;
 
   return html`<div  style=${divStyle} >
     ${levelComponent}
-    <div style=${{ marginBottom: '10px' }}> 
+    <div style=${{ marginBottom: '10px' }}>
     ${planetTypeComponent}
     ${ownerComponent}
     ${spaceTypeComponent}
-   
+
     </div>
     <div style=${{ marginTop: '5px' }}>
     <button style=${longButtonStyle} onClick=${onDownloadWithoutBackground}> Download Map Without Background </button>

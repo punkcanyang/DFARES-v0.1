@@ -1,4 +1,4 @@
-import { ModalName } from '@darkforest_eth/types';
+import { ModalName } from '@dfares/types';
 import React from 'react';
 import styled from 'styled-components';
 import { Hook } from '../../_types/global/GlobalTypes';

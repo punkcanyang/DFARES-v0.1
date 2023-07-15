@@ -1,5 +1,5 @@
-import { CONTRACT_ADDRESS } from '@darkforest_eth/contracts';
-import { address } from '@darkforest_eth/serde';
+import { CONTRACT_ADDRESS } from '@dfares/contracts';
+import { address } from '@dfares/serde';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';

@@ -1,4 +1,4 @@
-import { Chunk, Rectangle, WorldCoords, WorldLocation } from '@darkforest_eth/types';
+import { Chunk, Rectangle, WorldCoords, WorldLocation } from '@dfares/types';
 import { BucketId, ChunkId, PersistedChunk } from '../../_types/darkforest/api/ChunkStoreTypes';
 
 /**

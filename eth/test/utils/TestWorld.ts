@@ -1,4 +1,4 @@
-import type { DarkForest } from '@darkforest_eth/contracts/typechain';
+import type { DarkForest } from '@dfares/contracts/typechain';
 import type { SignerWithAddress } from '@nomiclabs/hardhat-ethers/dist/src/signer-with-address';
 import { BigNumber, utils } from 'ethers';
 import hre from 'hardhat';

@@ -1,4 +1,4 @@
-import { fakeHash, mimcHash, modPBigInt, modPBigIntNative, perlin } from '@darkforest_eth/hashing';
+import { fakeHash, mimcHash, modPBigInt, modPBigIntNative, perlin } from '@dfares/hashing';
 import {
   BiomebaseSnarkContractCallArgs,
   BiomebaseSnarkInput,
@@ -11,16 +11,16 @@ import {
   RevealSnarkContractCallArgs,
   RevealSnarkInput,
   SnarkJSProofAndSignals,
-} from '@darkforest_eth/snarks';
-import biomebaseCircuitPath from '@darkforest_eth/snarks/biomebase.wasm';
-import biomebaseZkeyPath from '@darkforest_eth/snarks/biomebase.zkey';
-import initCircuitPath from '@darkforest_eth/snarks/init.wasm';
-import initZkeyPath from '@darkforest_eth/snarks/init.zkey';
-import moveCircuitPath from '@darkforest_eth/snarks/move.wasm';
-import moveZkeyPath from '@darkforest_eth/snarks/move.zkey';
-import revealCircuitPath from '@darkforest_eth/snarks/reveal.wasm';
-import revealZkeyPath from '@darkforest_eth/snarks/reveal.zkey';
-import { PerlinConfig } from '@darkforest_eth/types';
+} from '@dfares/snarks';
+import biomebaseCircuitPath from '@dfares/snarks/biomebase.wasm';
+import biomebaseZkeyPath from '@dfares/snarks/biomebase.zkey';
+import initCircuitPath from '@dfares/snarks/init.wasm';
+import initZkeyPath from '@dfares/snarks/init.zkey';
+import moveCircuitPath from '@dfares/snarks/move.wasm';
+import moveZkeyPath from '@dfares/snarks/move.zkey';
+import revealCircuitPath from '@dfares/snarks/reveal.wasm';
+import revealZkeyPath from '@dfares/snarks/reveal.zkey';
+import { PerlinConfig } from '@dfares/types';
 import * as bigInt from 'big-integer';
 import { BigInteger } from 'big-integer';
 import FastQueue from 'fastq';

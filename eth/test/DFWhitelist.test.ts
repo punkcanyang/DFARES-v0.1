@@ -1,5 +1,5 @@
-import { EthAddress } from '@darkforest_eth/types';
-import { generateKeys, keyHash } from '@darkforest_eth/whitelist';
+import { EthAddress } from '@dfares/types';
+import { generateKeys, keyHash } from '@dfares/whitelist';
 import '@nomiclabs/hardhat-ethers';
 import '@nomiclabs/hardhat-waffle';
 import { expect } from 'chai';

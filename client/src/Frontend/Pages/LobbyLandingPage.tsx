@@ -1,7 +1,7 @@
-import { TOKEN_NAME } from '@darkforest_eth/constants';
-import { EthConnection, ThrottledConcurrentQueue, weiToEth } from '@darkforest_eth/network';
-import { address } from '@darkforest_eth/serde';
-import { EthAddress } from '@darkforest_eth/types';
+import { TOKEN_NAME } from '@dfares/constants';
+import { EthConnection, ThrottledConcurrentQueue, weiToEth } from '@dfares/network';
+import { address } from '@dfares/serde';
+import { EthAddress } from '@dfares/types';
 import { utils, Wallet } from 'ethers';
 import React, { useEffect, useRef, useState } from 'react';
 import { addAccount, getAccounts } from '../../Backend/Network/AccountManager';

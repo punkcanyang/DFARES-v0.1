@@ -1,4 +1,4 @@
-import { LocationId } from '@darkforest_eth/types';
+import { LocationId } from '@dfares/types';
 import React, { useCallback } from 'react';
 import { BroadcastPane, BroadcastPaneHelpContent } from '../Panes/BroadcastPane';
 import { BuyArtifactPane } from '../Panes/BuyArtifactPane';

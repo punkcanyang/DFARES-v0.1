@@ -1,4 +1,4 @@
-import { decodeInitializers } from '@darkforest_eth/settings';
+import { decodeInitializers } from '@dfares/settings';
 import * as settings from '../../settings';
 import { TestLocation } from './TestLocation';
 

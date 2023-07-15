@@ -1,5 +1,5 @@
-import { artifactName } from '@darkforest_eth/procedural';
-import { Artifact, LocationId } from '@darkforest_eth/types';
+import { artifactName } from '@dfares/procedural';
+import { Artifact, LocationId } from '@dfares/types';
 import React, { useCallback, useEffect } from 'react';
 import { Link } from '../Components/CoreUI';
 import { ArtifactDetailsPane } from '../Panes/ArtifactDetailsPane';

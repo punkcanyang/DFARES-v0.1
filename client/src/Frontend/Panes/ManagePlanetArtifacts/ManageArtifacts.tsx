@@ -1,4 +1,4 @@
-import { Artifact, LocatablePlanet, PlanetType } from '@darkforest_eth/types';
+import { Artifact, LocatablePlanet, PlanetType } from '@dfares/types';
 import React, { useEffect, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { Btn } from '../../Components/Btn';

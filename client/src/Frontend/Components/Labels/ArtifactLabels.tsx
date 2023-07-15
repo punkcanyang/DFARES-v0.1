@@ -1,4 +1,4 @@
-import { isAncient } from '@darkforest_eth/gamelogic';
+import { isAncient } from '@dfares/gamelogic';
 import {
   isAvatar,
   isLogo,
@@ -6,7 +6,7 @@ import {
   numToAvatarType,
   numToLogoType,
   numToMemeType,
-} from '@darkforest_eth/procedural';
+} from '@dfares/procedural';
 import {
   Artifact,
   ArtifactRarity,
@@ -18,7 +18,7 @@ import {
   LogoType,
   LogoTypeNames,
   MemeTypeNames,
-} from '@darkforest_eth/types';
+} from '@dfares/types';
 import React from 'react';
 import styled from 'styled-components';
 import { RarityColors } from '../../Styles/Colors';

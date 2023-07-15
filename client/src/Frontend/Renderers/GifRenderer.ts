@@ -6,11 +6,11 @@ import {
   MIN_ARTIFACT_RARITY,
   MIN_ARTIFACT_TYPE,
   MIN_BIOME,
-} from '@darkforest_eth/constants';
-import { ArtifactFileColor, artifactFileName, setForceAncient } from '@darkforest_eth/gamelogic';
-import { mockArtifactWithRarity } from '@darkforest_eth/procedural';
-import { SpriteRenderer, WebGLManager } from '@darkforest_eth/renderer';
-import { Artifact, ArtifactRarity, ArtifactType, Biome } from '@darkforest_eth/types';
+} from '@dfares/constants';
+import { ArtifactFileColor, artifactFileName, setForceAncient } from '@dfares/gamelogic';
+import { mockArtifactWithRarity } from '@dfares/procedural';
+import { SpriteRenderer, WebGLManager } from '@dfares/renderer';
+import { Artifact, ArtifactRarity, ArtifactType, Biome } from '@dfares/types';
 import { mat4 } from 'gl-matrix';
 import JSZip from 'jszip';
 import { GIF_ARTIFACT_COLOR } from '../Pages/GifMaker';

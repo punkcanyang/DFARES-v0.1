@@ -4,8 +4,7 @@ yarn.lock
 package-lock.json
 
 
-# when publish #
-# dist
-# interfaces
-# classes
-# README.md
+dist
+interfaces
+classes
+README.md

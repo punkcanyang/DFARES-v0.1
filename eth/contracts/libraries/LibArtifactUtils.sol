@@ -343,13 +343,13 @@ library LibArtifactUtils {
                 "artifact is not powerful enough to apply effect to this planet level"
             );
 
-            Artifact memory artifactOnToPlanet = LibGameUtils.getActiveArtifact(linkTo);
-            if (artifactOnToPlanet.artifactType == ArtifactType.PlanetaryShield) {
-                require(
-                    artifact.rarity > artifactOnToPlanet.rarity,
-                    "Ice Link rarity must be higher"
-                );
-            }
+            // Artifact memory artifactOnToPlanet = LibGameUtils.getActiveArtifact(linkTo);
+            // if (artifactOnToPlanet.artifactType == ArtifactType.PlanetaryShield) {
+            //     require(
+            //         artifact.rarity > artifactOnToPlanet.rarity,
+            //         "Ice Link rarity must be higher"
+            //     );
+            // }
 
             planet.frozen = true;
             gs().planets[linkTo].frozen = true;

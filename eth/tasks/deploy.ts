@@ -281,10 +281,16 @@ export async function deployAndCut(
 
   const diamondCut = await hre.ethers.getContractAt('DarkForest', diamond.address);
 
+  // const tokenBaseUri = `${
+  //   isDev
+  //     ? 'https://nft-test.zkga.me/token-uri/artifact/'
+  //     : 'https://nft.zkga.me/token-uri/artifact/'
+  // }${hre.network.config?.chainId || 'unknown'}-${diamond.address}/`;
+
   const tokenBaseUri = `${
     isDev
-      ? 'https://nft-test.zkga.me/token-uri/artifact/'
-      : 'https://nft.zkga.me/token-uri/artifact/'
+      ? 'https://nft-test.dfares.xyz/token-uri/artifact/'
+      : 'https://nft.dfares.xyz/token-uri/artifact/'
   }${hre.network.config?.chainId || 'unknown'}-${diamond.address}/`;
 
   // EIP-2535 specifies that the `diamondCut` function takes two optional

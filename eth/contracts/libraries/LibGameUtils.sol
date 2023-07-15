@@ -633,7 +633,7 @@ library LibGameUtils {
         }
 
         require(
-            arrivalsFromOwner + arrivalsFromOthers < gameConstants().MAX_RECEIVING_PLANET * 2,
+            arrivalsFromOwner + arrivalsFromOthers < 2 * gameConstants().MAX_RECEIVING_PLANET,
             "Planet is rate-limited"
         );
 

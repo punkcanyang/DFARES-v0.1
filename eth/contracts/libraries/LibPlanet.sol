@@ -271,16 +271,20 @@ library LibPlanet {
         view
         returns (
             Planet memory,
-            uint256[12] memory eventsToRemove,
-            uint256[12] memory artifactsToAdd,
+            // myNotice: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
+
+            uint256[16] memory eventsToRemove,
+            uint256[16] memory artifactsToAdd,
             bool shoudDeactiveArtifact
         )
     {
         Planet memory planet = gs().planets[location];
 
-        // first 12 are event ids to remove
-        // last 12 are artifact ids that are new on the planet
-        uint256[24] memory updates;
+        // myNotice: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
+
+        // first 16 are event ids to remove
+        // last 16 are artifact ids that are new on the planet
+        uint256[32] memory updates;
 
         PlanetEventMetadata[] memory events = gs().planetEvents[location];
 
@@ -290,9 +294,9 @@ library LibPlanet {
             events
         );
 
-        for (uint256 i = 0; i < 12; i++) {
+        for (uint256 i = 0; i < 16; i++) {
             eventsToRemove[i] = updates[i];
-            artifactsToAdd[i] = updates[i + 12];
+            artifactsToAdd[i] = updates[i + 16];
         }
 
         for (uint256 i = 0; i < artifactsToAdd.length; i++) {
@@ -337,8 +341,10 @@ library LibPlanet {
 
         (
             Planet memory planet,
-            uint256[12] memory eventsToRemove,
-            uint256[12] memory artifactIdsToAddToPlanet,
+            // myNotice: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
+
+            uint256[16] memory eventsToRemove,
+            uint256[16] memory artifactIdsToAddToPlanet,
             bool shouldDeactiveArtifact
         ) = getRefreshedPlanet(location, block.timestamp);
 
@@ -350,7 +356,9 @@ library LibPlanet {
 
         PlanetEventMetadata[] storage events = gs().planetEvents[location];
 
-        for (uint256 toRemoveIdx = 0; toRemoveIdx < 12; toRemoveIdx++) {
+        // myNotice: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
+
+        for (uint256 toRemoveIdx = 0; toRemoveIdx < 16; toRemoveIdx++) {
             for (uint256 i = 0; i < events.length; i++) {
                 if (events[i].id == eventsToRemove[toRemoveIdx]) {
                     events[i] = events[events.length - 1];
@@ -358,8 +366,9 @@ library LibPlanet {
                 }
             }
         }
+        // myNotice: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
 
-        for (uint256 i = 0; i < 12; i++) {
+        for (uint256 i = 0; i < 16; i++) {
             if (artifactIdsToAddToPlanet[i] != 0) {
                 gs().artifactIdToVoyageId[artifactIdsToAddToPlanet[i]] = 0;
                 LibGameUtils._putArtifactOnPlanet(artifactIdsToAddToPlanet[i], location);

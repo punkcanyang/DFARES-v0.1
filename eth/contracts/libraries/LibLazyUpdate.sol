@@ -202,13 +202,14 @@ library LibLazyUpdate {
         view
         returns (
             Planet memory,
-            uint256[24] memory,
+            // myNotice: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
+            uint256[32] memory,
             bool
         )
     {
-        // first 12 are event ids to remove
-        // last 12 are artifact ids that are new on the planet
-        uint256[24] memory eventIdsAndArtifacts;
+        // first 16 are event ids to remove
+        // last 16 are artifact ids that are new on the planet
+        uint256[32] memory eventIdsAndArtifacts;
 
         uint256 numEventsToRemove = 0;
         uint256 numNewArtifactsOnPlanet = 0;
@@ -267,7 +268,9 @@ library LibLazyUpdate {
                     );
 
                     if (newArtifactId != 0) {
-                        eventIdsAndArtifacts[12 + numNewArtifactsOnPlanet++] = newArtifactId;
+                        // myNotice: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
+
+                        eventIdsAndArtifacts[16 + numNewArtifactsOnPlanet++] = newArtifactId;
                     }
                 }
             }

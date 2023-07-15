@@ -4,3 +4,8 @@ index.d.ts
 index.d.ts.map
 tsconfig.ref.tsbuildinfo
 *.vkey.json
+README.md
+yarn-error.log
+yarn.lock
+interfaces
+classes

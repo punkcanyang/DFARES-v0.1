@@ -1,6 +1,6 @@
 {
-  "name": "@darkforest_eth/serde",
-  "version": "6.7.0-dev.0",
+  "name": "@dfares/serde",
+  "version": "6.8.0-dev.0",
   "license": "MIT",
   "author": "0xPARC <ivan@0xPARC.org>",
   "engines": {
@@ -21,10 +21,10 @@
     "clean": "del-cli dist node_modules tsconfig.ref.tsbuildinfo"
   },
   "dependencies": {
-    "@darkforest_eth/constants": "6.7.0-dev.0",
-    "@darkforest_eth/contracts": "6.7.0-dev.0",
-    "@darkforest_eth/hexgen": "6.7.0-dev.0",
-    "@darkforest_eth/types": "6.7.0-dev.0",
+    "@dfares/constants": "6.8.0-dev.0",
+    "@dfares/contracts": "6.8.0-dev.0",
+    "@dfares/hexgen": "6.8.0-dev.0",
+    "@dfares/types": "6.8.0-dev.0",
     "big-integer": "^1.6.48",
     "ethers": "^5.5.1"
   },

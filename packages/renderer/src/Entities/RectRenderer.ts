@@ -6,11 +6,11 @@ import {
   RenderZIndex,
   RGBVec,
   WorldCoords,
-} from '@darkforest_eth/types';
-import { EngineUtils } from '../EngineUtils';
-import { RECT_PROGRAM_DEFINITION } from '../Programs/RectProgram';
-import { GameGLManager } from '../WebGL/GameGLManager';
-import { GenericRenderer } from '../WebGL/GenericRenderer';
+} from "@dfares/types";
+import { EngineUtils } from "../EngineUtils";
+import { RECT_PROGRAM_DEFINITION } from "../Programs/RectProgram";
+import { GameGLManager } from "../WebGL/GameGLManager";
+import { GenericRenderer } from "../WebGL/GenericRenderer";
 
 export class RectRenderer
   extends GenericRenderer<typeof RECT_PROGRAM_DEFINITION, GameGLManager>

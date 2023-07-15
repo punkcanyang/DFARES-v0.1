@@ -4,10 +4,10 @@ import {
   RendererType,
   RGBVec,
   SpaceType,
-} from '@darkforest_eth/types';
-import { Renderer } from '../Renderer';
-import { GameGLManager } from '../WebGL/GameGLManager';
-import { RectRenderer } from './RectRenderer';
+} from "@dfares/types";
+import { Renderer } from "../Renderer";
+import { GameGLManager } from "../WebGL/GameGLManager";
+import { RectRenderer } from "./RectRenderer";
 
 export class BackgroundRenderer implements BackgroundRendererType {
   manager: GameGLManager;
@@ -61,7 +61,13 @@ export class BackgroundRenderer implements BackgroundRendererType {
       [0, 0, 0],
       4
     );
-    if (innerNebulaColor && nebulaColor && spaceColor && deepSpaceColor && deadSpaceColor) {
+    if (
+      innerNebulaColor &&
+      nebulaColor &&
+      spaceColor &&
+      deepSpaceColor &&
+      deadSpaceColor
+    ) {
       spaceRenderer.setColorConfiguration(
         innerNebulaColor,
         nebulaColor,
@@ -106,7 +112,9 @@ export class BackgroundRenderer implements BackgroundRendererType {
       for (let y = 0; y < height; y += 100) {
         const worldCoords = viewport.canvasToWorldCoords({ x, y });
 
-        const space = context.spaceTypeFromPerlin(context.getSpaceTypePerlin(worldCoords, false));
+        const space = context.spaceTypeFromPerlin(
+          context.getSpaceTypePerlin(worldCoords, false)
+        );
 
         let color: RGBVec = [255, 0, 0];
         // if (space === SpaceType.NEBULA) ctx.fillStyle = '#ff0000';

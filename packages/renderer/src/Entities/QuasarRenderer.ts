@@ -1,7 +1,12 @@
-import { Planet, QuasarRendererType, RendererType, WorldCoords } from '@darkforest_eth/types';
-import { EngineUtils } from '../EngineUtils';
-import { Renderer } from '../Renderer';
-import { GameGLManager } from '../WebGL/GameGLManager';
+import {
+  Planet,
+  QuasarRendererType,
+  RendererType,
+  WorldCoords,
+} from "@dfares/types";
+import { EngineUtils } from "../EngineUtils";
+import { Renderer } from "../Renderer";
+import { GameGLManager } from "../WebGL/GameGLManager";
 
 export class QuasarRenderer implements QuasarRendererType {
   manager: GameGLManager;

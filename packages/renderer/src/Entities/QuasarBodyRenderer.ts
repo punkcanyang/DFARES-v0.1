@@ -1,15 +1,15 @@
-import { getPlanetCosmetic } from '@darkforest_eth/procedural';
+import { getPlanetCosmetic } from "@dfares/procedural";
 import {
   CanvasCoords,
   Planet,
   QuasarBodyRendererType,
   RendererType,
   WorldCoords,
-} from '@darkforest_eth/types';
-import { EngineUtils } from '../EngineUtils';
-import { QUASARBODY_PROGRAM_DEFINITION } from '../Programs/QuasarBodyProgram';
-import { GameGLManager } from '../WebGL/GameGLManager';
-import { GenericRenderer } from '../WebGL/GenericRenderer';
+} from "@dfares/types";
+import { EngineUtils } from "../EngineUtils";
+import { QUASARBODY_PROGRAM_DEFINITION } from "../Programs/QuasarBodyProgram";
+import { GameGLManager } from "../WebGL/GameGLManager";
+import { GenericRenderer } from "../WebGL/GenericRenderer";
 
 export class QuasarBodyRenderer
   extends GenericRenderer<typeof QUASARBODY_PROGRAM_DEFINITION, GameGLManager>
@@ -70,8 +70,12 @@ export class QuasarBodyRenderer
     z: number,
     angle = 0
   ): void {
-    const center = this.manager.renderer.getViewport().worldToCanvasCoords(centerW);
-    const radius = this.manager.renderer.getViewport().worldToCanvasDist(radiusW);
+    const center = this.manager.renderer
+      .getViewport()
+      .worldToCanvasCoords(centerW);
+    const radius = this.manager.renderer
+      .getViewport()
+      .worldToCanvasDist(radiusW);
 
     this.queueQuasarBodyScreen(planet, center, radius, z, angle);
   }

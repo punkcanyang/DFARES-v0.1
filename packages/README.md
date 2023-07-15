@@ -1,6 +1,6 @@
 # Dark Forest Packages
 
-This project is a place to store all packages that Dark Forest publishes for 3rd-party consumption. These are published in the npm registry and available at https://www.npmjs.com/org/darkforest_eth
+This project is a place to store all packages that Dark Forest publishes for 3rd-party consumption. These are published in the npm registry and available at https://www.npmjs.com/org/dfares
 
 ## Usage
 

@@ -6,20 +6,25 @@ import {
   Transaction,
   TransactionId,
   TxIntent,
-} from '@darkforest_eth/types';
-import { Mutex } from 'async-mutex';
-import { providers } from 'ethers';
-import deferred from 'p-defer';
-import timeout from 'p-timeout';
-import { EthConnection } from './EthConnection';
-import { gweiToWei, waitForTransaction } from './Network';
-import { ConcurrentQueueConfiguration, ThrottledConcurrentQueue } from './ThrottledConcurrentQueue';
+} from "@dfares/types";
+import { Mutex } from "async-mutex";
+import { providers } from "ethers";
+import deferred from "p-defer";
+import timeout from "p-timeout";
+import { EthConnection } from "./EthConnection";
+import { gweiToWei, waitForTransaction } from "./Network";
+import {
+  ConcurrentQueueConfiguration,
+  ThrottledConcurrentQueue,
+} from "./ThrottledConcurrentQueue";
 
 /**
  * Returns either a string that represents the gas price we should use by default for transactions,
  * or a string that represents the fact that we should be using one of the automatic gas prices.
  */
-export type GasPriceSettingProvider = (transactionRequest: Transaction) => AutoGasSetting | string;
+export type GasPriceSettingProvider = (
+  transactionRequest: Transaction
+) => AutoGasSetting | string;
 
 /**
  * {@link TxExecutor} calls this before queueing a function to determine whether or not that
@@ -35,7 +40,9 @@ export type BeforeQueued = (
  * {@link TxExecutor} calls this before executing a function to determine whether or not that
  * function should execute. If this function rejects, the transaction is cancelled.
  */
-export type BeforeTransaction = (transactionRequest: Transaction) => Promise<void>;
+export type BeforeTransaction = (
+  transactionRequest: Transaction
+) => Promise<void>;
 
 /**
  * {@link TxExecutor} calls this after executing a transaction.
@@ -169,7 +176,9 @@ export class TxExecutor {
    * whose confirmationPromise resolves once the transaction was verified to have been confirmed.
    * Useful for plugging these persisted transactions into our transaction system.
    */
-  public waitForTransaction<T extends TxIntent>(ser: PersistedTransaction<T>): Transaction<T> {
+  public waitForTransaction<T extends TxIntent>(
+    ser: PersistedTransaction<T>
+  ): Transaction<T> {
     const {
       promise: submittedPromise,
       reject: rejectTxResponse,
@@ -185,7 +194,7 @@ export class TxExecutor {
     const tx: Transaction<T> = {
       id: this.nextId(),
       lastUpdatedAt: Date.now(),
-      state: 'Init',
+      state: "Init",
       intent: ser.intent,
       submittedPromise,
       confirmedPromise,
@@ -241,7 +250,7 @@ export class TxExecutor {
     const tx: Transaction<T> = {
       id,
       lastUpdatedAt: Date.now(),
-      state: 'Init',
+      state: "Init",
       intent,
       submittedPromise,
       confirmedPromise,
@@ -278,12 +287,12 @@ export class TxExecutor {
 
   public dequeueTransction(tx: Transaction) {
     this.queue.remove((queuedTx) => queuedTx?.id === tx.id);
-    tx.state = 'Cancel';
+    tx.state = "Cancel";
   }
 
   public prioritizeTransaction(tx: Transaction) {
     this.queue.prioritize((queuedTx) => queuedTx?.id === tx.id);
-    tx.state = 'Prioritized';
+    tx.state = "Prioritized";
   }
 
   /**
@@ -298,7 +307,8 @@ export class TxExecutor {
     const shouldRefreshNonce =
       this.nonce === undefined ||
       (this.supportMultipleWallets &&
-        Date.now() - this.lastTransactionTimestamp > TxExecutor.NONCE_STALE_AFTER_MS);
+        Date.now() - this.lastTransactionTimestamp >
+          TxExecutor.NONCE_STALE_AFTER_MS);
 
     if (shouldRefreshNonce) {
       const chainNonce = await this.ethConnection.getNonce();
@@ -344,7 +354,7 @@ export class TxExecutor {
     const time_exec_called = Date.now();
 
     try {
-      tx.state = 'Processing';
+      tx.state = "Processing";
 
       if (this.beforeTransaction) {
         await this.beforeTransaction(tx);
@@ -373,7 +383,7 @@ export class TxExecutor {
 
       releaseMutex();
 
-      tx.state = 'Submit';
+      tx.state = "Submit";
       tx.hash = submitted.hash;
 
       time_submitted = Date.now();
@@ -382,22 +392,24 @@ export class TxExecutor {
       this.lastTransactionTimestamp = time_submitted;
       tx.onTransactionResponse(submitted);
 
-      const confirmed = await this.ethConnection.waitForTransaction(submitted.hash);
+      const confirmed = await this.ethConnection.waitForTransaction(
+        submitted.hash
+      );
       if (confirmed.status !== 1) {
         time_errored = Date.now();
         tx.lastUpdatedAt = time_errored;
-        tx.state = 'Fail';
+        tx.state = "Fail";
         await this.resetNonce();
-        throw new Error('transaction reverted');
+        throw new Error("transaction reverted");
       } else {
-        tx.state = 'Confirm';
+        tx.state = "Confirm";
         time_confirmed = Date.now();
         tx.lastUpdatedAt = time_confirmed;
         tx.onTransactionReceipt(confirmed);
       }
     } catch (e) {
       console.error(e);
-      tx.state = 'Fail';
+      tx.state = "Fail";
       error = e as Error;
 
       if (!time_submitted) {
@@ -442,7 +454,10 @@ export class TxExecutor {
         /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
         if ((error as any).body) {
           /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-          logEvent.parsed_error = String.fromCharCode.apply(null, (error as any).body || []);
+          logEvent.parsed_error = String.fromCharCode.apply(
+            null,
+            (error as any).body || []
+          );
         }
       } catch (e) {}
     }

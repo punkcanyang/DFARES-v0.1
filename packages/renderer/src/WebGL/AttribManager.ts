@@ -1,5 +1,5 @@
-import { AttribProps } from '@darkforest_eth/types';
-import { AttribArray } from './AttribArray';
+import { AttribProps } from "@dfares/types";
+import { AttribArray } from "./AttribArray";
 
 /**
  * Responsible for queuing data about a webgl attribute and then writing to it.
@@ -53,7 +53,7 @@ export class AttribManager {
 
     const loc = gl.getAttribLocation(program, props.name);
     const buffer = gl.createBuffer();
-    if (!buffer) throw 'Error creating buffer for attrib: ' + props.name;
+    if (!buffer) throw "Error creating buffer for attrib: " + props.name;
 
     if (enable) gl.enableVertexAttribArray(loc);
 
@@ -86,6 +86,12 @@ export class AttribManager {
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
     gl.vertexAttribPointer(loc, dim, type, normalize, 0, 0);
-    gl.bufferData(gl.ARRAY_BUFFER, this.attribArray.array, gl.DYNAMIC_DRAW, 0, n * dim);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      this.attribArray.array,
+      gl.DYNAMIC_DRAW,
+      0,
+      n * dim
+    );
   }
 }

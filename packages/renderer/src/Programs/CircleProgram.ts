@@ -1,22 +1,22 @@
-import { AttribType, UniformType } from '@darkforest_eth/types';
-import { glsl } from '../EngineUtils';
+import { AttribType, UniformType } from "@dfares/types";
+import { glsl } from "../EngineUtils";
 
 const a = {
-  position: 'a_position', // as [posx, posy, rectposx, rectposy]
-  color: 'a_color',
-  props: 'a_props', // as [stroke, angle, dash]
-  eps: 'a_eps',
+  position: "a_position", // as [posx, posy, rectposx, rectposy]
+  color: "a_color",
+  props: "a_props", // as [stroke, angle, dash]
+  eps: "a_eps",
 };
 const u = {
-  matrix: 'u_matrix', // matrix to convert from world coords to clipspace
+  matrix: "u_matrix", // matrix to convert from world coords to clipspace
 };
 const v = {
-  color: 'v_color',
-  stroke: 'v_stroke',
-  angle: 'v_angle',
-  dash: 'v_dash',
-  rectPos: 'v_rectPos',
-  eps: 'v_eps',
+  color: "v_color",
+  stroke: "v_stroke",
+  angle: "v_angle",
+  dash: "v_dash",
+  rectPos: "v_rectPos",
+  eps: "v_eps",
 };
 
 export const CIRCLE_PROGRAM_DEFINITION = {

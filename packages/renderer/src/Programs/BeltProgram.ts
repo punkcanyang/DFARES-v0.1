@@ -1,25 +1,25 @@
-import { AttribType, UniformType } from '@darkforest_eth/types';
-import { glsl } from '../EngineUtils';
-import { ShaderMixins } from '../WebGL/ShaderMixins';
+import { AttribType, UniformType } from "@dfares/types";
+import { glsl } from "../EngineUtils";
+import { ShaderMixins } from "../WebGL/ShaderMixins";
 
 const a = {
-  position: 'a_position',
-  color: 'a_color',
-  rectPos: 'a_rectPos',
-  props: 'a_props',
+  position: "a_position",
+  color: "a_color",
+  rectPos: "a_rectPos",
+  props: "a_props",
 };
 const u = {
-  matrix: 'u_matrix', // matrix to convert from screen coords to clipspace
-  now: 'u_now',
+  matrix: "u_matrix", // matrix to convert from screen coords to clipspace
+  now: "u_now",
 };
 const v = {
-  color: 'v_color',
-  rectPos: 'v_rectPos',
-  astRad: 'v_astRad',
-  num: 'v_num',
-  xRad: 'v_xRad',
-  yRad: 'v_yRad',
-  perturb: 'v_perturb',
+  color: "v_color",
+  rectPos: "v_rectPos",
+  astRad: "v_astRad",
+  num: "v_num",
+  xRad: "v_xRad",
+  yRad: "v_yRad",
+  perturb: "v_perturb",
 };
 
 export const BELT_PROGRAM_DEFINITION = {

@@ -1,6 +1,6 @@
 {
-  "name": "@darkforest_eth/settings",
-  "version": "6.7.0-dev.0",
+  "name": "@dfares/settings",
+  "version": "6.8.0-dev.0",
   "license": "MIT",
   "author": "0xPARC <ivan@0xPARC.org>",
   "engines": {

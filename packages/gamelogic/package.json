@@ -1,6 +1,6 @@
 {
-  "name": "@darkforest_eth/gamelogic",
-  "version": "6.7.0-dev.0",
+  "name": "@dfares/gamelogic",
+  "version": "6.8.0-dev.0",
   "license": "MIT",
   "author": "0xPARC <ivan@0xPARC.org>",
   "engines": {
@@ -21,9 +21,9 @@
     "clean": "del-cli dist node_modules tsconfig.ref.tsbuildinfo"
   },
   "dependencies": {
-    "@darkforest_eth/constants": "6.7.0-dev.0",
-    "@darkforest_eth/serde": "6.7.0-dev.0",
-    "@darkforest_eth/types": "6.7.0-dev.0"
+    "@dfares/constants": "6.8.0-dev.0",
+    "@dfares/serde": "6.8.0-dev.0",
+    "@dfares/types": "6.8.0-dev.0"
   },
   "devDependencies": {
     "del-cli": "^4.0.1",

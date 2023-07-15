@@ -1,3 +1,9 @@
 typechain
 abis
 tsconfig.ref.tsbuildinfo
+README.md
+yarn-error.log
+yarn.lock
+interfaces
+classes
+

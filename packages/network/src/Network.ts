@@ -1,10 +1,22 @@
-import { DEFAULT_MAX_CALL_RETRIES } from '@darkforest_eth/constants';
-import { address } from '@darkforest_eth/serde';
-import { AutoGasSetting, EthAddress, GasPrices, SignedMessage } from '@darkforest_eth/types';
-import { BigNumber, Contract, ContractInterface, providers, utils, Wallet } from 'ethers';
-import stringify from 'json-stable-stringify';
-import retry from 'p-retry';
-import timeout from 'p-timeout';
+import { DEFAULT_MAX_CALL_RETRIES } from "@dfares/constants";
+import { address } from "@dfares/serde";
+import {
+  AutoGasSetting,
+  EthAddress,
+  GasPrices,
+  SignedMessage,
+} from "@dfares/types";
+import {
+  BigNumber,
+  Contract,
+  ContractInterface,
+  providers,
+  utils,
+  Wallet,
+} from "ethers";
+import stringify from "json-stable-stringify";
+import retry from "p-retry";
+import timeout from "p-timeout";
 
 export type RetryErrorHandler = (i: number, e: Error) => void;
 
@@ -129,7 +141,10 @@ export function waitForTransaction(
       console.log(`[wait-tx] WAITING ON tx hash: ${txHash} tries ${tries}`);
 
       try {
-        const receipt = await timeout(provider.getTransactionReceipt(txHash), 30 * 1000);
+        const receipt = await timeout(
+          provider.getTransactionReceipt(txHash),
+          30 * 1000
+        );
 
         if (receipt) {
           console.log(`[wait-tx] FINISHED tx hash: ${txHash} tries ${tries}`);
@@ -138,7 +153,10 @@ export function waitForTransaction(
           return Promise.reject(new Error("couldn't get receipt"));
         }
       } catch (e) {
-        console.error(`[wait-tx] TIMED OUT tx hash: ${txHash} tries ${tries} error:`, e);
+        console.error(
+          `[wait-tx] TIMED OUT tx hash: ${txHash} tries ${tries} error:`,
+          e
+        );
         return Promise.reject(e);
       }
     },
@@ -149,7 +167,9 @@ export function waitForTransaction(
       maxTimeout: 60_000,
       factor: 1.5,
       onFailedAttempt(e) {
-        console.log(`[wait-tx] SLEEPING tx hash: ${txHash} tries ${e.attemptNumber} sleeping...`);
+        console.log(
+          `[wait-tx] SLEEPING tx hash: ${txHash} tries ${e.attemptNumber} sleeping...`
+        );
       },
     }
   );
@@ -175,7 +195,7 @@ export function createContract<C extends Contract>(
 export function makeProvider(rpcUrl: string): providers.JsonRpcProvider {
   let provider;
 
-  if (rpcUrl.startsWith('wss://')) {
+  if (rpcUrl.startsWith("wss://")) {
     provider = new providers.WebSocketProvider(rpcUrl);
   } else {
     provider = new providers.StaticJsonRpcProvider(rpcUrl);
@@ -191,7 +211,9 @@ export function makeProvider(rpcUrl: string): providers.JsonRpcProvider {
 export function assertProperlySigned(message: SignedMessage<unknown>): void {
   const preSigned = stringify(message.message);
 
-  if (!verifySignature(preSigned, message.signature as string, message.sender)) {
+  if (
+    !verifySignature(preSigned, message.signature as string, message.sender)
+  ) {
     throw new Error(`failed to verify: ${message}`);
   }
 }
@@ -214,14 +236,14 @@ export function verifySignature(
  * Returns the given amount of gwei in wei as a big integer.
  */
 export function gweiToWei(gwei: number): BigNumber {
-  return utils.parseUnits(gwei + '', 'gwei');
+  return utils.parseUnits(gwei + "", "gwei");
 }
 
 /**
  * Returns the given amount of wei in gwei as a number.
  */
 export function weiToGwei(wei: BigNumber): number {
-  return parseFloat(utils.formatUnits(wei, 'gwei'));
+  return parseFloat(utils.formatUnits(wei, "gwei"));
 }
 
 /**
@@ -235,7 +257,7 @@ export function weiToEth(wei: BigNumber): number {
  * Returns the given amount of eth in wei as a big integer.
  */
 export function ethToWei(eth: number): BigNumber {
-  return utils.parseEther(eth + '');
+  return utils.parseEther(eth + "");
 }
 
 /**

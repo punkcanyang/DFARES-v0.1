@@ -1,6 +1,6 @@
-import { RGBAVec } from '@darkforest_eth/types';
-import autoBind from 'auto-bind';
-import { mat4 } from 'gl-matrix';
+import { RGBAVec } from "@dfares/types";
+import autoBind from "auto-bind";
+import { mat4 } from "gl-matrix";
 
 export class WebGLManager {
   public gl: WebGL2RenderingContext;
@@ -12,9 +12,9 @@ export class WebGLManager {
     autoBind(this);
 
     this.canvas = canvas;
-    const gl = this.canvas.getContext('webgl2', attr);
+    const gl = this.canvas.getContext("webgl2", attr);
     if (!gl) {
-      console.error('error getting webgl2 context');
+      console.error("error getting webgl2 context");
       return;
     }
     this.gl = gl;

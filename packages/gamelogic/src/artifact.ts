@@ -1,5 +1,9 @@
-import { EMPTY_ADDRESS, MAX_SPACESHIP_TYPE, MIN_SPACESHIP_TYPE } from '@darkforest_eth/constants';
-import { hashToInt } from '@darkforest_eth/serde';
+import {
+  EMPTY_ADDRESS,
+  MAX_SPACESHIP_TYPE,
+  MIN_SPACESHIP_TYPE,
+} from "@dfares/constants";
+import { hashToInt } from "@dfares/serde";
 import {
   Abstract,
   Artifact,
@@ -15,7 +19,7 @@ import {
   PlanetLevel,
   PlanetType,
   RenderedArtifact,
-} from '@darkforest_eth/types';
+} from "@dfares/types";
 
 export const RelicsList: ArtifactType[] = [
   ArtifactType.Wormhole,
@@ -40,7 +44,11 @@ export function isBasic(type: ArtifactType): boolean {
 }
 
 export function isSpaceShip(type: ArtifactType | undefined): boolean {
-  return type !== undefined && type >= MIN_SPACESHIP_TYPE && type <= MAX_SPACESHIP_TYPE;
+  return (
+    type !== undefined &&
+    type >= MIN_SPACESHIP_TYPE &&
+    type <= MAX_SPACESHIP_TYPE
+  );
 }
 
 export function hasStatBoost(type: ArtifactType | undefined): boolean {
@@ -96,13 +104,15 @@ export function isActivated(artifact: Artifact | undefined) {
   return artifact.lastActivated > artifact.lastDeactivated;
 }
 
-export function getActivatedArtifact(artifacts: Artifact[]): Artifact | undefined {
+export function getActivatedArtifact(
+  artifacts: Artifact[]
+): Artifact | undefined {
   return artifacts.find(isActivated);
 }
 
 export function getArtifactDebugName(a?: Artifact): string {
   if (!a) {
-    return 'unknown artifact';
+    return "unknown artifact";
   }
 
   return a.id.substring(0, 8);
@@ -110,12 +120,14 @@ export function getArtifactDebugName(a?: Artifact): string {
 
 export const biomeName = (biome: Biome): string => BiomeNames[biome];
 
-export const rarityName = (rarity: ArtifactRarity): string => ArtifactRarityNames[rarity];
+export const rarityName = (rarity: ArtifactRarity): string =>
+  ArtifactRarityNames[rarity];
 
-export const rarityNameFromArtifact = (a: Artifact): string => rarityName(a.rarity);
+export const rarityNameFromArtifact = (a: Artifact): string =>
+  rarityName(a.rarity);
 
 export function artifactBiomeName(artifact: Artifact): string {
-  if (isAncient(artifact)) return 'Ancient';
+  if (isAncient(artifact)) return "Ancient";
   return biomeName(artifact.planetBiome);
 }
 
@@ -129,7 +141,7 @@ export const levelFromRarity = (rarity: ArtifactRarity): PlanetLevel => {
 
 const artifactFileNamesById: Map<ArtifactId, string> = new Map();
 
-export type ArtifactFileColor = Abstract<number, 'ArtifactFileColor'>;
+export type ArtifactFileColor = Abstract<number, "ArtifactFileColor">;
 export const ArtifactFileColor = {
   BLUE: 0 as ArtifactFileColor,
   APP_BACKGROUND: 1 as ArtifactFileColor,
@@ -173,45 +185,47 @@ export function artifactFileName(
   artifact: RenderedArtifact,
   color: ArtifactFileColor,
   // used in GifRenderer.ts to generate filenames from mock artifacts
-  debugProps: { forceAncient: boolean; skipCaching: boolean } | undefined = undefined
+  debugProps:
+    | { forceAncient: boolean; skipCaching: boolean }
+    | undefined = undefined
 ): string {
   const { artifactType: type, rarity, planetBiome: biome, id } = artifact;
 
   if (isSpaceShip(type)) {
     switch (type) {
       case ArtifactType.ShipWhale:
-        return '64-whale.png';
+        return "64-whale.png";
       case ArtifactType.ShipMothership:
-        return '64-mothership.png';
+        return "64-mothership.png";
       case ArtifactType.ShipCrescent:
-        return '64-crescent.png';
+        return "64-crescent.png";
       case ArtifactType.ShipGear:
-        return '64-gear.png';
+        return "64-gear.png";
       case ArtifactType.ShipTitan:
-        return '64-titan.png';
+        return "64-titan.png";
     }
   }
 
-  const size = thumb ? '16' : '64';
-  const ext = videoMode ? 'webm' : 'png';
+  const size = thumb ? "16" : "64";
+  const ext = videoMode ? "webm" : "png";
 
-  let fileName = '';
+  let fileName = "";
 
   if (!debugProps?.skipCaching && artifactFileNamesById.has(id)) {
-    fileName = artifactFileNamesById.get(id) || '';
+    fileName = artifactFileNamesById.get(id) || "";
   } else {
     const typeStr = ArtifactTypeNames[type];
     const rarityStr = ArtifactRarityNames[rarity];
-    let nameStr = '';
+    let nameStr = "";
     if (debugProps) {
       if (debugProps.forceAncient) {
-        nameStr = 'ancient';
+        nameStr = "ancient";
       } else {
         nameStr = biome + BiomeNames[biome];
       }
     } else {
       if (isAncient(artifact)) {
-        nameStr = 'ancient';
+        nameStr = "ancient";
       } else {
         nameStr = biome + BiomeNames[biome];
       }
@@ -221,22 +235,27 @@ export function artifactFileName(
 
   if (!debugProps?.skipCaching) artifactFileNamesById.set(id, fileName);
 
-  let colorStr = '';
-  if (color === ArtifactFileColor.APP_BACKGROUND) colorStr = '-bg';
+  let colorStr = "";
+  if (color === ArtifactFileColor.APP_BACKGROUND) colorStr = "-bg";
 
   return `${size}-${fileName}${colorStr}.${ext}`;
 }
 
-export function getActiveBlackDomain(artifacts: Artifact[]): Artifact | undefined {
+export function getActiveBlackDomain(
+  artifacts: Artifact[]
+): Artifact | undefined {
   for (const artifact of artifacts) {
-    if (artifact.artifactType === ArtifactType.BlackDomain && isActivated(artifact))
+    if (
+      artifact.artifactType === ArtifactType.BlackDomain &&
+      isActivated(artifact)
+    )
       return artifact;
   }
   return undefined;
 }
 
 export const dateMintedAt = (artifact: Artifact | undefined): string => {
-  if (!artifact) return '00/00/0000';
+  if (!artifact) return "00/00/0000";
   return new Date(artifact.mintedAtTimestamp * 1000).toDateString();
 };
 
@@ -270,7 +289,11 @@ export function canActivateArtifact(
   return false;
 }
 
-export function canWithdrawArtifact(account: EthAddress, artifact: Artifact, planet?: Planet) {
+export function canWithdrawArtifact(
+  account: EthAddress,
+  artifact: Artifact,
+  planet?: Planet
+) {
   return (
     planet &&
     !planet.destroyed &&
@@ -282,7 +305,11 @@ export function canWithdrawArtifact(account: EthAddress, artifact: Artifact, pla
   );
 }
 
-export function canDepositArtifact(account: EthAddress, artifact: Artifact, planet?: Planet) {
+export function canDepositArtifact(
+  account: EthAddress,
+  artifact: Artifact,
+  planet?: Planet
+) {
   return (
     planet &&
     !planet.destroyed &&

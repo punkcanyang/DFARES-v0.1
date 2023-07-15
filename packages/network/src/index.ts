@@ -7,26 +7,26 @@
  * [`yarn`](https://classic.yarnpkg.com/lang/en/) by running:
  *
  * ```bash
- * npm install --save @darkforest_eth/network
+ * npm install --save @dfares/network
  * ```
  * ```bash
- * yarn add @darkforest_eth/network
+ * yarn add @dfares/network
  * ```
  *
  * When using this in a plugin, you might want to load it with [skypack](https://www.skypack.dev)
  *
  * ```js
- * import * as network from 'http://cdn.skypack.dev/@darkforest_eth/network'
+ * import * as network from 'http://cdn.skypack.dev/@dfares/network'
  * ```
  *
  * @packageDocumentation
  */
 
-export * from './blockchainApi';
-export * from './ContractCaller';
-export * from './Contracts';
-export * from './EthConnection';
-export * from './Network';
-export * from './ThrottledConcurrentQueue';
-export * from './TransactionCollection';
-export * from './TxExecutor';
+export * from "./blockchainApi";
+export * from "./ContractCaller";
+export * from "./Contracts";
+export * from "./EthConnection";
+export * from "./Network";
+export * from "./ThrottledConcurrentQueue";
+export * from "./TransactionCollection";
+export * from "./TxExecutor";

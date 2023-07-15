@@ -1,22 +1,22 @@
-import { AttribType, UniformType } from '@darkforest_eth/types';
-import { glsl } from '../EngineUtils';
-import { ShaderMixins } from '../WebGL/ShaderMixins';
+import { AttribType, UniformType } from "@dfares/types";
+import { glsl } from "../EngineUtils";
+import { ShaderMixins } from "../WebGL/ShaderMixins";
 
 const a = {
-  position: 'a_position',
-  color: 'a_color',
-  radius: 'a_radius',
-  seed: 'a_seed',
-  offset: 'a_offset',
+  position: "a_position",
+  color: "a_color",
+  radius: "a_radius",
+  seed: "a_seed",
+  offset: "a_offset",
 };
 const u = {
-  matrix: 'u_matrix', // matrix to convert from screen coords to clipspace
-  now: 'u_now',
+  matrix: "u_matrix", // matrix to convert from screen coords to clipspace
+  now: "u_now",
 };
 const v = {
-  color: 'v_color',
-  darken: 'v_darken',
-  seed: 'v_seed',
+  color: "v_color",
+  darken: "v_darken",
+  seed: "v_seed",
 };
 
 export const MINE_PROGRAM_DEFINITION = {

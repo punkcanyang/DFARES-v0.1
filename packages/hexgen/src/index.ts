@@ -9,22 +9,22 @@
  * [`yarn`](https://classic.yarnpkg.com/lang/en/) by running:
  *
  * ```bash
- * npm install --save @darkforest_eth/hexgen
+ * npm install --save @dfares/hexgen
  * ```
  * ```bash
- * yarn add @darkforest_eth/hexgen
+ * yarn add @dfares/hexgen
  * ```
  *
  * When using this in a plugin, you might want to load it with [skypack](https://www.skypack.dev)
  *
  * ```js
- * import * as hexgen from 'http://cdn.skypack.dev/@darkforest_eth/hexgen'
+ * import * as hexgen from 'http://cdn.skypack.dev/@dfares/hexgen'
  * ```
  *
  * @packageDocumentation
  */
-import type { LocationId, Planet, PlanetBonus } from '@darkforest_eth/types';
-import bigInt from 'big-integer';
+import type { LocationId, Planet, PlanetBonus } from "@dfares/types";
+import bigInt from "big-integer";
 
 /**
  * The core method for extracting planet details from a LocationID.
@@ -33,7 +33,11 @@ import bigInt from 'big-integer';
  * @param startByte The first byte to include in the result.
  * @param endByte The byte _after_ the last byte to include in the result.
  */
-export function getBytesFromHex(hexStr: string, startByte: number, endByte: number) {
+export function getBytesFromHex(
+  hexStr: string,
+  startByte: number,
+  endByte: number
+) {
   const byteString = hexStr.substring(2 * startByte, 2 * endByte);
   return bigInt(`0x${byteString}`);
 }

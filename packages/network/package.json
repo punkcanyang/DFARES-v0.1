@@ -1,6 +1,6 @@
 {
-  "name": "@darkforest_eth/network",
-  "version": "6.7.0-dev.0",
+  "name": "@dfares/network",
+  "version": "6.8.0-dev.0",
   "license": "MIT",
   "author": "0xPARC <ivan@0xPARC.org>",
   "engines": {
@@ -21,11 +21,11 @@
     "clean": "del-cli dist node_modules tsconfig.ref.tsbuildinfo"
   },
   "dependencies": {
-    "@darkforest_eth/constants": "6.7.0-dev.0",
-    "@darkforest_eth/contracts": "6.7.0-dev.0",
-    "@darkforest_eth/events": "6.7.0-dev.0",
-    "@darkforest_eth/serde": "6.7.0-dev.0",
-    "@darkforest_eth/types": "6.7.0-dev.0",
+    "@dfares/constants": "6.8.0-dev.0",
+    "@dfares/contracts": "6.8.0-dev.0",
+    "@dfares/events": "6.8.0-dev.0",
+    "@dfares/serde": "6.8.0-dev.0",
+    "@dfares/types": "6.8.0-dev.0",
     "async-mutex": "^0.3.2",
     "ethers": "^5.5.1",
     "json-stable-stringify": "^1.0.1",
@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "@types/json-stable-stringify": "^1.0.32",
+    "@types/lodash": "^4.14.195",
     "@types/uuid": "^8.3.0",
     "del-cli": "^4.0.1",
     "eslint": "^7.30.0",

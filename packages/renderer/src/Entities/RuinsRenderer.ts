@@ -1,4 +1,4 @@
-import { getPlanetCosmetic } from '@darkforest_eth/procedural';
+import { getPlanetCosmetic } from "@dfares/procedural";
 import {
   CanvasCoords,
   Planet,
@@ -7,11 +7,11 @@ import {
   RGBVec,
   RuinsRendererType,
   WorldCoords,
-} from '@darkforest_eth/types';
-import { EngineUtils } from '../EngineUtils';
-import { RUINS_PROGRAM_DEFINITION } from '../Programs/RuinsProgram';
-import { GameGLManager } from '../WebGL/GameGLManager';
-import { GenericRenderer } from '../WebGL/GenericRenderer';
+} from "@dfares/types";
+import { EngineUtils } from "../EngineUtils";
+import { RUINS_PROGRAM_DEFINITION } from "../Programs/RuinsProgram";
+import { GameGLManager } from "../WebGL/GameGLManager";
+import { GenericRenderer } from "../WebGL/GenericRenderer";
 
 export class RuinsRenderer
   extends GenericRenderer<typeof RUINS_PROGRAM_DEFINITION, GameGLManager>
@@ -29,7 +29,12 @@ export class RuinsRenderer
     this.quad2Buffer = EngineUtils.makeQuadVec2(-1, 1, 1, -1);
   }
 
-  public queueRuinsScreen(planet: Planet, center: CanvasCoords, radius: number, z: number) {
+  public queueRuinsScreen(
+    planet: Planet,
+    center: CanvasCoords,
+    radius: number,
+    z: number
+  ) {
     const cosmetic = getPlanetCosmetic(planet);
 
     const interval = 1 / (planet.planetLevel + 1);
@@ -93,9 +98,17 @@ export class RuinsRenderer
     this.verts += 6;
   }
 
-  public queueRuins(planet: Planet, centerW: WorldCoords, radiusW: number): void {
-    const center = this.manager.renderer.getViewport().worldToCanvasCoords(centerW);
-    const radius = this.manager.renderer.getViewport().worldToCanvasDist(radiusW);
+  public queueRuins(
+    planet: Planet,
+    centerW: WorldCoords,
+    radiusW: number
+  ): void {
+    const center = this.manager.renderer
+      .getViewport()
+      .worldToCanvasCoords(centerW);
+    const radius = this.manager.renderer
+      .getViewport()
+      .worldToCanvasDist(radiusW);
     const z = EngineUtils.getPlanetZIndex(planet);
 
     this.queueRuinsScreen(planet, center, radius, z);

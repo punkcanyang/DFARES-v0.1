@@ -10,24 +10,30 @@
  * [`yarn`](https://classic.yarnpkg.com/lang/en/) by running:
  *
  * ```bash
- * npm install --save @darkforest_eth/hashing
+ * npm install --save @dfares/hashing
  * ```
  * ```bash
- * yarn add @darkforest_eth/hashing
+ * yarn add @dfares/hashing
  * ```
  *
  * When using this in a plugin, you might want to load it with [skypack](https://www.skypack.dev)
  *
  * ```js
- * import * as hashing from 'http://cdn.skypack.dev/@darkforest_eth/hashing'
+ * import * as hashing from 'http://cdn.skypack.dev/@dfares/hashing'
  * ```
  *
  * @packageDocumentation
  */
-import { fakeHash, seededRandom } from './fakeHash';
-import { Fraction } from './fractions/bigFraction';
-import mimcHash, { mimcSponge, modPBigInt, modPBigIntNative } from './mimc';
-import { getRandomGradientAt, IntegerVector, MAX_PERLIN_VALUE, perlin, rand } from './perlin';
+import { fakeHash, seededRandom } from "./fakeHash";
+import { Fraction } from "./fractions/bigFraction";
+import mimcHash, { mimcSponge, modPBigInt, modPBigIntNative } from "./mimc";
+import {
+  getRandomGradientAt,
+  IntegerVector,
+  MAX_PERLIN_VALUE,
+  perlin,
+  rand,
+} from "./perlin";
 
 export {
   mimcHash,

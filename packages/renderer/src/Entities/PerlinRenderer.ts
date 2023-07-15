@@ -5,12 +5,12 @@ import {
   Rectangle,
   RendererType,
   Vec3,
-} from '@darkforest_eth/types';
-import { EngineUtils } from '../EngineUtils';
-import { PERLIN_PROGRAM_DEFINITION } from '../Programs/PerlinProgram';
-import { AttribManager } from '../WebGL/AttribManager';
-import { GameGLManager } from '../WebGL/GameGLManager';
-import { GenericRenderer } from '../WebGL/GenericRenderer';
+} from "@dfares/types";
+import { EngineUtils } from "../EngineUtils";
+import { PERLIN_PROGRAM_DEFINITION } from "../Programs/PerlinProgram";
+import { AttribManager } from "../WebGL/AttribManager";
+import { GameGLManager } from "../WebGL/GameGLManager";
+import { GenericRenderer } from "../WebGL/GenericRenderer";
 import {
   getCachedGradient,
   getGridPoint,
@@ -20,7 +20,7 @@ import {
   right,
   up,
   valueOf,
-} from './PerlinUtils';
+} from "./PerlinUtils";
 
 export class PerlinRenderer
   extends GenericRenderer<typeof PERLIN_PROGRAM_DEFINITION>
@@ -61,10 +61,30 @@ export class PerlinRenderer
     const topLeft = up(botLeft, octaveScale);
     const topRight = right(up(botLeft, octaveScale), octaveScale);
 
-    const botLeftGrad = getCachedGradient(quadrant, botLeft, this.config, octave);
-    const botRightGrad = getCachedGradient(quadrant, botRight, this.config, octave);
-    const topLeftGrad = getCachedGradient(quadrant, topLeft, this.config, octave);
-    const topRightGrad = getCachedGradient(quadrant, topRight, this.config, octave);
+    const botLeftGrad = getCachedGradient(
+      quadrant,
+      botLeft,
+      this.config,
+      octave
+    );
+    const botRightGrad = getCachedGradient(
+      quadrant,
+      botRight,
+      this.config,
+      octave
+    );
+    const topLeftGrad = getCachedGradient(
+      quadrant,
+      topLeft,
+      this.config,
+      octave
+    );
+    const topRightGrad = getCachedGradient(
+      quadrant,
+      topRight,
+      this.config,
+      octave
+    );
 
     // technically we should buffer this
     const topGradVals = [...valueOf(topLeftGrad), ...valueOf(topRightGrad)];
@@ -110,7 +130,13 @@ export class PerlinRenderer
     );
     posA.setVertex(this.posBuffer, this.verts);
 
-    EngineUtils.makeQuadVec2Buffered(this.coordsBuffer, xW, yW + sideLength, xW + sideLength, yW);
+    EngineUtils.makeQuadVec2Buffered(
+      this.coordsBuffer,
+      xW,
+      yW + sideLength,
+      xW + sideLength,
+      yW
+    );
     worldCoordsA.setVertex(this.coordsBuffer, this.verts);
 
     this.bufferGradients(rect, PerlinOctave._0, p0topGrad, p0botGrad);

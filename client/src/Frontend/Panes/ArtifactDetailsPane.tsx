@@ -446,10 +446,10 @@ function ArtifactDescription({
             Planet with activated planetary shield can defend against black domain's attack when
             planetary shield's rarity {'>='} block domain rarity.{' '}
           </Text2>
-          <Text>
+          {/* <Text>
             Planet with activated planetary shield can defend against ice link's attack when
             planetary shield's rarity {'>='} ice link's rarity.
-          </Text>
+          </Text> */}
         </Text>
       );
       break;

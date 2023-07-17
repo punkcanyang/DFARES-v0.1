@@ -1,9 +1,9 @@
-import type { DarkForest } from "@dfares/contracts/typechain";
-import type { Player } from "@dfares/types";
-import { address } from "./address";
-import { locationIdFromEthersBN } from "./location";
+import type { DarkForest } from '@dfares/contracts/typechain';
+import type { Player } from '@dfares/types';
+import { address } from './address';
+import { locationIdFromEthersBN } from './location';
 
-export type RawPlayer = Awaited<ReturnType<DarkForest["players"]>>;
+export type RawPlayer = Awaited<ReturnType<DarkForest['players']>>;
 
 /**
  * Converts the raw typechain result of a call which fetches a

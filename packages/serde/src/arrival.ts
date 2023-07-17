@@ -1,11 +1,11 @@
-import { CONTRACT_PRECISION } from "@dfares/constants";
-import type { DarkForest } from "@dfares/contracts/typechain";
-import type { ArrivalType, QueuedArrival, VoyageId } from "@dfares/types";
-import { address } from "./address";
-import { artifactIdFromEthersBN } from "./artifact";
-import { locationIdFromDecStr } from "./location";
+import { CONTRACT_PRECISION } from '@dfares/constants';
+import type { DarkForest } from '@dfares/contracts/typechain';
+import type { ArrivalType, QueuedArrival, VoyageId } from '@dfares/types';
+import { address } from './address';
+import { artifactIdFromEthersBN } from './artifact';
+import { locationIdFromDecStr } from './location';
 
-export type RawArrival = Awaited<ReturnType<DarkForest["getPlanetArrival"]>>;
+export type RawArrival = Awaited<ReturnType<DarkForest['getPlanetArrival']>>;
 
 /**
  * Converts the raw typechain result of `ArrivalTypes.ArrivalData` struct to

@@ -1,17 +1,11 @@
-import { CONTRACT_PRECISION } from "@dfares/constants";
-import type { DarkForest } from "@dfares/contracts/typechain";
-import { bonusFromHex } from "@dfares/hexgen";
-import type {
-  Planet,
-  PlanetDefaults,
-  PlanetLevel,
-  PlanetType,
-  SpaceType,
-} from "@dfares/types";
-import { address } from "./address";
-import { locationIdFromDecStr } from "./location";
+import { CONTRACT_PRECISION } from '@dfares/constants';
+import type { DarkForest } from '@dfares/contracts/typechain';
+import { bonusFromHex } from '@dfares/hexgen';
+import type { Planet, PlanetDefaults, PlanetLevel, PlanetType, SpaceType } from '@dfares/types';
+import { address } from './address';
+import { locationIdFromDecStr } from './location';
 
-export type RawPlanet = Awaited<ReturnType<DarkForest["planets"]>>;
+export type RawPlanet = Awaited<ReturnType<DarkForest['planets']>>;
 
 /**
  * Converts data obtained from a contract call (typed with Typechain) into a
@@ -29,10 +23,7 @@ export type RawPlanet = Awaited<ReturnType<DarkForest["planets"]>>;
  * @param rawPlanet typechain-typed result of a call returning a
  * `PlanetTypes.Planet`
  */
-export function decodePlanet(
-  rawLocationId: string,
-  rawPlanet: RawPlanet
-): Planet {
+export function decodePlanet(rawLocationId: string, rawPlanet: RawPlanet): Planet {
   const locationId = locationIdFromDecStr(rawLocationId.toString());
 
   const planet: Planet = {
@@ -102,7 +93,7 @@ export function decodePlanet(
   return planet;
 }
 
-type RawDefaults = Awaited<ReturnType<DarkForest["getDefaultStats"]>>;
+type RawDefaults = Awaited<ReturnType<DarkForest['getDefaultStats']>>;
 
 /**
  * Converts the raw typechain result of a call which fetches a
@@ -115,9 +106,7 @@ type RawDefaults = Awaited<ReturnType<DarkForest["getDefaultStats"]>>;
 export function decodePlanetDefaults(rawDefaults: RawDefaults): PlanetDefaults {
   return {
     populationCap: rawDefaults.map((x) => x[1].toNumber() / CONTRACT_PRECISION),
-    populationGrowth: rawDefaults.map(
-      (x) => x[2].toNumber() / CONTRACT_PRECISION
-    ),
+    populationGrowth: rawDefaults.map((x) => x[2].toNumber() / CONTRACT_PRECISION),
     range: rawDefaults.map((x) => x[3].toNumber()),
     speed: rawDefaults.map((x) => x[4].toNumber()),
     defense: rawDefaults.map((x) => x[5].toNumber()),

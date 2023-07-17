@@ -1,13 +1,11 @@
-import { LOCATION_ID_UB } from "@dfares/constants";
-import type { DarkForest } from "@dfares/contracts/typechain";
-import type { RevealedCoords } from "@dfares/types";
-import bigInt from "big-integer";
-import { address } from "./address";
-import { locationIdFromDecStr } from "./location";
+import { LOCATION_ID_UB } from '@dfares/constants';
+import type { DarkForest } from '@dfares/contracts/typechain';
+import type { RevealedCoords } from '@dfares/types';
+import bigInt from 'big-integer';
+import { address } from './address';
+import { locationIdFromDecStr } from './location';
 
-export type RawRevealedCoords = Awaited<
-  ReturnType<DarkForest["revealedCoords"]>
->;
+export type RawRevealedCoords = Awaited<ReturnType<DarkForest['revealedCoords']>>;
 
 /**
  * Converts the result of a typechain-typed ethers.js contract call returning a
@@ -17,12 +15,8 @@ export type RawRevealedCoords = Awaited<
  * @param rawRevealedCoords the result of a typechain-typed ethers.js contract
  * call returning a RevealTypes.RevealedCoords` struct
  */
-export function decodeRevealedCoords(
-  rawRevealedCoords: RawRevealedCoords
-): RevealedCoords {
-  const locationId = locationIdFromDecStr(
-    rawRevealedCoords.locationId.toString()
-  );
+export function decodeRevealedCoords(rawRevealedCoords: RawRevealedCoords): RevealedCoords {
+  const locationId = locationIdFromDecStr(rawRevealedCoords.locationId.toString());
   let xBI = bigInt(rawRevealedCoords.x.toString()); // nonnegative residue mod p
   let yBI = bigInt(rawRevealedCoords.y.toString()); // nonnegative residue mod p
   let x = 0;

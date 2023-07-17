@@ -1,4 +1,4 @@
-import type { DarkForest } from "@dfares/contracts/typechain";
+import type { DarkForest } from '@dfares/contracts/typechain';
 import {
   Artifact,
   ArtifactId,
@@ -7,12 +7,12 @@ import {
   ArtifactType,
   Biome,
   VoyageId,
-} from "@dfares/types";
-import bigInt from "big-integer";
-import type { BigNumber as EthersBN } from "ethers";
-import { address } from "./address";
-import { locationIdFromDecStr, locationIdFromEthersBN } from "./location";
-import { decodeUpgrade } from "./upgrade";
+} from '@dfares/types';
+import bigInt from 'big-integer';
+import type { BigNumber as EthersBN } from 'ethers';
+import { address } from './address';
+import { locationIdFromDecStr, locationIdFromEthersBN } from './location';
+import { decodeUpgrade } from './upgrade';
 
 /**
  * Converts a possibly 0x-prefixed string of hex digits to an `ArtifactId`: a
@@ -26,8 +26,8 @@ import { decodeUpgrade } from "./upgrade";
 export function artifactIdFromHexStr(artifactId: string): ArtifactId {
   const artifactIdBI = bigInt(artifactId, 16);
   let ret = artifactIdBI.toString(16);
-  if (ret.length > 64) throw new Error("not a valid artifact id");
-  while (ret.length < 64) ret = "0" + ret;
+  if (ret.length > 64) throw new Error('not a valid artifact id');
+  while (ret.length < 64) ret = '0' + ret;
   return ret as ArtifactId;
 }
 
@@ -43,7 +43,7 @@ export function artifactIdFromHexStr(artifactId: string): ArtifactId {
 export function artifactIdFromDecStr(artifactId: string): ArtifactId {
   const locationBI = bigInt(artifactId);
   let ret = locationBI.toString(16);
-  while (ret.length < 64) ret = "0" + ret;
+  while (ret.length < 64) ret = '0' + ret;
   return ret as ArtifactId;
 }
 
@@ -69,13 +69,11 @@ export function artifactIdFromEthersBN(artifactId: EthersBN): ArtifactId {
  */
 export function artifactIdToDecStr(artifactId: ArtifactId): string {
   let str = artifactId.toLowerCase();
-  if (str[0] === "0" && str[1] === "x") str = str.slice(2);
+  if (str[0] === '0' && str[1] === 'x') str = str.slice(2);
   return bigInt(str, 16).toString(10);
 }
 
-export type RawArtifactPointValues = Awaited<
-  ReturnType<DarkForest["getArtifactPointValues"]>
->;
+export type RawArtifactPointValues = Awaited<ReturnType<DarkForest['getArtifactPointValues']>>;
 
 /**
  * Converts the raw typechain result of a call to
@@ -90,15 +88,12 @@ export function decodeArtifactPointValues(
     [ArtifactRarity.Common]: rawPointValues[ArtifactRarity.Common].toNumber(),
     [ArtifactRarity.Rare]: rawPointValues[ArtifactRarity.Rare].toNumber(),
     [ArtifactRarity.Epic]: rawPointValues[ArtifactRarity.Epic].toNumber(),
-    [ArtifactRarity.Legendary]:
-      rawPointValues[ArtifactRarity.Legendary].toNumber(),
+    [ArtifactRarity.Legendary]: rawPointValues[ArtifactRarity.Legendary].toNumber(),
     [ArtifactRarity.Mythic]: rawPointValues[ArtifactRarity.Mythic].toNumber(),
   };
 }
 
-export type RawArtifactWithMetadata = Awaited<
-  ReturnType<DarkForest["getArtifactById"]>
->;
+export type RawArtifactWithMetadata = Awaited<ReturnType<DarkForest['getArtifactById']>>;
 
 /**
  * Converts the raw typechain result of `ArtifactTypes.ArtifactWithMetadata`
@@ -107,18 +102,14 @@ export type RawArtifactWithMetadata = Awaited<
  * @param rawArtifactWithMetadata Raw data of an `ArtifactWithMetadata` struct,
  * returned from a blockchain call (assumed to be typed with typechain).
  */
-export function decodeArtifact(
-  rawArtifactWithMetadata: RawArtifactWithMetadata
-): Artifact {
+export function decodeArtifact(rawArtifactWithMetadata: RawArtifactWithMetadata): Artifact {
   const { artifact, owner, upgrade, timeDelayedUpgrade, locationId, voyageId } =
     rawArtifactWithMetadata;
 
   return {
     isInititalized: artifact.isInitialized,
     id: artifactIdFromEthersBN(artifact.id),
-    planetDiscoveredOn: locationIdFromDecStr(
-      artifact.planetDiscoveredOn.toString()
-    ),
+    planetDiscoveredOn: locationIdFromDecStr(artifact.planetDiscoveredOn.toString()),
     rarity: artifact.rarity as ArtifactRarity,
     planetBiome: artifact.planetBiome as Biome,
     mintedAtTimestamp: artifact.mintedAtTimestamp.toNumber(),
@@ -129,15 +120,11 @@ export function decodeArtifact(
     lastDeactivated: artifact.lastDeactivated.toNumber(),
     controller: address(artifact.controller),
     imageType: artifact.imageType.toNumber(),
-    linkTo: artifact.linkTo.eq(0)
-      ? undefined
-      : locationIdFromEthersBN(artifact.linkTo),
+    linkTo: artifact.linkTo.eq(0) ? undefined : locationIdFromEthersBN(artifact.linkTo),
     currentOwner: address(owner),
     upgrade: decodeUpgrade(upgrade),
     timeDelayedUpgrade: decodeUpgrade(timeDelayedUpgrade),
-    onPlanetId: locationId.eq(0)
-      ? undefined
-      : locationIdFromEthersBN(locationId),
+    onPlanetId: locationId.eq(0) ? undefined : locationIdFromEthersBN(locationId),
     onVoyageId: voyageId.eq(0) ? undefined : (voyageId.toString() as VoyageId),
   };
 }

@@ -94,7 +94,6 @@ class Plugin {
   update_timer = () => {
     let now = new Date();
 
-
     let t = Math.floor((this.end_time - now) / 1000);
     if (t < 0) {
       t = 0;

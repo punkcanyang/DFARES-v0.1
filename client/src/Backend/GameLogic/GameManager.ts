@@ -3473,7 +3473,18 @@ class GameManager extends EventEmitter {
     const dist = this.getDist(fromId, toId);
 
     const speed = from.speed * this.getSpeedBuff(abandoning);
-    return dist / (speed / 100);
+
+    let deltaTime = dist / (speed / 100);
+
+    const artifact = this.getActiveArtifact(from);
+
+    //MyTodo:    //all photoid travel same time
+    if (artifact?.artifactType === ArtifactType.PhotoidCannon) deltaTime = 300;
+
+    const to = this.getPlanetWithId(toId);
+    if (to?.planetType === PlanetType.SILVER_BANK) deltaTime = deltaTime / 2;
+
+    return deltaTime;
   }
 
   /**

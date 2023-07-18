@@ -4,7 +4,7 @@ Dark Forest Game on Blockchain.
 
 To run this project you will need to be on Node 14 OR Node 16.
 
-DF ARES
+DF ARES v0.1.1
 
 ## use ganache
 

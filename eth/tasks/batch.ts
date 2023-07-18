@@ -70,6 +70,8 @@ async function batchSend(
   args: { filePath: string; value: number },
   hre: HardhatRuntimeEnvironment
 ) {
+  const beginTime = Date.now();
+
   await hre.run('utils:assertChainId');
   const accountFileContents = fs.readFileSync(args.filePath).toString();
   const accounts = accountFileContents.split('\n').filter((k) => k.length > 0);
@@ -101,4 +103,8 @@ async function batchSend(
     console.log('receive account balance: ', hre.ethers.utils.formatEther(balance2));
     console.log('-------------------------------------------------');
   }
+
+  const endTime = Date.now();
+  const deltaTime = Math.ceil((endTime - beginTime) / 1000);
+  console.log('Delta Time: ' + deltaTime + ' s');
 }

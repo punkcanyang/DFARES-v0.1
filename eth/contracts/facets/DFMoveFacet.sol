@@ -171,7 +171,7 @@ contract DFMoveFacet is WithStorage {
         //MyTodo: change the photoid travel time in sec
         //all photoid travel same time
         if (photoidPresent) {
-            travelTime = 300;
+            travelTime = 600;
         }
 
         Planet memory toPlanet = gs().planets[args.newLoc];

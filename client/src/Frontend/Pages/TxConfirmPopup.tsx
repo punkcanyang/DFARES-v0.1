@@ -216,6 +216,7 @@ export function TxConfirmPopup({
   const buyArtifactRarity = localStorage.getItem(`${account}-buyArtifactRarity`);
 
   function isTypeOK() {
+    if (butArtifactType === undefined) return false;
     const val = Number(butArtifactType);
     if (val === Number(ArtifactType.Wormhole)) return true;
     if (val === Number(ArtifactType.PlanetaryShield)) return true;
@@ -228,11 +229,19 @@ export function TxConfirmPopup({
   }
 
   function price() {
+    console.warn('this is price');
+    console.log(butArtifactType);
+    console.log(buyArtifactRarity);
+
+    if (butArtifactType === undefined) return 0;
+    if (buyArtifactRarity === undefined) return 0;
+    if (isTypeOK() === false) return 0;
+
     const rarityVal = Number(buyArtifactRarity);
     const typeVal = Number(butArtifactType);
 
     if (rarityVal === 0 || rarityVal >= 5) return 0;
-    if (isTypeOK() === false) return 0;
+
     if (
       typeVal === Number(ArtifactType.Wormhole) ||
       typeVal === Number(ArtifactType.PlanetaryShield) ||
@@ -247,11 +256,12 @@ export function TxConfirmPopup({
     } else return 0;
   }
 
-  const buyArtifactCost: number = method === 'buyArtifact' && buyArtifactRarity ? price() : 0;
+  const buyArtifactCost: number =
+    method === 'buyArtifact' && buyArtifactRarity && butArtifactType ? price() : 0;
 
   //MyTodo: chance to useUIManager
   const getTxCost = () => {
-    if (!isNaN(Number(gasFeeGwei))) {
+    if (!isNaN(Number(gasFeeGwei)) && !isNaN(buyArtifactCost) && !isNaN(hatCost)) {
       const res: number =
         hatCost + buyArtifactCost + weiToEth(gweiToWei(Number(gasLimit) * Number(gasFeeGwei)));
       return res.toFixed(8).toString();

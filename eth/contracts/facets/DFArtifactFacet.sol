@@ -368,9 +368,10 @@ contract DFArtifactFacet is WithStorage, ERC721 {
         //1 hour 1 artifact
         // require(totalGameBlocks * 2 >= amount * 60 * 60, "block number limit");
 
-        // 60 min 1 artifact
 
-        uint256 deltaTime = 60;
+        //MyTodo: buy artifact cd
+        // 1 min 1 artifact
+        uint256 deltaTime = 1;
         require(totalGameBlocks * 2 >= totalAmount * 60 * deltaTime, "block number limit");
         gs().players[msg.sender].buyArtifactAmount++;
 

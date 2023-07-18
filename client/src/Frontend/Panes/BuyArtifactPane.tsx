@@ -49,7 +49,7 @@ export function BuyArtifactPane({
   const currentBlockNumber = useEmitterValue(uiManager.getEthConnection().blockNumber$, undefined);
 
   //myTodo: 10 min 1 artifact
-  const deltaTime = 10;
+  const deltaTime = 1;
 
   const maxAmount = currentBlockNumber
     ? Math.floor(
@@ -66,10 +66,36 @@ export function BuyArtifactPane({
   const [type, setType] = useState(ArtifactType.Wormhole.toString());
   const [rarity, setRarity] = useState(ArtifactRarity.Legendary.toString());
 
+  function isTypeOK() {
+    const val = Number(type);
+    if (val === Number(ArtifactType.Wormhole)) return true;
+    if (val === Number(ArtifactType.PlanetaryShield)) return true;
+    if (val === Number(ArtifactType.BloomFilter)) return true;
+    if (val === Number(ArtifactType.FireLink)) return true;
+    if (val === Number(ArtifactType.StellarShield)) return true;
+    if (val === Number(ArtifactType.Avatar)) return true;
+
+    return false;
+  }
+
   function getCost() {
-    const value = parseInt(rarity);
-    if (value === 0 || value >= 5) return 0;
-    else return 2 ** (parseInt(rarity) - 1);
+    const rarityVal = parseInt(rarity);
+    const typeVal = parseInt(type);
+
+    if (rarityVal === 0 || rarityVal >= 5) return 0;
+    if (isTypeOK() === false) return 0;
+    if (
+      typeVal === Number(ArtifactType.Wormhole) ||
+      typeVal === Number(ArtifactType.PlanetaryShield) ||
+      typeVal === Number(ArtifactType.BloomFilter) ||
+      typeVal === Number(ArtifactType.FireLink)
+    ) {
+      return 2 ** (parseInt(rarity) - 1);
+    } else if (typeVal === Number(ArtifactType.Avatar)) {
+      return 1;
+    } else if (typeVal === Number(ArtifactType.StellarShield)) {
+      return 8;
+    } else return 0;
   }
 
   const cost: number = getCost();

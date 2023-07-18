@@ -1,7 +1,7 @@
 import { TOKEN_NAME } from '@dfares/constants';
 import { gweiToWei, weiToEth } from '@dfares/network';
 import { address } from '@dfares/serde';
-import { Setting } from '@dfares/types';
+import { ArtifactType, Setting } from '@dfares/types';
 import React, { useState } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import styled, { css, keyframes } from 'styled-components';
@@ -211,9 +211,45 @@ export function TxConfirmPopup({
   const withdrawSilverPlanet = localStorage.getItem(`${account}-withdrawSilverPlanet`);
 
   const buyArtifactOnPlanet = localStorage.getItem(`${account}-buyArtifactOnPlanet`);
+  const butArtifactType = localStorage.getItem(
+    `${this.getAccount()?.toLowerCase()}-buyArtifactType`
+  );
+
   const buyArtifactRarity = localStorage.getItem(`${account}-buyArtifactRarity`);
-  const buyArtifactCost: number =
-    method === 'buyArtifact' && buyArtifactRarity ? 2 ** (Number(buyArtifactRarity) - 1) : 0;
+
+  function isTypeOK() {
+    const val = Number(butArtifactType);
+    if (val === Number(ArtifactType.Wormhole)) return true;
+    if (val === Number(ArtifactType.PlanetaryShield)) return true;
+    if (val === Number(ArtifactType.BloomFilter)) return true;
+    if (val === Number(ArtifactType.FireLink)) return true;
+    if (val === Number(ArtifactType.StellarShield)) return true;
+    if (val === Number(ArtifactType.Avatar)) return true;
+
+    return false;
+  }
+
+  function price() {
+    const rarityVal = Number(buyArtifactRarity);
+    const typeVal = Number(butArtifactType);
+
+    if (rarityVal === 0 || rarityVal >= 5) return 0;
+    if (isTypeOK() === false) return 0;
+    if (
+      typeVal === Number(ArtifactType.Wormhole) ||
+      typeVal === Number(ArtifactType.PlanetaryShield) ||
+      typeVal === Number(ArtifactType.BloomFilter) ||
+      typeVal === Number(ArtifactType.FireLink)
+    ) {
+      return 2 ** (parseInt(rarityVal.toString()) - 1);
+    } else if (typeVal === Number(ArtifactType.Avatar)) {
+      return 1;
+    } else if (typeVal === Number(ArtifactType.StellarShield)) {
+      return 8;
+    } else return 0;
+  }
+
+  const buyArtifactCost: number = method === 'buyArtifact' && buyArtifactRarity ? price() : 0;
 
   //MyTodo: chance to useUIManager
   const getTxCost = () => {

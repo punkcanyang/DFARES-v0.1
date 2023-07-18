@@ -1,6 +1,6 @@
 {
   "name": "@dfares/procedural",
-  "version": "6.8.1",
+  "version": "6.8.2",
   "license": "MIT",
   "author": "0xPARC <ivan@0xPARC.org>",
   "engines": {
@@ -21,11 +21,11 @@
     "clean": "del-cli dist node_modules tsconfig.ref.tsbuildinfo"
   },
   "dependencies": {
-    "@dfares/serde": "6.8.1",
-    "@dfares/gamelogic": "6.8.1",
-    "@dfares/types": "6.8.1",
-    "@dfares/constants": "6.8.1",
-    "@dfares/hashing": "6.8.1",
+    "@dfares/serde": "6.8.2",
+    "@dfares/gamelogic": "6.8.2",
+    "@dfares/types": "6.8.2",
+    "@dfares/constants": "6.8.2",
+    "@dfares/hashing": "6.8.2",
     "big-integer": "^1.6.48"
   },
   "devDependencies": {

@@ -211,9 +211,7 @@ export function TxConfirmPopup({
   const withdrawSilverPlanet = localStorage.getItem(`${account}-withdrawSilverPlanet`);
 
   const buyArtifactOnPlanet = localStorage.getItem(`${account}-buyArtifactOnPlanet`);
-  const butArtifactType = localStorage.getItem(
-    `${this.getAccount()?.toLowerCase()}-buyArtifactType`
-  );
+  const butArtifactType = localStorage.getItem(`${account}-buyArtifactType`);
 
   const buyArtifactRarity = localStorage.getItem(`${account}-buyArtifactRarity`);
 

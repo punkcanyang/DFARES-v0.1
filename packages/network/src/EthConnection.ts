@@ -1,4 +1,4 @@
-import { DEFAULT_GAS_PRICES, GAS_PRICES_INTERVAL_MS } from '@dfares/constants';
+import { DEFAULT_GAS_PRICES } from '@dfares/constants';
 import { Monomitter, monomitter } from '@dfares/events';
 import { address } from '@dfares/serde';
 import {
@@ -461,8 +461,8 @@ export class EthConnection {
    * Kicks off an interval that regularly reloads the gas prices from xDai.
    */
   private startPolling() {
-    this.refreshGasPrices();
-    this.gasPricesInterval = setInterval(this.refreshGasPrices.bind(this), GAS_PRICES_INTERVAL_MS);
+    // this.refreshGasPrices();
+    // this.gasPricesInterval = setInterval(this.refreshGasPrices.bind(this), GAS_PRICES_INTERVAL_MS);
     this.refreshBalance();
     this.balanceInterval = setInterval(this.refreshBalance.bind(this), 1000 * 10);
   }

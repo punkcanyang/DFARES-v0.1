@@ -6,7 +6,7 @@ START_PAUSED = true #false
 ADMIN_CAN_ADD_PLANETS = true
 PLANET_TRANSFER_ENABLED = false
 WORLD_RADIUS_LOCKED = false
-WORLD_RADIUS_MIN = 131072 # 1024 #215688 #103000 #53000
+WORLD_RADIUS_MIN = 53000 # 1024 #215688 #103000 #53000
 
 ##################################
 # SNARK keys & Perlin parameters #

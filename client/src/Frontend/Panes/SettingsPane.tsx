@@ -11,7 +11,6 @@ import { Slider } from '../Components/Slider';
 import { Green, Red } from '../Components/Text';
 import Viewport, { getDefaultScroll } from '../Game/Viewport';
 import { useAccount, useUIManager } from '../Utils/AppHooks';
-import { useEmitterValue } from '../Utils/EmitterHooks';
 import {
   BooleanSetting,
   ColorSetting,
@@ -59,7 +58,7 @@ export function SettingsPane({
   const uiManager = useUIManager();
   const account = useAccount(uiManager);
   const isDevelopment = process.env.NODE_ENV !== 'production';
-  const gasPrices = useEmitterValue(ethConnection.gasPrices$, ethConnection.getAutoGasPrices());
+  // const gasPrices = useEmitterValue(ethConnection.gasPrices$, ethConnection.getAutoGasPrices());
 
   const [rpcUrl, setRpcURL] = useState<string>(ethConnection.getRpcEndpoint());
   const onChangeRpc = () => {

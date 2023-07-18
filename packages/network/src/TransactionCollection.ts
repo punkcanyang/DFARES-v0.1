@@ -1,4 +1,4 @@
-import { Transaction, TransactionCollection, TxIntent } from "@dfares/types";
+import { Transaction, TransactionCollection, TxIntent } from '@dfares/types';
 
 /**
  * Default implementation of a transaction collection - provides a simple api for adding, removing,

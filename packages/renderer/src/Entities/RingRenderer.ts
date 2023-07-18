@@ -6,15 +6,11 @@ import {
   RGBVec,
   RingRendererType,
   WorldCoords,
-} from "@dfares/types";
-import { EngineUtils } from "../EngineUtils";
-import {
-  propsFromIdx,
-  RingProps,
-  RING_PROGRAM_DEFINITION,
-} from "../Programs/RingProgram";
-import { GameGLManager } from "../WebGL/GameGLManager";
-import { GenericRenderer } from "../WebGL/GenericRenderer";
+} from '@dfares/types';
+import { EngineUtils } from '../EngineUtils';
+import { propsFromIdx, RingProps, RING_PROGRAM_DEFINITION } from '../Programs/RingProgram';
+import { GameGLManager } from '../WebGL/GameGLManager';
+import { GenericRenderer } from '../WebGL/GenericRenderer';
 
 export class RingRenderer
   extends GenericRenderer<typeof RING_PROGRAM_DEFINITION, GameGLManager>
@@ -64,12 +60,7 @@ export class RingRenderer
     props: RingProps = [1, 1, 1],
     angle = 0
   ) {
-    const {
-      position: posA,
-      rectPos: rectPosA,
-      color: colorA,
-      props: propsA,
-    } = this.attribManagers;
+    const { position: posA, rectPos: rectPosA, color: colorA, props: propsA } = this.attribManagers;
 
     EngineUtils.makeQuadVec2Buffered(this.topRectPosBuffer, -l, l, l, 0);
     EngineUtils.makeQuadVec2Buffered(this.botRectPosBuffer, -l, 0, l, -l);

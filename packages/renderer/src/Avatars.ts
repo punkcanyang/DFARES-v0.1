@@ -1,5 +1,5 @@
-import { PICTURE_URL } from "@dfares/constants";
-import { AvatarType } from "@dfares/types";
+import { PICTURE_URL } from '@dfares/constants';
+import { AvatarType } from '@dfares/types';
 
 export type Avatar = {
   legacy: boolean;
@@ -12,7 +12,7 @@ const URL = PICTURE_URL;
 
 const Jasonlool = {
   legacy: false,
-  topLayer: [URL + "/img/avatar/Jasonlool.png"],
+  topLayer: [URL + '/img/avatar/Jasonlool.png'],
   bottomLayer: [],
   // image: () =>
   //   new Promise<HTMLImageElement>((resolve) => {
@@ -24,49 +24,49 @@ const Jasonlool = {
 
 const Santagnel = {
   legacy: false,
-  topLayer: [URL + "/img/avatar/Santagnel.png"],
+  topLayer: [URL + '/img/avatar/Santagnel.png'],
   bottomLayer: [],
 };
 
 const OriginTiger = {
   legacy: false,
-  topLayer: [URL + "/img/avatar/OriginTiger.png"],
+  topLayer: [URL + '/img/avatar/OriginTiger.png'],
   bottomLayer: [],
 };
 
 const zeroxviviyorg = {
   legacy: false,
-  topLayer: [URL + "/img/avatar/zeroxviviyorg.png"],
+  topLayer: [URL + '/img/avatar/zeroxviviyorg.png'],
   bottomLayer: [],
 };
 
 const ikun = {
   legacy: false,
-  topLayer: [URL + "/img/avatar/ikun.png"],
+  topLayer: [URL + '/img/avatar/ikun.png'],
   bottomLayer: [],
 };
 
 const BaliGee = {
   legacy: false,
-  topLayer: [URL + "/img/avatar/BaliGee.png"],
+  topLayer: [URL + '/img/avatar/BaliGee.png'],
   bottomLayer: [],
 };
 
 const DDY = {
   legacy: false,
-  topLayer: [URL + "/img/avatar/ddy.png"],
+  topLayer: [URL + '/img/avatar/ddy.png'],
   bottomLayer: [],
 };
 
 const Blue = {
   legacy: false,
-  topLayer: [URL + "/img/avatar/Blue.png"],
+  topLayer: [URL + '/img/avatar/Blue.png'],
   bottomLayer: [],
 };
 
 const DeFi3 = {
   legacy: false,
-  topLayer: [URL + "/img/avatar/defi3.png"],
+  topLayer: [URL + '/img/avatar/defi3.png'],
   bottomLayer: [],
 };
 

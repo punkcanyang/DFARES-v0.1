@@ -1,8 +1,8 @@
-import { DEFAULT_MAX_CALL_RETRIES } from "@dfares/constants";
-import { DiagnosticUpdater } from "@dfares/types";
-import { ContractFunction } from "ethers";
-import retry, { AbortError } from "p-retry";
-import { Queue, ThrottledConcurrentQueue } from "./ThrottledConcurrentQueue";
+import { DEFAULT_MAX_CALL_RETRIES } from '@dfares/constants';
+import { DiagnosticUpdater } from '@dfares/types';
+import { ContractFunction } from 'ethers';
+import retry, { AbortError } from 'p-retry';
+import { Queue, ThrottledConcurrentQueue } from './ThrottledConcurrentQueue';
 
 /**
  * Instead of allowing the game to call `view` functions on the blockchain directly, all contract
@@ -65,10 +65,10 @@ export class ContractCaller {
 
           return callResult;
         } catch (err) {
-          if ((<Error & { code?: string }>err).code === "CALL_EXCEPTION") {
-            throw new AbortError("Could not call function on given contract");
+          if ((<Error & { code?: string }>err).code === 'CALL_EXCEPTION') {
+            throw new AbortError('Could not call function on given contract');
           } else {
-            console.warn("retrying after err:", err);
+            console.warn('retrying after err:', err);
             throw err;
           }
         }

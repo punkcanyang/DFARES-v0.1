@@ -1,5 +1,5 @@
-import type { EthAddress, LocationId } from "./identifier";
-import type { Abstract } from "./utility";
+import type { EthAddress, LocationId } from './identifier';
+import type { Abstract } from './utility';
 
 /**
  * This set of types essentially defines a protocol by which we can add individual `Message`s (which
@@ -26,13 +26,13 @@ import type { Abstract } from "./utility";
 /**
  * Abstract type representing a type of planet message.
  */
-export type PlanetMessageType = Abstract<string, "PlanetMessageType">;
+export type PlanetMessageType = Abstract<string, 'PlanetMessageType'>;
 
 /**
  * Each message type has a corresponding entry here.
  */
 export const PlanetMessageType = {
-  EmojiFlag: "EmojiFlag" as PlanetMessageType,
+  EmojiFlag: 'EmojiFlag' as PlanetMessageType,
 } as const;
 
 /**
@@ -70,9 +70,7 @@ export interface PlanetMessageRequest {
  * Contains the answer to the above question.
  */
 export interface PlanetMessageResponse {
-  [
-    planetId: string /* this is really a LocationId */
-  ]: PlanetMessage<unknown>[];
+  [planetId: string /* this is really a LocationId */]: PlanetMessage<unknown>[];
 }
 
 /**

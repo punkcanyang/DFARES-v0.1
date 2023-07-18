@@ -1,5 +1,5 @@
-import { isLocatable } from "@dfares/gamelogic";
-import { isUnconfirmedMoveTx } from "@dfares/serde";
+import { isLocatable } from '@dfares/gamelogic';
+import { isUnconfirmedMoveTx } from '@dfares/serde';
 import {
   ArtifactType,
   Planet,
@@ -8,10 +8,10 @@ import {
   RGBVec,
   UIRendererType,
   WorldCoords,
-} from "@dfares/types";
-import { engineConsts } from "./EngineConsts";
-import { Renderer } from "./Renderer";
-import { GameGLManager } from "./WebGL/GameGLManager";
+} from '@dfares/types';
+import { engineConsts } from './EngineConsts';
+import { Renderer } from './Renderer';
+import { GameGLManager } from './WebGL/GameGLManager';
 
 const { orangeA, red, redA, white, whiteA, purpleA, blueA, pinkA, sensaichaA } =
   engineConsts.colors;
@@ -56,19 +56,19 @@ export class UIRenderer implements UIRendererType {
         let lineColor = purpleA;
 
         if (artifactType === ArtifactType.IceLink) {
-          showText = "IceLink Target";
+          showText = 'IceLink Target';
           lineColor = blueA;
         } else if (artifactType === ArtifactType.FireLink) {
-          showText = "FireLink Target";
+          showText = 'FireLink Target';
           lineColor = pinkA;
         } else if (artifactType === ArtifactType.BlackDomain) {
-          showText = "BlackDomain Target";
+          showText = 'BlackDomain Target';
           lineColor = sensaichaA;
         } else if (artifactType === ArtifactType.SoulSwap) {
-          showText = "SoulSwap Target";
+          showText = 'SoulSwap Target';
           lineColor = redA;
         } else if (artifactType === ArtifactType.Bomb) {
-          showText = "Bomb Target";
+          showText = 'Bomb Target';
           lineColor = purpleA;
         }
 
@@ -93,9 +93,7 @@ export class UIRenderer implements UIRendererType {
             effectiveEnergy -= unconfirmedMove.intent.forces;
           }
 
-          const energy =
-            (uiManager.getForcesSending(myPlanet.locationId) / 100) *
-            effectiveEnergy;
+          const energy = (uiManager.getForcesSending(myPlanet.locationId) / 100) * effectiveEnergy;
           const distance = uiManager.getDistCoords(from, to);
 
           const myAtk: number = uiManager.getEnergyArrivingForMove(
@@ -105,31 +103,19 @@ export class UIRenderer implements UIRendererType {
             energy
           );
 
-          if (
-            !uiManager.getHoveringOverPlanet() &&
-            !uiManager.isSendingShip(myPlanet.locationId)
-          ) {
+          if (!uiManager.getHoveringOverPlanet() && !uiManager.isSendingShip(myPlanet.locationId)) {
             const color = myAtk > 0 ? whiteA : redA;
             color[3] = 255;
-            tR.queueTextWorld(
-              `Energy: ${Math.round(myAtk)}`,
-              { x: to.x, y: to.y },
-              color
-            );
+            tR.queueTextWorld(`Energy: ${Math.round(myAtk)}`, { x: to.x, y: to.y }, color);
           }
         }
       }
     }
   }
 
-  private queueRectAtPlanet(
-    planet: Planet,
-    coords: WorldCoords,
-    color: RGBVec
-  ) {
+  private queueRectAtPlanet(planet: Planet, coords: WorldCoords, color: RGBVec) {
     const { context: uiManager, rectRenderer } = this.renderer;
-    const sideLength =
-      2.3 * uiManager.getRadiusOfPlanetLevel(planet.planetLevel);
+    const sideLength = 2.3 * uiManager.getRadiusOfPlanetLevel(planet.planetLevel);
 
     rectRenderer.queueRectCenterWorld(coords, sideLength, sideLength, color, 2);
   }

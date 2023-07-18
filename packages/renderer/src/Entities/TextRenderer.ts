@@ -7,12 +7,12 @@ import {
   TextAnchor,
   TextRendererType,
   WorldCoords,
-} from "@dfares/types";
-import { engineConsts } from "../EngineConsts";
-import { EngineUtils } from "../EngineUtils";
-import { TEXT_PROGRAM_DEFINITION } from "../Programs/TextProgram";
-import { GameGLManager } from "../WebGL/GameGLManager";
-import { GenericRenderer } from "../WebGL/GenericRenderer";
+} from '@dfares/types';
+import { engineConsts } from '../EngineConsts';
+import { EngineUtils } from '../EngineUtils';
+import { TEXT_PROGRAM_DEFINITION } from '../Programs/TextProgram';
+import { GameGLManager } from '../WebGL/GameGLManager';
+import { GenericRenderer } from '../WebGL/GenericRenderer';
 
 type GlyphInfo = {
   x: number;
@@ -70,15 +70,15 @@ export class TextRenderer
   }
 
   private createGlyphs(debug = false): void {
-    const ctx = this.bufferCanvas.getContext("2d");
+    const ctx = this.bufferCanvas.getContext('2d');
     if (!ctx) {
-      console.error("error creating buffer canvas context");
+      console.error('error creating buffer canvas context');
       return;
     }
 
-    const lower = "abcdefghijklmnopqrstuvwxyz";
-    const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const other = " 0123456789.()%,?!:+-";
+    const lower = 'abcdefghijklmnopqrstuvwxyz';
+    const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const other = ' 0123456789.()%,?!:+-';
     const chars = lower + upper + other;
 
     ctx.canvas.width = canvasDim;
@@ -86,12 +86,12 @@ export class TextRenderer
 
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    chars.split("").forEach((v: string, i: number) => {
+    chars.split('').forEach((v: string, i: number) => {
       const col = Math.floor(i / rowL);
       const row = i - col * rowL;
 
       if ((row + col) % 2 === 0 && debug) {
-        ctx.fillStyle = "gray";
+        ctx.fillStyle = 'gray';
         ctx.fillRect(row * glyphW, col * glyphH, glyphW, glyphH);
       }
 
@@ -99,10 +99,10 @@ export class TextRenderer
       const x = row * glyphW;
       const y = col * glyphH;
 
-      ctx.fillStyle = "white";
+      ctx.fillStyle = 'white';
       ctx.font = engineConsts.fontStyle;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
       ctx.fillText(v, x + 0.5 * glyphW, y + 0.5 * glyphH);
 
       this.glyphData.set(v, { x, y });
@@ -141,28 +141,18 @@ export class TextRenderer
     const dY = -screenH * anchor;
 
     text
-      .split("")
+      .split('')
       .forEach((char: string, i: number) =>
         this.queueGlyph(char, x - dX + i * screenW, y + dY, color, zIdx)
       );
   }
 
-  private queueGlyph(
-    glyph: string,
-    x: number,
-    y: number,
-    color: RGBAVec,
-    zIdx: number
-  ): void {
-    const {
-      position: posA,
-      texcoord: texcoordA,
-      color: colorA,
-    } = this.attribManagers;
+  private queueGlyph(glyph: string, x: number, y: number, color: RGBAVec, zIdx: number): void {
+    const { position: posA, texcoord: texcoordA, color: colorA } = this.attribManagers;
 
     const info = this.glyphData.get(glyph);
     if (!info) {
-      console.error("could not find glyph: " + glyph);
+      console.error('could not find glyph: ' + glyph);
       return;
     }
 

@@ -2,19 +2,19 @@
 # Defined in TOML as per https://toml.io/en/v0.5.0
 
 [initializers]
-START_PAUSED = false
+START_PAUSED = true #false
 ADMIN_CAN_ADD_PLANETS = true
 PLANET_TRANSFER_ENABLED = false
 WORLD_RADIUS_LOCKED = false
-WORLD_RADIUS_MIN = 103000 #53000
+WORLD_RADIUS_MIN = 524288 # 1024 #215688 #103000 #53000
 
 ##################################
 # SNARK keys & Perlin parameters #
 ##################################
 DISABLE_ZK_CHECKS = false
-PLANETHASH_KEY =115000 # 6279
-SPACETYPE_KEY =1161 #6280
-BIOMEBASE_KEY = 117123 #  6271
+PLANETHASH_KEY =234324324 # 6279
+SPACETYPE_KEY =123423423 #6280
+BIOMEBASE_KEY = 23424 #  6271
 PERLIN_MIRROR_X = false
 PERLIN_MIRROR_Y = false
 PERLIN_LENGTH_SCALE = 16384 # must be a power of two no greater than 16384
@@ -77,7 +77,7 @@ CAPTURE_ZONE_PLANET_LEVEL_SCORE = [
   1_000_000
 ]
 # After invading, the number of blocks you need to hold a planet for before capturing
-CAPTURE_ZONE_HOLD_BLOCKS_REQUIRED = 10 # 255 # MyTodo: need to change to a non-zero value
+CAPTURE_ZONE_HOLD_BLOCKS_REQUIRED =  255 # MyTodo: need to change to a non-zero value
 # Number of capture zones that spawn each time they generate
 CAPTURE_ZONES_PER_5000_WORLD_RADIUS = 5  # 3
 
@@ -122,16 +122,16 @@ SILVER_SCORE_VALUE = 100
 LOCATION_REVEAL_COOLDOWN = 86400 # seconds
 PLANET_TYPE_WEIGHTS = [
   [
-    [10, 0, 0, 0, 0],
+    [1, 0, 0, 0, 0],
     [13, 2, 0, 10, 0],
     [13, 2, 0, 10, 0],
-    [13, 2, 0, 0, 10],
-    [13, 2, 0, 0, 10],
-    [13, 2, 0, 0, 10],
-    [13, 2, 0, 0, 10],
-    [13, 2, 0, 0, 10],
-    [13, 2, 0, 0, 10],
-    [13, 2, 0, 0, 10],
+    [13, 2, 2, 2, 1],
+    [13, 2, 2, 2, 1],
+    [13, 2, 2, 2, 1],
+    [13, 2, 2, 2, 1],
+    [13, 2, 2, 2, 1],
+    [13, 2, 2, 2, 1],
+    [13, 2, 2, 2, 1],
   ],
   [
     [10, 0, 0, 0, 0],
@@ -149,25 +149,25 @@ PLANET_TYPE_WEIGHTS = [
     [10, 0, 0, 0, 0],
     [10, 4, 2, 0, 0],
     [10, 4, 10, 10, 0],
-    [8, 4, 10, 2, 10],
-    [8, 4, 10, 2, 10],
-    [8, 4, 10, 2, 10],
-    [8, 4, 10, 2, 10],
-    [8, 4, 10, 2, 10],
-    [8, 4, 10, 2, 10],
-    [8, 4, 10, 2, 10],
+    [8, 4, 10, 8, 10],
+    [8, 4, 10, 8, 10],
+    [8, 4, 10, 8, 10],
+    [8, 4, 10, 8, 10],
+    [8, 4, 10, 8, 10],
+    [8, 4, 10, 8, 10],
+    [8, 4, 10, 8, 10],
   ],
   [
     [10, 0, 0, 0, 0],
     [11, 4, 10, 0, 0],
     [11, 4, 10, 0, 0],
-    [7, 4, 2, 2, 10],
-    [7, 4, 2, 2, 10],
-    [7, 4, 2, 2, 10],
-    [7, 4, 2, 2, 10],
-    [7, 4, 2, 2, 10],
-    [7, 4, 2, 2, 10],
-    [7, 4, 2, 2, 10],
+    [7, 4, 4, 4, 4],
+    [7, 4, 4, 4, 4],
+    [7, 4, 4, 4, 4],
+    [7, 4, 4, 4, 4],
+    [7, 4, 4, 4, 4],
+    [7, 4, 4, 4, 4],
+    [7, 4, 4, 4, 4],
   ],
 ]
 ROUND_END_REWARDS_BY_RANK=[

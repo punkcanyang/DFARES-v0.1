@@ -1,53 +1,53 @@
-import { MAX_PERLIN_VALUE } from "@dfares/hashing";
-import { AttribType, UniformType } from "@dfares/types";
-import { glsl } from "../EngineUtils";
-import { ShaderMixins } from "../WebGL/ShaderMixins";
+import { MAX_PERLIN_VALUE } from '@dfares/hashing';
+import { AttribType, UniformType } from '@dfares/types';
+import { glsl } from '../EngineUtils';
+import { ShaderMixins } from '../WebGL/ShaderMixins';
 
 const a = {
-  position: "a_position",
+  position: 'a_position',
 
-  p0topGrad: "a_p0topGrad",
-  p0botGrad: "a_p0botGrad",
+  p0topGrad: 'a_p0topGrad',
+  p0botGrad: 'a_p0botGrad',
 
-  p1topGrad: "a_p1topGrad",
-  p1botGrad: "a_p1botGrad",
+  p1topGrad: 'a_p1topGrad',
+  p1botGrad: 'a_p1botGrad',
 
-  p2topGrad: "a_p2topGrad",
-  p2botGrad: "a_p2botGrad",
+  p2topGrad: 'a_p2topGrad',
+  p2botGrad: 'a_p2botGrad',
 
-  worldCoords: "a_worldCoords", // 0 to 1
+  worldCoords: 'a_worldCoords', // 0 to 1
 };
 const u = {
-  matrix: "u_matrix", // matrix to convert from world coords to clipspace
-  thresholds: "u_thresholds",
-  lengthScale: "u_lengthScale",
-  viewportZoom: "u_viewportZoom",
-  time: "u_time",
+  matrix: 'u_matrix', // matrix to convert from world coords to clipspace
+  thresholds: 'u_thresholds',
+  lengthScale: 'u_lengthScale',
+  viewportZoom: 'u_viewportZoom',
+  time: 'u_time',
 
-  innerNebulaColor: "u_innerNebulaColor",
-  nebulaColor: "u_nebulaColor",
-  spaceColor: "u_spaceColor",
-  deepSpaceColor: "u_deepSpaceColor",
-  deadSpaceColor: "u_deadSpaceColor",
+  innerNebulaColor: 'u_innerNebulaColor',
+  nebulaColor: 'u_nebulaColor',
+  spaceColor: 'u_spaceColor',
+  deepSpaceColor: 'u_deepSpaceColor',
+  deadSpaceColor: 'u_deadSpaceColor',
 };
 const v = {
-  p0topLeftGrad: "v_p0topLeftGrad",
-  p0topRightGrad: "v_p0topRightGrad",
-  p0botLeftGrad: "v_p0botLeftGrad",
-  p0botRightGrad: "v_p0botRightGrad",
+  p0topLeftGrad: 'v_p0topLeftGrad',
+  p0topRightGrad: 'v_p0topRightGrad',
+  p0botLeftGrad: 'v_p0botLeftGrad',
+  p0botRightGrad: 'v_p0botRightGrad',
 
-  p1topLeftGrad: "v_p1topLeftGrad",
-  p1topRightGrad: "v_p1topRightGrad",
-  p1botLeftGrad: "v_p1botLeftGrad",
-  p1botRightGrad: "v_p1botRightGrad",
+  p1topLeftGrad: 'v_p1topLeftGrad',
+  p1topRightGrad: 'v_p1topRightGrad',
+  p1botLeftGrad: 'v_p1botLeftGrad',
+  p1botRightGrad: 'v_p1botRightGrad',
 
-  p2topLeftGrad: "v_p2topLeftGrad",
-  p2topRightGrad: "v_p2topRightGrad",
-  p2botLeftGrad: "v_p2botLeftGrad",
-  p2botRightGrad: "v_p2botRightGrad",
+  p2topLeftGrad: 'v_p2topLeftGrad',
+  p2topRightGrad: 'v_p2topRightGrad',
+  p2botLeftGrad: 'v_p2botLeftGrad',
+  p2botRightGrad: 'v_p2botRightGrad',
 
-  worldCoords: "v_worldCoords", // 0 to 1
-  position: "v_position",
+  worldCoords: 'v_worldCoords', // 0 to 1
+  position: 'v_position',
 };
 
 const gradProps = {

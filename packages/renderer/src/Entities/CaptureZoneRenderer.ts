@@ -1,6 +1,6 @@
-import { CaptureZoneRendererType, RendererType } from "@dfares/types";
-import { Renderer, RendererGameContext } from "../Renderer";
-import { GameGLManager } from "../WebGL/GameGLManager";
+import { CaptureZoneRendererType, RendererType } from '@dfares/types';
+import { Renderer, RendererGameContext } from '../Renderer';
+import { GameGLManager } from '../WebGL/GameGLManager';
 
 export class CaptureZoneRenderer implements CaptureZoneRendererType {
   rendererType = RendererType.CaptureZone;

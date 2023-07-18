@@ -1,16 +1,9 @@
-import * as decoders from "decoders";
+import * as decoders from 'decoders';
 
-export function between(
-  decoder: decoders.Decoder<number>,
-  min: number,
-  max: number
-) {
+export function between(decoder: decoders.Decoder<number>, min: number, max: number) {
   return decoders.compose(
     decoder,
-    decoders.predicate(
-      (val) => val >= min && val <= max,
-      `Must be between ${min} and ${max}`
-    )
+    decoders.predicate((val) => val >= min && val <= max, `Must be between ${min} and ${max}`)
   );
 }
 
@@ -34,8 +27,7 @@ export function exactArray5<A>(decoder: decoders.Decoder<A>) {
       decoders.array(decoder),
       decoders.predicate((arr) => arr.length === 5, `Must be exactly 5-length`)
     ),
-    (value) =>
-      [value[0], value[1], value[2], value[3], value[4]] as ExactArray5<A>
+    (value) => [value[0], value[1], value[2], value[3], value[4]] as ExactArray5<A>
   );
 }
 
@@ -47,8 +39,7 @@ export function array6<A>(decoder: decoders.Decoder<A>) {
       decoders.array(decoder),
       decoders.predicate((arr) => arr.length === 6, `Must be exactly 6-length`)
     ),
-    (value) =>
-      [value[0], value[1], value[2], value[3], value[4], value[5]] as Tuple6<A>
+    (value) => [value[0], value[1], value[2], value[3], value[4], value[5]] as Tuple6<A>
   );
 }
 
@@ -58,10 +49,7 @@ export function exactArray10<A>(decoder: decoders.Decoder<A>) {
   return decoders.map(
     decoders.compose(
       decoders.array(decoder),
-      decoders.predicate(
-        (arr) => arr.length === 10,
-        `Must be exactly 10-length`
-      )
+      decoders.predicate((arr) => arr.length === 10, `Must be exactly 10-length`)
     ),
     (value) =>
       [
@@ -150,10 +138,7 @@ export function exactArray64<A>(decoder: decoders.Decoder<A>) {
   return decoders.map(
     decoders.compose(
       decoders.array(decoder),
-      decoders.predicate(
-        (arr) => arr.length === 64,
-        `Must be exactly 64-length`
-      )
+      decoders.predicate((arr) => arr.length === 64, `Must be exactly 64-length`)
     ),
     (value) =>
       [

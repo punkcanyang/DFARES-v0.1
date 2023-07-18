@@ -23,4 +23,4 @@
  * @packageDocumentation
  */
 
-export * from "./Monomitter";
+export * from './Monomitter';

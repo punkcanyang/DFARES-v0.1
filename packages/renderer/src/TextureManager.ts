@@ -1,20 +1,10 @@
-import {
-  MAX_ARTIFACT_TYPE,
-  MAX_BIOME,
-  MIN_ARTIFACT_TYPE,
-} from "@dfares/constants";
-import { isBasic, isRelic, isSpaceShip } from "@dfares/gamelogic";
-import {
-  ArtifactId,
-  ArtifactRarity,
-  ArtifactType,
-  Biome,
-  RenderedArtifact,
-} from "@dfares/types";
+import { MAX_ARTIFACT_TYPE, MAX_BIOME, MIN_ARTIFACT_TYPE } from '@dfares/constants';
+import { isBasic, isRelic, isSpaceShip } from '@dfares/gamelogic';
+import { ArtifactId, ArtifactRarity, ArtifactType, Biome, RenderedArtifact } from '@dfares/types';
 
-export const ARTIFACTS_URL = "/public/sprites/artifacts.png";
-export const ARTIFACTS_THUMBS_URL = "/public/sprites/artifactthumbs.png";
-export const GLASS_URL = "/public/sprites/glass.png";
+export const ARTIFACTS_URL = '/public/sprites/artifacts.png';
+export const ARTIFACTS_THUMBS_URL = '/public/sprites/artifactthumbs.png';
+export const GLASS_URL = '/public/sprites/glass.png';
 
 const imageByUrl = new Map<string, HTMLImageElement>();
 
@@ -201,13 +191,10 @@ export function isShiny(rarity: ArtifactRarity) {
   return rarity >= ArtifactRarity.Epic;
 }
 
-export function spriteFromArtifact(
-  artifact: RenderedArtifact
-): SpriteRectangle {
+export function spriteFromArtifact(artifact: RenderedArtifact): SpriteRectangle {
   const { id, artifactType: type, planetBiome: biome, rarity } = artifact;
 
-  if (artifactSpriteMap.has(id))
-    return artifactSpriteMap.get(id) || EMPTY_SPRITE;
+  if (artifactSpriteMap.has(id)) return artifactSpriteMap.get(id) || EMPTY_SPRITE;
 
   if (isSpaceShip(artifact.artifactType)) {
     const idx = {

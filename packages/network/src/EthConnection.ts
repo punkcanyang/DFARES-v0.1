@@ -1,24 +1,19 @@
-import { DEFAULT_GAS_PRICES, GAS_PRICES_INTERVAL_MS } from "@dfares/constants";
-import { Monomitter, monomitter } from "@dfares/events";
-import { address } from "@dfares/serde";
+import { DEFAULT_GAS_PRICES, GAS_PRICES_INTERVAL_MS } from '@dfares/constants';
+import { Monomitter, monomitter } from '@dfares/events';
+import { address } from '@dfares/serde';
 import {
   AutoGasSetting,
   DiagnosticUpdater,
   EthAddress,
   GasPrices,
   SignedMessage,
-} from "@dfares/types";
-import { BigNumber, Contract, EventFilter, providers, Wallet } from "ethers";
-import stringify from "json-stable-stringify";
-import debounce from "just-debounce";
-import { getAutoGasPrices } from "./blockchainApi";
-import { ContractLoader } from "./Contracts";
-import {
-  callWithRetry,
-  getGasSettingGwei,
-  makeProvider,
-  waitForTransaction,
-} from "./Network";
+} from '@dfares/types';
+import { BigNumber, Contract, EventFilter, providers, Wallet } from 'ethers';
+import stringify from 'json-stable-stringify';
+import debounce from 'just-debounce';
+import { getAutoGasPrices } from './blockchainApi';
+import { ContractLoader } from './Contracts';
+import { callWithRetry, getGasSettingGwei, makeProvider, waitForTransaction } from './Network';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -112,7 +107,7 @@ export class EthConnection {
     this.contracts = new Map();
     this.loaders = new Map();
     this.provider = provider;
-    this.balance = BigNumber.from("0");
+    this.balance = BigNumber.from('0');
     this.blockNumber = blockNumber;
     this.blockNumber$ = monomitter(true);
     this.rpcChanged$ = monomitter(true);
@@ -193,9 +188,7 @@ export class EthConnection {
   private async refreshGasPrices() {
     this.gasPrices = await getAutoGasPrices();
     this.gasPrices$.publish(this.gasPrices);
-    this.diagnosticsUpdater?.updateDiagnostics(
-      (d) => (d.gasPrices = this.gasPrices)
-    );
+    this.diagnosticsUpdater?.updateDiagnostics((d) => (d.gasPrices = this.gasPrices));
   }
 
   /**
@@ -214,10 +207,7 @@ export class EthConnection {
     gasPriceSetting: AutoGasSetting | string // either auto or the gas price measured in gwei
   ): number {
     // if the gas price setting represents an 'auto' choice, return that choice's current price
-    const autoPrice = getGasSettingGwei(
-      gasPriceSetting as AutoGasSetting,
-      gasPrices
-    );
+    const autoPrice = getGasSettingGwei(gasPriceSetting as AutoGasSetting, gasPrices);
 
     if (autoPrice !== undefined) {
       return autoPrice;
@@ -250,14 +240,9 @@ export class EthConnection {
     handlers: Partial<Record<string, any>>,
     eventFilter: EventFilter
   ) {
-    const debouncedOnNewBlock = debounce(
-      this.onNewBlock.bind(this),
-      1000,
-      true,
-      true
-    );
+    const debouncedOnNewBlock = debounce(this.onNewBlock.bind(this), 1000, true, true);
 
-    this.provider.on("block", async (latestBlockNumber: number) => {
+    this.provider.on('block', async (latestBlockNumber: number) => {
       debouncedOnNewBlock(latestBlockNumber, contract, handlers, eventFilter);
     });
   }
@@ -279,9 +264,7 @@ export class EthConnection {
     this.blockNumber = latestBlockNumber;
     this.blockNumber$.publish(latestBlockNumber);
 
-    console.log(
-      `processing events for ${latestBlockNumber - previousBlockNumber} blocks`
-    );
+    console.log(`processing events for ${latestBlockNumber - previousBlockNumber} blocks`);
 
     this.processEvents(
       Math.min(previousBlockNumber + 1, latestBlockNumber),
@@ -351,10 +334,9 @@ export class EthConnection {
       return 0;
     }
 
-    return callWithRetry<number>(
-      this.provider.getTransactionCount.bind(this.provider),
-      [this.signer.address]
-    );
+    return callWithRetry<number>(this.provider.getTransactionCount.bind(this.provider), [
+      this.signer.address,
+    ]);
   }
 
   /**
@@ -362,7 +344,7 @@ export class EthConnection {
    */
   public async signMessage(message: string): Promise<string> {
     if (!this.signer) {
-      throw new Error("no signer was set.");
+      throw new Error('no signer was set.');
     }
 
     return this.signer.signMessage(message);
@@ -374,7 +356,7 @@ export class EthConnection {
    */
   public async signMessageObject<T>(obj: T): Promise<SignedMessage<T>> {
     if (!this.signer) {
-      throw new Error("no signer was set.");
+      throw new Error('no signer was set.');
     }
 
     const stringified = stringify(obj);
@@ -394,10 +376,7 @@ export class EthConnection {
    * @see https://ethdocs.org/en/latest/ether.html#denominations
    */
   public async loadBalance(address: EthAddress): Promise<BigNumber> {
-    return await callWithRetry<BigNumber>(
-      this.provider.getBalance.bind(this.provider),
-      [address]
-    );
+    return await callWithRetry<BigNumber>(this.provider.getBalance.bind(this.provider), [address]);
   }
 
   /**
@@ -442,9 +421,7 @@ export class EthConnection {
    * Returns a promise that resolves when the transaction with the given hash is confirmed, and
    * rejects if the transaction reverts or if there's a network error.
    */
-  public waitForTransaction(
-    txHash: string
-  ): Promise<providers.TransactionReceipt> {
+  public waitForTransaction(txHash: string): Promise<providers.TransactionReceipt> {
     return waitForTransaction(this.provider, txHash);
   }
 
@@ -459,9 +436,7 @@ export class EthConnection {
       );
     });
     this.gasPrices$.subscribe((gasPrices) => {
-      diagnosticUpdater?.updateDiagnostics(
-        (diagnostics) => (diagnostics.gasPrices = gasPrices)
-      );
+      diagnosticUpdater?.updateDiagnostics((diagnostics) => (diagnostics.gasPrices = gasPrices));
     });
   }
 
@@ -487,21 +462,13 @@ export class EthConnection {
    */
   private startPolling() {
     this.refreshGasPrices();
-    this.gasPricesInterval = setInterval(
-      this.refreshGasPrices.bind(this),
-      GAS_PRICES_INTERVAL_MS
-    );
+    this.gasPricesInterval = setInterval(this.refreshGasPrices.bind(this), GAS_PRICES_INTERVAL_MS);
     this.refreshBalance();
-    this.balanceInterval = setInterval(
-      this.refreshBalance.bind(this),
-      1000 * 10
-    );
+    this.balanceInterval = setInterval(this.refreshBalance.bind(this), 1000 * 10);
   }
 }
 
-export async function createEthConnection(
-  rpcUrl: string
-): Promise<EthConnection> {
+export async function createEthConnection(rpcUrl: string): Promise<EthConnection> {
   const provider = await makeProvider(rpcUrl);
   const blockNumber = await provider.getBlockNumber();
   return new EthConnection(provider, blockNumber);

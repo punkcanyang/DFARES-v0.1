@@ -1,6 +1,6 @@
-import type { providers } from "ethers";
-import type { AutoGasSetting } from "./setting";
-import type { EthTxStatus, TxIntent } from "./transactions";
+import type { providers } from 'ethers';
+import type { AutoGasSetting } from './setting';
+import type { EthTxStatus, TxIntent } from './transactions';
 
 export interface TransactionCollection {
   addTransaction(tx: Transaction): void;

@@ -1,12 +1,12 @@
-import { SpecialKey } from "@dfares/constants";
-import { css, html, nothing, unsafeCSS } from "lit";
-import { classMap } from "lit/directives/class-map.js";
-import { DarkForestButton } from "./DarkForestButton";
-import * as dfstyles from "./styles";
+import { SpecialKey } from '@dfares/constants';
+import { css, html, nothing, unsafeCSS } from 'lit';
+import { classMap } from 'lit/directives/class-map.js';
+import { DarkForestButton } from './DarkForestButton';
+import * as dfstyles from './styles';
 
 export class ShortcutPressedEvent extends Event {
   constructor() {
-    super("shortcut-pressed", {
+    super('shortcut-pressed', {
       bubbles: true,
       cancelable: true,
       composed: true,
@@ -16,7 +16,7 @@ export class ShortcutPressedEvent extends Event {
 
 export class DarkForestShortcutButton extends DarkForestButton {
   // Not part of LitElement but let's tack on the tagName for easier registration
-  static tagName = "df-shortcut-button";
+  static tagName = 'df-shortcut-button';
 
   // Defining element styles without a decorator
   // These are injected into the shadowRoot so they aren't applied globally
@@ -43,8 +43,8 @@ export class DarkForestShortcutButton extends DarkForestButton {
         transform: translateZ(5px);
         transform-style: preserve-3d;
         transition: all 0.25s cubic-bezier(0.2, 1, 0.2, 1);
-        box-shadow: 0 0 #6b6b6b, 0 0 #6b6b6b, 0 1px #6d6d6d, 0 2px #6d6d6d,
-          2px 1px 4px #adb5bd, 0 -1px 1px #adb5bd;
+        box-shadow: 0 0 #6b6b6b, 0 0 #6b6b6b, 0 1px #6d6d6d, 0 2px #6d6d6d, 2px 1px 4px #adb5bd,
+          0 -1px 1px #adb5bd;
         background-color: #343a40;
         color: ${unsafeCSS(dfstyles.colors.text)};
         flex: 0;
@@ -71,7 +71,7 @@ export class DarkForestShortcutButton extends DarkForestButton {
         transform: translateZ(-2px);
         border-style: solid;
         box-sizing: content-box;
-        content: "";
+        content: '';
         display: block;
         position: absolute;
         transform-style: preserve-3d;
@@ -170,13 +170,13 @@ export class DarkForestShortcutButton extends DarkForestButton {
 
   connectedCallback() {
     super.connectedCallback();
-    window.addEventListener("keydown", this._handleKeyDown);
-    window.addEventListener("keyup", this._handleKeyUp);
+    window.addEventListener('keydown', this._handleKeyDown);
+    window.addEventListener('keyup', this._handleKeyUp);
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
-    window.removeEventListener("keydown", this._handleKeyDown);
-    window.removeEventListener("keyup", this._handleKeyUp);
+    window.removeEventListener('keydown', this._handleKeyDown);
+    window.removeEventListener('keyup', this._handleKeyUp);
   }
 }

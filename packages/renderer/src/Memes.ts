@@ -1,5 +1,5 @@
-import { PICTURE_URL } from "@dfares/constants";
-import { MemeType } from "@dfares/types";
+import { PICTURE_URL } from '@dfares/constants';
+import { MemeType } from '@dfares/types';
 
 export type Meme = {
   legacy: boolean;
@@ -12,7 +12,7 @@ const URL = PICTURE_URL;
 
 const doge = {
   legacy: false,
-  topLayer: [URL + "/img/meme/doge.png"],
+  topLayer: [URL + '/img/meme/doge.png'],
   bottomLayer: [],
   // image: () =>
   //   new Promise<HTMLImageElement>((resolve) => {
@@ -24,115 +24,115 @@ const doge = {
 
 const cat = {
   legacy: false,
-  topLayer: [URL + "/img/meme/Cat.png"],
+  topLayer: [URL + '/img/meme/Cat.png'],
   bottomLayer: [],
 };
 
 const chunZhen = {
   legacy: false,
-  topLayer: [URL + "/img/meme/chunZhen.png"],
+  topLayer: [URL + '/img/meme/chunZhen.png'],
   bottomLayer: [],
 };
 
 const iKunBird = {
   legacy: false,
-  topLayer: [URL + "/img/meme/iKunBird.png"],
+  topLayer: [URL + '/img/meme/iKunBird.png'],
   bottomLayer: [],
 };
 
 const mike = {
   legacy: false,
-  topLayer: [URL + "/img/meme/mike.png"],
+  topLayer: [URL + '/img/meme/mike.png'],
   bottomLayer: [],
 };
 
 const panda = {
   legacy: false,
-  topLayer: [URL + "/img/meme/panda.png"],
+  topLayer: [URL + '/img/meme/panda.png'],
   bottomLayer: [],
 };
 
 const pepe = {
   legacy: false,
-  topLayer: [URL + "/img/meme/pepe.png"],
+  topLayer: [URL + '/img/meme/pepe.png'],
   bottomLayer: [],
 };
 
 const pigMan = {
   legacy: false,
-  topLayer: [URL + "/img/meme/pigMan.png"],
+  topLayer: [URL + '/img/meme/pigMan.png'],
   bottomLayer: [],
 };
 
 const robotCat = {
   legacy: false,
-  topLayer: [URL + "/img/meme/robotCat.png"],
+  topLayer: [URL + '/img/meme/robotCat.png'],
   bottomLayer: [],
 };
 
 const taiKuLa = {
   legacy: false,
-  topLayer: [URL + "/img/meme/taiKuLa.png"],
+  topLayer: [URL + '/img/meme/taiKuLa.png'],
   bottomLayer: [],
 };
 
 const wojak1 = {
   legacy: false,
-  topLayer: [URL + "/img/meme/wojak1.png"],
+  topLayer: [URL + '/img/meme/wojak1.png'],
   bottomLayer: [],
 };
 
 const wojak2 = {
   legacy: false,
-  topLayer: [URL + "/img/meme/wojak2.png"],
+  topLayer: [URL + '/img/meme/wojak2.png'],
   bottomLayer: [],
 };
 
 const wojak3 = {
   legacy: false,
-  topLayer: [URL + "/img/meme/wojak3.png"],
+  topLayer: [URL + '/img/meme/wojak3.png'],
   bottomLayer: [],
 };
 
 const wojak4 = {
   legacy: false,
-  topLayer: [URL + "/img/meme/wojak4.png"],
+  topLayer: [URL + '/img/meme/wojak4.png'],
   bottomLayer: [],
 };
 
 const NyanCat = {
   legacy: false,
-  topLayer: [URL + "/img/meme/NyanCat.png"],
+  topLayer: [URL + '/img/meme/NyanCat.png'],
   bottomLayer: [],
 };
 
 const Harold = {
   legacy: false,
-  topLayer: [URL + "/img/meme/Hide_the_Pain_harold.png"],
+  topLayer: [URL + '/img/meme/Hide_the_Pain_harold.png'],
   bottomLayer: [],
 };
 
 const TheMerge = {
   legacy: false,
-  topLayer: [URL + "/img/meme/TheMerge.png"],
+  topLayer: [URL + '/img/meme/TheMerge.png'],
   bottomLayer: [],
 };
 
 const Undream = {
   legacy: false,
-  topLayer: [URL + "/img/meme/Undream.png"],
+  topLayer: [URL + '/img/meme/Undream.png'],
   bottomLayer: [],
 };
 
 const KakaiKiki = {
   legacy: false,
-  topLayer: [URL + "/img/meme/KaikaiKiki.png"],
+  topLayer: [URL + '/img/meme/KaikaiKiki.png'],
   bottomLayer: [],
 };
 
 const SuccessfulKid = {
   legacy: false,
-  topLayer: [URL + "/img/meme/sucessful-kid.png"],
+  topLayer: [URL + '/img/meme/sucessful-kid.png'],
   bottomLayer: [],
 };
 

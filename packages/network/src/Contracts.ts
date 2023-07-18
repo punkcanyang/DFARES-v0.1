@@ -1,4 +1,4 @@
-import type { Contract, providers, Wallet } from "ethers";
+import type { Contract, providers, Wallet } from 'ethers';
 
 export type ContractLoader<T extends Contract> = (
   address: string,

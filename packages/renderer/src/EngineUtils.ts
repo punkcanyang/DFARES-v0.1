@@ -1,12 +1,12 @@
-import { Planet, RenderZIndex, RGBVec } from "@dfares/types";
+import { Planet, RenderZIndex, RGBVec } from '@dfares/types';
 
 /* generic template string which, combined with a vscode package, let us get syntax highlighting. */
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const toStrSafe = (x: any) => (x ? x.toString() : "");
+const toStrSafe = (x: any) => (x ? x.toString() : '');
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const glsl = (arr: TemplateStringsArray, ...args: any[]): string =>
-  "#version 300 es\n" +
+  '#version 300 es\n' +
   arr.reduce((acc, curr, idx) => {
     return toStrSafe(acc) + toStrSafe(args[idx - 1]) + toStrSafe(curr);
   });
@@ -16,8 +16,7 @@ export class EngineUtils {
    * 12000 is a nicely divisible number, 2pi ensures periodicity
    * @returns the modular of the current unix time by (2 * pi  * 12000) in seconds
    */
-  public static getNow = (): number =>
-    (Date.now() / 1000) % (2 * Math.PI * 12000);
+  public static getNow = (): number => (Date.now() / 1000) % (2 * Math.PI * 12000);
 
   // prettier-ignore
   public static fillTexture(gl: WebGL2RenderingContext) {
@@ -26,16 +25,11 @@ export class EngineUtils {
 
   public static rgbVecToHex(rgb: RGBVec): string {
     const [r, g, b] = rgb;
-    const hex = (x: number): string => x.toString(16).padStart(2, "0");
+    const hex = (x: number): string => x.toString(16).padStart(2, '0');
     return `#${hex(r)}${hex(g)}${hex(b)}`;
   }
 
-  private static rotateIndices(
-    b: number[],
-    i: number,
-    j: number,
-    angle: number
-  ): void {
+  private static rotateIndices(b: number[], i: number, j: number, angle: number): void {
     const [x, y] = [b[i], b[j]];
     const c = Math.cos(angle);
     const s = Math.sin(angle);
@@ -106,13 +100,7 @@ export class EngineUtils {
   }
 
   /* makes a 3d quad */
-  public static makeQuad(
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
-    z: number
-  ): number[] {
+  public static makeQuad(x1: number, y1: number, x2: number, y2: number, z: number): number[] {
     // prettier-ignore
     return [
       x1, y1, z,
@@ -143,12 +131,7 @@ export class EngineUtils {
   }
 
   /* like above, but 2d */
-  public static makeQuadVec2(
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number
-  ): number[] {
+  public static makeQuadVec2(x1: number, y1: number, x2: number, y2: number): number[] {
     // prettier-ignore
     return [
       x1, y1,

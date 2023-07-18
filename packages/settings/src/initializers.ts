@@ -1,4 +1,4 @@
-import * as decoders from "decoders";
+import * as decoders from 'decoders';
 import {
   array6,
   between,
@@ -6,12 +6,11 @@ import {
   exactArray4,
   exactArray5,
   exactArray64,
-} from "./decoder-helpers";
+} from './decoder-helpers';
 
 // Handle Date or ISO8601 strings because the TOML parser converts to Date already
-const dateInSeconds = decoders.map(
-  decoders.either(decoders.date, decoders.iso8601),
-  (val) => Math.floor(val.getTime() / 1000)
+const dateInSeconds = decoders.map(decoders.either(decoders.date, decoders.iso8601), (val) =>
+  Math.floor(val.getTime() / 1000)
 );
 
 export type Initializers = ReturnType<typeof decodeInitializers>;
@@ -56,9 +55,7 @@ export const decodeInitializers = decoders.guard(
     STELLAR_ACTIVATION_DELAY: decoders.number,
     SPAWN_RIM_AREA: decoders.number,
     LOCATION_REVEAL_COOLDOWN: decoders.number,
-    PLANET_TYPE_WEIGHTS: exactArray4(
-      exactArray10(exactArray5(between(decoders.number, 0, 255)))
-    ),
+    PLANET_TYPE_WEIGHTS: exactArray4(exactArray10(exactArray5(between(decoders.number, 0, 255)))),
     SILVER_SCORE_VALUE: decoders.number,
     ARTIFACT_POINT_VALUES: array6(decoders.number),
     /**
@@ -87,5 +84,5 @@ export const decodeInitializers = decoders.guard(
     }),
     ROUND_END_REWARDS_BY_RANK: exactArray64(decoders.number),
   }),
-  { style: "simple" }
+  { style: 'simple' }
 );

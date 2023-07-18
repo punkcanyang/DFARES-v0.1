@@ -1,4 +1,4 @@
-import { EMPTY_ADDRESS, EMPTY_LOCATION_ID } from "@dfares/constants";
+import { EMPTY_ADDRESS, EMPTY_LOCATION_ID } from '@dfares/constants';
 import {
   Artifact,
   ArtifactId,
@@ -6,11 +6,11 @@ import {
   ArtifactRarity,
   ArtifactType,
   Biome,
-} from "@dfares/types";
+} from '@dfares/types';
 
 const namesById = new Map<ArtifactId, string>();
 export const artifactName = (artifact: Artifact | undefined): string => {
-  if (!artifact) return "Unknown";
+  if (!artifact) return 'Unknown';
 
   const myName = namesById.get(artifact.id);
   if (myName) return myName;
@@ -22,8 +22,8 @@ export const artifactName = (artifact: Artifact | undefined): string => {
 };
 
 const randomHex = (len: number): string => {
-  let str = "";
-  const chars = "abcdef0123456789".split("");
+  let str = '';
+  const chars = 'abcdef0123456789'.split('');
   while (str.length < len) {
     str = str + chars[Math.floor(Math.random() * chars.length)];
   }

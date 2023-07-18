@@ -1,8 +1,8 @@
-import { hslToRgb } from "@dfares/procedural";
-import { RGBAVec, RGBVec } from "@dfares/types";
+import { hslToRgb } from '@dfares/procedural';
+import { RGBAVec, RGBVec } from '@dfares/types';
 
 export const engineConsts = {
-  fontStyle: "64px monospace",
+  fontStyle: '64px monospace',
   dashLength: 10,
   planet: {
     maxRadius: 4,

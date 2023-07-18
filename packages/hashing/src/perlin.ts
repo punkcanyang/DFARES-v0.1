@@ -1,7 +1,7 @@
-import { PerlinConfig } from "@dfares/types";
-import BigInt, { BigInteger } from "big-integer";
-import { Fraction, IFraction } from "./fractions/bigFraction";
-import { perlinRandHash } from "./mimc";
+import { PerlinConfig } from '@dfares/types';
+import BigInt, { BigInteger } from 'big-integer';
+import { Fraction, IFraction } from './fractions/bigFraction';
+import { perlinRandHash } from './mimc';
 
 const TRACK_LCM = false;
 
@@ -75,16 +75,11 @@ try {
     [923, -383],
   ].map(([x, y]) => ({ x: new Fraction(x, 1000), y: new Fraction(y, 1000) }));
 } catch (err) {
-  console.error("Browser does not support BigInt.", err);
+  console.error('Browser does not support BigInt.', err);
 }
 
-export const getRandomGradientAt = (
-  point: Vector,
-  scale: IFraction,
-  randFn: HashFn
-): Vector => {
-  const val =
-    vecs[randFn(point.x.valueOf(), point.y.valueOf(), scale.valueOf())];
+export const getRandomGradientAt = (point: Vector, scale: IFraction, randFn: HashFn): Vector => {
+  const val = vecs[randFn(point.x.valueOf(), point.y.valueOf(), scale.valueOf())];
   return val;
 };
 
@@ -143,7 +138,7 @@ const updateLCM = (oldLCM: BigInteger, newValue: BigInteger): BigInteger => {
 
   const newLCM = BigInt.lcm(oldLCM, newValue);
   if (newLCM !== oldLCM) {
-    console.log("LCM updated to ", newLCM);
+    console.log('LCM updated to ', newLCM);
   }
 
   return newLCM;
@@ -153,17 +148,13 @@ const updateLCM = (oldLCM: BigInteger, newValue: BigInteger): BigInteger => {
 const realMod = (dividend: IFraction, divisor: IFraction): IFraction => {
   const temp = dividend.mod(divisor);
   // temp.s is sign
-  if (temp.s.toString() === "-1") {
+  if (temp.s.toString() === '-1') {
     return temp.add(divisor);
   }
   return temp;
 };
 
-const valueAt = (
-  p: Vector,
-  scale: IFraction,
-  randFn: (...inputs: number[]) => number
-) => {
+const valueAt = (p: Vector, scale: IFraction, randFn: (...inputs: number[]) => number) => {
   const bottomLeftCoords = {
     x: p.x.sub(realMod(p.x, scale)),
     y: p.y.sub(realMod(p.y, scale)),
@@ -198,11 +189,7 @@ const valueAt = (
     gradient: getRandomGradientAt(topRightCoords, scale, randFn),
   };
 
-  const out = perlinValue(
-    [bottomLeftGrad, bottomRightGrad, topLeftGrad, topRightGrad],
-    scale,
-    p
-  );
+  const out = perlinValue([bottomLeftGrad, bottomRightGrad, topLeftGrad, topRightGrad], scale, p);
 
   return out;
 };
@@ -224,13 +211,7 @@ export function perlin(coords: IntegerVector, options: PerlinConfig) {
   const pValues: IFraction[] = [];
   for (let i = 0; i < 3; i += 1) {
     // scale must be a power of two, up to 8192
-    pValues.push(
-      valueAt(
-        fractionalP,
-        new Fraction(options.scale * 2 ** i),
-        rand(options.key)
-      )
-    );
+    pValues.push(valueAt(fractionalP, new Fraction(options.scale * 2 ** i), rand(options.key)));
   }
   ret = ret.add(pValues[0]);
   ret = ret.add(pValues[0]);

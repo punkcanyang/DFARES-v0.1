@@ -1,10 +1,10 @@
-import type { mat3, mat4 } from "gl-matrix";
-import type { Artifact, RenderedArtifact } from "./artifact";
-import type { HatType } from "./hat";
-import type { LocationId } from "./identifier";
-import type { LocatablePlanet, Planet } from "./planet";
-import type { Abstract } from "./utility";
-import type { Chunk, WorldCoords } from "./world";
+import type { mat3, mat4 } from 'gl-matrix';
+import type { Artifact, RenderedArtifact } from './artifact';
+import type { HatType } from './hat';
+import type { LocationId } from './identifier';
+import type { LocatablePlanet, Planet } from './planet';
+import type { Abstract } from './utility';
+import type { Chunk, WorldCoords } from './world';
 
 export interface PlanetRenderInfo {
   planet: LocatablePlanet;
@@ -32,13 +32,13 @@ export interface GameViewport {
   intersectsViewport(chunk: Chunk): boolean;
 }
 
-export type AttribType = Abstract<number, "AttribType">;
+export type AttribType = Abstract<number, 'AttribType'>;
 export const AttribType = {
   Float: 5126 as AttribType, // window.WebGL2RenderingContext && WebGL2RenderingContext['FLOAT'],
   UByte: 5121 as AttribType, // window.WebGL2RenderingContext && WebGL2RenderingContext['UNSIGNED_BYTE'],
 };
 
-export type DrawMode = Abstract<number, "DrawMode">;
+export type DrawMode = Abstract<number, 'DrawMode'>;
 export const DrawMode = {
   Triangles: 4 as DrawMode, // window.WebGL2RenderingContext && WebGL2RenderingContext['TRIANGLES'],
   Lines: 1 as DrawMode, // window.WebGL2RenderingContext && WebGL2RenderingContext['LINES'],
@@ -52,7 +52,7 @@ export type AttribProps = {
   name: string;
 };
 
-export type UniformType = Abstract<number, "UniformType">;
+export type UniformType = Abstract<number, 'UniformType'>;
 export const UniformType = {
   Mat4: 0 as UniformType,
   Mat3: 1 as UniformType,
@@ -86,21 +86,21 @@ export type Scaling = {
 };
 export type HSLVec = readonly [number, number, number];
 
-export type TextAlign = Abstract<number, "TextAlign">;
+export type TextAlign = Abstract<number, 'TextAlign'>;
 export const TextAlign = {
   Left: 0 as TextAlign,
   Center: 0.5 as TextAlign,
   Right: 1 as TextAlign,
 };
 
-export type TextAnchor = Abstract<number, "TextAnchor">;
+export type TextAnchor = Abstract<number, 'TextAnchor'>;
 export const TextAnchor = {
   Top: 0 as TextAnchor,
   Middle: 0.5 as TextAnchor,
   Bottom: 1 as TextAnchor,
 };
 
-export type RenderZIndex = Abstract<number, "RenderZIndex">;
+export type RenderZIndex = Abstract<number, 'RenderZIndex'>;
 export const RenderZIndex = {
   Background: 0 as RenderZIndex,
   Voyages: -1 as RenderZIndex,
@@ -170,7 +170,7 @@ export interface IRendererConfig {
  * Each renderer should contain a variable called 'rendererType'
  * 'rendererType' should be a enum that corresponds with the type of renderer it is
  */
-export type RendererType = Abstract<number, "RendererType">;
+export type RendererType = Abstract<number, 'RendererType'>;
 export const RendererType = {
   Planet: 0 as RendererType,
   Mine: 1 as RendererType,
@@ -306,12 +306,7 @@ export interface AsteroidRendererType {
    * @param centerW - represents the coordinates of the planet relative to the game world.
    * @param radiusW - represents the radius of the planet relative to the size of the game world
    */
-  queueAsteroid(
-    planet: Planet,
-    centerW: CanvasCoords,
-    radiusW: number,
-    color?: RGBVec
-  ): void;
+  queueAsteroid(planet: Planet, centerW: CanvasCoords, radiusW: number, color?: RGBVec): void;
 
   /**
    * Draws all queued Asteroids.
@@ -503,12 +498,7 @@ export interface MineBodyRendererType {
    * @param radius - Radius of the Asteroid Field relative to the game world
    * @param z - The amount of Asteroids in the Asteroid field
    */
-  queueMineScreen(
-    planet: Planet,
-    center: WorldCoords,
-    radius: number,
-    z: number
-  ): void;
+  queueMineScreen(planet: Planet, center: WorldCoords, radius: number, z: number): void;
 
   /**
    * Draws all queued mine bodies.
@@ -873,20 +863,11 @@ export interface PlanetRenderManagerType {
     hatLevel: number
   ): void;
 
-  queueArtifactImage(
-    center: WorldCoords,
-    radius: number,
-    artifact?: Artifact
-  ): void;
+  queueArtifactImage(center: WorldCoords, radius: number, artifact?: Artifact): void;
 
   // queueNewHat(center: WorldCoords, radius: number, artifact?: Artifact): void;
 
-  queueMemeImage(
-    center: WorldCoords,
-    radius: number,
-    hatType: number,
-    hatLevel: number
-  ): void;
+  queueMemeImage(center: WorldCoords, radius: number, hatType: number, hatLevel: number): void;
 
   queueLogoImage(
     center: WorldCoords,
@@ -896,12 +877,7 @@ export interface PlanetRenderManagerType {
     ifAdminSet: boolean
   ): void;
 
-  queueAvatarImage(
-    center: WorldCoords,
-    radius: number,
-    hatType: number,
-    hatLevel: number
-  ): void;
+  queueAvatarImage(center: WorldCoords, radius: number, hatType: number, hatLevel: number): void;
 
   flush(): void;
 }

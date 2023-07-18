@@ -1,4 +1,4 @@
-import * as decoders from "decoders";
+import * as decoders from 'decoders';
 
 const decodeAdminPlanet = decoders.exact({
   x: decoders.number,
@@ -11,9 +11,6 @@ const decodeAdminPlanet = decoders.exact({
 
 export type AdminPlanets = ReturnType<typeof decodeAdminPlanets>;
 
-export const decodeAdminPlanets = decoders.guard(
-  decoders.array(decodeAdminPlanet),
-  {
-    style: "simple",
-  }
-);
+export const decodeAdminPlanets = decoders.guard(decoders.array(decodeAdminPlanet), {
+  style: 'simple',
+});

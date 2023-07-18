@@ -1,6 +1,6 @@
-import type { Abstract } from "./utility";
+import type { Abstract } from './utility';
 
-export type AvatarType = Abstract<number, "AvatarType">;
+export type AvatarType = Abstract<number, 'AvatarType'>;
 
 /**
  * Enumeration of avatar types.
@@ -23,14 +23,14 @@ export const AvatarType = {
  * Mapping from AvatarType to pretty-printed names.
  */
 export const AvatarTypeNames = {
-  [AvatarType.Unknown]: "Unknown",
-  [AvatarType.Jasonlool]: "Jasonlool",
-  [AvatarType.Santagnel]: "Santagnel",
-  [AvatarType.OriginTiger]: "Orgin Tiger",
-  [AvatarType.Zeroxviviyorg]: "0xviviyorg",
-  [AvatarType.Ikun]: "ikun",
-  [AvatarType.BaliGee]: "Bali Gee",
-  [AvatarType.DDY]: "ddy",
-  [AvatarType.Blue]: "blue",
-  [AvatarType.DeFi3]: "defi3",
+  [AvatarType.Unknown]: 'Unknown',
+  [AvatarType.Jasonlool]: 'Jasonlool',
+  [AvatarType.Santagnel]: 'Santagnel',
+  [AvatarType.OriginTiger]: 'Orgin Tiger',
+  [AvatarType.Zeroxviviyorg]: '0xviviyorg',
+  [AvatarType.Ikun]: 'ikun',
+  [AvatarType.BaliGee]: 'Bali Gee',
+  [AvatarType.DDY]: 'ddy',
+  [AvatarType.Blue]: 'blue',
+  [AvatarType.DeFi3]: 'defi3',
 } as const;

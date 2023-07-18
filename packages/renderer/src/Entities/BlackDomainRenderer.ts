@@ -5,11 +5,11 @@ import {
   Planet,
   RendererType,
   WorldCoords,
-} from "@dfares/types";
-import { EngineUtils } from "../EngineUtils";
-import { BLACKDOMAIN_PROGRAM_DEFINITION } from "../Programs/BlackDomainProgram";
-import { GameGLManager } from "../WebGL/GameGLManager";
-import { GenericRenderer } from "../WebGL/GenericRenderer";
+} from '@dfares/types';
+import { EngineUtils } from '../EngineUtils';
+import { BLACKDOMAIN_PROGRAM_DEFINITION } from '../Programs/BlackDomainProgram';
+import { GameGLManager } from '../WebGL/GameGLManager';
+import { GenericRenderer } from '../WebGL/GenericRenderer';
 
 /** Renders a shadow-type thing over destroyed planets */
 export class BlackDomainRenderer
@@ -29,12 +29,7 @@ export class BlackDomainRenderer
     this.viewport = manager.renderer.getViewport();
   }
 
-  public queueBlackDomainScreen(
-    _planet: Planet,
-    center: CanvasCoords,
-    radius: number,
-    z: number
-  ) {
+  public queueBlackDomainScreen(_planet: Planet, center: CanvasCoords, radius: number, z: number) {
     const { position, rectPos } = this.attribManagers;
 
     const r = radius * 1.2;
@@ -51,11 +46,7 @@ export class BlackDomainRenderer
     this.verts += 6;
   }
 
-  public queueBlackDomain(
-    planet: Planet,
-    centerW: WorldCoords,
-    radiusW: number
-  ): void {
+  public queueBlackDomain(planet: Planet, centerW: WorldCoords, radiusW: number): void {
     const center = this.viewport.worldToCanvasCoords(centerW);
     const radius = this.viewport.worldToCanvasDist(radiusW);
     const z = EngineUtils.getPlanetZIndex(planet);

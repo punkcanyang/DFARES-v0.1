@@ -1,11 +1,11 @@
-import { AttribType } from "@dfares/types";
-import autoBind from "auto-bind";
+import { AttribType } from '@dfares/types';
+import autoBind from 'auto-bind';
 
 const getAttribTypeSize = (type: AttribType): number => {
   if (type === AttribType.Float) return 4;
   else if (type === AttribType.UByte) return 1;
   else {
-    console.error("unrecognized attrib type");
+    console.error('unrecognized attrib type');
     return 0;
   }
 };
@@ -14,7 +14,7 @@ const getConstructor = (type: AttribType): GLArrayConstructor => {
   if (type === AttribType.Float) return Float32Array;
   else if (type === AttribType.UByte) return Uint8Array;
   else {
-    console.error("unrecognized attrib type");
+    console.error('unrecognized attrib type');
     return Float32Array;
   }
 };

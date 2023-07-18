@@ -1,23 +1,23 @@
-import { AttribType, UniformType } from "@dfares/types";
-import { glsl } from "../EngineUtils";
-import { ShaderMixins } from "../WebGL/ShaderMixins";
+import { AttribType, UniformType } from '@dfares/types';
+import { glsl } from '../EngineUtils';
+import { ShaderMixins } from '../WebGL/ShaderMixins';
 
 const a = {
-  position: "a_position",
-  rectPos: "a_rectPos",
-  color: "a_color",
-  weights: "a_weights",
-  props: "a_props", // leaves, reflect, mvt velocity
+  position: 'a_position',
+  rectPos: 'a_rectPos',
+  color: 'a_color',
+  weights: 'a_weights',
+  props: 'a_props', // leaves, reflect, mvt velocity
 };
 const u = {
-  matrix: "u_matrix", // matrix to convert from world coords to clipspace
-  time: "u_time",
+  matrix: 'u_matrix', // matrix to convert from world coords to clipspace
+  time: 'u_time',
 };
 const v = {
-  color: "v_color",
-  rectPos: "v_rectPos",
-  weights: "v_weights",
-  props: "v_props",
+  color: 'v_color',
+  rectPos: 'v_rectPos',
+  weights: 'v_weights',
+  props: 'v_props',
 };
 
 export const RUINS_PROGRAM_DEFINITION = {

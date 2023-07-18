@@ -1,6 +1,6 @@
-import type { Abstract } from "./utility";
+import type { Abstract } from './utility';
 
-export type MemeType = Abstract<number, "MemeMemeType">;
+export type MemeType = Abstract<number, 'MemeMemeType'>;
 
 /**
  * Enumeration of meme  types.
@@ -34,25 +34,25 @@ export const MemeType = {
  * Mapping from MemeType to pretty-printed names.
  */
 export const MemeTypeNames = {
-  [MemeType.Unknown]: "Unknown",
-  [MemeType.Doge]: "Doge",
-  [MemeType.Cat]: "Cat",
-  [MemeType.ChunZhen]: "ChunZhen",
-  [MemeType.IKunBird]: "IKunBird",
-  [MemeType.Mike]: "Mike",
-  [MemeType.Panda]: "Panda",
-  [MemeType.Pepe]: "Pepe",
-  [MemeType.PigMan]: "PigMan",
-  [MemeType.RobotCat]: "RobotCat",
-  [MemeType.TaiKuLa]: "TaiKuLa",
-  [MemeType.Wojak1]: "Wojak1",
-  [MemeType.Wojak2]: "Wojak2",
-  [MemeType.Wojak3]: "Wojak3",
-  [MemeType.Wojak4]: "Wojak4",
-  [MemeType.NyanCat]: "Nyan Cat",
-  [MemeType.Harold]: "Hide the Pain Harold",
-  [MemeType.TheMerge]: "The Merge by Pak",
-  [MemeType.Undream]: "Undream by Pak",
-  [MemeType.KakaiKiki]: "Kaikai Kiki",
-  [MemeType.SucessfulKid]: "Successul Kid",
+  [MemeType.Unknown]: 'Unknown',
+  [MemeType.Doge]: 'Doge',
+  [MemeType.Cat]: 'Cat',
+  [MemeType.ChunZhen]: 'ChunZhen',
+  [MemeType.IKunBird]: 'IKunBird',
+  [MemeType.Mike]: 'Mike',
+  [MemeType.Panda]: 'Panda',
+  [MemeType.Pepe]: 'Pepe',
+  [MemeType.PigMan]: 'PigMan',
+  [MemeType.RobotCat]: 'RobotCat',
+  [MemeType.TaiKuLa]: 'TaiKuLa',
+  [MemeType.Wojak1]: 'Wojak1',
+  [MemeType.Wojak2]: 'Wojak2',
+  [MemeType.Wojak3]: 'Wojak3',
+  [MemeType.Wojak4]: 'Wojak4',
+  [MemeType.NyanCat]: 'Nyan Cat',
+  [MemeType.Harold]: 'Hide the Pain Harold',
+  [MemeType.TheMerge]: 'The Merge by Pak',
+  [MemeType.Undream]: 'Undream by Pak',
+  [MemeType.KakaiKiki]: 'Kaikai Kiki',
+  [MemeType.SucessfulKid]: 'Successul Kid',
 } as const;

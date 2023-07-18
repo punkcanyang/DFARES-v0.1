@@ -5,10 +5,10 @@ import {
   LocationId,
   RendererType,
   RenderZIndex,
-} from "@dfares/types";
-import { engineConsts } from "../EngineConsts";
-import { Renderer } from "../Renderer";
-import { GameGLManager } from "../WebGL/GameGLManager";
+} from '@dfares/types';
+import { engineConsts } from '../EngineConsts';
+import { Renderer } from '../Renderer';
+import { GameGLManager } from '../WebGL/GameGLManager';
 const { purpleA, blueA, pinkA, sensaichaA } = engineConsts.colors;
 
 export class LinkRenderer implements LinkRendererType {

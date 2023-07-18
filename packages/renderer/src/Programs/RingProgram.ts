@@ -1,24 +1,24 @@
-import { AttribType, UniformType } from "@dfares/types";
-import { glsl } from "../EngineUtils";
-import { ShaderMixins } from "../WebGL/ShaderMixins";
+import { AttribType, UniformType } from '@dfares/types';
+import { glsl } from '../EngineUtils';
+import { ShaderMixins } from '../WebGL/ShaderMixins';
 
 const a = {
-  position: "a_position",
-  color: "a_color",
-  rectPos: "a_rectPos",
-  props: "a_props",
+  position: 'a_position',
+  color: 'a_color',
+  rectPos: 'a_rectPos',
+  props: 'a_props',
 };
 const u = {
-  matrix: "u_matrix", // matrix to convert from screen coords to clipspace
-  now: "u_now",
+  matrix: 'u_matrix', // matrix to convert from screen coords to clipspace
+  now: 'u_now',
 };
 const v = {
-  color: "v_color",
-  rectPos: "v_rectPos",
+  color: 'v_color',
+  rectPos: 'v_rectPos',
 
-  xRad: "v_xRad",
-  yRad: "v_yRad",
-  delTheta: "v_delTheta",
+  xRad: 'v_xRad',
+  yRad: 'v_yRad',
+  delTheta: 'v_delTheta',
 };
 
 export const RING_PROGRAM_DEFINITION = {

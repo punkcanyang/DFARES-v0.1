@@ -1,11 +1,11 @@
-import { EMPTY_ADDRESS } from "@dfares/constants";
+import { EMPTY_ADDRESS } from '@dfares/constants';
 import {
   EmojiFlagBody,
   LocatablePlanet,
   Planet,
   PlanetMessage,
   PlanetMessageType,
-} from "@dfares/types";
+} from '@dfares/types';
 
 export const getPlanetRank = (planet: Planet | undefined): number => {
   if (!planet) return 0;
@@ -17,15 +17,9 @@ export const getPlanetRank = (planet: Planet | undefined): number => {
  * @param rangeBoost A multiplier to be applied to the resulting range.
  * Currently used for calculating boost associated with abandoning a planet.
  */
-export function getRange(
-  planet: Planet,
-  percentEnergySending = 100,
-  rangeBoost = 1
-): number {
+export function getRange(planet: Planet, percentEnergySending = 100, rangeBoost = 1): number {
   if (percentEnergySending === 0) return 0;
-  return (
-    Math.max(Math.log2(percentEnergySending / 5), 0) * planet.range * rangeBoost
-  );
+  return Math.max(Math.log2(percentEnergySending / 5), 0) * planet.range * rangeBoost;
 }
 
 export function hasOwner(planet: Planet) {
@@ -35,16 +29,11 @@ export function hasOwner(planet: Planet) {
 export function isEmojiFlagMessage(
   planetMessage: PlanetMessage<unknown>
 ): planetMessage is PlanetMessage<EmojiFlagBody> {
-  return (
-    planetMessage.body !== undefined &&
-    planetMessage.type === PlanetMessageType.EmojiFlag
-  );
+  return planetMessage.body !== undefined && planetMessage.type === PlanetMessageType.EmojiFlag;
 }
 
 export function isLocatable(planet?: Planet): planet is LocatablePlanet {
-  return (
-    planet !== undefined && (planet as LocatablePlanet).location !== undefined
-  );
+  return planet !== undefined && (planet as LocatablePlanet).location !== undefined;
 }
 
 /**

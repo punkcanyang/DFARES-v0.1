@@ -5,12 +5,12 @@ import {
   RendererType,
   SpaceRendererType,
   Vec3,
-} from "@dfares/types";
-import { EngineUtils } from "../EngineUtils";
-import { SPACE_PROGRAM_DEFINITION } from "../Programs/SpaceProgram";
-import { AttribManager } from "../WebGL/AttribManager";
-import { GameGLManager } from "../WebGL/GameGLManager";
-import { GenericRenderer } from "../WebGL/GenericRenderer";
+} from '@dfares/types';
+import { EngineUtils } from '../EngineUtils';
+import { SPACE_PROGRAM_DEFINITION } from '../Programs/SpaceProgram';
+import { AttribManager } from '../WebGL/AttribManager';
+import { GameGLManager } from '../WebGL/GameGLManager';
+import { GenericRenderer } from '../WebGL/GenericRenderer';
 import {
   getCachedGradient,
   getGridPoint,
@@ -20,7 +20,7 @@ import {
   right,
   up,
   valueOf,
-} from "./PerlinUtils";
+} from './PerlinUtils';
 
 export type SpaceColorUniforms = {
   innerNebulaColor: Vec3;
@@ -31,7 +31,7 @@ export type SpaceColorUniforms = {
 };
 
 function hexToRgb(hex: string): Vec3 {
-  const bigint = parseInt(hex.replace("#", ""), 16);
+  const bigint = parseInt(hex.replace('#', ''), 16);
   const r = (bigint >> 16) & 255;
   const g = (bigint >> 8) & 255;
   const b = bigint & 255;
@@ -39,7 +39,7 @@ function hexToRgb(hex: string): Vec3 {
   return [r / 255.0, g / 255.0, b / 255.0];
 }
 
-const fallbackColor = "#000000";
+const fallbackColor = '#000000';
 
 export class SpaceRenderer
   extends GenericRenderer<typeof SPACE_PROGRAM_DEFINITION>
@@ -94,30 +94,10 @@ export class SpaceRenderer
     const topLeft = up(botLeft, octaveScale);
     const topRight = right(up(botLeft, octaveScale), octaveScale);
 
-    const botLeftGrad = getCachedGradient(
-      quadrant,
-      botLeft,
-      this.config,
-      octave
-    );
-    const botRightGrad = getCachedGradient(
-      quadrant,
-      botRight,
-      this.config,
-      octave
-    );
-    const topLeftGrad = getCachedGradient(
-      quadrant,
-      topLeft,
-      this.config,
-      octave
-    );
-    const topRightGrad = getCachedGradient(
-      quadrant,
-      topRight,
-      this.config,
-      octave
-    );
+    const botLeftGrad = getCachedGradient(quadrant, botLeft, this.config, octave);
+    const botRightGrad = getCachedGradient(quadrant, botRight, this.config, octave);
+    const topLeftGrad = getCachedGradient(quadrant, topLeft, this.config, octave);
+    const topRightGrad = getCachedGradient(quadrant, topRight, this.config, octave);
 
     // technically we should buffer this
     const topGradVals = [...valueOf(topLeftGrad), ...valueOf(topRightGrad)];
@@ -164,13 +144,7 @@ export class SpaceRenderer
     );
     posA.setVertex(this.posBuffer, this.verts);
 
-    EngineUtils.makeQuadVec2Buffered(
-      this.coordsBuffer,
-      xW,
-      yW + sideLength,
-      xW + sideLength,
-      yW
-    );
+    EngineUtils.makeQuadVec2Buffered(this.coordsBuffer, xW, yW + sideLength, xW + sideLength, yW);
     worldCoordsA.setVertex(this.coordsBuffer, this.verts);
 
     this.bufferGradients(rect, PerlinOctave._0, p0topGrad, p0botGrad);

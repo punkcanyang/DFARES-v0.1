@@ -350,17 +350,15 @@ contract DFArtifactFacet is WithStorage, ERC721 {
         require(args.rarity != ArtifactRarity.Unknown, "can't buy Unknown");
         require(args.rarity != ArtifactRarity.Mythic, "can't buy Mythics");
 
-        require(args.artifactType != ArtifactType.Monolith, "no Monolith");
-        require(args.artifactType != ArtifactType.Colossus, "no Colossus");
-        require(args.artifactType != ArtifactType.Spaceship, "no Spaceship");
-        require(args.artifactType != ArtifactType.Pyramid, "no Pyramid");
-
-        require(args.artifactType != ArtifactType.PhotoidCannon, "no PhotoidCannon");
-        require(args.artifactType != ArtifactType.BlackDomain, "no BlackDomain");
-        require(args.artifactType != ArtifactType.IceLink, "no IceLink");
-        require(args.artifactType != ArtifactType.SoulSwap, "no SoulSwap");
-        require(args.artifactType != ArtifactType.Bomb, "no Bomb");
-        require(args.artifactType != ArtifactType.BlindBox, "no BlindBox");
+        require(
+            args.artifactType == ArtifactType.Wormhole ||
+                args.artifactType == ArtifactType.PlanetaryShield ||
+                args.artifactType == ArtifactType.BloomFilter ||
+                args.artifactType == ArtifactType.FireLink ||
+                args.artifactType == ArtifactType.StellarShield ||
+                args.artifactType == ArtifactType.Avatar,
+            "not support artifactType yet"
+        );
 
         uint256 totalAmount = gs().players[msg.sender].buyArtifactAmount + 1;
 
@@ -370,18 +368,30 @@ contract DFArtifactFacet is WithStorage, ERC721 {
         //1 hour 1 artifact
         // require(totalGameBlocks * 2 >= amount * 60 * 60, "block number limit");
 
-        // 10 min 1 artifact
+        // 60 min 1 artifact
 
-        uint256 deltaTime = 10;
+        uint256 deltaTime = 60;
         require(totalGameBlocks * 2 >= totalAmount * 60 * deltaTime, "block number limit");
         gs().players[msg.sender].buyArtifactAmount++;
 
         uint256 cost = 1 ether;
 
-        if (args.rarity == ArtifactRarity.Common) cost = 1 ether;
-        else if (args.rarity == ArtifactRarity.Rare) cost = 2 ether;
-        else if (args.rarity == ArtifactRarity.Epic) cost = 4 ether;
-        else if (args.rarity == ArtifactRarity.Legendary) cost = 8 ether;
+        if (
+            args.artifactType == ArtifactType.Wormhole ||
+            args.artifactType == ArtifactType.PlanetaryShield ||
+            args.artifactType == ArtifactType.BloomFilter ||
+            args.artifactType == ArtifactType.FireLink
+        ) {
+            if (args.rarity == ArtifactRarity.Common) cost = 1 ether;
+            else if (args.rarity == ArtifactRarity.Rare) cost = 2 ether;
+            else if (args.rarity == ArtifactRarity.Epic) cost = 4 ether;
+            else if (args.rarity == ArtifactRarity.Legendary) cost = 8 ether;
+
+        } else if (args.artifactType == ArtifactType.Avatar) {
+            cost = 1 ether;
+        } else if (args.artifactType == ArtifactType.StellarShield) {
+            cost = 8 ether;
+        }
 
         require(msg.value == cost, "Wrong value sent");
 

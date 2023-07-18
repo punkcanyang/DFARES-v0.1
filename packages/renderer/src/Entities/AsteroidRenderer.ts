@@ -1,4 +1,4 @@
-import { getPlanetCosmetic } from "@dfares/procedural";
+import { getPlanetCosmetic } from '@dfares/procedural';
 import {
   AsteroidRendererType,
   CanvasCoords,
@@ -7,11 +7,11 @@ import {
   Planet,
   RendererType,
   RGBVec,
-} from "@dfares/types";
-import { EngineUtils } from "../EngineUtils";
-import { ASTEROID_PROGRAM_DEFINITION } from "../Programs/AsteroidProgram";
-import { GameGLManager } from "../WebGL/GameGLManager";
-import { GenericRenderer } from "../WebGL/GenericRenderer";
+} from '@dfares/types';
+import { EngineUtils } from '../EngineUtils';
+import { ASTEROID_PROGRAM_DEFINITION } from '../Programs/AsteroidProgram';
+import { GameGLManager } from '../WebGL/GameGLManager';
+import { GenericRenderer } from '../WebGL/GenericRenderer';
 
 export class AsteroidRenderer
   extends GenericRenderer<typeof ASTEROID_PROGRAM_DEFINITION>
@@ -26,12 +26,7 @@ export class AsteroidRenderer
     this.viewport = manager.renderer.getViewport();
   }
 
-  public queueAsteroid(
-    planet: Planet,
-    centerW: CanvasCoords,
-    radiusW: number,
-    color: RGBVec
-  ) {
+  public queueAsteroid(planet: Planet, centerW: CanvasCoords, radiusW: number, color: RGBVec) {
     const {
       position: posA,
       color: colorA,

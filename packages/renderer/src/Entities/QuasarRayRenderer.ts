@@ -1,15 +1,15 @@
-import { getPlanetCosmetic } from "@dfares/procedural";
+import { getPlanetCosmetic } from '@dfares/procedural';
 import {
   CanvasCoords,
   Planet,
   QuasarRayRendererType,
   RendererType,
   WorldCoords,
-} from "@dfares/types";
-import { EngineUtils } from "../EngineUtils";
-import { QUASARRAY_PROGRAM_DEFINITION } from "../Programs/QuasarRayProgram";
-import { GameGLManager } from "../WebGL/GameGLManager";
-import { GenericRenderer } from "../WebGL/GenericRenderer";
+} from '@dfares/types';
+import { EngineUtils } from '../EngineUtils';
+import { QUASARRAY_PROGRAM_DEFINITION } from '../Programs/QuasarRayProgram';
+import { GameGLManager } from '../WebGL/GameGLManager';
+import { GenericRenderer } from '../WebGL/GenericRenderer';
 
 export class QuasarRayRenderer
   extends GenericRenderer<typeof QUASARRAY_PROGRAM_DEFINITION, GameGLManager>

@@ -1,4 +1,4 @@
-import { isUnconfirmedMoveTx } from "@dfares/serde";
+import { isUnconfirmedMoveTx } from '@dfares/serde';
 import {
   Artifact,
   ArtifactRarity,
@@ -10,18 +10,18 @@ import {
   RGBVec,
   SpriteRendererType,
   WorldCoords,
-} from "@dfares/types";
-import { engineConsts } from "../EngineConsts";
-import { EngineUtils } from "../EngineUtils";
-import { SPRITE_PROGRAM_DEFINITION } from "../Programs/SpriteProgram";
+} from '@dfares/types';
+import { engineConsts } from '../EngineConsts';
+import { EngineUtils } from '../EngineUtils';
+import { SPRITE_PROGRAM_DEFINITION } from '../Programs/SpriteProgram';
 import {
   loadArtifactAtlas,
   loadArtifactThumbAtlas,
   spriteFromArtifact,
   SpriteRectangle,
-} from "../TextureManager";
-import { GenericRenderer } from "../WebGL/GenericRenderer";
-import { WebGLManager } from "../WebGL/WebGLManager";
+} from '../TextureManager';
+import { GenericRenderer } from '../WebGL/GenericRenderer';
+import { WebGLManager } from '../WebGL/WebGLManager';
 export class SpriteRenderer
   extends GenericRenderer<typeof SPRITE_PROGRAM_DEFINITION>
   implements SpriteRendererType
@@ -218,81 +218,17 @@ export class SpriteRenderer
     const s = this.thumb ? width / 16 : width / 64;
     const iters = this.thumb ? 1 : 2;
     for (let del = s; del <= iters * s; del += s) {
-      this.queueSprite(
-        artifact,
-        { x, y: y - del },
-        width,
-        alpha,
-        color,
-        undefined,
-        theta
-      );
-      this.queueSprite(
-        artifact,
-        { x, y: y + del },
-        width,
-        alpha,
-        color,
-        undefined,
-        theta
-      );
-      this.queueSprite(
-        artifact,
-        { x: x + del, y },
-        width,
-        alpha,
-        color,
-        undefined,
-        theta
-      );
-      this.queueSprite(
-        artifact,
-        { x: x - del, y },
-        width,
-        alpha,
-        color,
-        undefined,
-        theta
-      );
+      this.queueSprite(artifact, { x, y: y - del }, width, alpha, color, undefined, theta);
+      this.queueSprite(artifact, { x, y: y + del }, width, alpha, color, undefined, theta);
+      this.queueSprite(artifact, { x: x + del, y }, width, alpha, color, undefined, theta);
+      this.queueSprite(artifact, { x: x - del, y }, width, alpha, color, undefined, theta);
     }
 
     if (iters === 2) {
-      this.queueSprite(
-        artifact,
-        { x: x - 1, y: y - 1 },
-        width,
-        alpha,
-        color,
-        undefined,
-        theta
-      );
-      this.queueSprite(
-        artifact,
-        { x: x - 1, y: y + 1 },
-        width,
-        alpha,
-        color,
-        undefined,
-        theta
-      );
-      this.queueSprite(
-        artifact,
-        { x: x + 1, y: y - 1 },
-        width,
-        alpha,
-        color,
-        undefined,
-        theta
-      );
-      this.queueSprite(
-        artifact,
-        { x: x + 1, y: y + 1 },
-        width,
-        alpha,
-        color,
-        undefined,
-        theta
-      );
+      this.queueSprite(artifact, { x: x - 1, y: y - 1 }, width, alpha, color, undefined, theta);
+      this.queueSprite(artifact, { x: x - 1, y: y + 1 }, width, alpha, color, undefined, theta);
+      this.queueSprite(artifact, { x: x + 1, y: y - 1 }, width, alpha, color, undefined, theta);
+      this.queueSprite(artifact, { x: x + 1, y: y + 1 }, width, alpha, color, undefined, theta);
     }
   }
 

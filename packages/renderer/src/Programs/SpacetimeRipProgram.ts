@@ -1,25 +1,25 @@
-import { AttribType, UniformType } from "@dfares/types";
-import { glsl } from "../EngineUtils";
-import { ShaderMixins } from "../WebGL/ShaderMixins";
+import { AttribType, UniformType } from '@dfares/types';
+import { glsl } from '../EngineUtils';
+import { ShaderMixins } from '../WebGL/ShaderMixins';
 
 const a = {
-  position: "a_position",
-  rectPos: "a_rectPos", // note that this is [+x, +y] to the upper-right
-  color: "a_color",
-  inColor1: "a_inColor1",
-  inColor2: "a_inColor2",
-  inColor3: "a_inColor3",
+  position: 'a_position',
+  rectPos: 'a_rectPos', // note that this is [+x, +y] to the upper-right
+  color: 'a_color',
+  inColor1: 'a_inColor1',
+  inColor2: 'a_inColor2',
+  inColor3: 'a_inColor3',
 };
 const u = {
-  matrix: "u_matrix", // matrix to convert from world coords to clipspace
-  time: "u_time",
+  matrix: 'u_matrix', // matrix to convert from world coords to clipspace
+  time: 'u_time',
 };
 const v = {
-  color: "v_color",
-  rectPos: "v_rectPos",
-  inColor1: "v_inColor1",
-  inColor2: "v_inColor2",
-  inColor3: "v_inColor3",
+  color: 'v_color',
+  rectPos: 'v_rectPos',
+  inColor1: 'v_inColor1',
+  inColor2: 'v_inColor2',
+  inColor3: 'v_inColor3',
 };
 
 export const SPACETIMERIP_PROGRAM_DEFINITION = {

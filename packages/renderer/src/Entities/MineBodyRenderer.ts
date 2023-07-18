@@ -1,4 +1,4 @@
-import { getPlanetCosmetic, hslToRgb } from "@dfares/procedural";
+import { getPlanetCosmetic, hslToRgb } from '@dfares/procedural';
 import {
   CanvasCoords,
   DrawMode,
@@ -7,11 +7,11 @@ import {
   RendererType,
   RGBVec,
   WorldCoords,
-} from "@dfares/types";
-import { EngineUtils } from "../EngineUtils";
-import { MINE_PROGRAM_DEFINITION } from "../Programs/MineProgram";
-import { GameGLManager } from "../WebGL/GameGLManager";
-import { GenericRenderer } from "../WebGL/GenericRenderer";
+} from '@dfares/types';
+import { EngineUtils } from '../EngineUtils';
+import { MINE_PROGRAM_DEFINITION } from '../Programs/MineProgram';
+import { GameGLManager } from '../WebGL/GameGLManager';
+import { GenericRenderer } from '../WebGL/GenericRenderer';
 
 /** Renderers asteroids at the center of silver mines  */
 export class MineBodyRenderer
@@ -48,12 +48,7 @@ export class MineBodyRenderer
     this.verts += 1;
   }
 
-  queueMineScreen(
-    planet: Planet,
-    center: WorldCoords,
-    radius: number,
-    z: number
-  ) {
+  queueMineScreen(planet: Planet, center: WorldCoords, radius: number, z: number) {
     const cosmetic = getPlanetCosmetic(planet);
     const { seed } = cosmetic;
     const numAsteroids = planet.planetLevel + 1;
@@ -76,12 +71,8 @@ export class MineBodyRenderer
   }
 
   queueMine(planet: Planet, centerW: WorldCoords, radiusW: number) {
-    const center = this.manager.renderer
-      .getViewport()
-      .worldToCanvasCoords(centerW);
-    const radius = this.manager.renderer
-      .getViewport()
-      .worldToCanvasDist(radiusW);
+    const center = this.manager.renderer.getViewport().worldToCanvasCoords(centerW);
+    const radius = this.manager.renderer.getViewport().worldToCanvasDist(radiusW);
     const z = EngineUtils.getPlanetZIndex(planet);
 
     this.queueMineScreen(planet, center, radius, z);

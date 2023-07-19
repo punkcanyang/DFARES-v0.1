@@ -1,4 +1,3 @@
-import { PICTURE_URL } from '@dfares/constants';
 import { MemeType } from '@dfares/types';
 
 export type Meme = {
@@ -8,6 +7,7 @@ export type Meme = {
   // image?: () => Promise<HTMLImageElement>;
 };
 
+const PICTURE_URL = 'https://dfares.xyz/public';
 const URL = PICTURE_URL;
 
 const doge = {

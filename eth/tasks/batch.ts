@@ -37,20 +37,34 @@ async function batchWhitelist(args: { filePath: string }, hre: HardhatRuntimeEnv
   console.log('account number: ' + accounts.length);
 
   const contract = await hre.ethers.getContractAt('DarkForest', hre.contracts.CONTRACT_ADDRESS);
+  let cnt = 0;
 
   for (const address of accounts) {
+    cnt++;
+
+    console.log('account id: ', cnt);
+
     const isAddress = hre.ethers.utils.isAddress(address);
     if (!isAddress) {
-      throw new Error(`Address ${address} is NOT a valid address.`);
+      // throw new Error(`Address ${address} is NOT a valid address.`);
+
+      console.log(`Address ${address} is NOT a valid address.`);
     }
     const isWhitelisted = await contract.isWhitelisted(address);
     if (isWhitelisted) {
-      throw new Error(`Address ${address} is already whitelisted.`);
+      // throw new Error(`Address ${address} is already whitelisted.`);
+      console.log(`Address ${address} is already whitelisted.`);
     }
-    const whitelistTx = await contract.addToWhitelist(address);
-    await whitelistTx.wait();
-    const balance = await hre.ethers.provider.getBalance(contract.address);
-    console.log('whitelist balance:', hre.ethers.utils.formatEther(balance));
+
+    try {
+      const whitelistTx = await contract.addToWhitelist(address);
+      await whitelistTx.wait();
+    } catch (e) {
+      console.log('something bad happen');
+    }
+
+    // const balance = await hre.ethers.provider.getBalance(address);
+    // console.log('whitelist balance:', hre.ethers.utils.formatEther(balance));
     console.log(`[${new Date()}] Registered player ${address}.`);
   }
 }

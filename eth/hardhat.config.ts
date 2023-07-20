@@ -32,6 +32,7 @@ import './tasks/utils';
 import './tasks/wallet';
 import './tasks/whitelist';
 import './tasks/batch';
+import './tasks/airdrop';
 
 require('dotenv').config();
 

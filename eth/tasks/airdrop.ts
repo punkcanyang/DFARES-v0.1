@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import { task, types } from 'hardhat/config';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 
@@ -28,19 +27,21 @@ async function getPlayers(args: { filePath: string }, hre: HardhatRuntimeEnviron
   for (let i = 0; i < players.length; i++) {
     const player = players[i];
     // console.log(i, player[1], player[5].toString());
-    console.log(player[1]);
+
+    const balance = await hre.ethers.provider.getBalance(player[1]);
+    console.log(player[1], hre.ethers.utils.formatEther(balance), '$RES');
   }
 
-  const airdropFilePath = './local/account';
-  const accountFileContents = fs.readFileSync(airdropFilePath).toString();
-  const accounts = accountFileContents.split('\n').filter((k) => k.length > 0);
-  console.log(accounts);
+  // const airdropFilePath = './local/account';
+  // const accountFileContents = fs.readFileSync(airdropFilePath).toString();
+  // const accounts = accountFileContents.split('\n').filter((k) => k.length > 0);
+  // console.log(accounts);
 
-  const accountSet = new Set();
-  for (let i = 0; i < accounts.length; i++) {
-    const account = accounts[i];
-    accountSet.add(account);
-  }
+  // const accountSet = new Set();
+  // for (let i = 0; i < accounts.length; i++) {
+  //   const account = accounts[i];
+  //   accountSet.add(account);
+  // }
 
   return;
 }

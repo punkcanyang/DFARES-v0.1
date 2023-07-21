@@ -27,27 +27,49 @@ async function upgrade({}, hre: HardhatRuntimeEnvironment) {
   await hre.run('compile');
 
   const diamond = await hre.ethers.getContractAt('DarkForest', hre.contracts.CONTRACT_ADDRESS);
+  console.log('previous facets');
 
   const previousFacets = await diamond.facets();
+  console.log('changes');
 
   const changes = new DiamondChanges(previousFacets);
+  console.log('libraries');
 
   const libraries = await deployLibraries({}, hre);
 
   // Dark Forest facets
+  console.log('coreFacets');
   const coreFacet = await deployCoreFacet({}, libraries, hre);
+  console.log('moveFacets');
   const moveFacet = await deployMoveFacet({}, libraries, hre);
+
+  console.log('artifactFacets');
   const artifactFacet = await deployArtifactFacet(
     { diamondAddress: diamond.address },
     libraries,
     hre
   );
+  console.log('getterFacets');
+
   const getterFacet = await deployGetterFacet({}, libraries, hre);
+  console.log('whitelistFacets');
+
   const whitelistFacet = await deployWhitelistFacet({}, libraries, hre);
+  console.log('adminFacets');
+
   const adminFacet = await deployAdminFacet({}, libraries, hre);
+  console.log('verifyFacets');
+
   const verifierFacet = await deployVerifierFacet({}, libraries, hre);
+  console.log('lobbyFacets');
+
   const lobbyFacet = await deployLobbyFacet({}, libraries, hre);
+
+  console.log('captureFacets');
+
   const captureFacet = await deployCaptureFacet({}, libraries, hre);
+  console.log('rewardFacets');
+
   const rewardFacet = await deployRewardFacet({}, libraries, hre);
 
   // The `cuts` to perform for Dark Forest facets

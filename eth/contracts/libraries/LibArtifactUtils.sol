@@ -357,37 +357,53 @@ library LibArtifactUtils {
         } else if (artifact.artifactType == ArtifactType.FireLink) {
             require(linkTo != 0, "you must provide a linkTo to activate a FireLink");
             Planet storage toPlanet = gs().planets[linkTo];
+            if (toPlanet.destroyed) {
+                require(
+                    planet.planetLevel >= toPlanet.planetLevel,
+                    "fromPlanetLevel need gte toPlanetLevel"
+                );
 
-            require(!toPlanet.destroyed, "planet destroyed");
+                require(
+                    2 * uint256(artifact.rarity) >= planet.planetLevel,
+                    "artifact is not powerful enough to apply effect to this planet level"
+                );
 
-            require(toPlanet.frozen, "toPlanet must be frozen");
-            require(
-                planet.planetLevel >= toPlanet.planetLevel,
-                "fromPlanetLevel need gte toPlanetLevel"
-            );
+                shouldDeactivateAndBurn = true;
 
-            require(
-                2 * uint256(artifact.rarity) >= planet.planetLevel,
-                "artifact is not powerful enough to apply effect to this planet level"
-            );
+                toPlanet.destroyed = false;
 
-            Artifact memory activeArtifactOnToPlanet = LibGameUtils.getActiveArtifact(linkTo);
-            require(
-                activeArtifactOnToPlanet.artifactType == ArtifactType.IceLink,
-                "artifact on toPlanet must be IceLink"
-            );
+            } else {
+                // require(!toPlanet.destroyed, "planet destroyed");
 
-            require(
-                artifact.rarity >= activeArtifactOnToPlanet.rarity,
-                "FireLink rarity must gte IceLink rarity"
-            );
+                require(toPlanet.frozen, "toPlanet must be frozen");
+                require(
+                    planet.planetLevel >= toPlanet.planetLevel,
+                    "fromPlanetLevel need gte toPlanetLevel"
+                );
 
-            artifact.linkTo = linkTo;
+                require(
+                    2 * uint256(artifact.rarity) >= planet.planetLevel,
+                    "artifact is not powerful enough to apply effect to this planet level"
+                );
 
-            shouldDeactivateAndBurn = true;
+                Artifact memory activeArtifactOnToPlanet = LibGameUtils.getActiveArtifact(linkTo);
+                require(
+                    activeArtifactOnToPlanet.artifactType == ArtifactType.IceLink,
+                    "artifact on toPlanet must be IceLink"
+                );
 
-            // deactivateArtifact(toPlanet.locationId);
-            deactivateArtifactWithoutCheckOwner(toPlanet.locationId);
+                require(
+                    artifact.rarity >= activeArtifactOnToPlanet.rarity,
+                    "FireLink rarity must gte IceLink rarity"
+                );
+
+                artifact.linkTo = linkTo;
+
+                shouldDeactivateAndBurn = true;
+
+                // deactivateArtifact(toPlanet.locationId);
+                deactivateArtifactWithoutCheckOwner(toPlanet.locationId);
+            }
         } else if (artifact.artifactType == ArtifactType.SoulSwap) {
             require(linkTo != 0, "you must provide a linkTo to activate a SoulSwap");
 

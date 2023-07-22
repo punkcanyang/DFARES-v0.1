@@ -352,13 +352,14 @@ export function ArtifactDetailsBody({
 
         <ArtifactChangeImageType artifactId={artifactWrapper.value?.id} depositOn={depositOn} />
 
-        {artifact.artifactType !== ArtifactType.Avatar && isSpaceShip(artifact.artifactType) && (
-          <div>
-            <div>block number: {currentBlockNumber}</div>
-            <div> activate artifact amount: {activateArtifactAmount}</div>
-            <div> max artifact amount: {maxAmount} </div>
-          </div>
-        )}
+        {artifact.artifactType !== ArtifactType.Avatar &&
+          false === isSpaceShip(artifact.artifactType) && (
+            <div>
+              <div>block number: {currentBlockNumber}</div>
+              <div> activate artifact amount: {activateArtifactAmount}</div>
+              <div> max artifact amount: {maxAmount} </div>
+            </div>
+          )}
 
         {!noActions && (
           <ArtifactActions artifactId={artifactWrapper.value?.id} depositOn={depositOn} />

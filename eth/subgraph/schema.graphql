@@ -59,7 +59,6 @@ type Planet @entity {
   planetType: PlanetType!
   spaceType: SpaceType!
   destroyed: Boolean!
-  frozen: Boolean!
   isHomePlanet: Boolean!
   hat: Hat
 
@@ -192,7 +191,6 @@ type Artifact @entity {
   lastActivated: Int!
   lastDeactivated: Int!
   isActivated: Boolean!
-
   linkTo: Planet
 
   "Modifier applied to natural planet variable. Less than 100 is negative"

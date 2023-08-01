@@ -6,7 +6,7 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: DarkForest
-    network: xdai
+    network: RES
     source:
       address: '{{{CONTRACT_ADDRESS}}}'
       abi: DarkForest
@@ -36,9 +36,9 @@ dataSources:
           handler: handleArtifactWithdrawn
         - event: ArtifactFound(address,uint256,uint256)
           handler: handleArtifactFound
-        - event: ArtifactActivated(address,uint256,uint256)
+        - event: ArtifactActivated(address,uint256,uint256,uint256)
           handler: handleArtifactActivated
-        - event: ArtifactDeactivated(address,uint256,uint256)
+        - event: ArtifactDeactivated(address,uint256,uint256,uint256)
           handler: handleArtifactDeactivated
         - event: AdminPlanetCreated(uint256)
           handler: handleAdminPlanetCreated
@@ -48,7 +48,7 @@ dataSources:
           handler: handlePlanetTransferred
         - event: PlanetUpgraded(address,uint256,uint256,uint256)
           handler: handlePlanetUpgraded
-        - event: PlanetHatBought(address,uint256,uint256)
+        - event: PlanetHatBought(address,uint256,uint256,uint256)
           handler: handlePlanetHatBought
         - event: ArrivalQueued(address,uint256,uint256,uint256,uint256,uint256)
           handler: handleArrivalQueued

@@ -62,7 +62,6 @@ export function refreshPlanetFromContractData(
   planet.planetType = toPlanetType(rawPlanet.planetType);
   planet.spaceType = toSpaceType(rawPlanet.spaceType);
   planet.destroyed = rawPlanet.destroyed;
-  planet.frozen = rawPlanet.frozen;
   planet.isHomePlanet = rawPlanet.isHomePlanet;
   planet.spaceJunk = rawPlanet.spaceJunk.toI32();
   planet.pausers = rawPlanet.pausers.toI32();

@@ -120,6 +120,7 @@ export function handleArtifactWithdrawn(event: ArtifactWithdrawn): void {
 export function handleArtifactActivated(event: ArtifactActivated): void {
   const meta = getMeta(event.block.timestamp.toI32(), event.block.number.toI32());
   addToPlanetRefreshQueue(meta, event.params.loc);
+
   addToArtifactRefreshQueue(meta, event.params.artifactId);
   meta.save();
 
@@ -501,9 +502,9 @@ function refreshTouchedPlanets(meta: Meta): void {
     const rawData = planetDatas[i];
     const planet = refreshPlanetFromContractData(
       planetDecIds[i],
-      rawData.planet,
-      rawData.info,
-      rawData.info2
+      rawData.planet
+      // rawData.info,
+      // rawData.info2
     );
     planet.save();
   }

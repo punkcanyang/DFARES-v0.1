@@ -65,7 +65,7 @@ struct Planet {
     uint256 hatType;
     bool hasTriedFindingArtifact;
     uint256 prospectedBlockNumber;
-    bool protected;
+    bool adminProtect;
     bool destroyed;
     bool frozen;
     bool canShow;

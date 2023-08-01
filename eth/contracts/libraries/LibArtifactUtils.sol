@@ -299,7 +299,7 @@ library LibArtifactUtils {
                 "you can only create a BlockDomain link to a planet has owner"
             );
 
-            require(!toPlanet.protected, "planet protected");
+            require(!toPlanet.adminProtect, "planet adminProtect");
             require(!toPlanet.destroyed, "planet destroyed");
             require(!toPlanet.frozen, "planet frozen");
             require(
@@ -330,7 +330,7 @@ library LibArtifactUtils {
                 "you can only create a icelink to a planet other own"
             );
 
-            require(!toPlanet.protected, "planet protected");
+            require(!toPlanet.adminProtect, "planet adminProtect");
             require(!toPlanet.destroyed, "planet destroyed");
             require(!toPlanet.frozen, "planet frozen");
             require(

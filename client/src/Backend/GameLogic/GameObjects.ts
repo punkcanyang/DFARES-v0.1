@@ -1472,7 +1472,7 @@ export class GameObjects {
 
       prospectedBlockNumber: undefined,
       heldArtifactIds: [],
-      protected: false,
+      adminProtect: false,
       destroyed: false,
       frozen: false,
       canShow: true,

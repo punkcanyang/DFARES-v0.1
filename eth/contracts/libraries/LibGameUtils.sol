@@ -821,7 +821,7 @@ library LibGameUtils {
         _planet.speed *= TIME_FACTOR_HUNDREDTHS / 100;
         _planet.populationGrowth *= TIME_FACTOR_HUNDREDTHS / 100;
         _planet.silverGrowth *= TIME_FACTOR_HUNDREDTHS / 100;
-        _planet.protected = false;
+        _planet.adminProtect = false;
         _planet.destroyed = false;
         _planet.frozen = false;
         _planet.canShow = true;

@@ -221,7 +221,7 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
           renderInfo.radii.radiusWorld * 2,
           planet.hatType as number,
           planet.hatLevel as number,
-          planet.protected as boolean
+          planet.adminProtect as boolean
         );
       } else if (isAvatar(planet.hatType)) {
         this.queueAvatarImage(

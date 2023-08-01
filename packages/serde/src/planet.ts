@@ -74,7 +74,7 @@ export function decodePlanet(rawLocationId: string, rawPlanet: RawPlanet): Plane
       ? undefined
       : rawPlanet.prospectedBlockNumber.toNumber(),
 
-    protected: rawPlanet.protected,
+    adminProtect: rawPlanet.adminProtect,
     destroyed: rawPlanet.destroyed,
     frozen: rawPlanet.frozen,
     canShow: rawPlanet.canShow,

@@ -97,21 +97,35 @@ export function toArtifactType(artifactType: i32): string {
     return 'BLOOMFILTER';
   } else if (artifactType === 9) {
     return 'BLACKDOMAIN';
+  } else if (artifactType === 10) {
+    return 'ICELINK';
+  } else if (artifactType === 11) {
+    return 'FIRELINK';
+  } else if (artifactType === 12) {
+    return 'SOULSWAP';
+  } else if (artifactType === 13) {
+    return 'BOMB';
+  } else if (artifactType === 14) {
+    return 'STELLARSHIELD';
+  } else if (artifactType === 15) {
+    return 'BLINDBOX';
+  } else if (artifactType === 16) {
+    return 'AVATAR';
   } else {
     return 'UNKNOWN';
   }
 }
 
 export function toSpaceshipType(spaceshipType: i32): string {
-  if (spaceshipType === 10) {
+  if (spaceshipType === 17) {
     return 'MOTHERSHIP';
-  } else if (spaceshipType === 11) {
+  } else if (spaceshipType === 18) {
     return 'CRESCENT';
-  } else if (spaceshipType === 12) {
+  } else if (spaceshipType === 19) {
     return 'WHALE';
-  } else if (spaceshipType === 13) {
+  } else if (spaceshipType === 20) {
     return 'GEAR';
-  } else if (spaceshipType === 14) {
+  } else if (spaceshipType === 21) {
     return 'TITAN';
   } else {
     return 'UNKNOWN';

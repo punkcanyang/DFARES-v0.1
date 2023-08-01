@@ -6,7 +6,7 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: DarkForest
-    network: RES
+    network: xdai
     source:
       address: '{{{CONTRACT_ADDRESS}}}'
       abi: DarkForest

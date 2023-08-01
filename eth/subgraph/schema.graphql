@@ -14,6 +14,8 @@ type Player @entity {
   spaceJunk: Int!
   spaceJunkLimit: Int!
   claimedShips: Boolean!
+  activateArtifactAmount: Int!
+  buyArtifactAmount: Int!
 }
 
 type Planet @entity {
@@ -56,9 +58,13 @@ type Planet @entity {
   isDefenseBoosted: Boolean!
   isSpaceJunkHalved: Boolean!
   hatLevel: Int!
+  hatType: Int!
   planetType: PlanetType!
   spaceType: SpaceType!
+  adminProtect: Boolean!
   destroyed: Boolean!
+  frozen: Boolean!
+  canShow: Boolean!
   isHomePlanet: Boolean!
   hat: Hat
 
@@ -74,7 +80,7 @@ type Planet @entity {
   artifacts: [Artifact!]! @derivedFrom(field: "onPlanet")
   spaceships: [Spaceship!]! @derivedFrom(field: "onPlanet")
   activatedArtifact: Artifact
-  incomingWormholes: [Artifact!]! @derivedFrom(field: "linkTo")
+  incominglinkTos: [Artifact!]! @derivedFrom(field: "linkTo")
 
   # voyages
   voyagesFrom: [Arrival!]! @derivedFrom(field: "fromPlanet")
@@ -142,6 +148,7 @@ type Hat @entity {
   "same as id, but linked to planets entity"
   planet: Planet!
   hatLevel: Int!
+  hatType: Int!
   "Seconds since epoch, needs to be multiplied by 1000 for javascript representation"
   purchaseTimestamps: [Int!]!
   purchasers: [ID!]! # these are eth addresses
@@ -191,7 +198,9 @@ type Artifact @entity {
   lastActivated: Int!
   lastDeactivated: Int!
   isActivated: Boolean!
+
   linkTo: Planet
+  imageType: Int!
 
   "Modifier applied to natural planet variable. Less than 100 is negative"
   energyCapMultiplier: Int!
@@ -245,8 +254,14 @@ enum ArtifactType {
   PHOTOIDCANNON
   BLOOMFILTER
   BLACKDOMAIN
+  ICELINK
+  FIRELINK
+  SOULSWAP
+  BOMB
+  STELLARSHIELD
+  BLINDBOX
+  AVATAR
 }
-
 enum SpaceshipType {
   UNKNOWN
   MOTHERSHIP

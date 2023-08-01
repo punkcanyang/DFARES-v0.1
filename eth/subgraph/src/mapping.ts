@@ -120,7 +120,6 @@ export function handleArtifactWithdrawn(event: ArtifactWithdrawn): void {
 export function handleArtifactActivated(event: ArtifactActivated): void {
   const meta = getMeta(event.block.timestamp.toI32(), event.block.number.toI32());
   addToPlanetRefreshQueue(meta, event.params.loc);
-
   addToArtifactRefreshQueue(meta, event.params.artifactId);
   meta.save();
 
@@ -177,6 +176,9 @@ export function handlePlayerInitialized(event: PlayerInitialized): void {
   player.lastRevealTimestamp = 0;
   player.spaceJunk = 0;
   player.spaceJunkLimit = 0;
+  player.claimedShips = false;
+  player.activateArtifactAmount = 0;
+  player.buyArtifactAmount = 0;
   player.save();
 
   // expensive to create planet in handler, but needs to exist in case say a hat
@@ -219,7 +221,8 @@ export function handlePlanetHatBought(event: PlanetHatBought): void {
   const locationId = hexStringToPaddedUnprefixed(locationDec);
   let hat = Hat.load(locationId);
   if (hat) {
-    hat.hatLevel = hat.hatLevel + 1;
+    hat.hatLevel = event.params.tohatLevel.toI32(); //hat.hatLevel + 1;
+    hat.hatType = event.params.tohatType.toI32();
     const purchaseTimestamps = hat.purchaseTimestamps.map<i32>((x) => x);
     const purchasers = hat.purchasers.map<string>((x) => x); // need to change ref otherwise won't save
     purchaseTimestamps.push(event.block.timestamp.toI32());
@@ -229,7 +232,8 @@ export function handlePlanetHatBought(event: PlanetHatBought): void {
   } else {
     hat = new Hat(locationId);
     hat.planet = locationId;
-    hat.hatLevel = 1;
+    hat.hatLevel = event.params.tohatLevel.toI32();
+    hat.hatType = event.params.tohatType.toI32();
     hat.purchaseTimestamps = [event.block.timestamp.toI32()];
     hat.purchasers = [event.params.player.toHexString()];
     const planet = Planet.load(locationId);
@@ -465,6 +469,11 @@ function addToVoyageAddQueue(meta: Meta, voyageId: BigInt): void {
 }
 
 function refreshPlayers(meta: Meta): void {
+  if (meta._currentlyRefreshingPlayers.length === 0) {
+    // save a contract call by just returning
+    return;
+  }
+
   const players = meta._currentlyRefreshingPlayers.map<string>((x) => x);
   const contract = DarkForest.bind(Address.fromString(CONTRACT_ADDRESS));
 
@@ -478,6 +487,9 @@ function refreshPlayers(meta: Meta): void {
       player.score = contractPlayer.score;
       player.spaceJunk = contractPlayer.spaceJunk.toI32();
       player.spaceJunkLimit = contractPlayer.spaceJunkLimit.toI32();
+      player.claimedShips = contractPlayer.claimedShips;
+      player.activateArtifactAmount = contractPlayer.activateArtifactAmount.toI32();
+      player.buyArtifactAmount = contractPlayer.buyArtifactAmount.toI32();
       player.save();
     }
   }
@@ -609,6 +621,7 @@ function getMeta(timestamp: i32, blockNumber: i32): Meta {
     meta._currentlyRefreshingPlanets = [];
     meta._currentlyAddingVoyages = [];
     meta._currentlyRefreshingArtifacts = [];
+    meta._currentlyRefreshingPlayers = [];
 
     // add the null player, representing barbarian-owned planets
     const nullPlayer = new Player('0x0000000000000000000000000000000000000000');
@@ -617,6 +630,9 @@ function getMeta(timestamp: i32, blockNumber: i32): Meta {
     nullPlayer.lastRevealTimestamp = 0;
     nullPlayer.spaceJunk = 0;
     nullPlayer.spaceJunkLimit = 0;
+    nullPlayer.claimedShips = false;
+    nullPlayer.activateArtifactAmount = 0;
+    nullPlayer.buyArtifactAmount = 0;
     nullPlayer.save();
 
     // add the core contract into Player store, because it can own artifacts
@@ -626,6 +642,10 @@ function getMeta(timestamp: i32, blockNumber: i32): Meta {
     coreContract.lastRevealTimestamp = 0;
     coreContract.spaceJunk = 0;
     coreContract.spaceJunkLimit = 0;
+
+    coreContract.claimedShips = false;
+    coreContract.activateArtifactAmount = 0;
+    coreContract.buyArtifactAmount = 0;
     coreContract.save();
   }
 

@@ -59,10 +59,15 @@ export function refreshPlanetFromContractData(
   planet.isDefenseBoosted = isDefenseBoosted(locationId);
   planet.isSpaceJunkHalved = isSpaceJunkHalved(locationId);
   planet.hatLevel = rawPlanet.hatLevel.toI32();
+  planet.hatType = rawPlanet.hatType.toI32();
   planet.planetType = toPlanetType(rawPlanet.planetType);
   planet.spaceType = toSpaceType(rawPlanet.spaceType);
+  planet.adminProtect = rawPlanet.adminProtect;
   planet.destroyed = rawPlanet.destroyed;
+  planet.frozen = rawPlanet.frozen;
+  planet.canShow = rawPlanet.canShow;
   planet.isHomePlanet = rawPlanet.isHomePlanet;
+  planet.isRevealed = false;
   planet.spaceJunk = rawPlanet.spaceJunk.toI32();
   planet.pausers = rawPlanet.pausers.toI32();
   planet.invadeStartBlock = rawPlanet.invadeStartBlock;
@@ -171,6 +176,7 @@ export function refreshArtifactFromContractData(
   } else {
     artifact.linkTo = hexStringToPaddedUnprefixed(rawArtifact.artifact.linkTo);
   }
+  artifact.imageType = rawArtifact.artifact.imageType.toI32();
 
   artifact.energyCapMultiplier = rawArtifact.upgrade.popCapMultiplier.toI32();
   artifact.energyGrowthMultiplier = rawArtifact.upgrade.popGroMultiplier.toI32();

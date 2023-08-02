@@ -469,10 +469,10 @@ function addToVoyageAddQueue(meta: Meta, voyageId: BigInt): void {
 }
 
 function refreshPlayers(meta: Meta): void {
-  if (meta._currentlyRefreshingPlayers.length === 0) {
-    // save a contract call by just returning
-    return;
-  }
+  // if (meta._currentlyRefreshingPlayers.length === 0) {
+  //   // save a contract call by just returning
+  //   return;
+  // }
 
   const players = meta._currentlyRefreshingPlayers.map<string>((x) => x);
   const contract = DarkForest.bind(Address.fromString(CONTRACT_ADDRESS));

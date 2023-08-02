@@ -1,16 +1,9 @@
-import { task, types } from 'hardhat/config';
+import { task } from 'hardhat/config';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 
-task('getPlayers', 'get all Players')
-  .addPositionalParam(
-    'filePath',
-    'the path to the file containing accounts',
-    undefined,
-    types.string
-  )
-  .setAction(getPlayers);
+task('getPlayers', 'get all Players').setAction(getPlayers);
 
-async function getPlayers(args: { filePath: string }, hre: HardhatRuntimeEnvironment) {
+async function getPlayers(args: {}, hre: HardhatRuntimeEnvironment) {
   await hre.run('utils:assertChainId');
   const contract = await hre.ethers.getContractAt('DarkForest', hre.contracts.CONTRACT_ADDRESS);
   //   const radius = await contract.worldRadius();
@@ -23,9 +16,10 @@ async function getPlayers(args: { filePath: string }, hre: HardhatRuntimeEnviron
 
   const players = await contract.bulkGetPlayers(0, N);
   console.log(players.length);
-
   for (let i = 0; i < players.length; i++) {
     const player = players[i];
+
+    console.log(player.score.toString());
     // console.log(i, player[1], player[5].toString());
 
     const balance = await hre.ethers.provider.getBalance(player[1]);

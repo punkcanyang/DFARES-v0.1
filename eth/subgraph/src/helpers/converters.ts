@@ -133,7 +133,7 @@ export function toSpaceshipType(spaceshipType: i32): string {
 }
 
 export function isSpaceship(artifactType: i32): boolean {
-  return artifactType >= 10 && artifactType <= 14;
+  return artifactType >= 17 && artifactType <= 21;
 }
 
 export function toArtifactRarity(rarity: i32): string {

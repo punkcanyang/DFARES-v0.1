@@ -77,6 +77,7 @@ export function handlePlanetCaptured(event: PlanetCaptured): void {
 }
 
 export function handleArtifactFound(event: ArtifactFound): void {
+  log.error('------------------- begin of handle artifact found  --------------------- ', []);
   const meta = getMeta(event.block.timestamp.toI32(), event.block.number.toI32());
   addToPlanetRefreshQueue(meta, event.params.loc);
   meta.save();
@@ -89,11 +90,15 @@ export function handleArtifactFound(event: ArtifactFound): void {
 
   refreshArtifactOrSpaceship(event.params.artifactId, rawArtifact[0]);
   addPlayerToRefreshQueue(meta, event.params.player.toHexString());
+
+  log.error('player address: {}', [event.params.player.toHexString()]);
+  log.error('------------------- end of handle artifact found --------------------- ', []);
 }
 
 export function handleArtifactDeposited(event: ArtifactDeposited): void {
   const meta = getMeta(event.block.timestamp.toI32(), event.block.number.toI32());
   addToPlanetRefreshQueue(meta, event.params.loc);
+
   addToArtifactRefreshQueue(meta, event.params.artifactId);
   meta.save();
 }
@@ -101,6 +106,7 @@ export function handleArtifactDeposited(event: ArtifactDeposited): void {
 export function handleArtifactWithdrawn(event: ArtifactWithdrawn): void {
   const meta = getMeta(event.block.timestamp.toI32(), event.block.number.toI32());
   addToPlanetRefreshQueue(meta, event.params.loc);
+
   addToArtifactRefreshQueue(meta, event.params.artifactId);
 
   const artifactId = hexStringToPaddedUnprefixed(event.params.artifactId);
@@ -120,6 +126,7 @@ export function handleArtifactWithdrawn(event: ArtifactWithdrawn): void {
 export function handleArtifactActivated(event: ArtifactActivated): void {
   const meta = getMeta(event.block.timestamp.toI32(), event.block.number.toI32());
   addToPlanetRefreshQueue(meta, event.params.loc);
+  addToPlanetRefreshQueue(meta, event.params.linkTo);
   addToArtifactRefreshQueue(meta, event.params.artifactId);
   meta.save();
 
@@ -138,6 +145,7 @@ export function handleArtifactActivated(event: ArtifactActivated): void {
 export function handleArtifactDeactivated(event: ArtifactDeactivated): void {
   const meta = getMeta(event.block.timestamp.toI32(), event.block.number.toI32());
   addToPlanetRefreshQueue(meta, event.params.loc);
+  addToPlanetRefreshQueue(meta, event.params.linkTo);
   addToArtifactRefreshQueue(meta, event.params.artifactId);
   meta.save();
 
@@ -195,6 +203,7 @@ export function handlePlayerInitialized(event: PlayerInitialized): void {
 }
 
 export function handleBlock(block: ethereum.Block): void {
+  log.error('----------------- begin of handle block -----------------', []);
   const current = block.timestamp.toI32();
   const meta = getMeta(current, block.number.toI32());
 
@@ -207,6 +216,7 @@ export function handleBlock(block: ethereum.Block): void {
   meta.lastProcessed = current;
   meta.blockNumber = block.number.toI32();
   meta.save();
+  log.error('----------------- end of handle block -----------------', []);
 }
 
 export function handlePlanetHatBought(event: PlanetHatBought): void {
@@ -315,6 +325,11 @@ export function handleLocationRevealed(event: LocationRevealed): void {
     player.initTimestamp = event.block.timestamp.toI32();
     player.score = BigInt.fromI32(0);
     player.lastRevealTimestamp = event.block.timestamp.toI32();
+    player.spaceJunk = 0;
+    player.spaceJunkLimit = 0;
+    player.claimedShips = false;
+    player.activateArtifactAmount = 0;
+    player.buyArtifactAmount = 0;
     player.save();
   }
 
@@ -417,12 +432,27 @@ function processScheduledArrivalsSinceLastBlock(meta: Meta, current: i32): void 
 }
 
 function addPlayerToRefreshQueue(meta: Meta, playerAddress: string): void {
+  log.error('---------- begin of add player to refresh queue ----------------', []);
+  log.error('before _currentlyRefreshingPlayers length {}', [
+    meta._currentlyRefreshingPlayers.length.toString(),
+  ]);
+
   const players = meta._currentlyRefreshingPlayers;
   players.push(playerAddress);
+
+  log.error('player address {}', [playerAddress.toString()]);
+
   meta._currentlyRefreshingPlayers = players;
+  log.error('after _currentlyRefreshingPlayers length {}', [
+    meta._currentlyRefreshingPlayers.length.toString(),
+  ]);
+  log.error('---------- end of add player to refresh queue ----------------', []);
 }
 
 function addToPlanetRefreshQueue(meta: Meta, planetId: BigInt): void {
+  log.error('--------------------- add to planet refresh queue ---------------------', []);
+  log.error('planetId {}', [planetId.toString()]);
+
   let alreadyContains = false;
   // in AS we can't index into meta._currentlyRefreshingPlanets within a for loop
   // (see https://github.com/AssemblyScript/assemblyscript/issues/222)
@@ -435,11 +465,16 @@ function addToPlanetRefreshQueue(meta: Meta, planetId: BigInt): void {
       break;
     }
   }
+  log.error('alreadyContains {}', [alreadyContains.toString()]);
   if (!alreadyContains) {
     const _currentlyRefreshingPlanets = meta._currentlyRefreshingPlanets;
     _currentlyRefreshingPlanets.push(planetId);
     meta._currentlyRefreshingPlanets = _currentlyRefreshingPlanets; // need to change ref otherwise won't save
+    log.error('currently refreshingPlanets length {}', [
+      _currentlyRefreshingPlanets.length.toString(),
+    ]);
   }
+  log.error('--------------------- end of add to planet refresh queue ---------------------', []);
 }
 
 function addToArtifactRefreshQueue(meta: Meta, artifactId: BigInt): void {
@@ -469,10 +504,14 @@ function addToVoyageAddQueue(meta: Meta, voyageId: BigInt): void {
 }
 
 function refreshPlayers(meta: Meta): void {
-  // if (meta._currentlyRefreshingPlayers.length === 0) {
-  //   // save a contract call by just returning
-  //   return;
-  // }
+  log.error('--------------------- begin of refresh players ---------------------', []);
+  log.error('meta._currentlyRefreshingPlayers.length {}', [
+    meta._currentlyRefreshingPlayers.length.toString(),
+  ]);
+  if (meta._currentlyRefreshingPlayers.length === 0) {
+    // save a contract call by just returning
+    return;
+  }
 
   const players = meta._currentlyRefreshingPlayers.map<string>((x) => x);
   const contract = DarkForest.bind(Address.fromString(CONTRACT_ADDRESS));
@@ -483,6 +522,35 @@ function refreshPlayers(meta: Meta): void {
     if (player) {
       const address = Address.fromString(players[i]);
       const contractPlayer = contract.players(address);
+
+      log.error('id {} address: {} ', [i.toString(), address.toString()]);
+
+      log.error('score {} {}', [player.score.toString(), contractPlayer.score.toString()]);
+
+      log.error('spaceJunk {} {}', [
+        player.spaceJunk.toString(),
+        contractPlayer.spaceJunk.toI32().toString(),
+      ]);
+
+      log.error('spaceJunkLimit {} {}', [
+        player.spaceJunkLimit.toString(),
+        contractPlayer.spaceJunkLimit.toI32().toString(),
+      ]);
+
+      log.error('claimedShips {} {}', [
+        player.claimedShips.toString(),
+        contractPlayer.claimedShips.toString(),
+      ]);
+
+      log.error('activateArtifactAmount {} {}', [
+        player.activateArtifactAmount.toString(),
+        contractPlayer.activateArtifactAmount.toI32().toString(),
+      ]);
+
+      log.error('buyArtifactAmount {} {}', [
+        player.buyArtifactAmount.toString(),
+        contractPlayer.buyArtifactAmount.toI32().toString(),
+      ]);
 
       player.score = contractPlayer.score;
       player.spaceJunk = contractPlayer.spaceJunk.toI32();
@@ -523,6 +591,8 @@ function refreshTouchedPlanets(meta: Meta): void {
 
   meta._currentlyRefreshingPlanets = [];
   meta.save();
+
+  log.error('--------------------- end of refresh players ---------------------', []);
 }
 
 function refreshTouchedArtifacts(meta: Meta): void {

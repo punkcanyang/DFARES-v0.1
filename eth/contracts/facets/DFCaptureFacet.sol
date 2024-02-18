@@ -58,7 +58,10 @@ contract DFCaptureFacet is WithStorage {
 
         uint256 locationId = _input[0];
 
-        DFCoreFacet(address(this)).checkRevealProof(_a, _b, _c, _input);
+        require(
+            DFCoreFacet(address(this)).checkRevealProof(_a, _b, _c, _input),
+            "Failed reveal pf check"
+        );
 
         require(planetInCaptureZone(_input[2], _input[3]), "planet is not in capture zone");
 
@@ -156,7 +159,7 @@ contract DFCaptureFacet is WithStorage {
         return Zone((int256(distance) * cos) / 1e18, (int256(distance) * sin) / 1e18);
     }
 
-    function sqrt(uint256 x) private pure returns (uint256 y) {
+    function sqrt(uint256 x) public pure returns (uint256 y) {
         uint256 z = (x + 1) / 2;
         y = x;
         while (z < y) {

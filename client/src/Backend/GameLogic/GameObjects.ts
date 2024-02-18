@@ -1,4 +1,9 @@
-import { EMPTY_ADDRESS, MAX_PLANET_LEVEL, MIN_PLANET_LEVEL } from '@dfares/constants';
+import {
+  CONTRACT_PRECISION,
+  EMPTY_ADDRESS,
+  MAX_PLANET_LEVEL,
+  MIN_PLANET_LEVEL,
+} from '@dfares/constants';
 import { Monomitter, monomitter } from '@dfares/events';
 import { hasOwner, isActivated, isLocatable } from '@dfares/gamelogic';
 import { bonusFromHex, getBytesFromHex } from '@dfares/hexgen';
@@ -13,6 +18,8 @@ import {
   isUnconfirmedCapturePlanetTx,
   isUnconfirmedChangeArtifactImageType,
   isUnconfirmedChangeArtifactImageTypeTx,
+  isUnconfirmedClaim,
+  isUnconfirmedClaimTx,
   isUnconfirmedDeactivateArtifact,
   isUnconfirmedDeactivateArtifactTx,
   isUnconfirmedDepositArtifact,
@@ -43,6 +50,7 @@ import {
   ArtifactId,
   ArtifactType,
   Biome,
+  BurnedLocation,
   Chunk,
   ClaimedLocation,
   EthAddress,
@@ -185,6 +193,13 @@ export class GameObjects {
   private readonly claimedLocations: Map<LocationId, ClaimedLocation>;
 
   /**
+   * Map from location ids to, if that location id has been burned on-chain, the world coordinates
+   * of that location id, as well as some extra information regarding the circumstances of the
+   * revealing of this planet.
+   */
+  private readonly burnedLocations: Map<LocationId, BurnedLocation>;
+
+  /**
    * Some of the game's parameters are downloaded from the blockchain. This allows the client to be
    * flexible, and connect to any compatible set of Dark Forest contracts, download the parameters,
    * and join the game, taking into account the unique configuration of those specific Dark Forest
@@ -234,6 +249,7 @@ export class GameObjects {
     allTouchedPlanetIds: Set<LocationId>,
     revealedLocations: Map<LocationId, RevealedLocation>,
     claimedLocations: Map<LocationId, ClaimedLocation>,
+    burnedLocations: Map<LocationId, BurnedLocation>,
     artifacts: Map<ArtifactId, Artifact>,
     allChunks: Iterable<Chunk>,
     unprocessedArrivals: Map<VoyageId, QueuedArrival>,
@@ -249,6 +265,7 @@ export class GameObjects {
     this.touchedPlanetIds = allTouchedPlanetIds;
     this.revealedLocations = revealedLocations;
     this.claimedLocations = claimedLocations;
+    this.burnedLocations = burnedLocations;
     this.artifacts = artifacts;
     this.myArtifacts = new Map();
     this.contractConstants = contractConstants;
@@ -312,6 +329,7 @@ export class GameObjects {
         }
 
         this.setPlanet(planet);
+        this.updateScore(planetId as LocationId);
       }
     });
 
@@ -320,7 +338,13 @@ export class GameObjects {
 
     for (const [_locId, claimedLoc] of claimedLocations) {
       this.updatePlanet(claimedLoc.hash, (p) => {
-        p.claimer = claimedLoc.revealer;
+        p.claimer = claimedLoc.claimer;
+      });
+    }
+
+    for (const [_locId, burnedLoc] of burnedLocations) {
+      this.updatePlanet(burnedLoc.hash, (p) => {
+        p.operator = burnedLoc.operator;
       });
     }
 
@@ -469,7 +493,8 @@ export class GameObjects {
     updatedArrivals?: QueuedArrival[],
     updatedArtifactsOnPlanet?: ArtifactId[],
     revealedLocation?: RevealedLocation,
-    claimerEthAddress?: EthAddress // TODO: Remove this
+    claimerEthAddress?: EthAddress, // TODO: Remove this
+    operatorEthAddress?: EthAddress
   ): void {
     this.touchedPlanetIds.add(planet.locationId);
     // does not modify unconfirmed txs
@@ -520,7 +545,9 @@ export class GameObjects {
     if (claimerEthAddress) {
       planet.claimer = claimerEthAddress;
     }
-
+    if (operatorEthAddress) {
+      planet.operator = operatorEthAddress;
+    }
     this.setPlanet(planet);
 
     if (updatedArrivals) {
@@ -537,6 +564,7 @@ export class GameObjects {
         }
       }
     }
+    this.updateScore(planet.locationId);
   }
 
   // returns an empty planet if planet is not in contract
@@ -584,10 +612,17 @@ export class GameObjects {
    * IMPORTANT: Idempotent
    */
   public addPlanetLocation(planetLocation: WorldLocation): void {
+    //###############
+    //  NEW MAP ALGO
+    //###############
+    const planetX = planetLocation.coords.x;
+    const planetY = planetLocation.coords.y;
+    const distFromOrigin = Math.sqrt(planetX ** 2 + planetY ** 2);
+
     this.layeredMap.insertPlanet(
       planetLocation,
       this.getPlanetWithId(planetLocation.hash, false)?.planetLevel ??
-        this.planetLevelFromHexPerlin(planetLocation.hash, planetLocation.perlin)
+        this.planetLevelFromHexPerlin(planetLocation.hash, planetLocation.perlin, distFromOrigin)
     );
 
     this.planetLocationMap.set(planetLocation.hash, planetLocation);
@@ -684,7 +719,13 @@ export class GameObjects {
   public onTxIntent(tx: Transaction) {
     this.transactions.addTransaction(tx);
 
-    if (isUnconfirmedRevealTx(tx)) {
+    if (isUnconfirmedClaimTx(tx)) {
+      const planet = this.getPlanetWithId(tx.intent.locationId);
+      if (planet) {
+        planet.transactions?.addTransaction(tx);
+        this.setPlanet(planet);
+      }
+    } else if (isUnconfirmedRevealTx(tx)) {
       const planet = this.getPlanetWithId(tx.intent.locationId);
       if (planet) {
         planet.transactions?.addTransaction(tx);
@@ -836,6 +877,12 @@ export class GameObjects {
     if (isUnconfirmedReveal(tx.intent)) {
       const planet = this.getPlanetWithId(tx.intent.locationId);
 
+      if (planet) {
+        planet.transactions?.removeTransaction(tx);
+        this.setPlanet(planet);
+      }
+    } else if (isUnconfirmedClaim(tx.intent)) {
+      const planet = this.getPlanetWithId(tx.intent.locationId);
       if (planet) {
         planet.transactions?.removeTransaction(tx);
         this.setPlanet(planet);
@@ -999,6 +1046,14 @@ export class GameObjects {
 
   public setClaimedLocation(claimedLocation: ClaimedLocation) {
     this.claimedLocations.set(claimedLocation.hash, claimedLocation);
+  }
+
+  public getBurnedLocations(): Map<LocationId, BurnedLocation> {
+    return this.burnedLocations;
+  }
+
+  public setBurnedLocation(burnedLocation: BurnedLocation) {
+    this.burnedLocations.set(burnedLocation.hash, burnedLocation);
   }
 
   /**
@@ -1220,6 +1275,8 @@ export class GameObjects {
         console.error(`error occurred processing arrival for updated planet ${planetId}: ${e}`);
       }
     }
+
+    this.updateScore(planetId);
     return arrivalsWithTimers;
   }
 
@@ -1242,8 +1299,12 @@ export class GameObjects {
     this.planetArrivalIds.set(planetId, []);
   }
 
-  public planetLevelFromHexPerlin(hex: LocationId, perlin: number): PlanetLevel {
-    const spaceType = this.spaceTypeFromPerlin(perlin);
+  public planetLevelFromHexPerlin(
+    hex: LocationId,
+    perlin: number,
+    distFromOrigin = -1
+  ): PlanetLevel {
+    const spaceType = this.spaceTypeFromPerlin(perlin, distFromOrigin);
 
     const levelBigInt = getBytesFromHex(hex, 4, 7);
 
@@ -1266,10 +1327,69 @@ export class GameObjects {
       ret = this.contractConstants.MAX_NATURAL_PLANET_LEVEL as PlanetLevel;
     }
 
+    //###############
+    //  NEW MAP ALGO
+    //###############
+    // if(distFromOrigin > 0){
+    //   const MAX_LEVEL_DIST = [50000, 45000,40000,35000,30000,25000,20000,15000,10000,5000 ];
+    //   ret = distFromOrigin > MAX_LEVEL_DIST[0] ? PlanetLevel.ZERO : ret;
+    //   for (let i = 0; i < MAX_LEVEL_DIST.length - 1; i++) {
+    //     if(distFromOrigin < MAX_LEVEL_DIST[i] && distFromOrigin > MAX_LEVEL_DIST[i+1]){
+    //       ret = (i + 1) as PlanetLevel > ret ? ret : (i + 1) as PlanetLevel;
+    //       break;
+    //     }
+    //   }
+    // }
+
+    if (distFromOrigin > 0) {
+      const MAX_LEVEL_DIST = this.contractConstants.MAX_LEVEL_DIST; //    [40000, 30000, 20000, 10000, 5000];
+      const MAX_LEVEL_LIMIT = this.contractConstants.MAX_LEVEL_LIMIT.map((x) => {
+        if (x === 1) return PlanetLevel.ONE;
+        else if (x === 2) return PlanetLevel.TWO;
+        else if (x === 3) return PlanetLevel.THREE;
+        else if (x === 4) return PlanetLevel.FOUR;
+        else if (x === 5) return PlanetLevel.FIVE;
+        else if (x === 6) return PlanetLevel.SIX;
+        else if (x === 7) return PlanetLevel.SEVEN;
+        else if (x === 8) return PlanetLevel.EIGHT;
+        else if (x === 9) return PlanetLevel.NINE;
+        else return PlanetLevel.ZERO;
+      });
+
+      const MIN_LEVEL_BIAS = this.contractConstants.MIN_LEVEL_BIAS;
+      // [0, 0, 1, 1, 2, 2];
+
+      ret =
+        distFromOrigin >= MAX_LEVEL_DIST[0]
+          ? ret > MAX_LEVEL_LIMIT[0]
+            ? MAX_LEVEL_LIMIT[0]
+            : ret
+          : ret;
+      for (let i = 0; i < MAX_LEVEL_DIST.length - 1; i++) {
+        if (distFromOrigin < MAX_LEVEL_DIST[i] && distFromOrigin >= MAX_LEVEL_DIST[i + 1]) {
+          ret = (ret + MIN_LEVEL_BIAS[i + 1]) as PlanetLevel;
+          ret = MAX_LEVEL_LIMIT[i + 1] > ret ? ret : MAX_LEVEL_LIMIT[i + 1];
+          break;
+        }
+      }
+      ret =
+        distFromOrigin < MAX_LEVEL_DIST[4]
+          ? ret + MIN_LEVEL_BIAS[5] > MAX_LEVEL_LIMIT[5]
+            ? MAX_LEVEL_LIMIT[5]
+            : ((ret + MIN_LEVEL_BIAS[5]) as PlanetLevel)
+          : ret;
+    }
+
     return ret;
   }
 
-  public spaceTypeFromPerlin(perlin: number): SpaceType {
+  public spaceTypeFromPerlin(perlin: number, distFromOrigin: number): SpaceType {
+    // const MAX_LEVEL_DIST = [40000, 30000, 20000, 10000, 5000];
+    const MAX_LEVEL_DIST = this.contractConstants.MAX_LEVEL_DIST;
+
+    if (distFromOrigin < MAX_LEVEL_DIST[0] && distFromOrigin > MAX_LEVEL_DIST[1])
+      return SpaceType.NEBULA;
+
     if (perlin < this.contractConstants.PERLIN_THRESHOLD_1) {
       return SpaceType.NEBULA;
     } else if (perlin < this.contractConstants.PERLIN_THRESHOLD_2) {
@@ -1299,11 +1419,15 @@ export class GameObjects {
     );
   }
 
-  public planetTypeFromHexPerlin(hex: LocationId, perlin: number): PlanetType {
+  public planetTypeFromHexPerlin(hex: LocationId, perlin: number, distFromOrigin = -1): PlanetType {
     // level must be sufficient - too low level planets have 0 silver growth
-    const planetLevel = this.planetLevelFromHexPerlin(hex, perlin);
 
-    const spaceType = this.spaceTypeFromPerlin(perlin);
+    //###############
+    //  NEW MAP ALGO
+    //###############
+    const planetLevel = this.planetLevelFromHexPerlin(hex, perlin, distFromOrigin);
+    const spaceType = this.spaceTypeFromPerlin(perlin, distFromOrigin);
+
     const weights = this.contractConstants.PLANET_TYPE_WEIGHTS[spaceType][planetLevel];
     const weightSum = weights.reduce((x, y) => x + y);
     let thresholds = [weightSum - weights[0]];
@@ -1322,8 +1446,9 @@ export class GameObjects {
   }
 
   private getBiome(loc: WorldLocation): Biome {
-    const { perlin, biomebase } = loc;
-    const spaceType = this.spaceTypeFromPerlin(perlin);
+    const { perlin, biomebase, coords } = loc;
+    const distFromOrigin = Math.floor(Math.sqrt(coords.x ** 2 + coords.y ** 2));
+    const spaceType = this.spaceTypeFromPerlin(perlin, distFromOrigin);
 
     if (spaceType === SpaceType.DEAD_SPACE) return Biome.CORRUPTED;
 
@@ -1343,9 +1468,17 @@ export class GameObjects {
   private defaultPlanetFromLocation(location: WorldLocation): LocatablePlanet {
     const { perlin } = location;
     const hex = location.hash;
-    const planetLevel = this.planetLevelFromHexPerlin(hex, perlin);
-    const planetType = this.planetTypeFromHexPerlin(hex, perlin);
-    const spaceType = this.spaceTypeFromPerlin(perlin);
+
+    //###############
+    //  NEW MAP ALGO
+    //###############
+    const planetX = location.coords.x;
+    const planetY = location.coords.y;
+    const distFromOrigin = Math.sqrt(planetX ** 2 + planetY ** 2);
+
+    const planetLevel = this.planetLevelFromHexPerlin(hex, perlin, distFromOrigin);
+    const planetType = this.planetTypeFromHexPerlin(hex, perlin, distFromOrigin);
+    const spaceType = this.spaceTypeFromPerlin(perlin, distFromOrigin);
 
     const [energyCapBonus, energyGroBonus, rangeBonus, speedBonus, defBonus, spaceJunkBonus] =
       bonusFromHex(hex);
@@ -1354,6 +1487,7 @@ export class GameObjects {
     let energyGro = this.contractConstants.defaultPopulationGrowth[planetLevel];
     let range = this.contractConstants.defaultRange[planetLevel];
     let speed = this.contractConstants.defaultSpeed[planetLevel];
+
     let defense = this.contractConstants.defaultDefense[planetLevel];
     let silCap = this.contractConstants.defaultSilverCap[planetLevel];
     let spaceJunk = this.contractConstants.PLANET_LEVEL_JUNK[planetLevel];
@@ -1399,6 +1533,14 @@ export class GameObjects {
       defense *= 0.5;
     }
 
+    range = Math.floor(range);
+    speed = Math.floor(speed);
+    defense = Math.floor(defense);
+    energyCap = Math.floor(energyCap * CONTRACT_PRECISION) / CONTRACT_PRECISION;
+    energyGro = Math.floor(energyGro * CONTRACT_PRECISION) / CONTRACT_PRECISION;
+    silCap = Math.floor(silCap * CONTRACT_PRECISION) / CONTRACT_PRECISION;
+    silGro = Math.floor(silGro * CONTRACT_PRECISION) / CONTRACT_PRECISION;
+
     // apply stat modifiers for special planet types
     if (planetType === PlanetType.SILVER_MINE) {
       silCap *= 2;
@@ -1415,6 +1557,14 @@ export class GameObjects {
       silCap *= 2;
     }
 
+    range = Math.floor(range);
+    speed = Math.floor(speed);
+    defense = Math.floor(defense);
+    energyCap = Math.floor(energyCap * CONTRACT_PRECISION) / CONTRACT_PRECISION;
+    energyGro = Math.floor(energyGro * CONTRACT_PRECISION) / CONTRACT_PRECISION;
+    silCap = Math.floor(silCap * CONTRACT_PRECISION) / CONTRACT_PRECISION;
+    silGro = Math.floor(silGro * CONTRACT_PRECISION) / CONTRACT_PRECISION;
+
     let pirates =
       (energyCap * this.contractConstants.defaultBarbarianPercentage[planetLevel]) / 100;
     // increase pirates
@@ -1424,11 +1574,21 @@ export class GameObjects {
 
     if (planetType === PlanetType.SILVER_BANK) pirates /= 2;
 
-    const silver = planetType === PlanetType.SILVER_MINE ? silCap / 2 : 0;
+    pirates = Math.floor(pirates);
+
+    const silver = planetType === PlanetType.SILVER_MINE ? Math.floor(silCap / 2) : 0;
 
     speed *= this.contractConstants.TIME_FACTOR_HUNDREDTHS / 100;
     energyGro *= this.contractConstants.TIME_FACTOR_HUNDREDTHS / 100;
     silGro *= this.contractConstants.TIME_FACTOR_HUNDREDTHS / 100;
+
+    range = Math.floor(range);
+    speed = Math.floor(speed);
+    defense = Math.floor(defense);
+    energyCap = Math.floor(energyCap * CONTRACT_PRECISION) / CONTRACT_PRECISION;
+    energyGro = Math.floor(energyGro * CONTRACT_PRECISION) / CONTRACT_PRECISION;
+    silCap = Math.floor(silCap * CONTRACT_PRECISION) / CONTRACT_PRECISION;
+    silGro = Math.floor(silGro * CONTRACT_PRECISION) / CONTRACT_PRECISION;
 
     const biome = this.getBiome(location);
 
@@ -1581,5 +1741,26 @@ export class GameObjects {
    */
   public isGettingSpaceships(): boolean {
     return this.transactions.hasTransaction(isUnconfirmedGetShipsTx);
+  }
+
+  private calculateSilverSpent(planet: Planet): number {
+    const upgradeCosts = [20, 40, 60, 80, 100];
+    let totalUpgrades = 0;
+    for (let i = 0; i < planet.upgradeState.length; i++) {
+      totalUpgrades += planet.upgradeState[i];
+    }
+    let totalUpgradeCostPercent = 0;
+    for (let i = 0; i < totalUpgrades; i++) {
+      totalUpgradeCostPercent += upgradeCosts[i];
+    }
+    return (totalUpgradeCostPercent / 100) * planet.silverCap;
+  }
+
+  private updateScore(planetId: LocationId) {
+    const planet = this.planets.get(planetId);
+    if (!planet) {
+      return;
+    }
+    planet.silverSpent = this.calculateSilverSpent(planet);
   }
 }

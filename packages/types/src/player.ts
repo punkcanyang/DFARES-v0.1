@@ -17,7 +17,11 @@ export type Player = {
    */
   lastRevealTimestamp: number;
   lastClaimTimestamp: number;
-  score: number;
+  lastBurnTimestamp: number;
+  lastActivateArtifactTimestamp: number;
+  lastBuyArtifactTimestamp: number;
+
+  score?: number;
 
   spaceJunk: number;
   spaceJunkLimit: number;
@@ -26,4 +30,10 @@ export type Player = {
   claimedReward: boolean;
   activateArtifactAmount: number;
   buyArtifactAmount: number;
+  silver: number;
+  dropBombAmount: number;
+  pinkAmount: number;
+  pinkedAmount: number;
+  moveCount: number;
+  hatCount: number;
 };

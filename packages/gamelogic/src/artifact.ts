@@ -189,6 +189,8 @@ export function artifactFileName(
         return '64-gear.png';
       case ArtifactType.ShipTitan:
         return '64-titan.png';
+      case ArtifactType.ShipPink:
+        return '64-pink.png';
     }
   }
 
@@ -299,4 +301,12 @@ export function getPlayerControlledSpaceships(
 ) {
   if (!owner) return [];
   return (artifacts || []).filter((a) => a?.controller === owner);
+}
+
+export function canOperatePinkShip(artifact: Artifact, planet: Planet | undefined) {
+  if (isSpaceShip(artifact.artifactType)) {
+    return planet && artifact.artifactType === ArtifactType.ShipPink;
+  }
+
+  return false;
 }

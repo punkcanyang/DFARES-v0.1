@@ -62,7 +62,19 @@ library LibGameUtils {
         return true;
     }
 
-    function spaceTypeFromPerlin(uint256 perlin) public view returns (SpaceType) {
+    function spaceTypeFromPerlin(uint256 perlin, uint256 distFromOriginSquare)
+        public
+        view
+        returns (SpaceType)
+    {
+        // uint32[5] memory MAX_LEVEL_DIST = [40000 ** 2, 30000 ** 2,20000 ** 2, 10000 ** 2, 5000 ** 2];
+        uint256[5] memory MAX_LEVEL_DIST = gameConstants().MAX_LEVEL_DIST;
+
+        if (
+            distFromOriginSquare > MAX_LEVEL_DIST[1] * MAX_LEVEL_DIST[1] &&
+            distFromOriginSquare < MAX_LEVEL_DIST[0] * MAX_LEVEL_DIST[0]
+        ) return SpaceType.NEBULA;
+
         if (perlin >= gameConstants().PERLIN_THRESHOLD_3) {
             return SpaceType.DEAD_SPACE;
         } else if (perlin >= gameConstants().PERLIN_THRESHOLD_2) {
@@ -73,7 +85,14 @@ library LibGameUtils {
         return SpaceType.NEBULA;
     }
 
-    function _getPlanetLevelTypeAndSpaceType(uint256 _location, uint256 _perlin)
+    //###############
+    //  NEW MAP ALGO
+    //###############
+    function _getPlanetLevelTypeAndSpaceType(
+        uint256 _location,
+        uint256 _perlin,
+        uint256 _distFromOriginSquare
+    )
         public
         view
         returns (
@@ -82,7 +101,16 @@ library LibGameUtils {
             SpaceType
         )
     {
-        SpaceType spaceType = spaceTypeFromPerlin(_perlin);
+        SpaceType spaceType = spaceTypeFromPerlin(_perlin, _distFromOriginSquare);
+
+        uint256[5] memory MAX_LEVEL_DIST = gameConstants().MAX_LEVEL_DIST;
+        uint256[6] memory MAX_LEVEL_LIMIT = gameConstants().MAX_LEVEL_LIMIT;
+        uint256[6] memory MIN_LEVEL_BIAS = gameConstants().MIN_LEVEL_BIAS;
+
+        if (
+            _distFromOriginSquare > MAX_LEVEL_DIST[1] * MAX_LEVEL_DIST[1] &&
+            _distFromOriginSquare < MAX_LEVEL_DIST[0] * MAX_LEVEL_DIST[0]
+        ) spaceType = SpaceType.NEBULA;
 
         bytes memory _b = abi.encodePacked(_location);
 
@@ -111,6 +139,36 @@ library LibGameUtils {
         if (level > gameConstants().MAX_NATURAL_PLANET_LEVEL) {
             level = gameConstants().MAX_NATURAL_PLANET_LEVEL;
         }
+
+        // uint32[10] memory MAX_LEVEL_DIST = [50000 ** 2, 45000** 2,40000** 2,35000** 2,30000** 2,25000** 2,20000** 2,15000** 2,10000** 2,5000** 2 ];
+        // level = _distFromOriginSquare > MAX_LEVEL_DIST[0] ? 0 : level;
+        // for (uint i = 0; i < MAX_LEVEL_DIST.length - 1; i++) {
+        //     if(_distFromOriginSquare < MAX_LEVEL_DIST[i] && _distFromOriginSquare > MAX_LEVEL_DIST[i+1]){
+        //         level = (i + 1)> level ? level : (i + 1) ;
+        //         break;
+        //     }
+        // }
+
+        level = _distFromOriginSquare > MAX_LEVEL_DIST[0] * MAX_LEVEL_DIST[0]
+            ? (level > MAX_LEVEL_LIMIT[0] ? MAX_LEVEL_LIMIT[0] : level)
+            : level;
+        for (uint256 i = 0; i < MAX_LEVEL_DIST.length - 1; i++) {
+            if (
+                _distFromOriginSquare < MAX_LEVEL_DIST[i] * MAX_LEVEL_DIST[i] &&
+                _distFromOriginSquare > MAX_LEVEL_DIST[i + 1] * MAX_LEVEL_DIST[i + 1]
+            ) {
+                level += MIN_LEVEL_BIAS[i + 1];
+                level = MAX_LEVEL_LIMIT[i + 1] > level ? level : MAX_LEVEL_LIMIT[i + 1];
+                break;
+            }
+        }
+        level = _distFromOriginSquare < MAX_LEVEL_DIST[4] * MAX_LEVEL_DIST[4]
+            ? (
+                level + MIN_LEVEL_BIAS[5] > MAX_LEVEL_LIMIT[5]
+                    ? MAX_LEVEL_LIMIT[5]
+                    : level + MIN_LEVEL_BIAS[5]
+            )
+            : level;
 
         // get planet type
         PlanetType planetType = PlanetType.PLANET;
@@ -159,97 +217,56 @@ library LibGameUtils {
     function _randomArtifactTypeAndLevelBonus(
         uint256 artifactSeed,
         Biome biome,
-        SpaceType spaceType
-    ) internal pure returns (ArtifactType, uint256) {
-        uint256 lastByteOfSeed = artifactSeed % 0xFFF;
-        uint256 secondLastByteOfSeed = ((artifactSeed - lastByteOfSeed) / 0x1000) % 0xFFF;
+        SpaceType spaceType,
+        uint256 planetLevel
+    )
+        internal
+        pure
+        returns (
+            ArtifactType,
+            uint256,
+            ArtifactRarity
+        )
+    {
+        uint256 lastByteOfSeed = artifactSeed % 0x1000;
+        uint256 secondLastByteOfSeed = ((artifactSeed - lastByteOfSeed) / 0x1000) % 0x1000;
 
-        ArtifactType artifactType = ArtifactType.Pyramid;
-
-        // // if (lastByteOfSeed < 256) {
-        // //     artifactType = ArtifactType.Monolith;
-        // // } else if (lastByteOfSeed < 512) {
-        // //     artifactType = ArtifactType.Colossus;
-        // // }
-        // // else if (lastByteOfSeed < 117) {
-        // //     artifactType = ArtifactType.Spaceship;
-        // // }
-        // // else if (lastByteOfSeed < 768) {
-        // //     artifactType = ArtifactType.Pyramid;
-        // // }
-        // // MyTodo: need to change the artifact show up probability
-        // if (lastByteOfSeed < 1024) {
+        // myNotice: round 1
+        // if (lastByteOfSeed < 455) {
         //     artifactType = ArtifactType.Wormhole;
-        // } else if (lastByteOfSeed < 1280) {
+        // } else if (lastByteOfSeed < 910) {
         //     artifactType = ArtifactType.PlanetaryShield;
-        // } else if (lastByteOfSeed < 1536) {
+        // } else if (lastByteOfSeed < 1365) {
         //     artifactType = ArtifactType.PhotoidCannon;
-        // } else if (lastByteOfSeed < 1792) {
+        // } else if (lastByteOfSeed < 1820) {
         //     artifactType = ArtifactType.BloomFilter;
-        // } else if (lastByteOfSeed < 2048) {
+        // } else if (lastByteOfSeed < 2275) {
         //     artifactType = ArtifactType.BlackDomain;
-        // } else if (lastByteOfSeed < 2304) {
+        // } else if (lastByteOfSeed < 2730) {
         //     artifactType = ArtifactType.IceLink;
-        // } else if (lastByteOfSeed < 2560) {
+        // } else if (lastByteOfSeed < 3185) {
         //     artifactType = ArtifactType.FireLink;
-        // } else if (lastByteOfSeed < 2816) {
-        //     artifactType = ArtifactType.SoulSwap;
-        // } else if (lastByteOfSeed < 3072) {
-        //     artifactType = ArtifactType.Bomb;
-        // } else if (lastByteOfSeed < 3328) {
+        // } else if (lastByteOfSeed < 3640) {
         //     artifactType = ArtifactType.StellarShield;
-        // } else if (lastByteOfSeed < 3584) {
-        //     artifactType = ArtifactType.BlindBox;
-        // } else if (lastByteOfSeed < 4096) {
+        // } else if (lastByteOfSeed < 4095) {
         //     artifactType = ArtifactType.Avatar;
         // } else {
-        //     if (biome == Biome.Ice) {
-        //         artifactType = ArtifactType.PlanetaryShield;
-        //     } else if (biome == Biome.Lava) {
-        //         artifactType = ArtifactType.PhotoidCannon;
-        //     } else if (biome == Biome.Wasteland) {
-        //         artifactType = ArtifactType.BloomFilter;
-        //     } else if (biome == Biome.Corrupted) {
-        //         artifactType = ArtifactType.BlackDomain;
-        //     } else {
-        //         artifactType = ArtifactType.Wormhole;
-        //     }
-        //     // artifactType = ArtifactType.PhotoidCannon;
+        //     artifactType = ArtifactType.Avatar;
         // }
 
-        if (lastByteOfSeed < 455) {
-            artifactType = ArtifactType.Wormhole;
-        } else if (lastByteOfSeed < 910) {
-            artifactType = ArtifactType.PlanetaryShield;
-        } else if (lastByteOfSeed < 1365) {
-            artifactType = ArtifactType.PhotoidCannon;
-        } else if (lastByteOfSeed < 1820) {
-            artifactType = ArtifactType.BloomFilter;
-        } else if (lastByteOfSeed < 2275) {
-            artifactType = ArtifactType.BlackDomain;
-        } else if (lastByteOfSeed < 2730) {
-            artifactType = ArtifactType.IceLink;
-        } else if (lastByteOfSeed < 3185) {
-            artifactType = ArtifactType.FireLink;
-        } else if (lastByteOfSeed < 3640) {
-            artifactType = ArtifactType.StellarShield;
-        } else if (lastByteOfSeed < 4095) {
-            artifactType = ArtifactType.Avatar;
-        } else {
-            // if (biome == Biome.Ice) {
-            //     artifactType = ArtifactType.PlanetaryShield;
-            // } else if (biome == Biome.Lava) {
-            //     artifactType = ArtifactType.PhotoidCannon;
-            // } else if (biome == Biome.Wasteland) {
-            //     artifactType = ArtifactType.BloomFilter;
-            // } else if (biome == Biome.Corrupted) {
-            //     artifactType = ArtifactType.BlackDomain;
-            // } else {
-            //     artifactType = ArtifactType.Wormhole;
-            // }
-            // artifactType = ArtifactType.PhotoidCannon;
-            artifactType = ArtifactType.Avatar;
-        }
+        // if (lastByteOfSeed < 820) {
+        //     artifactType = ArtifactType.Wormhole;
+        // } else if (lastByteOfSeed < 1640) {
+        //     artifactType = ArtifactType.PlanetaryShield;
+        // } else if (lastByteOfSeed < 1804) {
+        //     artifactType = ArtifactType.PhotoidCannon;
+        // } else if (lastByteOfSeed < 2214) {
+        //     artifactType = ArtifactType.BloomFilter;
+        // } else if (lastByteOfSeed < 2624) {
+        //     artifactType = ArtifactType.BlackDomain;
+        // } else {
+        //     artifactType = ArtifactType.StellarShield;
+        // }
 
         uint256 bonus = 0;
         if (secondLastByteOfSeed < 64) {
@@ -258,7 +275,82 @@ library LibGameUtils {
             bonus = 1;
         }
 
-        return (artifactType, bonus);
+        uint256 level = bonus + planetLevel;
+        ArtifactRarity artifactRarity = artifactRarityFromPlanetLevel(level);
+
+        ArtifactType artifactType = ArtifactType.Pyramid;
+        if (level <= 1) {
+            if (lastByteOfSeed < 934) {
+                artifactType = ArtifactType.Wormhole;
+            } else if (lastByteOfSeed < 1828) {
+                artifactType = ArtifactType.PlanetaryShield;
+            } else if (lastByteOfSeed < 2495) {
+                artifactType = ArtifactType.PhotoidCannon;
+            } else if (lastByteOfSeed < 2962) {
+                artifactType = ArtifactType.BloomFilter;
+            } else if (lastByteOfSeed < 3429) {
+                artifactType = ArtifactType.BlackDomain;
+            } else {
+                artifactType = ArtifactType.StellarShield;
+            }
+        } else if (level <= 3) {
+            if (lastByteOfSeed < 678) {
+                artifactType = ArtifactType.Wormhole;
+            } else if (lastByteOfSeed < 1343) {
+                artifactType = ArtifactType.PlanetaryShield;
+            } else if (lastByteOfSeed < 2409) {
+                artifactType = ArtifactType.PhotoidCannon;
+            } else if (lastByteOfSeed < 2719) {
+                artifactType = ArtifactType.BloomFilter;
+            } else if (lastByteOfSeed < 3029) {
+                artifactType = ArtifactType.BlackDomain;
+            } else {
+                artifactType = ArtifactType.StellarShield;
+            }
+        } else if (level <= 5) {
+            if (lastByteOfSeed < 377) {
+                artifactType = ArtifactType.Wormhole;
+            } else if (lastByteOfSeed < 754) {
+                artifactType = ArtifactType.PlanetaryShield;
+            } else if (lastByteOfSeed < 1194) {
+                artifactType = ArtifactType.PhotoidCannon;
+            } else if (lastByteOfSeed < 2426) {
+                artifactType = ArtifactType.BloomFilter;
+            } else if (lastByteOfSeed < 3658) {
+                artifactType = ArtifactType.BlackDomain;
+            } else {
+                artifactType = ArtifactType.StellarShield;
+            }
+        } else if (level <= 7) {
+            if (lastByteOfSeed < 468) {
+                artifactType = ArtifactType.Wormhole;
+            } else if (lastByteOfSeed < 945) {
+                artifactType = ArtifactType.PlanetaryShield;
+            } else if (lastByteOfSeed < 2295) {
+                artifactType = ArtifactType.PhotoidCannon;
+            } else if (lastByteOfSeed < 2520) {
+                artifactType = ArtifactType.BloomFilter;
+            } else if (lastByteOfSeed < 2745) {
+                artifactType = ArtifactType.BlackDomain;
+            } else {
+                artifactType = ArtifactType.StellarShield;
+            }
+        } else {
+            if (lastByteOfSeed < 484) {
+                artifactType = ArtifactType.Wormhole;
+            } else if (lastByteOfSeed < 968) {
+                artifactType = ArtifactType.PlanetaryShield;
+            } else if (lastByteOfSeed < 2390) {
+                artifactType = ArtifactType.PhotoidCannon;
+            } else if (lastByteOfSeed < 2532) {
+                artifactType = ArtifactType.BloomFilter;
+            } else if (lastByteOfSeed < 2674) {
+                artifactType = ArtifactType.BlackDomain;
+            } else {
+                artifactType = ArtifactType.StellarShield;
+            }
+        }
+        return (artifactType, bonus, artifactRarity);
     }
 
     // TODO v0.6: handle corrupted biomes
@@ -576,7 +668,11 @@ library LibGameUtils {
     // the owner can send a maximum of 5 arrivals to this planet
     // separately, everyone other than the owner can also send a maximum
     // of 5 arrivals in aggregate
-    function checkPlanetDOS(uint256 locationId, address sender,uint movedArtifactId) public view {
+    function checkPlanetDOS(
+        uint256 locationId,
+        address sender,
+        uint256 movedArtifactId
+    ) public view {
         uint8 arrivalsFromOwner = 0;
         uint8 arrivalsFromOthers = 0;
 
@@ -618,7 +714,7 @@ library LibGameUtils {
             "Planet is rate-limited"
         );
 
-        if(movedArtifactId!=0)  ++arrivalArtifacts;
+        if (movedArtifactId != 0) ++arrivalArtifacts;
         require(
             arrivalArtifacts + gs().planetArtifacts[locationId].length <=
                 gameConstants().MAX_ARTIFACT_PER_PLANET,

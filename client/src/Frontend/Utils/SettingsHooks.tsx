@@ -1,3 +1,4 @@
+import { FIXED_DIGIT_NUMBER, GAS_ADJUST_DELTA } from '@dfares/constants';
 import { monomitter, Monomitter } from '@dfares/events';
 import { AutoGasSetting, EthAddress, Setting } from '@dfares/types';
 import React, { useCallback, useState } from 'react';
@@ -14,7 +15,6 @@ import {
   TextInput,
 } from '../Components/Input';
 import { useEmitterSubscribe } from './EmitterHooks';
-
 /**
  * Whenever a setting changes, we publish the setting's name to this event emitter.
  */
@@ -41,7 +41,9 @@ const defaultSettings: Record<Setting, string> = {
   [Setting.HighPerformanceRendering]: 'false',
   [Setting.MoveNotifications]: 'true',
   [Setting.HasAcceptedPluginRisk]: onlyInDevelopment(),
-  [Setting.GasFeeGwei]: '1', // AutoGasSetting.Average,
+  [Setting.GasFeeGwei]: Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('1'))
+    .toFixed(FIXED_DIGIT_NUMBER)
+    .toString(), // AutoGasSetting.Average,
   [Setting.GasFeeLimit]: '3000000',
   [Setting.TerminalVisible]: 'true',
   [Setting.TutorialOpen]: onlyInProduction(),

@@ -2,10 +2,12 @@ import {
   Transaction,
   TxIntent,
   UnconfirmedActivateArtifact,
+  UnconfirmedBurn,
   UnconfirmedBuyArtifact,
   UnconfirmedBuyHat,
   UnconfirmedCapturePlanet,
   UnconfirmedChangeArtifactImageType,
+  UnconfirmedClaim,
   UnconfirmedDeactivateArtifact,
   UnconfirmedDepositArtifact,
   UnconfirmedFindArtifact,
@@ -13,10 +15,12 @@ import {
   UnconfirmedInit,
   UnconfirmedInvadePlanet,
   UnconfirmedMove,
+  UnconfirmedPink,
   UnconfirmedPlanetTransfer,
   UnconfirmedProspectPlanet,
   UnconfirmedReveal,
   UnconfirmedUpgrade,
+  UnconfirmedUseKey,
   UnconfirmedWithdrawArtifact,
   UnconfirmedWithdrawSilver,
 } from '@dfares/types';
@@ -28,6 +32,10 @@ import {
 
 export function isUnconfirmedReveal(txIntent: TxIntent): txIntent is UnconfirmedReveal {
   return txIntent.methodName === 'revealLocation';
+}
+
+export function isUnconfirmedClaim(txIntent: TxIntent): txIntent is UnconfirmedClaim {
+  return txIntent.methodName === 'claimLocation';
 }
 
 export function isUnconfirmedInit(txIntent: TxIntent): txIntent is UnconfirmedInit {
@@ -114,12 +122,27 @@ export function isUnconfirmedCapturePlanet(
   return txIntent.methodName === 'capturePlanet';
 }
 
+export function isUnconfirmedBurn(txIntent: TxIntent): txIntent is UnconfirmedBurn {
+  return txIntent.methodName === 'burnLocation';
+}
+
+export function isUnconfirmedPink(txIntent: TxIntent): txIntent is UnconfirmedPink {
+  return txIntent.methodName === 'pinkLocation';
+}
 export function isUnconfirmedInvadePlanet(txIntent: TxIntent): txIntent is UnconfirmedInvadePlanet {
   return txIntent.methodName === 'invadePlanet';
 }
 
+export function isUnconfirmedUseKey(txIntent: TxIntent): txIntent is UnconfirmedUseKey {
+  return txIntent.methodName === 'useKey';
+}
+
 export function isUnconfirmedRevealTx(tx: Transaction): tx is Transaction<UnconfirmedReveal> {
   return isUnconfirmedReveal(tx.intent);
+}
+
+export function isUnconfirmedClaimTx(tx: Transaction): tx is Transaction<UnconfirmedReveal> {
+  return isUnconfirmedClaim(tx.intent);
 }
 
 export function isUnconfirmedInitTx(tx: Transaction): tx is Transaction<UnconfirmedInit> {
@@ -216,4 +239,16 @@ export function isUnconfirmedCapturePlanetTx(
   tx: Transaction
 ): tx is Transaction<UnconfirmedCapturePlanet> {
   return isUnconfirmedCapturePlanet(tx.intent);
+}
+
+export function isUnconfirmedBurnTx(tx: Transaction): tx is Transaction<UnconfirmedBurn> {
+  return isUnconfirmedBurn(tx.intent);
+}
+
+export function isUnconfirmedPinkTx(tx: Transaction): tx is Transaction<UnconfirmedPink> {
+  return isUnconfirmedPink(tx.intent);
+}
+
+export function isUnconfirmedUseKeyTx(tx: Transaction): tx is Transaction<UnconfirmedUseKey> {
+  return isUnconfirmedUseKey(tx.intent);
 }

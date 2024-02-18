@@ -1,4 +1,4 @@
-import { EMPTY_LOCATION_ID, TOKEN_NAME } from '@dfares/constants';
+import { EMPTY_LOCATION_ID, GAS_ADJUST_DELTA, TOKEN_NAME } from '@dfares/constants';
 import { DarkForest } from '@dfares/contracts/typechain';
 import {
   aggregateBulkGetter,
@@ -15,6 +15,8 @@ import {
   decodeArrival,
   decodeArtifact,
   decodeArtifactPointValues,
+  decodeBurnedCoords,
+  decodeClaimedCoords,
   decodePlanet,
   decodePlanetDefaults,
   decodePlayer,
@@ -28,6 +30,8 @@ import {
   ArtifactId,
   ArtifactType,
   AutoGasSetting,
+  BurnedCoords,
+  ClaimedCoords,
   DiagnosticUpdater,
   EthAddress,
   LocationId,
@@ -51,10 +55,8 @@ import {
   ContractConstants,
   ContractEvent,
   ContractsAPIEvent,
-  PlanetTypeWeightsBySpaceType,
 } from '../../_types/darkforest/api/ContractsAPITypes';
 import { loadDiamondContract } from '../Network/Blockchain';
-import { eventLogger, EventType } from '../Network/EventLogger';
 
 interface ContractsApiConfig {
   connection: EthConnection;
@@ -124,7 +126,9 @@ export class ContractsAPI extends EventEmitter {
       (tx.intent.methodName === 'initializePlayer' || tx.intent.methodName === 'getSpaceShips') &&
       tx.intent.contract.address === this.contract.address
     ) {
-      return '50';
+      return Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('50'))
+        .toFixed(16)
+        .toString();
     }
 
     const config = {
@@ -190,7 +194,8 @@ export class ContractsAPI extends EventEmitter {
   }
 
   private async afterTransaction(_txRequest: Transaction, txDiagnosticInfo: unknown) {
-    eventLogger.logEvent(EventType.Transaction, txDiagnosticInfo);
+    // myNotice: remove /event
+    // eventLogger.logEvent(EventType.Transaction, txDiagnosticInfo);
   }
 
   public destroy(): void {
@@ -215,6 +220,8 @@ export class ContractsAPI extends EventEmitter {
           contract.filters.ArtifactFound(null, null, null).topics,
           contract.filters.ArtifactWithdrawn(null, null, null).topics,
           contract.filters.LocationRevealed(null, null, null, null).topics,
+          contract.filters.LocationClaimed(null, null, null).topics,
+          contract.filters.LocationBurned(null, null, null, null).topics,
           contract.filters.PlanetHatBought(null, null, null).topics,
           contract.filters.PlanetProspected(null, null).topics,
           contract.filters.PlanetSilverWithdrawn(null, null, null).topics,
@@ -362,6 +369,23 @@ export class ContractsAPI extends EventEmitter {
         );
         this.emit(ContractsAPIEvent.PlayerUpdate, address(revealerAddr));
       },
+
+      [ContractEvent.LocationClaimed]: async (
+        revealerAddr: string,
+        _previousClaimer: string,
+        location: EthersBN,
+        _: Event
+      ) => {
+        this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location));
+
+        this.emit(
+          ContractsAPIEvent.LocationClaimed,
+          locationIdFromEthersBN(location),
+          address(revealerAddr.toLowerCase())
+        );
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(revealerAddr));
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(_previousClaimer));
+      },
       [ContractEvent.PlanetSilverWithdrawn]: async (
         player: string,
         location: EthersBN,
@@ -373,6 +397,21 @@ export class ContractsAPI extends EventEmitter {
       },
       [ContractEvent.LobbyCreated]: (ownerAddr: string, lobbyAddr: string) => {
         this.emit(ContractsAPIEvent.LobbyCreated, address(ownerAddr), address(lobbyAddr));
+      },
+      [ContractEvent.LocationBurned]: async (
+        revealerAddr: string,
+        location: EthersBN,
+        _x: EthersBN,
+        _y: EthersBN,
+        _: Event
+      ) => {
+        this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location));
+        this.emit(
+          ContractsAPIEvent.LocationRevealed,
+          locationIdFromEthersBN(location),
+          address(revealerAddr.toLowerCase())
+        );
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(revealerAddr));
       },
     };
 
@@ -393,13 +432,37 @@ export class ContractsAPI extends EventEmitter {
     contract.removeAllListeners(ContractEvent.ArtifactActivated);
     contract.removeAllListeners(ContractEvent.ArtifactDeactivated);
     contract.removeAllListeners(ContractEvent.LocationRevealed);
+    contract.removeAllListeners(ContractEvent.LocationClaimed);
     contract.removeAllListeners(ContractEvent.PlanetSilverWithdrawn);
     contract.removeAllListeners(ContractEvent.PlanetInvaded);
     contract.removeAllListeners(ContractEvent.PlanetCaptured);
+    contract.removeAllListeners(ContractEvent.LocationBurned);
   }
 
   public getContractAddress(): EthAddress {
     return this.contractAddress;
+  }
+
+  public async getEntryFee(): Promise<EthersBN> {
+    const res = await this.makeCall<EthersBN>(this.contract.getEntryFee);
+    return res;
+  }
+  /**
+   * If this player has a claimed planet, their score is the distance between the claimed planet and
+   * the center. If this player does not have a claimed planet, then the score is undefined.
+   */
+  async getScoreV3(address: EthAddress | undefined): Promise<number | undefined> {
+    if (address === undefined) return undefined;
+
+    const score = await this.makeCall<EthersBN>(this.contract.getScore, [address]);
+
+    if (
+      score.eq(EthersBN.from('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'))
+    ) {
+      return undefined;
+    }
+
+    return score.toNumber();
   }
 
   async getConstants(): Promise<ContractConstants> {
@@ -412,6 +475,7 @@ export class ContractsAPI extends EventEmitter {
       PERLIN_MIRROR_X,
       PERLIN_MIRROR_Y,
     } = await this.makeCall(this.contract.getSnarkConstants);
+
     const {
       ADMIN_CAN_ADD_PLANETS,
       WORLD_RADIUS_LOCKED,
@@ -429,13 +493,16 @@ export class ContractsAPI extends EventEmitter {
       SPAWN_RIM_AREA,
       BIOME_THRESHOLD_1,
       BIOME_THRESHOLD_2,
-      SILVER_SCORE_VALUE,
       PLANET_LEVEL_THRESHOLDS,
       PLANET_RARITY,
       PLANET_TRANSFER_ENABLED,
       PHOTOID_ACTIVATION_DELAY,
       STELLAR_ACTIVATION_DELAY,
       LOCATION_REVEAL_COOLDOWN,
+      CLAIM_PLANET_COOLDOWN,
+      PLANET_TYPE_WEIGHTS,
+      SILVER_SCORE_VALUE,
+      ARTIFACT_POINT_VALUES,
       SPACE_JUNK_ENABLED,
       SPACE_JUNK_LIMIT,
       PLANET_LEVEL_JUNK,
@@ -451,21 +518,37 @@ export class ContractsAPI extends EventEmitter {
       CAPTURE_ZONES_PER_5000_WORLD_RADIUS,
       SPACESHIPS,
       ROUND_END_REWARDS_BY_RANK,
+      TOKEN_MINT_END_TIMESTAMP,
+      CLAIM_END_TIMESTAMP,
+      BURN_END_TIMESTAMP,
+      BURN_PLANET_COOLDOWN,
+      PINK_PLANET_COOLDOWN,
+      ACTIVATE_ARTIFACT_COOLDOWN,
+      BUY_ARTIFACT_COOLDOWN,
+      BURN_PLANET_LEVEL_EFFECT_RADIUS,
+      BURN_PLANET_REQUIRE_SILVER_AMOUNTS,
+      MAX_LEVEL_DIST,
+      MAX_LEVEL_LIMIT,
+      MIN_LEVEL_BIAS,
     } = await this.makeCall(this.contract.getGameConstants);
 
-    const TOKEN_MINT_END_SECONDS = (
-      await this.makeCall(this.contract.TOKEN_MINT_END_TIMESTAMP)
-    ).toNumber();
+    // const TOKEN_MINT_END_TIMESTAMP = (
+    //   await this.makeCall(this.contract.TOKEN_MINT_END_TIMESTAMP)
+    // ).toNumber();
+
+    // const CLAIM_END_TIMESTAMP = (await this.makeCall(this.contract.CLAIM_END_TIMESTAMP)).toNumber();
 
     const adminAddress = address(await this.makeCall(this.contract.adminAddress));
 
     const upgrades = decodeUpgradeBranches(await this.makeCall(this.contract.getUpgrades));
 
-    const PLANET_TYPE_WEIGHTS: PlanetTypeWeightsBySpaceType =
-      await this.makeCall<PlanetTypeWeightsBySpaceType>(this.contract.getTypeWeights);
+    // const PLANET_TYPE_WEIGHTS: PlanetTypeWeightsBySpaceType =
+    //   await this.makeCall<PlanetTypeWeightsBySpaceType>(this.contract.getTypeWeights);
 
-    const rawPointValues = await this.makeCall(this.contract.getArtifactPointValues);
-    const ARTIFACT_POINT_VALUES = decodeArtifactPointValues(rawPointValues);
+    // const rawPointValues = await this.makeCall(this.contract.getArtifactPointValues);
+    // const ARTIFACT_POINT_VALUES = decodeArtifactPointValues(rawPointValues);
+
+    const ARTIFACT_POINT_VALUES_decoded = decodeArtifactPointValues(ARTIFACT_POINT_VALUES);
 
     const planetDefaults = decodePlanetDefaults(await this.makeCall(this.contract.getDefaultStats));
 
@@ -474,32 +557,33 @@ export class ContractsAPI extends EventEmitter {
     ).map((x: EthersBN) => x.toNumber());
 
     const constants: ContractConstants = {
-      ADMIN_CAN_ADD_PLANETS,
-      WORLD_RADIUS_LOCKED,
-      WORLD_RADIUS_MIN: WORLD_RADIUS_MIN.toNumber(),
-
+      //SnarkConstants
       DISABLE_ZK_CHECKS,
-
       PLANETHASH_KEY: PLANETHASH_KEY.toNumber(),
       SPACETYPE_KEY: SPACETYPE_KEY.toNumber(),
       BIOMEBASE_KEY: BIOMEBASE_KEY.toNumber(),
-      PERLIN_LENGTH_SCALE: PERLIN_LENGTH_SCALE.toNumber(),
       PERLIN_MIRROR_X,
       PERLIN_MIRROR_Y,
-      TOKEN_MINT_END_SECONDS,
+      PERLIN_LENGTH_SCALE: PERLIN_LENGTH_SCALE.toNumber(),
+
+      //GameConstants
+      ADMIN_CAN_ADD_PLANETS,
+      WORLD_RADIUS_LOCKED,
+      WORLD_RADIUS_MIN: WORLD_RADIUS_MIN.toNumber(),
       MAX_NATURAL_PLANET_LEVEL: MAX_NATURAL_PLANET_LEVEL.toNumber(),
       MAX_ARTIFACT_PER_PLANET: MAX_ARTIFACT_PER_PLANET.toNumber(),
       MAX_SENDING_PLANET: MAX_SENDING_PLANET.toNumber(),
       MAX_RECEIVING_PLANET: MAX_RECEIVING_PLANET.toNumber(),
       TIME_FACTOR_HUNDREDTHS: TIME_FACTOR_HUNDREDTHS.toNumber(),
+
       PERLIN_THRESHOLD_1: PERLIN_THRESHOLD_1.toNumber(),
       PERLIN_THRESHOLD_2: PERLIN_THRESHOLD_2.toNumber(),
       PERLIN_THRESHOLD_3: PERLIN_THRESHOLD_3.toNumber(),
       INIT_PERLIN_MIN: INIT_PERLIN_MIN.toNumber(),
       INIT_PERLIN_MAX: INIT_PERLIN_MAX.toNumber(),
+      SPAWN_RIM_AREA: SPAWN_RIM_AREA.toNumber(),
       BIOME_THRESHOLD_1: BIOME_THRESHOLD_1.toNumber(),
       BIOME_THRESHOLD_2: BIOME_THRESHOLD_2.toNumber(),
-      SILVER_SCORE_VALUE: SILVER_SCORE_VALUE.toNumber(),
       PLANET_LEVEL_THRESHOLDS: [
         PLANET_LEVEL_THRESHOLDS[0].toNumber(),
         PLANET_LEVEL_THRESHOLDS[1].toNumber(),
@@ -512,11 +596,17 @@ export class ContractsAPI extends EventEmitter {
         PLANET_LEVEL_THRESHOLDS[8].toNumber(),
         PLANET_LEVEL_THRESHOLDS[9].toNumber(),
       ],
+
       PLANET_RARITY: PLANET_RARITY.toNumber(),
       PLANET_TRANSFER_ENABLED,
-      PLANET_TYPE_WEIGHTS,
-      ARTIFACT_POINT_VALUES,
 
+      PHOTOID_ACTIVATION_DELAY: PHOTOID_ACTIVATION_DELAY.toNumber(),
+      STELLAR_ACTIVATION_DELAY: STELLAR_ACTIVATION_DELAY.toNumber(),
+      LOCATION_REVEAL_COOLDOWN: LOCATION_REVEAL_COOLDOWN.toNumber(),
+      CLAIM_PLANET_COOLDOWN: CLAIM_PLANET_COOLDOWN.toNumber(),
+      PLANET_TYPE_WEIGHTS,
+      SILVER_SCORE_VALUE: SILVER_SCORE_VALUE.toNumber(),
+      ARTIFACT_POINT_VALUES: ARTIFACT_POINT_VALUES_decoded,
       SPACE_JUNK_ENABLED,
       SPACE_JUNK_LIMIT: SPACE_JUNK_LIMIT.toNumber(),
       PLANET_LEVEL_JUNK: [
@@ -531,26 +621,10 @@ export class ContractsAPI extends EventEmitter {
         PLANET_LEVEL_JUNK[8].toNumber(),
         PLANET_LEVEL_JUNK[9].toNumber(),
       ],
+
       ABANDON_SPEED_CHANGE_PERCENT: ABANDON_RANGE_CHANGE_PERCENT.toNumber(),
       ABANDON_RANGE_CHANGE_PERCENT: ABANDON_SPEED_CHANGE_PERCENT.toNumber(),
 
-      PHOTOID_ACTIVATION_DELAY: PHOTOID_ACTIVATION_DELAY.toNumber(),
-      STELLAR_ACTIVATION_DELAY: STELLAR_ACTIVATION_DELAY.toNumber(),
-      SPAWN_RIM_AREA: SPAWN_RIM_AREA.toNumber(),
-      LOCATION_REVEAL_COOLDOWN: LOCATION_REVEAL_COOLDOWN.toNumber(),
-
-      defaultPopulationCap: planetDefaults.populationCap,
-      defaultPopulationGrowth: planetDefaults.populationGrowth,
-      defaultRange: planetDefaults.range,
-      defaultSpeed: planetDefaults.speed,
-      defaultDefense: planetDefaults.defense,
-      defaultSilverGrowth: planetDefaults.silverGrowth,
-      defaultSilverCap: planetDefaults.silverCap,
-      defaultBarbarianPercentage: planetDefaults.barbarianPercentage,
-      planetCumulativeRarities,
-      upgrades,
-
-      adminAddress,
       // Capture Zones
       GAME_START_BLOCK: GAME_START_BLOCK.toNumber(),
       CAPTURE_ZONES_ENABLED,
@@ -637,8 +711,76 @@ export class ContractsAPI extends EventEmitter {
         ROUND_END_REWARDS_BY_RANK[62].toNumber(),
         ROUND_END_REWARDS_BY_RANK[63].toNumber(),
       ],
-    };
 
+      TOKEN_MINT_END_TIMESTAMP: TOKEN_MINT_END_TIMESTAMP.toNumber(),
+      CLAIM_END_TIMESTAMP: CLAIM_END_TIMESTAMP.toNumber(),
+
+      defaultPopulationCap: planetDefaults.populationCap,
+      defaultPopulationGrowth: planetDefaults.populationGrowth,
+      defaultRange: planetDefaults.range,
+      defaultSpeed: planetDefaults.speed,
+      defaultDefense: planetDefaults.defense,
+      defaultSilverGrowth: planetDefaults.silverGrowth,
+      defaultSilverCap: planetDefaults.silverCap,
+      defaultBarbarianPercentage: planetDefaults.barbarianPercentage,
+      planetCumulativeRarities,
+      upgrades,
+      adminAddress,
+
+      BURN_END_TIMESTAMP: BURN_END_TIMESTAMP.toNumber(),
+      BURN_PLANET_COOLDOWN: BURN_PLANET_COOLDOWN.toNumber(),
+      PINK_PLANET_COOLDOWN: PINK_PLANET_COOLDOWN.toNumber(),
+      ACTIVATE_ARTIFACT_COOLDOWN: ACTIVATE_ARTIFACT_COOLDOWN.toNumber(),
+      BUY_ARTIFACT_COOLDOWN: BUY_ARTIFACT_COOLDOWN.toNumber(),
+      BURN_PLANET_LEVEL_EFFECT_RADIUS: [
+        BURN_PLANET_LEVEL_EFFECT_RADIUS[0].toNumber(),
+        BURN_PLANET_LEVEL_EFFECT_RADIUS[1].toNumber(),
+        BURN_PLANET_LEVEL_EFFECT_RADIUS[2].toNumber(),
+        BURN_PLANET_LEVEL_EFFECT_RADIUS[3].toNumber(),
+        BURN_PLANET_LEVEL_EFFECT_RADIUS[4].toNumber(),
+        BURN_PLANET_LEVEL_EFFECT_RADIUS[5].toNumber(),
+        BURN_PLANET_LEVEL_EFFECT_RADIUS[6].toNumber(),
+        BURN_PLANET_LEVEL_EFFECT_RADIUS[7].toNumber(),
+        BURN_PLANET_LEVEL_EFFECT_RADIUS[8].toNumber(),
+        BURN_PLANET_LEVEL_EFFECT_RADIUS[9].toNumber(),
+      ],
+      BURN_PLANET_REQUIRE_SILVER_AMOUNTS: [
+        BURN_PLANET_REQUIRE_SILVER_AMOUNTS[0].toNumber(),
+        BURN_PLANET_REQUIRE_SILVER_AMOUNTS[1].toNumber(),
+        BURN_PLANET_REQUIRE_SILVER_AMOUNTS[2].toNumber(),
+        BURN_PLANET_REQUIRE_SILVER_AMOUNTS[3].toNumber(),
+        BURN_PLANET_REQUIRE_SILVER_AMOUNTS[4].toNumber(),
+        BURN_PLANET_REQUIRE_SILVER_AMOUNTS[5].toNumber(),
+        BURN_PLANET_REQUIRE_SILVER_AMOUNTS[6].toNumber(),
+        BURN_PLANET_REQUIRE_SILVER_AMOUNTS[7].toNumber(),
+        BURN_PLANET_REQUIRE_SILVER_AMOUNTS[8].toNumber(),
+        BURN_PLANET_REQUIRE_SILVER_AMOUNTS[9].toNumber(),
+      ],
+
+      MAX_LEVEL_DIST: [
+        MAX_LEVEL_DIST[0].toNumber(),
+        MAX_LEVEL_DIST[1].toNumber(),
+        MAX_LEVEL_DIST[2].toNumber(),
+        MAX_LEVEL_DIST[3].toNumber(),
+        MAX_LEVEL_DIST[4].toNumber(),
+      ],
+      MAX_LEVEL_LIMIT: [
+        MAX_LEVEL_LIMIT[0].toNumber(),
+        MAX_LEVEL_LIMIT[1].toNumber(),
+        MAX_LEVEL_LIMIT[2].toNumber(),
+        MAX_LEVEL_LIMIT[3].toNumber(),
+        MAX_LEVEL_LIMIT[4].toNumber(),
+        MAX_LEVEL_LIMIT[5].toNumber(),
+      ],
+      MIN_LEVEL_BIAS: [
+        MIN_LEVEL_BIAS[0].toNumber(),
+        MIN_LEVEL_BIAS[1].toNumber(),
+        MIN_LEVEL_BIAS[2].toNumber(),
+        MIN_LEVEL_BIAS[3].toNumber(),
+        MIN_LEVEL_BIAS[4].toNumber(),
+        MIN_LEVEL_BIAS[5].toNumber(),
+      ],
+    };
     // console.log(constants);
     return constants;
   }
@@ -656,17 +798,109 @@ export class ContractsAPI extends EventEmitter {
       onProgress
     );
 
+    const lastClaimTimestamps = await aggregateBulkGetter(
+      nPlayers,
+      5,
+      async (start: number, end: number) =>
+        this.contractCaller.makeCall(this.contract.bulkGetLastClaimTimestamp, [start, end])
+    );
+    const playerLastClaimTimestampMap = lastClaimTimestamps.reduce(
+      (acc, pair): Map<string, EthersBN> => {
+        acc.set(pair.player.toLowerCase(), pair.lastClaimTimestamp);
+        return acc;
+      },
+      new Map<string, EthersBN>()
+    );
+
+    const lastBurnTimestamps = await aggregateBulkGetter(
+      nPlayers,
+      5,
+      async (start: number, end: number) =>
+        this.contractCaller.makeCall(this.contract.bulkGetLastBurnTimestamp, [start, end])
+    );
+
+    const playerLastBurnTimestampMap = lastBurnTimestamps.reduce(
+      (acc, pair): Map<string, EthersBN> => {
+        acc.set(pair.player.toLowerCase(), pair.lastBurnTimestamp);
+        return acc;
+      },
+      new Map<string, EthersBN>()
+    );
+
+    const lastActivateArtifactTimestamps = await aggregateBulkGetter(
+      nPlayers,
+      5,
+      async (start: number, end: number) =>
+        this.contractCaller.makeCall(this.contract.bulkGetLastActivateArtifactTimestamp, [
+          start,
+          end,
+        ])
+    );
+    const playerLastActivateArtifactTimestampsMap = lastActivateArtifactTimestamps.reduce(
+      (acc, pair): Map<string, EthersBN> => {
+        acc.set(pair.player.toLowerCase(), pair.lastActivateArtifactTimestamp);
+        return acc;
+      },
+      new Map<string, EthersBN>()
+    );
+
+    const lastBuyArtifactTimestamps = await aggregateBulkGetter(
+      nPlayers,
+      5,
+      async (start: number, end: number) =>
+        this.contractCaller.makeCall(this.contract.bulkGetLastBuyArtifactTimestamp, [start, end])
+    );
+    const playerLastBuyArtifactTimestampsMap = lastBuyArtifactTimestamps.reduce(
+      (acc, pair): Map<string, EthersBN> => {
+        acc.set(pair.player.toLowerCase(), pair.lastBuyArtifactTimestamp);
+        return acc;
+      },
+      new Map<string, EthersBN>()
+    );
+
     const playerMap: Map<EthAddress, Player> = new Map();
+
     for (const player of players) {
+      player.lastClaimTimestamp = playerLastClaimTimestampMap.get(player.address)?.toNumber() || 0;
+      player.lastBurnTimestamp = playerLastBurnTimestampMap.get(player.address)?.toNumber() || 0;
+      player.lastActivateArtifactTimestamp =
+        playerLastActivateArtifactTimestampsMap.get(player.address)?.toNumber() || 0;
+      player.lastBuyArtifactTimestamp =
+        playerLastBuyArtifactTimestampsMap.get(player.address)?.toNumber() || 0;
+
       playerMap.set(player.address, player);
     }
+
     return playerMap;
   }
 
   public async getPlayerById(playerId: EthAddress): Promise<Player | undefined> {
     const rawPlayer = await this.makeCall(this.contract.players, [playerId]);
+    const lastClaimedTimestamp = await this.makeCall(this.contract.getLastClaimTimestamp, [
+      playerId,
+    ]);
+
+    const lastBurnedTimestamp = await this.makeCall(this.contract.getLastBurnTimestamp, [playerId]);
+    const lastActivateArtifactTimestamp = await this.makeCall(
+      this.contract.getLastActivateArtifactTimestamp,
+      [playerId]
+    );
+
+    const lastBuyArtifactTimestamp = await this.makeCall(
+      this.contract.getLastBuyArtifactTimestamp,
+      [playerId]
+    );
+
+    const scoreFromBlockchain = await this.getScoreV3(playerId);
     if (!rawPlayer.isInitialized) return undefined;
+
     const player = decodePlayer(rawPlayer);
+    player.lastClaimTimestamp = lastClaimedTimestamp.toNumber();
+    player.lastBurnTimestamp = lastBurnedTimestamp.toNumber();
+    player.lastActivateArtifactTimestamp = lastActivateArtifactTimestamp.toNumber();
+    player.lastBuyArtifactTimestamp = lastBuyArtifactTimestamp.toNumber();
+
+    player.score = scoreFromBlockchain;
     return player;
   }
 
@@ -779,6 +1013,96 @@ export class ContractsAPI extends EventEmitter {
     );
 
     return rawRevealedCoords.map(decodeRevealedCoords);
+  }
+
+  public async getClaimedCoordsByIdIfExists(
+    planetId: LocationId
+  ): Promise<ClaimedCoords | undefined> {
+    const decStrId = locationIdToDecStr(planetId);
+    const rawClaimedCoords = await this.makeCall(this.contract.claimedCoords, [decStrId]);
+    const ret = decodeClaimedCoords(rawClaimedCoords);
+    if (ret.hash === EMPTY_LOCATION_ID) {
+      return undefined;
+    }
+    return ret;
+  }
+
+  public async getClaimedPlanetsCoords(
+    startingAt: number,
+    onProgressIds?: (fractionCompleted: number) => void,
+    onProgressCoords?: (fractionCompleted: number) => void
+  ): Promise<ClaimedCoords[]> {
+    const nClaimedPlanets: number = (
+      await this.makeCall<EthersBN>(this.contract.getNClaimedPlanets)
+    ).toNumber();
+
+    const rawClaimedPlanetIds = await aggregateBulkGetter<EthersBN>(
+      nClaimedPlanets - startingAt,
+      500,
+      async (start, end) =>
+        await this.makeCall(this.contract.bulkGetClaimedPlanetIds, [
+          start + startingAt,
+          end + startingAt,
+        ]),
+      onProgressIds
+    );
+
+    const rawClaimedCoords = await aggregateBulkGetter(
+      rawClaimedPlanetIds.length,
+      500,
+      async (start, end) =>
+        await this.makeCall(this.contract.bulkGetClaimedCoordsByIds, [
+          rawClaimedPlanetIds.slice(start, end),
+        ]),
+      onProgressCoords
+    );
+
+    return rawClaimedCoords.map(decodeClaimedCoords);
+  }
+
+  public async getBurnedCoordsByIdIfExists(
+    planetId: LocationId
+  ): Promise<BurnedCoords | undefined> {
+    const decStrId = locationIdToDecStr(planetId);
+    const rawBurnedCoords = await this.makeCall(this.contract.burnedCoords, [decStrId]);
+    const ret = decodeBurnedCoords(rawBurnedCoords);
+    if (ret.hash === EMPTY_LOCATION_ID) {
+      return undefined;
+    }
+    return ret;
+  }
+
+  public async getBurnedPlanetsCoords(
+    startingAt: number,
+    onProgressIds?: (fractionCompleted: number) => void,
+    onProgressCoords?: (fractionCompleted: number) => void
+  ): Promise<BurnedCoords[]> {
+    const nBurnedPlanets: number = (
+      await this.makeCall<EthersBN>(this.contract.getNBurnedPlanets)
+    ).toNumber();
+
+    const rawBurnedPlanetIds = await aggregateBulkGetter<EthersBN>(
+      nBurnedPlanets - startingAt,
+      500,
+      async (start, end) =>
+        await this.makeCall(this.contract.bulkGetBurnedPlanetIds, [
+          start + startingAt,
+          end + startingAt,
+        ]),
+      onProgressIds
+    );
+
+    const rawBurnedCoords = await aggregateBulkGetter(
+      rawBurnedPlanetIds.length,
+      500,
+      async (start, end) =>
+        await this.makeCall(this.contract.bulkGetBurnedCoordsByIds, [
+          rawBurnedPlanetIds.slice(start, end),
+        ]),
+      onProgressCoords
+    );
+
+    return rawBurnedCoords.map(decodeBurnedCoords);
   }
 
   public async bulkGetPlanets(

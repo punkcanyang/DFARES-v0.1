@@ -20,6 +20,7 @@ export const decodeInitializers = decoders.guard(
     START_PAUSED: decoders.boolean,
     ADMIN_CAN_ADD_PLANETS: decoders.boolean,
     TOKEN_MINT_END_TIMESTAMP: dateInSeconds,
+    CLAIM_END_TIMESTAMP: dateInSeconds,
     WORLD_RADIUS_LOCKED: decoders.boolean,
     WORLD_RADIUS_MIN: decoders.number,
     /**
@@ -55,6 +56,7 @@ export const decodeInitializers = decoders.guard(
     STELLAR_ACTIVATION_DELAY: decoders.number,
     SPAWN_RIM_AREA: decoders.number,
     LOCATION_REVEAL_COOLDOWN: decoders.number,
+    CLAIM_PLANET_COOLDOWN: decoders.number,
     PLANET_TYPE_WEIGHTS: exactArray4(exactArray10(exactArray5(between(decoders.number, 0, 255)))),
     SILVER_SCORE_VALUE: decoders.number,
     ARTIFACT_POINT_VALUES: array6(decoders.number),
@@ -75,12 +77,30 @@ export const decodeInitializers = decoders.guard(
     CAPTURE_ZONE_PLANET_LEVEL_SCORE: exactArray10(decoders.number),
     CAPTURE_ZONE_HOLD_BLOCKS_REQUIRED: decoders.number,
     CAPTURE_ZONES_PER_5000_WORLD_RADIUS: decoders.number,
+
+    /**
+     * Pink
+     */
+    BURN_END_TIMESTAMP: dateInSeconds,
+    BURN_PLANET_COOLDOWN: decoders.number,
+    PINK_PLANET_COOLDOWN: decoders.number,
+    ACTIVATE_ARTIFACT_COOLDOWN: decoders.number,
+    BUY_ARTIFACT_COOLDOWN: decoders.number,
+
+    BURN_PLANET_LEVEL_EFFECT_RADIUS: exactArray10(decoders.number),
+    BURN_PLANET_REQUIRE_SILVER_AMOUNTS: exactArray10(decoders.number),
+
+    MAX_LEVEL_DIST: exactArray5(decoders.number),
+    MAX_LEVEL_LIMIT: array6(decoders.number),
+    MIN_LEVEL_BIAS: array6(decoders.number),
+
     SPACESHIPS: decoders.object({
       GEAR: decoders.boolean,
       MOTHERSHIP: decoders.boolean,
       TITAN: decoders.boolean,
       CRESCENT: decoders.boolean,
       WHALE: decoders.boolean,
+      PINKSHIP: decoders.boolean,
     }),
     ROUND_END_REWARDS_BY_RANK: exactArray64(decoders.number),
   }),

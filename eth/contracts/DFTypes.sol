@@ -37,6 +37,12 @@ struct Player {
     bool claimedReward;
     uint256 activateArtifactAmount;
     uint256 buyArtifactAmount;
+    uint256 silver;
+    uint256 dropBombAmount;
+    uint256 pinkAmount;
+    uint256 pinkedAmount;
+    uint256 moveCount;
+    uint256 hatCount;
 }
 
 struct Planet {
@@ -77,6 +83,8 @@ struct Planet {
     uint256 invadeStartBlock;
     address capturer;
     uint256 locationId;
+    address operator; // operate bomb to burn/pink planet
+    uint256 burnStartTimestamp;
 }
 
 struct RevealedCoords {
@@ -223,7 +231,8 @@ enum ArtifactType {
     ShipCrescent,
     ShipWhale,
     ShipGear,
-    ShipTitan
+    ShipTitan,
+    ShipPink
 }
 
 enum ArtifactRarity {
@@ -276,4 +285,47 @@ enum Biome {
     Wasteland,
     Lava,
     Corrupted
+}
+
+/**
+ * Each time someone claims a planet, we insert an instance of this struct into `claimedCoords`
+ */
+struct ClaimedCoords {
+    uint256 locationId;
+    uint256 x;
+    uint256 y;
+    address claimer;
+    uint256 score;
+    uint256 claimedAt;
+}
+
+struct LastClaimedStruct {
+    address player;
+    uint256 lastClaimTimestamp;
+}
+
+/**
+ * Each time someone drop pinkbomb to a planet, we insert an instance of this struct into `burnedCoords`
+ */
+struct BurnedCoords {
+    uint256 locationId;
+    uint256 x;
+    uint256 y;
+    address operator;
+    uint256 burnedAt; //block.timestamp
+}
+
+struct LastBurnedStruct {
+    address player;
+    uint256 lastBurnTimestamp;
+}
+
+struct LastActivateArtifactStruct {
+    address player;
+    uint256 lastActivateArtifactTimestamp;
+}
+
+struct LastBuyArtifactStruct {
+    address player;
+    uint256 lastBuyArtifactTimestamp;
 }

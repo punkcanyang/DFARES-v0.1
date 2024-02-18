@@ -113,11 +113,17 @@ const biomeSpriteInfo = (): BiomeSpriteLocations => {
         }
       }
     } else if (isRelic(type)) {
-      const yIdx = 8;
-      let relicNo = type - ArtifactType.Wormhole;
-      if (type === ArtifactType.StellarShield) relicNo -= 2;
-      const xIdx = relicNo * 2;
+      let yIdx = 8;
+      const relicNo = type - ArtifactType.Wormhole;
+      let xIdx = relicNo * 2;
 
+      if (type === ArtifactType.StellarShield) {
+        xIdx = 14;
+        yIdx = 8;
+      } else if (type === ArtifactType.Bomb) {
+        xIdx = 0;
+        yIdx = 11;
+      }
       for (let biome: Biome = Biome.UNKNOWN; biome <= MAX_BIOME; biome++) {
         biomeInfo[biome] = {
           shiny: spriteRectangleFromIndex(xIdx, yIdx),
@@ -150,7 +156,8 @@ const biomeSpriteInfo = (): BiomeSpriteLocations => {
     if (
       type >= ArtifactType.SoulSwap &&
       type <= ArtifactType.BlindBox &&
-      type !== ArtifactType.StellarShield
+      type !== ArtifactType.StellarShield &&
+      type !== ArtifactType.Bomb
     ) {
       //MyTodo:
       //new added artifact use wormhole icon temporarily
@@ -203,8 +210,9 @@ export function spriteFromArtifact(artifact: RenderedArtifact): SpriteRectangle 
       [ArtifactType.ShipWhale]: 2,
       [ArtifactType.ShipGear]: 3,
       [ArtifactType.ShipTitan]: 4,
+      [ArtifactType.ShipPink]: 5,
     };
-    return spriteRectangleFromIndex(idx[artifact.artifactType], 11);
+    return spriteRectangleFromIndex(idx[artifact.artifactType], 12);
   }
   //MyTodo: maybe later to support isAncient
   // } else if (isAncient(artifact)) {

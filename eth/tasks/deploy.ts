@@ -98,6 +98,12 @@ async function deploy(
   const whitelistBalance = await hre.ethers.provider.getBalance(diamond.address);
   console.log(`Whitelist balance ${whitelistBalance}`);
 
+  const value = 0; // drip value in ether
+  const contract = await hre.ethers.getContractAt('DarkForest', hre.contracts.CONTRACT_ADDRESS);
+  const txReceipt = await contract.changeDrip(hre.ethers.utils.parseEther(value.toString()));
+  await txReceipt.wait();
+  console.log(`changed drip to ${value}`);
+
   // TODO: Upstream change to update task name from `hardhat-4byte-uploader`
   if (!isDev) {
     try {
@@ -240,30 +246,39 @@ export async function deployAndCut(
   const coreFacet = await deployCoreFacet({}, libraries, hre);
   const moveFacet = await deployMoveFacet({}, libraries, hre);
   const captureFacet = await deployCaptureFacet({}, libraries, hre);
+  const pinkBombFacet = await deployPinkBombFacet({}, libraries, hre);
+
   const artifactFacet = await deployArtifactFacet(
     { diamondAddress: diamond.address },
     libraries,
     hre
   );
-  const getterFacet = await deployGetterFacet({}, libraries, hre);
+  const getterOneFacet = await deployGetterOneFacet({}, libraries, hre);
+  const getterTwoFacet = await deployGetterTwoFacet({}, libraries, hre);
+
   const whitelistFacet = await deployWhitelistFacet({}, libraries, hre);
   const verifierFacet = await deployVerifierFacet({}, libraries, hre);
   const adminFacet = await deployAdminFacet({}, libraries, hre);
   const lobbyFacet = await deployLobbyFacet({}, {}, hre);
-  const rewardFacet = await deployRewardFacet({}, {}, hre);
+
+  //myNotice: rewardFacet don't fit v0.6.3
+  // const rewardFacet = await deployRewardFacet({}, {}, hre);
 
   // The `cuts` to perform for Dark Forest facets
   const darkForestFacetCuts = [
     ...changes.getFacetCuts('DFCoreFacet', coreFacet),
     ...changes.getFacetCuts('DFMoveFacet', moveFacet),
     ...changes.getFacetCuts('DFCaptureFacet', captureFacet),
+    ...changes.getFacetCuts('DFPinkBombFacet', pinkBombFacet),
     ...changes.getFacetCuts('DFArtifactFacet', artifactFacet),
-    ...changes.getFacetCuts('DFGetterFacet', getterFacet),
+    ...changes.getFacetCuts('DFGetterOneFacet', getterOneFacet),
+    ...changes.getFacetCuts('DFGetterTwoFacet', getterTwoFacet),
     ...changes.getFacetCuts('DFWhitelistFacet', whitelistFacet),
     ...changes.getFacetCuts('DFVerifierFacet', verifierFacet),
     ...changes.getFacetCuts('DFAdminFacet', adminFacet),
     ...changes.getFacetCuts('DFLobbyFacet', lobbyFacet),
-    ...changes.getFacetCuts('DFRewardFacet', rewardFacet),
+    //myNotice: rewardFacet don't fit v0.6.3
+    // ...changes.getFacetCuts('DFRewardFacet', rewardFacet),
   ];
 
   if (isDev) {
@@ -309,19 +324,31 @@ export async function deployAndCut(
   return [diamond, diamondInit, initReceipt] as const;
 }
 
-export async function deployGetterFacet(
+export async function deployGetterOneFacet(
   {},
   { LibGameUtils }: Libraries,
   hre: HardhatRuntimeEnvironment
 ) {
-  const factory = await hre.ethers.getContractFactory('DFGetterFacet', {
+  const factory = await hre.ethers.getContractFactory('DFGetterOneFacet', {
     libraries: {
       LibGameUtils,
     },
   });
   const contract = await factory.deploy();
   await contract.deployTransaction.wait();
-  console.log('DFGetterFacet deployed to:', contract.address);
+  console.log('DFGetterOneFacet deployed to:', contract.address);
+  return contract;
+}
+
+export async function deployGetterTwoFacet(
+  {},
+  libraries: Libraries,
+  hre: HardhatRuntimeEnvironment
+) {
+  const factory = await hre.ethers.getContractFactory('DFGetterTwoFacet', {});
+  const contract = await factory.deploy();
+  await contract.deployTransaction.wait();
+  console.log('DFGetterTwoFacet deployed to:', contract.address);
   return contract;
 }
 
@@ -397,6 +424,7 @@ export async function deployLibraries({}, hre: HardhatRuntimeEnvironment) {
   const LibGameUtilsFactory = await hre.ethers.getContractFactory('LibGameUtils');
   const LibGameUtils = await LibGameUtilsFactory.deploy();
   await LibGameUtils.deployTransaction.wait();
+  console.log(`LibGameUtils deployed to: ${LibGameUtils.address}`);
 
   const LibLazyUpdateFactory = await hre.ethers.getContractFactory('LibLazyUpdate', {
     libraries: {
@@ -405,6 +433,7 @@ export async function deployLibraries({}, hre: HardhatRuntimeEnvironment) {
   });
   const LibLazyUpdate = await LibLazyUpdateFactory.deploy();
   await LibLazyUpdate.deployTransaction.wait();
+  console.log(`LibLazyUpdate deployed to: ${LibLazyUpdate.address}`);
 
   const LibArtifactUtilsFactory = await hre.ethers.getContractFactory('LibArtifactUtils', {
     libraries: {
@@ -414,6 +443,7 @@ export async function deployLibraries({}, hre: HardhatRuntimeEnvironment) {
 
   const LibArtifactUtils = await LibArtifactUtilsFactory.deploy();
   await LibArtifactUtils.deployTransaction.wait();
+  console.log(`LibArtifactUtils deployed to: ${LibArtifactUtils.address}`);
 
   const LibPlanetFactory = await hre.ethers.getContractFactory('LibPlanet', {
     libraries: {
@@ -423,6 +453,7 @@ export async function deployLibraries({}, hre: HardhatRuntimeEnvironment) {
   });
   const LibPlanet = await LibPlanetFactory.deploy();
   await LibPlanet.deployTransaction.wait();
+  console.log(`LibPlanet deployed to: ${LibPlanet.address}`);
 
   return {
     LibGameUtils: LibGameUtils.address,
@@ -482,6 +513,22 @@ export async function deployCaptureFacet(
   return contract;
 }
 
+export async function deployPinkBombFacet(
+  {},
+  { LibPlanet, LibGameUtils }: Libraries,
+  hre: HardhatRuntimeEnvironment
+) {
+  const factory = await hre.ethers.getContractFactory('DFPinkBombFacet', {
+    libraries: {
+      LibPlanet,
+      LibGameUtils,
+    },
+  });
+  const contract = await factory.deploy();
+  await contract.deployTransaction.wait();
+  console.log(`DFPinkBombFacet deployed to: ${contract.address}`);
+  return contract;
+}
 async function deployDiamondCutFacet({}, libraries: Libraries, hre: HardhatRuntimeEnvironment) {
   const factory = await hre.ethers.getContractFactory('DiamondCutFacet');
   const contract = await factory.deploy();

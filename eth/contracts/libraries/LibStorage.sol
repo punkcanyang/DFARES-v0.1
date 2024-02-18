@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 // Type imports
-import {Planet, PlanetEventMetadata, PlanetDefaultStats, Upgrade, RevealedCoords, Player, ArrivalData, Artifact} from "../DFTypes.sol";
+import {Planet, PlanetEventMetadata, PlanetDefaultStats, Upgrade, RevealedCoords, Player, ArrivalData, Artifact, ClaimedCoords, BurnedCoords} from "../DFTypes.sol";
 
 struct WhitelistStorage {
     bool enabled;
@@ -25,7 +25,6 @@ struct GameStorage {
     address diamondAddress;
     // admin controls
     bool paused;
-    uint256 TOKEN_MINT_END_TIMESTAMP;
     uint256 planetLevelsCount;
     uint256[] cumulativeRarities;
     uint256[] initializedPlanetCountByLevel;
@@ -51,6 +50,36 @@ struct GameStorage {
     // Capture Zones
     uint256 nextChangeBlock;
     uint256 dynamicTimeFactor;
+    // Claim Planet to get Score
+    /**
+     * Map from player address to the list of planets they have claimed.
+     */
+    mapping(address => uint256[]) claimedPlanetsOwners;
+    /**
+     * List of all claimed planetIds
+     */
+    uint256[] claimedIds;
+    /**
+     * Map from planet id to claim data.
+     */
+    mapping(uint256 => ClaimedCoords) claimedCoords;
+    mapping(address => uint256) lastClaimTimestamp;
+    //drop bomb to burn planet
+    /**
+     * Map from player address to the list of planets they have burned.
+     */
+    mapping(address => uint256[]) burnedPlanets;
+    /**
+     * List of all burned planetIds
+     */
+    uint256[] burnedIds;
+    mapping(uint256 => BurnedCoords) burnedCoords;
+    mapping(address => uint256) lastBurnTimestamp;
+    mapping(address => uint256) lastActivateArtifactTimestamp;
+    mapping(address => uint256) lastBuyArtifactTimestamp;
+    address firstMythicArtifactOwner;
+    address firstBurnLocationOperator;
+    address firstHat;
 }
 
 // Game config
@@ -77,6 +106,7 @@ struct GameConstants {
     uint256 PHOTOID_ACTIVATION_DELAY;
     uint256 STELLAR_ACTIVATION_DELAY;
     uint256 LOCATION_REVEAL_COOLDOWN;
+    uint256 CLAIM_PLANET_COOLDOWN;
     uint8[5][10][4] PLANET_TYPE_WEIGHTS; // spaceType (enum 0-3) -> planetLevel (0-9) -> planetType (enum 0-4)
     uint256 SILVER_SCORE_VALUE;
     uint256[6] ARTIFACT_POINT_VALUES;
@@ -114,6 +144,19 @@ struct GameConstants {
     uint256 CAPTURE_ZONES_PER_5000_WORLD_RADIUS;
     SpaceshipConstants SPACESHIPS;
     uint256[64] ROUND_END_REWARDS_BY_RANK;
+    uint256 TOKEN_MINT_END_TIMESTAMP;
+    uint256 CLAIM_END_TIMESTAMP;
+    uint256 BURN_END_TIMESTAMP;
+    uint256 BURN_PLANET_COOLDOWN;
+    uint256 PINK_PLANET_COOLDOWN;
+    uint256 ACTIVATE_ARTIFACT_COOLDOWN;
+    uint256 BUY_ARTIFACT_COOLDOWN;
+    uint256[10] BURN_PLANET_LEVEL_EFFECT_RADIUS;
+    uint256[10] BURN_PLANET_REQUIRE_SILVER_AMOUNTS;
+    // planet adjust
+    uint256[5] MAX_LEVEL_DIST;
+    uint256[6] MAX_LEVEL_LIMIT;
+    uint256[6] MIN_LEVEL_BIAS;
 }
 
 struct SpaceshipConstants {
@@ -122,6 +165,7 @@ struct SpaceshipConstants {
     bool TITAN;
     bool CRESCENT;
     bool WHALE;
+    bool PINKSHIP;
 }
 
 // SNARK keys and perlin params

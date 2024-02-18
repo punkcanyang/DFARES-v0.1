@@ -1,6 +1,7 @@
 import {
   Artifact,
   ArtifactId,
+  BurnedCoords,
   ClaimedCoords,
   LocationId,
   Planet,
@@ -27,7 +28,8 @@ export interface InitialGameState {
   worldRadius: number;
   allTouchedPlanetIds: LocationId[];
   allRevealedCoords: RevealedCoords[];
-  allClaimedCoords?: ClaimedCoords[];
+  allClaimedCoords: ClaimedCoords[];
+  allBurnedCoords: BurnedCoords[];
   pendingMoves: QueuedArrival[];
   touchedAndLocatedPlanets: Map<LocationId, Planet>;
   artifactsOnVoyages: Artifact[];
@@ -35,7 +37,8 @@ export interface InitialGameState {
   heldArtifacts: Artifact[][];
   loadedPlanets: LocationId[];
   revealedCoordsMap: Map<LocationId, RevealedCoords>;
-  claimedCoordsMap?: Map<LocationId, ClaimedCoords>;
+  claimedCoordsMap: Map<LocationId, ClaimedCoords>;
+  burnedCoordsMap: Map<LocationId, BurnedCoords>;
   planetVoyageIdMap: Map<LocationId, VoyageId[]>;
   arrivals: Map<VoyageId, QueuedArrival>;
   twitters: AddressTwitterMap;
@@ -73,6 +76,8 @@ export class InitialGameStateDownloader {
       ? []
       : await persistentChunkStore.getSavedTouchedPlanetIds();
     const storedRevealedCoords = isDev ? [] : await persistentChunkStore.getSavedRevealedCoords();
+    const storedClaimedCoords = await persistentChunkStore.getSavedClaimedCoords();
+    const storedBurnedCoords = await persistentChunkStore.getSavedBurnedCoords();
 
     this.terminal.printElement(<DarkForestTips tips={tips} />);
     this.terminal.newline();
@@ -83,7 +88,10 @@ export class InitialGameStateDownloader {
     const revealedPlanetsCoordsLoadingBar = this.makeProgressListener(
       'Revealed Planet Coordinates'
     );
-
+    const claimedPlanetsLoadingBar = this.makeProgressListener('Claimed Planet IDs');
+    const claimedPlanetsCoordsLoadingBar = this.makeProgressListener('Claimed Planet Coordinates');
+    const burnedPlanetsLoadingBar = this.makeProgressListener('Burned Planet IDs');
+    const burnedPlanetsCoordsLoadingBar = this.makeProgressListener('Burned Planet Coordinates');
     const pendingMovesLoadingBar = this.makeProgressListener('Pending Moves');
     const planetsLoadingBar = this.makeProgressListener('Planets');
     const artifactsOnPlanetsLoadingBar = this.makeProgressListener('Artifacts On Planets');
@@ -113,17 +121,44 @@ export class InitialGameStateDownloader {
       revealedPlanetsLoadingBar,
       revealedPlanetsCoordsLoadingBar
     );
-    const claimedCoordsMap = new Map<LocationId, ClaimedCoords>();
+    const loadedClaimedCoords = contractsAPI.getClaimedPlanetsCoords(
+      0,
+      claimedPlanetsLoadingBar,
+      claimedPlanetsCoordsLoadingBar
+    );
+
+    const loadedBurnedCoords = contractsAPI.getBurnedPlanetsCoords(
+      0,
+      burnedPlanetsLoadingBar,
+      burnedPlanetsCoordsLoadingBar
+    );
 
     const allTouchedPlanetIds = storedTouchedPlanetIds.concat(await loadedTouchedPlanetIds);
     const allRevealedCoords = storedRevealedCoords.concat(await loadedRevealedCoords);
+    const allClaimedCoords = storedClaimedCoords.concat(await loadedClaimedCoords);
+    const allBurnedCoords = storedBurnedCoords.concat(await loadedBurnedCoords);
+
     const revealedCoordsMap = new Map<LocationId, RevealedCoords>();
     for (const revealedCoords of allRevealedCoords) {
       revealedCoordsMap.set(revealedCoords.hash, revealedCoords);
     }
 
+    const claimedCoordsMap = new Map<LocationId, ClaimedCoords>();
+    for (const claimedCoords of allClaimedCoords) {
+      claimedCoordsMap.set(claimedCoords.hash, claimedCoords);
+    }
+
+    const burnedCoordsMap = new Map<LocationId, BurnedCoords>();
+    for (const burnedCoords of allBurnedCoords) {
+      burnedCoordsMap.set(burnedCoords.hash, burnedCoords);
+    }
+
     let planetsToLoad = allTouchedPlanetIds.filter(
-      (id) => minedPlanetIds.has(id) || revealedCoordsMap.has(id) || claimedCoordsMap.has(id)
+      (id) =>
+        minedPlanetIds.has(id) ||
+        revealedCoordsMap.has(id) ||
+        claimedCoordsMap.has(id) ||
+        burnedCoordsMap.has(id)
     );
 
     const pendingMoves = await contractsAPI.getAllArrivals(planetsToLoad, pendingMovesLoadingBar);
@@ -185,6 +220,8 @@ export class InitialGameStateDownloader {
       worldRadius: await worldRadius,
       allTouchedPlanetIds,
       allRevealedCoords,
+      allClaimedCoords,
+      allBurnedCoords,
       pendingMoves,
       touchedAndLocatedPlanets,
       artifactsOnVoyages,
@@ -193,6 +230,7 @@ export class InitialGameStateDownloader {
       loadedPlanets: planetsToLoad,
       revealedCoordsMap,
       claimedCoordsMap,
+      burnedCoordsMap,
       planetVoyageIdMap,
       arrivals,
       twitters,
@@ -206,11 +244,16 @@ export class InitialGameStateDownloader {
 const tips = [
   'Beware of pirates! To capture a planet with pirates, simply send an attack large enough to overcome its current energy.',
   <>
-    Navigate the Dark Forest with allies (and enemies) - join the{' '}
-    <Link to='https://discord.gg/C23An5qNGv'>Dark Forest Discord</Link>!
+    Navigate the Dark Forest Ares with allies (and enemies) - join the{' '}
+    <Link to='https://discord.com/invite/f3FrFA4T25'>DFArchon Discord</Link>!
+    <br />
+    <br />
+    Dark Forest Ares is a modified version of Dark Forest v0.6.5.
+    <br />
+    DFArchon is a dev team focused on fully on-chain games.
   </>,
   'There are many different artifact types, each with unique properties... try activating one on a planet!',
-  'The top 63 players get NFT rewards at the end of each v0.6 round!',
+  'The top players get special rewards at the end of each DFARESv0.1 round!',
   "There are many different ways to enjoy Dark Forest - as long as you're having fun, you're doing it right.",
   'Be careful when capturing planets - if you attack a player-owned planet, it may look like an act of war!',
   'A planet can have at most one active artifact.',
@@ -219,13 +262,15 @@ const tips = [
   'Quasars can store lots of energy and silver, at the expense of being able to generate neither.',
   'Never share your private key with anyone else!',
   'Broadcasting a planet reveals its location to ALL other players!',
+  'Claiming a planet reveals its location to ALL other players!',
   'You can spend silver to upgrade your planets.',
   'Planets in Nebula are more difficult to capture than planets in Deep Space.',
   'Some of the universe is corrupted, and contains special versions of the artifacts.',
   'You can import and export maps! Be careful importing maps from others, they may contain fabricated map data.',
   <>
     If mining the universe is slow on your computer, you can try the Remote Miner plugin. Find that
-    and other plugins on <Link to='https://plugins.zkga.me'>plugins.zkga.me</Link>.
+    and other plugins on{' '}
+    <Link to='https://dfares-plugins.netlify.app/'>dfares-plugins.netlify.app</Link>.
   </>,
   "A planet can only have 6 artifacts on it at any given time. Sometimes more if you get lucky. It's the blockchain, after all.",
   'A foundry must be prospected before you can attempt to find an artifact, but make sure to click "Find" before 256 blocks or it will be lost forever.',

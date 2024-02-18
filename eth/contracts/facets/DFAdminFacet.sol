@@ -65,6 +65,23 @@ contract DFAdminFacet is WithStorage {
         player.score += amount;
     }
 
+    function deductSilver(address playerAddress, uint256 amount) public onlyAdmin {
+        Player storage player = gs().players[playerAddress];
+
+        require(player.isInitialized, "player does not exist");
+        require(amount <= player.silver, "tried to deduct much score");
+
+        player.silver -= amount;
+    }
+
+    function addSilver(address playerAddress, uint256 amount) public onlyAdmin {
+        Player storage player = gs().players[playerAddress];
+
+        require(player.isInitialized, "player does not exist");
+
+        player.silver += amount;
+    }
+
     /**
      * Sets the owner of the given planet, even if it's not initialized (which is why
      * it requires the same snark arguments as DFCoreFacet#initializePlanet).
@@ -74,7 +91,7 @@ contract DFAdminFacet is WithStorage {
         uint256[2] memory _a,
         uint256[2][2] memory _b,
         uint256[2] memory _c,
-        uint256[8] memory _input
+        uint256[9] memory _input
     ) public onlyAdmin {
         uint256 planetId = _input[0];
 
@@ -97,8 +114,40 @@ contract DFAdminFacet is WithStorage {
         gs().worldRadius = _newRadius;
     }
 
+    function changeCaptureZoneRadius(uint256 _newRadius) public onlyAdmin {
+        gameConstants().CAPTURE_ZONE_RADIUS = _newRadius;
+    }
+
+    function changeBurnPlanetEffectRadius(uint256 level, uint256 _newRadius) public onlyAdmin {
+        gameConstants().BURN_PLANET_LEVEL_EFFECT_RADIUS[level] = _newRadius;
+    }
+
+    function changeBurnPlanetRequireSilver(uint256 level, uint256 _newSilver) public onlyAdmin {
+        gameConstants().BURN_PLANET_REQUIRE_SILVER_AMOUNTS[level] = _newSilver;
+    }
+
     function changeLocationRevealCooldown(uint256 newCooldown) public onlyAdmin {
         gameConstants().LOCATION_REVEAL_COOLDOWN = newCooldown;
+    }
+
+    function changeClaimPlanetCooldown(uint256 newCooldown) public onlyAdmin {
+        gameConstants().CLAIM_PLANET_COOLDOWN = newCooldown;
+    }
+
+    function changeBurnPlanetCooldown(uint256 newCooldown) public onlyAdmin {
+        gameConstants().BURN_PLANET_COOLDOWN = newCooldown;
+    }
+
+    function changePinkPlanetCooldown(uint256 newCooldown) public onlyAdmin {
+        gameConstants().PINK_PLANET_COOLDOWN = newCooldown;
+    }
+
+    function changeActivateArtifactCooldown(uint256 newCooldown) public onlyAdmin {
+        gameConstants().ACTIVATE_ARTIFACT_COOLDOWN = newCooldown;
+    }
+
+    function changeBuyArtifactCooldown(uint256 newCooldown) public onlyAdmin {
+        gameConstants().BUY_ARTIFACT_COOLDOWN = newCooldown;
     }
 
     function withdraw() public onlyAdmin {
@@ -107,7 +156,15 @@ contract DFAdminFacet is WithStorage {
     }
 
     function setTokenMintEndTime(uint256 newTokenMintEndTime) public onlyAdmin {
-        gs().TOKEN_MINT_END_TIMESTAMP = newTokenMintEndTime;
+        gameConstants().TOKEN_MINT_END_TIMESTAMP = newTokenMintEndTime;
+    }
+
+    function setClaimEndTime(uint256 newClaimEndTime) public onlyAdmin {
+        gameConstants().CLAIM_END_TIMESTAMP = newClaimEndTime;
+    }
+
+    function setBurnEndTime(uint256 newBurnEndTime) public onlyAdmin {
+        gameConstants().BURN_END_TIMESTAMP = newBurnEndTime;
     }
 
     function createPlanet(AdminCreatePlanetArgs memory args) public onlyAdmin {
@@ -115,7 +172,12 @@ contract DFAdminFacet is WithStorage {
         if (args.requireValidLocationId) {
             require(LibGameUtils._locationIdValid(args.location), "Not a valid planet location");
         }
-        SpaceType spaceType = LibGameUtils.spaceTypeFromPerlin(args.perlin);
+
+        //mytodo: need pass dist here, get wrong space type if some condition at
+        //new map algo, need to be fixed
+        //
+        //myNotice: admin only add Level 9
+        SpaceType spaceType = LibGameUtils.spaceTypeFromPerlin(args.perlin, 0);
         LibPlanet._initializePlanet(
             DFPInitPlanetArgs(
                 args.location,
@@ -152,10 +214,17 @@ contract DFAdminFacet is WithStorage {
         emit AdminGiveSpaceship(locationId, owner, artifactType);
     }
 
-    function adminInitializePlanet(uint256 locationId, uint256 perlin) public onlyAdmin {
+    //###############
+    //  NEW MAP ALGO
+    //###############
+    function adminInitializePlanet(
+        uint256 locationId,
+        uint256 perlin,
+        uint256 distFromOriginSquare
+    ) public onlyAdmin {
         require(!gs().planets[locationId].isInitialized, "planet is already initialized");
 
-        LibPlanet.initializePlanetWithDefaults(locationId, perlin, false);
+        LibPlanet.initializePlanetWithDefaults(locationId, perlin, distFromOriginSquare, false);
     }
 
     function setPlanetTransferEnabled(bool enabled) public onlyAdmin {
@@ -164,5 +233,29 @@ contract DFAdminFacet is WithStorage {
 
     function setDynamicTimeFactor(uint256 factor) public onlyAdmin {
         gs().dynamicTimeFactor = factor;
+    }
+
+    function adminSetFinalScoreAndRank(
+        address[] calldata playerAddresses,
+        uint256[] calldata scores,
+        uint256[] calldata ranks
+    ) public onlyAdmin {
+        require(
+            playerAddresses.length == scores.length,
+            "player and score array lengths do not match"
+        );
+        require(scores.length == ranks.length, "score and rank array do not match");
+        require(block.timestamp > gameConstants().TOKEN_MINT_END_TIMESTAMP, "game is not over");
+        require(block.timestamp > gameConstants().CLAIM_END_TIMESTAMP, "game is not over");
+        require(block.timestamp > gameConstants().BURN_END_TIMESTAMP, "game is not over");
+
+        for (uint256 i = 0; i < playerAddresses.length; i++) {
+            address playerAddress = playerAddresses[i];
+            uint256 score = scores[i];
+            uint256 rank = ranks[i];
+            Player storage player = gs().players[playerAddress];
+            player.score = score;
+            player.finalRank = rank;
+        }
     }
 }

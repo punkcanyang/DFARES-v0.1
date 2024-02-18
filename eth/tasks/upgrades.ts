@@ -7,10 +7,12 @@ import {
   deployCaptureFacet,
   deployCoreFacet,
   deployDebugFacet,
-  deployGetterFacet,
+  deployGetterOneFacet,
+  deployGetterTwoFacet,
   deployLibraries,
   deployLobbyFacet,
   deployMoveFacet,
+  deployPinkBombFacet,
   deployRewardFacet,
   deployVerifierFacet,
   deployWhitelistFacet,
@@ -49,9 +51,13 @@ async function upgrade({}, hre: HardhatRuntimeEnvironment) {
     libraries,
     hre
   );
-  console.log('getterFacets');
+  console.log('getterOneFacets');
 
-  const getterFacet = await deployGetterFacet({}, libraries, hre);
+  const getterOneFacet = await deployGetterOneFacet({}, libraries, hre);
+
+  console.log('getterTwoFacets');
+  const getterTwoFacet = await deployGetterTwoFacet({}, libraries, hre);
+
   console.log('whitelistFacets');
 
   const whitelistFacet = await deployWhitelistFacet({}, libraries, hre);
@@ -68,21 +74,27 @@ async function upgrade({}, hre: HardhatRuntimeEnvironment) {
   console.log('captureFacets');
 
   const captureFacet = await deployCaptureFacet({}, libraries, hre);
+  console.log('pinkBombFacets');
+
+  const pinkBombFacet = await deployPinkBombFacet({}, libraries, hre);
   console.log('rewardFacets');
 
   const rewardFacet = await deployRewardFacet({}, libraries, hre);
 
   // The `cuts` to perform for Dark Forest facets
+
   const darkForestCuts = [
     ...changes.getFacetCuts('DFCoreFacet', coreFacet),
     ...changes.getFacetCuts('DFMoveFacet', moveFacet),
+    ...changes.getFacetCuts('DFCaptureFacet', captureFacet),
+    ...changes.getFacetCuts('DFPinkBombFacet', pinkBombFacet),
     ...changes.getFacetCuts('DFArtifactFacet', artifactFacet),
-    ...changes.getFacetCuts('DFGetterFacet', getterFacet),
+    ...changes.getFacetCuts('DFGetterOneFacet', getterOneFacet),
+    ...changes.getFacetCuts('DFGetterTwoFacet', getterTwoFacet),
     ...changes.getFacetCuts('DFWhitelistFacet', whitelistFacet),
     ...changes.getFacetCuts('DFVerifierFacet', verifierFacet),
     ...changes.getFacetCuts('DFAdminFacet', adminFacet),
     ...changes.getFacetCuts('DFLobbyFacet', lobbyFacet),
-    ...changes.getFacetCuts('DFCaptureFacet', captureFacet),
     ...changes.getFacetCuts('DFRewardFacet', rewardFacet),
   ];
 

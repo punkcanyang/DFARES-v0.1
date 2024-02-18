@@ -9,6 +9,8 @@ import {WithStorage} from "../libraries/LibStorage.sol";
 
 import {Player} from "../DFTypes.sol";
 
+// myNotice: DFRewardFacet don't fit the rule of v0.6.3
+
 contract DFRewardFacet is WithStorage {
     modifier onlyWhitelisted() {
         require(
@@ -31,7 +33,7 @@ contract DFRewardFacet is WithStorage {
             sortedPlayerAddresses.length == sortedScores.length,
             "score and player array lengths do not match"
         );
-        require(block.timestamp > gs().TOKEN_MINT_END_TIMESTAMP, "game is not over");
+        require(block.timestamp > gameConstants().TOKEN_MINT_END_TIMESTAMP, "game is not over");
 
         Player storage claimingPlayer = gs().players[msg.sender];
 

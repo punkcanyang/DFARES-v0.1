@@ -20,7 +20,7 @@ import { Paused } from './Paused';
 const TopBarContainer = styled.div`
   z-index: ${DFZIndex.MenuBar};
   padding: 0 2px;
-  width: 530px;
+  width: 800px;
 `;
 
 const Numbers = styled.div`
@@ -37,7 +37,12 @@ function BoardPlacement({ account }: { account: EthAddress | undefined }) {
     content = <Sub>n/a</Sub>;
   } else {
     let formattedScore = 'n/a';
-    if (player.value.score !== undefined && player.value.score !== null) {
+
+    if (
+      player.value.score !== undefined &&
+      player.value.score !== null &&
+      player.value.lastClaimTimestamp !== 0
+    ) {
       formattedScore = player.value.score.toLocaleString();
     }
 
@@ -45,6 +50,32 @@ function BoardPlacement({ account }: { account: EthAddress | undefined }) {
       <Sub>
         <TooltipTrigger name={TooltipName.Score}>
           score: <Text>{formattedScore}</Text>
+        </TooltipTrigger>
+      </Sub>
+    );
+  }
+
+  return <Numbers>{content}</Numbers>;
+}
+
+function PlayerSilver({ account }: { account: EthAddress | undefined }) {
+  const uiManager = useUIManager();
+  const player = usePlayer(uiManager, account);
+
+  let content;
+
+  if (!player.value) {
+    content = <Sub>n/a</Sub>;
+  } else {
+    let formattedSilver = '0';
+
+    if (player.value.silver !== undefined && player.value.silver !== null) {
+      formattedSilver = player.value.silver.toLocaleString();
+    }
+    content = (
+      <Sub>
+        <TooltipTrigger name={TooltipName.PlayerSilver}>
+          silver: <Text>{formattedSilver}</Text>
         </TooltipTrigger>
       </Sub>
     );
@@ -224,6 +255,7 @@ export function TopBar({ twitterVerifyHook }: { twitterVerifyHook: Hook<boolean>
           </>
         )}
         <BoardPlacement account={account} />
+        <PlayerSilver account={account} />
       </AlignCenterHorizontally>
       <AlignCenterHorizontally style={{ justifyContent: 'space-around', width: '100%' }}>
         {captureZones}

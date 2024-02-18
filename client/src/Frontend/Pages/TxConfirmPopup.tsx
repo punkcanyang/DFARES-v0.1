@@ -1,7 +1,8 @@
-import { TOKEN_NAME } from '@dfares/constants';
+import { FIXED_DIGIT_NUMBER, GAS_ADJUST_DELTA, TOKEN_NAME } from '@dfares/constants';
 import { gweiToWei, weiToEth } from '@dfares/network';
 import { address } from '@dfares/serde';
 import { ArtifactType, Setting } from '@dfares/types';
+import { BigNumber } from 'ethers';
 import React, { useState } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import styled, { css, keyframes } from 'styled-components';
@@ -172,7 +173,11 @@ export function TxConfirmPopup({
   // ethConnection.getAutoGasPriceGwei(ethConnection.getAutoGasPrices(), autoGasPriceSetting);
 
   const wrapGasFee = () => {
-    if (method === 'initializePlayer' || method === 'getSpaceShips') return '50';
+    if (method === 'initializePlayer' || method === 'getSpaceShips')
+      return Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('40'))
+        .toFixed(FIXED_DIGIT_NUMBER)
+        .toString();
+
     const res = getSetting(config, Setting.GasFeeGwei);
 
     return res;
@@ -186,7 +191,9 @@ export function TxConfirmPopup({
 
   const hatPlanet = localStorage.getItem(`${account}-hatPlanet`);
   const hatLevel = localStorage.getItem(`${account}-hatLevel`);
-  const hatCost: number = method === 'buyHat' && hatLevel ? 2 ** parseInt(hatLevel) : 0;
+  // const hatCost: number = method === 'buyHat' && hatLevel ? 2 **
+  // parseInt(hatLevel) : 0;
+  const hatCost: number = method === 'buyHat' && hatLevel ? 0.1 : 0;
 
   const upPlanet = localStorage.getItem(`${account}-upPlanet`);
   const branch = localStorage.getItem(`${account}-branch`);
@@ -229,9 +236,10 @@ export function TxConfirmPopup({
   }
 
   function price() {
-    console.warn('this is price');
-    console.log(butArtifactType);
-    console.log(buyArtifactRarity);
+    return 50;
+    // console.warn('this is price');
+    // console.log(butArtifactType);
+    // console.log(buyArtifactRarity);
 
     if (butArtifactType === undefined) return 0;
     if (buyArtifactRarity === undefined) return 0;
@@ -259,22 +267,48 @@ export function TxConfirmPopup({
   const buyArtifactCost: number =
     method === 'buyArtifact' && buyArtifactRarity && butArtifactType ? price() : 0;
 
+  const entryFee = localStorage.getItem(`${account}-entryFee`);
+
+  const joinGameCost: number =
+    method === 'initializePlayer' && entryFee ? weiToEth(BigNumber.from(entryFee)) : 0;
+
   //MyTodo: chance to useUIManager
   const getTxCost = () => {
-    if (!isNaN(Number(gasFeeGwei)) && !isNaN(buyArtifactCost) && !isNaN(hatCost)) {
+    if (!isNaN(Number(gasFeeGwei))) {
+      // console.log('first');
+      // console.log(Number(gasLimit));
+      // console.log(Number(gasFeeGwei));
+      // console.log(gweiToWei(Number(gasLimit) * Number(gasFeeGwei)));
+      // console.log(weiToEth(gweiToWei(Number(gasLimit) * Number(gasFeeGwei))));
+
       const res: number =
-        hatCost + buyArtifactCost + weiToEth(gweiToWei(Number(gasLimit) * Number(gasFeeGwei)));
-      return res.toFixed(8).toString();
+        hatCost +
+        buyArtifactCost +
+        joinGameCost +
+        weiToEth(gweiToWei(Number(gasLimit) * Number(gasFeeGwei)));
+
+      return res.toFixed(18).toString();
     } else {
+      // console.log('second');
+      // console.log(Number(gasLimit));
+      // console.log(Number(gasFeeGwei));
+      // console.log(gweiToWei(Number(gasLimit) * Number(gasFeeGwei)));
+      // console.log(weiToEth(gweiToWei(Number(gasLimit) * Number(gasFeeGwei))));
+
       const pre = 'Estimated: ';
       let val = '0';
       if (gasFeeGwei === 'Slow') val = '1';
       else if (gasFeeGwei === 'Average') val = '3';
       else if (gasFeeGwei === 'Fast') val = '10';
       else val = gasFeeGwei;
+
       const res: number =
-        hatCost + buyArtifactCost + weiToEth(gweiToWei(Number(gasLimit) * Number(val)));
-      return pre + res.toFixed(8).toString();
+        hatCost +
+        buyArtifactCost +
+        joinGameCost +
+        weiToEth(gweiToWei(Number(gasLimit) * Number(val)));
+
+      return pre + res.toFixed(18).toString();
     }
   };
 
@@ -307,12 +341,18 @@ export function TxConfirmPopup({
             </Row>
             <Row>
               <b>HAT Level</b>
+              <span>{hatLevel}</span>
+            </Row>
+
+            <Row>
+              <b>Hat Fee </b>
               <span>
-                {hatLevel} ({hatCost} ${TOKEN_NAME})
+                {hatCost} ${TOKEN_NAME}
               </span>
             </Row>
           </>
         )}
+
         {method === 'move' && (
           <>
             <Row>
@@ -424,6 +464,17 @@ export function TxConfirmPopup({
             <span className='mono'>{withdrawSilverPlanet}</span>
           </Row>
         )}
+
+        {method === 'initializePlayer' && (
+          <>
+            <Row>
+              <b>Entry Fee </b>
+              <span>
+                {joinGameCost} ${TOKEN_NAME}
+              </span>
+            </Row>
+          </>
+        )}
       </div>
 
       <div className='section'>
@@ -455,10 +506,11 @@ export function TxConfirmPopup({
             </b>
           </Row>
         )}
+
         <Row className='mtop'>
           <b>Account Balance</b>
           <span>
-            {parseFloat(balance).toFixed(8)} ${TOKEN_NAME}
+            {parseFloat(balance).toFixed(18)} ${TOKEN_NAME}
           </span>
         </Row>
         <Row className='mtop'>

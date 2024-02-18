@@ -320,8 +320,12 @@ class GameUIManager extends EventEmitter {
     }
   }
 
-  public joinGame(beforeRetry: (e: Error) => Promise<boolean>): Promise<void> {
-    return this.gameManager.joinGame(beforeRetry);
+  public joinGame(
+    beforeRetry: (e: Error) => Promise<boolean>,
+    _selectedCoords: { x: number; y: number },
+    spectate: boolean
+  ): Promise<void> {
+    return this.gameManager.joinGame(beforeRetry, _selectedCoords, spectate);
   }
 
   public addAccount(coords: WorldCoords): Promise<boolean> {
@@ -466,12 +470,64 @@ class GameUIManager extends EventEmitter {
     this.gameManager.revealLocation(locationId);
   }
 
+  public claimLocation(locationId: LocationId) {
+    this.gameManager.claimLocation(locationId);
+  }
+
+  public burnLocation(locationId: LocationId) {
+    this.gameManager.burnLocation(locationId);
+  }
+
+  public checkPlanetCanPink(planetId: LocationId): boolean {
+    return this.gameManager.checkPlanetCanPink(planetId);
+  }
+
+  public pinkLocation(locationId: LocationId) {
+    this.gameManager.pinkLocation(locationId);
+  }
+
   public getNextBroadcastAvailableTimestamp() {
     return this.gameManager.getNextBroadcastAvailableTimestamp();
   }
 
   public timeUntilNextBroadcastAvailable() {
     return this.gameManager.timeUntilNextBroadcastAvailable();
+  }
+
+  public getNextClaimAvailableTimestamp() {
+    return this.gameManager.getNextClaimAvailableTimestamp();
+  }
+
+  public timeUntilNextClaimAvailable() {
+    return this.gameManager.timeUntilNextClaimAvailable();
+  }
+
+  public getNextBurnAvailableTimestamp() {
+    return this.gameManager.getNextBurnAvailableTimestamp();
+  }
+
+  public timeUntilNextBurnAvailable() {
+    return this.gameManager.timeUntilNextBurnAvailable();
+  }
+
+  public getNextPinkAvailableTimestamp(planetId: LocationId) {
+    return this.gameManager.getNextPinkAvailableTimestamp(planetId);
+  }
+
+  public getNextActivateArtifactAvailableTimestamp() {
+    return this.gameManager.getNextActivateArtifactAvailableTimestamp();
+  }
+
+  public timeUntilNextActivateArtifactAvailable() {
+    return this.gameManager.timeUntilNextBuyArtifactAvailable();
+  }
+
+  public getNextBuyArtifactAvailableTimestamp() {
+    return this.gameManager.getNextBuyArtifactAvailableTimestamp();
+  }
+
+  public timeUntilNextBuyArtifactAvailable() {
+    return this.gameManager.timeUntilNextBuyArtifactAvailable();
   }
 
   public getEnergyArrivingForMove(
@@ -876,8 +932,8 @@ class GameUIManager extends EventEmitter {
     return this.gameManager.getChunk(chunkFootprint);
   }
 
-  public spaceTypeFromPerlin(perlin: number): SpaceType {
-    return this.gameManager.spaceTypeFromPerlin(perlin);
+  public spaceTypeFromPerlin(perlin: number, distFromOrigin: number): SpaceType {
+    return this.gameManager.spaceTypeFromPerlin(perlin, distFromOrigin);
   }
 
   public getSpaceTypePerlin(coords: WorldCoords, floor: boolean): number {
@@ -973,7 +1029,14 @@ class GameUIManager extends EventEmitter {
     }
 
     if (account !== undefined) {
-      if (this.spaceTypeFromPerlin(chunk.perlin) === SpaceType.DEEP_SPACE) {
+      const distFromOrigin = chunk.planetLocations[0]
+        ? Math.floor(
+            Math.sqrt(
+              chunk.planetLocations[0].coords.x ** 2 + chunk.planetLocations[0].coords.y ** 2
+            )
+          )
+        : 1;
+      if (this.spaceTypeFromPerlin(chunk.perlin, distFromOrigin) === SpaceType.DEEP_SPACE) {
         if (
           !this.getBooleanSetting(Setting.FoundDeepSpace) &&
           this.getBooleanSetting(Setting.TutorialCompleted)
@@ -981,7 +1044,7 @@ class GameUIManager extends EventEmitter {
           notifManager.foundDeepSpace(chunk);
           setBooleanSetting(config, Setting.FoundDeepSpace, true);
         }
-      } else if (this.spaceTypeFromPerlin(chunk.perlin) === SpaceType.SPACE) {
+      } else if (this.spaceTypeFromPerlin(chunk.perlin, distFromOrigin) === SpaceType.SPACE) {
         if (
           !this.getBooleanSetting(Setting.FoundSpace) &&
           this.getBooleanSetting(Setting.TutorialCompleted)
@@ -989,7 +1052,7 @@ class GameUIManager extends EventEmitter {
           notifManager.foundSpace(chunk);
           setBooleanSetting(config, Setting.FoundSpace, true);
         }
-      } else if (this.spaceTypeFromPerlin(chunk.perlin) === SpaceType.DEAD_SPACE) {
+      } else if (this.spaceTypeFromPerlin(chunk.perlin, distFromOrigin) === SpaceType.DEAD_SPACE) {
         if (
           !this.getBooleanSetting(Setting.FoundDeepSpace) &&
           this.getBooleanSetting(Setting.TutorialCompleted)
@@ -1197,6 +1260,14 @@ class GameUIManager extends EventEmitter {
     return this.gameManager.getNextRevealCountdownInfo().currentlyRevealing;
   }
 
+  public isCurrentlyClaiming(): boolean {
+    return this.gameManager.getNextClaimCountdownInfo().currentlyClaiming;
+  }
+
+  public isCurrentlyBurning(): boolean {
+    return this.gameManager.getNextBurnCountdownInfo().currentlyBurning;
+  }
+
   public getUnconfirmedLinkActivations(): Transaction<UnconfirmedActivateArtifact>[] {
     return this.gameManager.getUnconfirmedLinkActivations();
   }
@@ -1223,6 +1294,14 @@ class GameUIManager extends EventEmitter {
 
   public getCaptureZones() {
     return this.gameManager.getCaptureZones();
+  }
+
+  public getPinkZones() {
+    return this.gameManager.getPinkZones();
+  }
+
+  public getMyPinkZones() {
+    return this.gameManager.getMyPinkZones();
   }
 
   public getCaptureZoneGenerator() {
@@ -1276,6 +1355,10 @@ class GameUIManager extends EventEmitter {
     return this.gameManager.getPlayerBuyArtifactAmount(player);
   }
 
+  public getPlayerSilver(player: EthAddress): number | undefined {
+    return this.gameManager.getPlayerSilver(player);
+  }
+
   public upgrade(planet: Planet, branch: number): void {
     // TODO: do something like JSON.stringify(args) so we know formatting is correct
     this.terminal.current?.printShellLn(`df.upgrade('${planet.locationId}', ${branch})`);
@@ -1284,7 +1367,7 @@ class GameUIManager extends EventEmitter {
 
   public buyHat(planet: Planet, hatType: number): void {
     // TODO: do something like JSON.stringify(args) so we know formatting is correct
-    this.terminal.current?.printShellLn(`df.buyHat('${planet.locationId},1')`);
+    this.terminal.current?.printShellLn(`df.buyHat('${planet.locationId}','${hatType}')`);
     this.gameManager.buyHat(planet.locationId, hatType);
   }
 
@@ -1369,6 +1452,21 @@ class GameUIManager extends EventEmitter {
 
   public potentialCaptureScore(planetLevel: number): number {
     return this.contractConstants.CAPTURE_ZONE_PLANET_LEVEL_SCORE[planetLevel];
+  }
+
+  public getRadiusOfPinkCircle(planetLevel: number): number {
+    return this.contractConstants.BURN_PLANET_LEVEL_EFFECT_RADIUS[planetLevel];
+  }
+
+  public getSilverOfBurnPlanet(account: EthAddress, planetLevel: number): number | undefined {
+    // const silverAmount = 10 ** this.player.dropBombAmount;
+    const player = this.getPlayer(account);
+    if (!player) return undefined;
+    const silverAmount =
+      this.contractConstants.BURN_PLANET_REQUIRE_SILVER_AMOUNTS[planetLevel] *
+      10 ** (player.dropBombAmount + 1);
+
+    return silverAmount;
   }
 
   public getDefaultSpaceJunkForPlanetLevel(level: number): number {

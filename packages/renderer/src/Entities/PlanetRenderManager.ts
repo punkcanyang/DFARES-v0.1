@@ -171,6 +171,7 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
     // render black domain
     if (planet.destroyed) {
       this.queueBlackDomain(planet, planet.location.coords, renderInfo.radii.radiusWorld);
+
       return;
     }
 
@@ -182,6 +183,7 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
 
     if (hasOwner(planet)) {
       color[3] = cA * 120;
+
       cR.queueCircleWorld(planet.location.coords, renderInfo.radii.radiusWorld * 1.1, color, 0.5);
       const pct = planet.energy / planet.energyCap;
       color[3] = cA * 255;
@@ -461,9 +463,11 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
   }
 
   private queueBlackDomain(planet: Planet, center: WorldCoords, radius: number) {
-    const { blackDomainRenderer: bR } = this.renderer;
+    const { blackDomainRenderer: bR, circleRenderer: cR } = this.renderer;
 
     bR.queueBlackDomain(planet, center, radius);
+
+    // cR.queueCircleWorld(center, radius * 1.2, [255, 192, 203, 160]);
   }
 
   private queueAsteroids(planet: Planet, center: WorldCoords, radius: number) {
@@ -681,15 +685,15 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
       }
 
       tR.queueTextWorld(atkString, textLoc, color, 1);
-      if (planet.spaceJunk !== 0) {
-        const spaceJunkString = `(+${planet.spaceJunk} junk)`;
-        tR.queueTextWorld(
-          spaceJunkString,
-          { x: center.x, y: center.y - 1.1 * radius - 0.75 },
-          color,
-          2
-        );
-      }
+      // if (planet.spaceJunk !== 0) {
+      //   const spaceJunkString = `(+${planet.spaceJunk} junk)`;
+      //   tR.queueTextWorld(
+      //     spaceJunkString,
+      //     { x: center.x, y: center.y - 1.1 * radius - 0.75 },
+      //     color,
+      //     2
+      //   );
+      // }
     }
   }
 

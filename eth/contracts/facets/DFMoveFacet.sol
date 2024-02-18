@@ -35,7 +35,7 @@ contract DFMoveFacet is WithStorage {
         uint256[2] memory _a,
         uint256[2][2] memory _b,
         uint256[2] memory _c,
-        uint256[10] memory _input,
+        uint256[11] memory _input,
         uint256 popMoved,
         uint256 silverMoved,
         uint256 movedArtifactId,
@@ -83,11 +83,12 @@ contract DFMoveFacet is WithStorage {
 
         // Only perform if the toPlanet have never initialized previously
         if (!gs().planets[args.newLoc].isInitialized) {
-            LibPlanet.initializePlanetWithDefaults(args.newLoc, newPerlin, false);
+            // LibPlanet.initializePlanetWithDefaults(args.newLoc, newPerlin, false);
+            LibPlanet.initializePlanetWithDefaults(args.newLoc, newPerlin, _input[10], false);
         } else {
             // need to do this so people can't deny service to planets with gas limit
             LibPlanet.refreshPlanet(args.newLoc);
-            LibGameUtils.checkPlanetDOS(args.newLoc, args.sender,movedArtifactId);
+            LibGameUtils.checkPlanetDOS(args.newLoc, args.sender, movedArtifactId);
         }
 
         if (gs().artifacts[args.movedArtifactId].artifactType == ArtifactType.ShipMothership) {
@@ -97,6 +98,7 @@ contract DFMoveFacet is WithStorage {
             );
         }
 
+        gs().players[msg.sender].moveCount++;
         _executeMove(args);
 
         LibGameUtils.updateWorldRadius();
@@ -168,11 +170,11 @@ contract DFMoveFacet is WithStorage {
             travelTime = 1;
         }
 
-        //MyTodo: change the photoid travel time in sec
+        //myNotice: change the photoid travel time in sec
         //all photoid travel same time
-        if (photoidPresent) {
-            travelTime = 600;
-        }
+        // if (photoidPresent) {
+        //     travelTime = 600;
+        // }
 
         Planet memory toPlanet = gs().planets[args.newLoc];
         if (toPlanet.planetType == PlanetType.SILVER_BANK) {
@@ -330,6 +332,7 @@ contract DFMoveFacet is WithStorage {
         if (relevantWormhole.isInitialized) {
             wormholePresent = true;
             uint256[6] memory speedBoosts = [uint256(1), 2, 4, 8, 16, 32];
+
             effectiveDistModifier = speedBoosts[uint256(relevantWormhole.rarity)];
         }
     }
@@ -344,6 +347,10 @@ contract DFMoveFacet is WithStorage {
         returns (bool photoidPresent, Upgrade memory temporaryUpgrade)
     {
         Artifact memory activeArtifactFrom = LibGameUtils.getActiveArtifact(args.oldLoc);
+        Artifact memory activeArtifactTo = LibGameUtils.getActiveArtifact(args.newLoc);
+
+        Planet memory newPlanet = gs().planets[args.newLoc];
+
         if (
             activeArtifactFrom.isInitialized &&
             activeArtifactFrom.artifactType == ArtifactType.PhotoidCannon &&
@@ -353,6 +360,16 @@ contract DFMoveFacet is WithStorage {
             photoidPresent = true;
             LibArtifactUtils.deactivateArtifact(args.oldLoc);
             temporaryUpgrade = LibGameUtils.timeDelayUpgrade(activeArtifactFrom);
+
+            if (
+                activeArtifactTo.isInitialized &&
+                activeArtifactTo.artifactType == ArtifactType.StellarShield
+            ) {
+                require(
+                    activeArtifactFrom.rarity >= activeArtifactTo.rarity,
+                    "Photoid Canon rarity >= Stellar Shield rarity"
+                );
+            }
         }
     }
 

@@ -34,6 +34,14 @@ import {
 } from '@dfares/types';
 import bigInt, { BigInteger } from 'big-integer';
 
+export const TOKEN_NAME = 'ETH';
+export const BLOCKCHAIN_NAME = 'Redstone Testnet';
+export const HOST_TEAM_NAME = 'DF Archon';
+
+export const GAS_ADJUST_DELTA = '0.00000005'; //'1'; //
+
+export const FIXED_DIGIT_NUMBER = 9;
+
 /**
  * The precision of Energy & Silver stored in the Dark Forest smart contracts.
  *
@@ -82,7 +90,7 @@ export const MIN_ARTIFACT_TYPE = ArtifactType.Monolith;
 /**
  * The value of the maximum, valid artifact type
  */
-export const MAX_ARTIFACT_TYPE = ArtifactType.ShipTitan;
+export const MAX_ARTIFACT_TYPE = ArtifactType.ShipPink;
 
 /**
  * The value of the minimum, valid spaceship type
@@ -91,7 +99,7 @@ export const MIN_SPACESHIP_TYPE = ArtifactType.ShipMothership;
 /**
  * The value of the maximum, valid spaceship type
  */
-export const MAX_SPACESHIP_TYPE = ArtifactType.ShipTitan;
+export const MAX_SPACESHIP_TYPE = ArtifactType.ShipPink;
 
 /**
  * The value of the minimum, valid artifact rarity
@@ -132,9 +140,9 @@ export const GAS_PRICE_API = 'https://blockscout.com/xdai/mainnet/api/v1/gas-pri
  * In case we cannot load gas prices from xDai, these are the default auto gas prices.
  */
 export const DEFAULT_GAS_PRICES: GasPrices = {
-  slow: 1,
-  average: 3,
-  fast: 10,
+  slow: Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('1')), // 1,
+  average: Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('3')), //3,
+  fast: Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('10')), //10,
 } as const;
 
 /**
@@ -148,7 +156,8 @@ export const MAX_AUTO_GAS_PRICE_GWEI = 15 as const;
  */
 // Careful, don't add a slash to the end of this.
 // export const BLOCK_EXPLORER_URL = 'https://dashboard.tenderly.co/tx/xdai' as const;
-export const BLOCK_EXPLORER_URL = 'https://dfares-explorer.altlayer.io/tx' as const;
+// export const BLOCK_EXPLORER_URL = 'https://dfares-explorer.altlayer.io/tx' as const;
+export const BLOCK_EXPLORER_URL = 'https://explorer.holesky.redstone.xyz/tx' as const;
 /**
  * The amount of time between gas price refreshes when fetching prices from the oracle.
  */
@@ -202,12 +211,12 @@ export const MAX_HAT_TYPE = 10;
 
 // export const PICTURE_URL = 'http://localhost:8081';
 export const PICTURE_URL = 'https://dfares.xyz/public';
-
+// export const PICTURE_URL = 'https://dfares.xyz/public';
 export const MIN_MEME_TYPE = 1;
 export const MAX_MEME_TYPE = 20;
 
 export const MIN_LOGO_TYPE = 1;
-export const MAX_LOGO_TYPE = 49;
+export const MAX_LOGO_TYPE = 34;
 
 export const MIN_AVATAR_TYPE = 1;
 export const MAX_AVATAR_TYPE = 9;
@@ -217,7 +226,3 @@ export const MAX_AVATAR_TYPE = 9;
  */
 export const THEGRAPH_API_URL =
   'https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-5';
-
-export const TOKEN_NAME = 'RES';
-export const BLOCKCHAIN_NAME = 'AltLayer';
-export const HOST_TEAM_NAME = 'DF Archon';

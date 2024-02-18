@@ -7,6 +7,7 @@ export type Meme = {
   // image?: () => Promise<HTMLImageElement>;
 };
 
+// const PICTURE_URL = 'https://dfares.xyz/public';
 const PICTURE_URL = 'https://dfares.xyz/public';
 const URL = PICTURE_URL;
 

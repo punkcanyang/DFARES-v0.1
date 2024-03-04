@@ -172,6 +172,7 @@ export function CreateLobby({ match }: RouteComponentProps<{ contract: string }>
               config.MIN_LEVEL_BIAS[4],
               config.MIN_LEVEL_BIAS[5],
             ],
+            ENTRY_FEE: config.ENTRY_FEE,
           });
         })
         .catch((e) => {

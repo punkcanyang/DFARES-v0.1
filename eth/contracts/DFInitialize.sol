@@ -121,6 +121,7 @@ struct InitArgs {
     uint256[5] MAX_LEVEL_DIST;
     uint256[6] MAX_LEVEL_LIMIT;
     uint256[6] MIN_LEVEL_BIAS;
+    uint256 ENTRY_FEE;
 }
 
 contract DFInitialize is WithStorage {
@@ -237,6 +238,7 @@ contract DFInitialize is WithStorage {
         gameConstants().MAX_LEVEL_DIST = initArgs.MAX_LEVEL_DIST;
         gameConstants().MAX_LEVEL_LIMIT = initArgs.MAX_LEVEL_LIMIT;
         gameConstants().MIN_LEVEL_BIAS = initArgs.MIN_LEVEL_BIAS;
+        gameConstants().ENTRY_FEE = initArgs.ENTRY_FEE;
 
         initializeDefaults();
         initializeUpgrades();

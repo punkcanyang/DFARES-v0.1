@@ -275,6 +275,19 @@ async function setEndTime(args: { endtime: number }, hre: HardhatRuntimeEnvironm
   console.log('alreadt set burnEndTime');
 }
 
+task('admin:setEntryFee', 'change Entry Fee')
+  .addPositionalParam('fee', 'the entry fee', undefined, types.int)
+  .setAction(setEntryFee);
+
+async function setEntryFee(args: { fee: number }, hre: HardhatRuntimeEnvironment) {
+  await hre.run('utils:assertChainId');
+
+  const contract = await hre.ethers.getContractAt('DarkForest', hre.contracts.CONTRACT_ADDRESS);
+
+  const receipt = await contract.setEntryFee(args.fee);
+  await receipt.wait();
+}
+
 task(
   'admin:createPlanets',
   'creates the planets defined in the darkforest.toml [[planets]] key. Only works when zk checks are enabled (using regular mimc fn)'

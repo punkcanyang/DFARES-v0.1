@@ -167,6 +167,10 @@ contract DFAdminFacet is WithStorage {
         gameConstants().BURN_END_TIMESTAMP = newBurnEndTime;
     }
 
+    function setEntryFee(uint256 newEntryFee) public onlyAdmin {
+        gameConstants().ENTRY_FEE = newEntryFee;
+    }
+
     function createPlanet(AdminCreatePlanetArgs memory args) public onlyAdmin {
         require(gameConstants().ADMIN_CAN_ADD_PLANETS, "admin can no longer add planets");
         if (args.requireValidLocationId) {

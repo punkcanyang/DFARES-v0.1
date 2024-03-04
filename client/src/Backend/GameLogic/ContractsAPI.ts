@@ -530,6 +530,7 @@ export class ContractsAPI extends EventEmitter {
       MAX_LEVEL_DIST,
       MAX_LEVEL_LIMIT,
       MIN_LEVEL_BIAS,
+      ENTRY_FEE,
     } = await this.makeCall(this.contract.getGameConstants);
 
     // const TOKEN_MINT_END_TIMESTAMP = (
@@ -780,6 +781,8 @@ export class ContractsAPI extends EventEmitter {
         MIN_LEVEL_BIAS[4].toNumber(),
         MIN_LEVEL_BIAS[5].toNumber(),
       ],
+
+      ENTRY_FEE: ENTRY_FEE.toNumber(),
     };
     // console.log(constants);
     return constants;

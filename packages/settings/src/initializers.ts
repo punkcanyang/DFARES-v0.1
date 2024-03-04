@@ -103,6 +103,7 @@ export const decodeInitializers = decoders.guard(
       PINKSHIP: decoders.boolean,
     }),
     ROUND_END_REWARDS_BY_RANK: exactArray64(decoders.number),
+    ENTRY_FEE: decoders.number,
   }),
   { style: 'simple' }
 );

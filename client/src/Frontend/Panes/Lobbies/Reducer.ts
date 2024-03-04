@@ -174,7 +174,8 @@ export type LobbyConfigAction =
       value: Initializers['CAPTURE_ZONES_PER_5000_WORLD_RADIUS'] | undefined;
     }
   | { type: 'WHITELIST_ENABLED'; value: boolean | undefined }
-  | { type: 'ROUND_END_REWARDS_BY_RANK'; index: number; value: number | undefined };
+  | { type: 'ROUND_END_REWARDS_BY_RANK'; index: number; value: number | undefined }
+  | { type: 'ENTRY_FEE'; value: Initializers['ENTRY_FEE'] | undefined };
 
 // TODO(#2328): WHITELIST_ENABLED should just be on Initializers
 export type LobbyInitializers = Initializers & { WHITELIST_ENABLED: boolean | undefined };
@@ -432,6 +433,10 @@ export function lobbyConfigReducer(state: LobbyConfigState, action: LobbyAction)
     }
     case 'ROUND_END_REWARDS_BY_RANK': {
       update = ofRoundEndRewardsByRank(action, state);
+      break;
+    }
+    case 'ENTRY_FEE': {
+      update = ofPositiveInteger(action, state);
       break;
     }
     case 'WHITELIST_ENABLED': {
@@ -1075,6 +1080,17 @@ export function lobbyConfigInit(startingConfig: LobbyInitializers) {
         break;
       }
       case 'ROUND_END_REWARDS_BY_RANK': {
+        const defaultValue = startingConfig[key];
+        state[key] = {
+          currentValue: defaultValue,
+          displayValue: defaultValue,
+          defaultValue,
+          warning: undefined,
+        };
+        break;
+      }
+
+      case 'ENTRY_FEE': {
         const defaultValue = startingConfig[key];
         state[key] = {
           currentValue: defaultValue,

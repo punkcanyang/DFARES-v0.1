@@ -431,6 +431,7 @@ export interface ContractConstants {
   MAX_LEVEL_DIST: number[];
   MAX_LEVEL_LIMIT: number[];
   MIN_LEVEL_BIAS: number[];
+  ENTRY_FEE: number;
 }
 
 export type ClientMockchainData =

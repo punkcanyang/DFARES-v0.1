@@ -157,6 +157,7 @@ struct GameConstants {
     uint256[5] MAX_LEVEL_DIST;
     uint256[6] MAX_LEVEL_LIMIT;
     uint256[6] MIN_LEVEL_BIAS;
+    uint256 ENTRY_FEE;
 }
 
 struct SpaceshipConstants {

@@ -293,8 +293,7 @@ ROUND_END_REWARDS_BY_RANK=[
   0
 ]
 
-
-
+ENTRY_FEE=2_000_000_000 # gwei
 
 # not include PinkShip yet
 [initializers.SPACESHIPS]

@@ -196,7 +196,7 @@ contract DFPinkBombFacet is WithStorage {
         require(planetInPinkZone(x, y), "planet is not in your pink zone");
 
         planet.destroyed = true;
-        if (planet.operator != address(0)) planet.operator = msg.sender;
+        if (planet.operator == address(0)) planet.operator = msg.sender;
 
         if (gs().revealedCoords[planetId].locationId == 0) {
             gs().revealedPlanetIds.push(planetId);

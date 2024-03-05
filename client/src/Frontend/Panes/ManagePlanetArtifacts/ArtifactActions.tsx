@@ -92,8 +92,8 @@ export function ArtifactActions({
           // artifact.artifactType === ArtifactType.BlackDomain ||
           artifact.artifactType === ArtifactType.SoulSwap ||
           artifact.artifactType === ArtifactType.IceLink ||
-          artifact.artifactType === ArtifactType.FireLink ||
-          artifact.artifactType === ArtifactType.Bomb
+          artifact.artifactType === ArtifactType.FireLink
+          // || artifact.artifactType === ArtifactType.Bomb
         ) {
           const targetPlanet = await uiManager.startLinkFrom(onPlanet, artifact);
           targetPlanetId = targetPlanet?.locationId;

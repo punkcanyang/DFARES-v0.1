@@ -1,3 +1,4 @@
+import { isActivated } from '@dfares/gamelogic';
 import { isUnconfirmedBurnTx } from '@dfares/serde';
 import { ArtifactType, EthAddress, LocationId } from '@dfares/types';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -113,7 +114,8 @@ export function DropBombPane({
         .map((id) => uiManager.getArtifactWithId(id))
         .find(
           (artifact) =>
-            artifact?.artifactType === ArtifactType.ShipPink && artifact.controller === account
+            (artifact?.artifactType === ArtifactType.ShipPink && artifact.controller === account) ||
+            (artifact?.artifactType === ArtifactType.Bomb && isActivated(artifact))
         ),
     [account, planet, uiManager]
   );
@@ -182,8 +184,13 @@ export function DropBombPane({
         </p>
       )}
       {!hasOwnedShipPink && (
+        // round 2
+        // <p>
+        //   <Blue>INFO:</Blue> Your pink Ship needs to be above this planet.
+        // </p>
+
         <p>
-          <Blue>INFO:</Blue> Your pink Ship needs to be above this planet.
+          <Blue>INFO:</Blue> Please activate bomb on this planet.
         </p>
       )}
 

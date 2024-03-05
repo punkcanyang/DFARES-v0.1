@@ -11,6 +11,7 @@ import {DFArtifactFacet} from "./DFArtifactFacet.sol";
 import {LibPlanet} from "../libraries/LibPlanet.sol";
 import {LibDiamond} from "../vendor/libraries/LibDiamond.sol";
 import {LibGameUtils} from "../libraries/LibGameUtils.sol";
+import {LibArtifactUtils} from "../libraries/LibArtifactUtils.sol";
 
 // Storage imports
 import {WithStorage} from "../libraries/LibStorage.sol";
@@ -88,7 +89,14 @@ contract DFPinkBombFacet is WithStorage {
         require(!planet.destroyed, "planet is destroyed");
         require(!planet.frozen, "planet is frozen");
         require(planet.burnStartTimestamp == 0, "planet is already burned");
-        require(containsPinkShip(planetId), "pink ship must be present on planet");
+        bool activeBomb = false;
+        Artifact memory activeArtifact = LibGameUtils.getActiveArtifact(planetId);
+        if (activeArtifact.isInitialized && activeArtifact.artifactType == ArtifactType.Bomb) {
+            activeBomb = true;
+            LibArtifactUtils.deactivateAndBurn(planetId, activeArtifact.id, 0, activeArtifact);
+        }
+
+        require(containsPinkShip(planetId) || activeBomb, "need pink ship or active bomb");
 
         require(planet.planetLevel >= 1, "planet level >=1");
 

@@ -475,7 +475,7 @@ library LibArtifactUtils {
             // require(linkTo != 0, "you must provide a linkTo to activate a Bomb");
             // planet.owner = gs().planets[linkTo].owner;
             // gs().planets[linkTo].owner = msg.sender;
-            shouldDeactivateAndBurn = true;
+            // shouldDeactivateAndBurn = true;
             // } else if (artifact.artifactType == ArtifactType.Doom) {
             //     // require(linkTo != 0, "you must provide a linkTo to activate a Doom");
             //     // require(!gs().planets[linkTo].destroyed, "planet destroyed");
@@ -498,11 +498,12 @@ library LibArtifactUtils {
         }
 
         if (shouldDeactivateAndBurn) {
-            artifact.lastDeactivated = block.timestamp; // immediately deactivate
-            DFArtifactFacet(address(this)).updateArtifact(artifact); // save artifact state immediately, because _takeArtifactOffPlanet will access pull it from tokens contract
-            emit ArtifactDeactivated(msg.sender, artifactId, locationId, linkTo);
-            // burn it after use. will be owned by contract but not on a planet anyone can control
-            LibGameUtils._takeArtifactOffPlanet(artifactId, locationId);
+            deactivateAndBurn(locationId, artifactId, linkTo, artifact);
+            // artifact.lastDeactivated = block.timestamp; // immediately deactivate
+            // DFArtifactFacet(address(this)).updateArtifact(artifact); // save artifact state immediately, because _takeArtifactOffPlanet will access pull it from tokens contract
+            // emit ArtifactDeactivated(msg.sender, artifactId, locationId, linkTo);
+            // // burn it after use. will be owned by contract but not on a planet anyone can control
+            // LibGameUtils._takeArtifactOffPlanet(artifactId, locationId);
         } else {
             DFArtifactFacet(address(this)).updateArtifact(artifact);
         }
@@ -510,6 +511,19 @@ library LibArtifactUtils {
         // this is fine even tho some artifacts are immediately deactivated, because
         // those artifacts do not buff the planet.
         LibGameUtils._buffPlanet(locationId, LibGameUtils._getUpgradeForArtifact(artifact));
+    }
+
+    function deactivateAndBurn(
+        uint256 locationId,
+        uint256 artifactId,
+        uint256 linkTo,
+        Artifact memory artifact
+    ) public {
+        artifact.lastDeactivated = block.timestamp; // immediately deactivate
+        DFArtifactFacet(address(this)).updateArtifact(artifact); // save artifact state immediately, because _takeArtifactOffPlanet will access pull it from tokens contract
+        emit ArtifactDeactivated(msg.sender, artifactId, locationId, linkTo);
+        // burn it after use. will be owned by contract but not on a planet anyone can control
+        LibGameUtils._takeArtifactOffPlanet(artifactId, locationId);
     }
 
     function deactivateArtifact(uint256 locationId) public {

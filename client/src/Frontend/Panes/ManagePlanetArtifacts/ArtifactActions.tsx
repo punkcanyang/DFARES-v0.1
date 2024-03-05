@@ -189,8 +189,7 @@ export function ArtifactActions({
     });
   }
 
-  const activateArtifactCooldownPassed =
-    uiManager.getNextActivateArtifactAvailableTimestamp() <= Date.now();
+  const activateArtifactCooldownPassed = true; // uiManager.getNextActivateArtifactAvailableTimestamp() <= Date.now();
 
   // if (
   //   canActivateArtifact(artifact, onPlanet, otherArtifactsOnPlanet) &&

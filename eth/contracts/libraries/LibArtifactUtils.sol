@@ -238,11 +238,12 @@ library LibArtifactUtils {
         //     gs().players[msg.sender].activateArtifactAmount++;
         // }
 
-        require(
-            block.timestamp - gs().lastActivateArtifactTimestamp[msg.sender] >
-                gameConstants().ACTIVATE_ARTIFACT_COOLDOWN,
-            "wait for cooldown before activating artifact again"
-        );
+        // round 2: activate artifact cooldown
+        // require(
+        //     block.timestamp - gs().lastActivateArtifactTimestamp[msg.sender] >
+        //         gameConstants().ACTIVATE_ARTIFACT_COOLDOWN,
+        //     "wait for cooldown before activating artifact again"
+        // );
 
         gs().lastActivateArtifactTimestamp[msg.sender] = block.timestamp;
         // bool nonAvatarArtifactCanActivateWithAvatarActivated = LibGameUtils.getActiveArtifact(locationId).artifactType == ArtifactType.Avatar && artifact.artifactType != ArtifactType.Avatar;

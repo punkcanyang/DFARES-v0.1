@@ -3250,16 +3250,16 @@ class GameManager extends EventEmitter {
         if (!artifactId) {
           throw new Error('must supply an artifact id');
         }
-        const myLastActivateArtifactTimestamp = this.players.get(
-          this.account
-        )?.lastActivateArtifactTimestamp;
+        // const myLastActivateArtifactTimestamp = this.players.get(
+        //   this.account
+        // )?.lastActivateArtifactTimestamp;
 
-        if (
-          myLastActivateArtifactTimestamp &&
-          Date.now() < this.getNextActivateArtifactAvailableTimestamp()
-        ) {
-          throw new Error('still on cooldown for activating artifact');
-        }
+        // if (
+        //   myLastActivateArtifactTimestamp &&
+        //   Date.now() < this.getNextActivateArtifactAvailableTimestamp()
+        // ) {
+        //   throw new Error('still on cooldown for activating artifact');
+        // }
       }
 
       localStorage.setItem(`${this.getAccount()?.toLowerCase()}-activatePlanet`, locationId);

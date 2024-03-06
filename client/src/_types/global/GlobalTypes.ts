@@ -73,3 +73,9 @@ export interface BurnCountdownInfo {
   currentlyBurning: boolean; // true iff player has an unconfirmedReveal currently being processed
   burnCooldownTime: number; // in seconds
 }
+
+export interface KardashevCountdownInfo {
+  myLastKardashevTimestamp?: number; // if undefined, never revealed before
+  currentlyKardasheving: boolean; // true iff player has an unconfirmedReveal currently being processed
+  kardashevCooldownTime: number; // in seconds
+}

@@ -26,6 +26,7 @@
 export * from './arrival';
 export * from './artifact';
 export * from './avatar';
+export * from './blue_zones';
 export * from './burn';
 export * from './capture_zones';
 export * from './claim';
@@ -36,6 +37,7 @@ export * from './game_types';
 export * from './gas_prices';
 export * from './hat';
 export * from './identifier';
+export * from './kardashev';
 export * from './logo';
 export * from './meme';
 export * from './modal';

@@ -7,6 +7,8 @@ import {
   BaseRenderer,
   BeltRendererType,
   BlackDomainRendererType,
+  BlueZone,
+  BlueZoneRendererType,
   CaptureZone,
   CaptureZoneRendererType,
   Chunk,
@@ -60,6 +62,7 @@ import { AsteroidRenderer } from './Entities/AsteroidRenderer';
 import { BackgroundRenderer } from './Entities/BackgroundRenderer';
 import { BeltRenderer } from './Entities/BeltRenderer';
 import { BlackDomainRenderer } from './Entities/BlackDomainRenderer';
+import { BlueZoneRenderer } from './Entities/BlueZoneRenderer';
 import { CaptureZoneRenderer } from './Entities/CaptureZoneRenderer';
 import { CircleRenderer } from './Entities/CircleRenderer';
 import { LineRenderer } from './Entities/LineRenderer';
@@ -88,6 +91,7 @@ import {
   isBackgroundRenderer,
   isBeltRenderer,
   isBlackDomainRenderer,
+  isBlueZoneRenderer,
   isCaptureZoneRenderer,
   isCircleRenderer,
   isLineRenderer,
@@ -166,6 +170,7 @@ export interface RendererGameContext extends DiagnosticUpdater {
   getAbandonRangeChangePercent(): number;
   getCaptureZones(): Iterable<CaptureZone>;
   getPinkZones(): Iterable<PinkZone>;
+  getBlueZones(): Iterable<BlueZone>;
 }
 
 export class Renderer {
@@ -207,6 +212,7 @@ export class Renderer {
   blackDomainRenderer: BlackDomainRendererType;
   captureZoneRenderer: CaptureZoneRendererType;
   pinkZoneRenderer: PinkZoneRendererType;
+  blueZoneRenderer: BlueZoneRendererType;
 
   //planet entities
   planetRenderer: PlanetRendererType;
@@ -292,6 +298,7 @@ export class Renderer {
       new QuasarRayRenderer(this.glManager),
       new CaptureZoneRenderer(this.glManager),
       new PinkZoneRenderer(this.glManager),
+      new BlueZoneRenderer(this.glManager),
     ];
     for (const index in this.rendererStack) {
       this.setRenderer(this.rendererStack[index]);
@@ -387,6 +394,9 @@ export class Renderer {
 
     this.pinkZoneRenderer.queuePinkZones();
     this.pinkZoneRenderer.flush();
+
+    this.blueZoneRenderer.queueBlueZones();
+    this.blueZoneRenderer.flush();
 
     this.uiRenderManager.queueSelectedRangeRing();
     this.uiRenderManager.queueSelectedRect();
@@ -651,12 +661,12 @@ export class Renderer {
         console.log('Renderer is not a PinkZoneRenderer');
         return false;
 
-      case RendererType.PinkZone:
-        if (isPinkZoneRenderer(renderer)) {
-          this.pinkZoneRenderer = renderer;
+      case RendererType.BlueZone:
+        if (isBlueZoneRenderer(renderer)) {
+          this.blueZoneRenderer = renderer;
           break;
         }
-        console.log('Renderer is not a PinkZoneRenderer');
+        console.log('Renderer is not a BlueZoneRenderer');
         return false;
 
       default:

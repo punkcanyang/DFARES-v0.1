@@ -441,36 +441,8 @@ library LibArtifactUtils {
                 // deactivateArtifact(toPlanet.locationId);
                 deactivateArtifactWithoutCheckOwner(toPlanet.locationId);
             }
-        } else if (artifact.artifactType == ArtifactType.SoulSwap) {
-            require(linkTo != 0, "you must provide a linkTo to activate a SoulSwap");
-
-            require(!gs().planets[linkTo].destroyed, "planet destroyed");
-            require(!gs().planets[linkTo].frozen, "planet frozen");
-
-            require(
-                2 * uint256(artifact.rarity) >= planet.planetLevel,
-                "artifact is not powerful enough to apply effect to this planet level"
-            );
-            require(
-                planet.population > (planet.populationCap * 9) / 10,
-                "from planet energy need gt 90%"
-            );
-
-            require(
-                // This is dependent on Arrival being the only type of planet event.
-                gs().planetEvents[planet.locationId].length == 0,
-                "fromPlanet has incoming voyages."
-            );
-
-            require(
-                // This is dependent on Arrival being the only type of planet event.
-                gs().planetEvents[linkTo].length == 0,
-                "toPlanet has incoming voyages."
-            );
-
-            planet.owner = gs().planets[linkTo].owner;
-            gs().planets[linkTo].owner = msg.sender;
-            shouldDeactivateAndBurn = true;
+        } else if (artifact.artifactType == ArtifactType.Kardashev) {
+            //
         } else if (artifact.artifactType == ArtifactType.Bomb) {
             // require(linkTo != 0, "you must provide a linkTo to activate a Bomb");
             // planet.owner = gs().planets[linkTo].owner;

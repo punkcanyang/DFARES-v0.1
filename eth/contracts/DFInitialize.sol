@@ -122,6 +122,12 @@ struct InitArgs {
     uint256[6] MAX_LEVEL_LIMIT;
     uint256[6] MIN_LEVEL_BIAS;
     uint256 ENTRY_FEE;
+    uint256 KARDASHEV_END_TIMESTAMP;
+    uint256 KARDASHEV_PLANET_COOLDOWN;
+    uint256 BLUE_PLANET_COOLDOWN;
+    uint256[10] KARDASHEV_EFFECT_RADIUS;
+    uint256[10] KARDASHEV_REQUIRE_SILVER_AMOUNTS;
+    uint256[10] BLUE_PANET_REQUIRE_SILVER_AMOUNTS;
 }
 
 contract DFInitialize is WithStorage {
@@ -239,6 +245,15 @@ contract DFInitialize is WithStorage {
         gameConstants().MAX_LEVEL_LIMIT = initArgs.MAX_LEVEL_LIMIT;
         gameConstants().MIN_LEVEL_BIAS = initArgs.MIN_LEVEL_BIAS;
         gameConstants().ENTRY_FEE = initArgs.ENTRY_FEE;
+
+        gameConstants().KARDASHEV_END_TIMESTAMP = initArgs.KARDASHEV_END_TIMESTAMP;
+        gameConstants().KARDASHEV_PLANET_COOLDOWN = initArgs.KARDASHEV_PLANET_COOLDOWN;
+        gameConstants().BLUE_PLANET_COOLDOWN = initArgs.BLUE_PLANET_COOLDOWN;
+        gameConstants().KARDASHEV_EFFECT_RADIUS = initArgs.KARDASHEV_EFFECT_RADIUS;
+        gameConstants().KARDASHEV_REQUIRE_SILVER_AMOUNTS = initArgs
+            .KARDASHEV_REQUIRE_SILVER_AMOUNTS;
+        gameConstants().BLUE_PANET_REQUIRE_SILVER_AMOUNTS = initArgs
+            .BLUE_PANET_REQUIRE_SILVER_AMOUNTS;
 
         initializeDefaults();
         initializeUpgrades();

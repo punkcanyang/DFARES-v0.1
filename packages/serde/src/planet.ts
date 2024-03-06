@@ -88,8 +88,11 @@ export function decodePlanet(rawLocationId: string, rawPlanet: RawPlanet): Plane
     invadeStartBlock: rawPlanet.invadeStartBlock.eq(0)
       ? undefined
       : rawPlanet.invadeStartBlock.toNumber(),
-    operator: address(rawPlanet.operator),
+    burnOperator: address(rawPlanet.burnOperator),
     burnStartTimestamp: rawPlanet.burnStartTimestamp.toNumber(),
+    pinkOperator: address(rawPlanet.pinkOperator),
+    kardashevOperator: address(rawPlanet.kardashevOperator),
+    kardashevTimestamp: rawPlanet.kardashevTimestamp.toNumber(),
   };
 
   return planet;

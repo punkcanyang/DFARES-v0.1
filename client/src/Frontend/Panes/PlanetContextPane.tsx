@@ -6,10 +6,12 @@ import { CapturePlanetButton } from '../Components/CapturePlanetButton';
 import { VerticalSplit } from '../Components/CoreUI';
 import { MineArtifactButton } from '../Components/MineArtifactButton';
 import {
+  OpenBlueButton,
   OpenBroadcastPaneButton,
   OpenBuyArtifactPaneButton,
   OpenDropBombButton,
   OpenHatPaneButton,
+  OpenKardashevButton,
   OpenManagePlanetArtifactsButton,
   OpenPinkButton,
   OpenPlanetInfoButton,
@@ -70,6 +72,11 @@ function PlanetContextPaneContent({
     dropBombRow = <OpenDropBombButton modal={modal} planetId={p?.locationId} />;
   }
 
+  let kardashevRow = null;
+  if (!p?.destroyed && !p?.frozen) {
+    kardashevRow = <OpenKardashevButton modal={modal} planetId={p?.locationId} />;
+  }
+
   let buyArtifactRow = null;
   if (!p?.destroyed && !p?.frozen && owned) {
     buyArtifactRow = <OpenBuyArtifactPaneButton modal={modal} planetId={p?.locationId} />;
@@ -102,11 +109,13 @@ function PlanetContextPaneContent({
           <OpenBroadcastPaneButton modal={modal} planetId={p?.locationId} />
           <OpenPlanetInfoButton modal={modal} planetId={p?.locationId} />
           {buyArtifactRow}
+          <OpenManagePlanetArtifactsButton modal={modal} planetId={p?.locationId} />
         </>
         <>
-          <OpenManagePlanetArtifactsButton modal={modal} planetId={p?.locationId} />
           {dropBombRow}
           <OpenPinkButton modal={modal} planetId={p?.locationId} />
+          {kardashevRow}
+          <OpenBlueButton modal={modal} planetId={p?.locationId} />
           {hatRow}
         </>
       </VerticalSplit>

@@ -4,6 +4,7 @@ import {
   BaseRenderer,
   BeltRendererType,
   BlackDomainRendererType,
+  BlueZoneRendererType,
   CaptureZoneRendererType,
   CircleRendererType,
   LineRendererType,
@@ -140,4 +141,8 @@ export function isCaptureZoneRenderer(renderer: BaseRenderer): renderer is Captu
 
 export function isPinkZoneRenderer(renderer: BaseRenderer): renderer is PinkZoneRendererType {
   return renderer.rendererType === RendererType.PinkZone;
+}
+
+export function isBlueZoneRenderer(renderer: BaseRenderer): renderer is BlueZoneRendererType {
+  return renderer.rendererType === RendererType.BlueZone;
 }

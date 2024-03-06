@@ -9,11 +9,11 @@ import {
   deployDebugFacet,
   deployGetterOneFacet,
   deployGetterTwoFacet,
+  deployKardashevFacet,
   deployLibraries,
   deployLobbyFacet,
   deployMoveFacet,
   deployPinkBombFacet,
-  deployRewardFacet,
   deployVerifierFacet,
   deployWhitelistFacet,
 } from './deploy';
@@ -77,9 +77,12 @@ async function upgrade({}, hre: HardhatRuntimeEnvironment) {
   console.log('pinkBombFacets');
 
   const pinkBombFacet = await deployPinkBombFacet({}, libraries, hre);
-  console.log('rewardFacets');
+  console.log('kardashevFacets');
+  const kardashevFacet = await deployKardashevFacet({}, libraries, hre);
 
-  const rewardFacet = await deployRewardFacet({}, libraries, hre);
+  // console.log('rewardFacets');
+
+  // const rewardFacet = await deployRewardFacet({}, libraries, hre);
 
   // The `cuts` to perform for Dark Forest facets
 
@@ -88,6 +91,7 @@ async function upgrade({}, hre: HardhatRuntimeEnvironment) {
     ...changes.getFacetCuts('DFMoveFacet', moveFacet),
     ...changes.getFacetCuts('DFCaptureFacet', captureFacet),
     ...changes.getFacetCuts('DFPinkBombFacet', pinkBombFacet),
+    ...changes.getFacetCuts('DFKardashevFacet', kardashevFacet),
     ...changes.getFacetCuts('DFArtifactFacet', artifactFacet),
     ...changes.getFacetCuts('DFGetterOneFacet', getterOneFacet),
     ...changes.getFacetCuts('DFGetterTwoFacet', getterTwoFacet),
@@ -95,7 +99,8 @@ async function upgrade({}, hre: HardhatRuntimeEnvironment) {
     ...changes.getFacetCuts('DFVerifierFacet', verifierFacet),
     ...changes.getFacetCuts('DFAdminFacet', adminFacet),
     ...changes.getFacetCuts('DFLobbyFacet', lobbyFacet),
-    ...changes.getFacetCuts('DFRewardFacet', rewardFacet),
+    //myNotice: rewardFacet don't fit v0.6.3
+    // ...changes.getFacetCuts('DFRewardFacet', rewardFacet),
   ];
 
   if (isDev) {

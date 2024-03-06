@@ -43,6 +43,7 @@ struct Player {
     uint256 pinkedAmount;
     uint256 moveCount;
     uint256 hatCount;
+    uint256 kardashevAmount;
 }
 
 struct Planet {
@@ -83,8 +84,11 @@ struct Planet {
     uint256 invadeStartBlock;
     address capturer;
     uint256 locationId;
-    address operator; // operate bomb to burn/pink planet
+    address burnOperator;
     uint256 burnStartTimestamp;
+    address pinkOperator;
+    address kardashevOperator;
+    uint256 kardashevTimestamp;
 }
 
 struct RevealedCoords {
@@ -222,7 +226,7 @@ enum ArtifactType {
     BlackDomain,
     IceLink,
     FireLink,
-    SoulSwap,
+    Kardashev,
     Bomb,
     StellarShield,
     BlindBox,
@@ -315,9 +319,22 @@ struct BurnedCoords {
     uint256 burnedAt; //block.timestamp
 }
 
+struct KardashevCoords {
+    uint256 locationId;
+    uint256 x;
+    uint256 y;
+    address operator;
+    uint256 kardashevAt; //block.timestamp
+}
+
 struct LastBurnedStruct {
     address player;
     uint256 lastBurnTimestamp;
+}
+
+struct LastKardashevStruct {
+    address player;
+    uint256 lastKardashevTimestamp;
 }
 
 struct LastActivateArtifactStruct {

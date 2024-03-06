@@ -171,6 +171,36 @@ contract DFAdminFacet is WithStorage {
         gameConstants().ENTRY_FEE = newEntryFee;
     }
 
+    function setKardashevEndTime(uint256 newEndTime) public onlyAdmin {
+        gameConstants().KARDASHEV_END_TIMESTAMP = newEndTime;
+    }
+
+    function setKardashevCooldowm(uint256 newCooldown) public onlyAdmin {
+        gameConstants().KARDASHEV_PLANET_COOLDOWN = newCooldown;
+    }
+
+    function setTransferEnergyCooldown(uint256 newCooldown) public onlyAdmin {
+        gameConstants().BLUE_PLANET_COOLDOWN = newCooldown;
+    }
+
+    function changeKardashevEffectRadius(uint256 level, uint256 _newRadius) public onlyAdmin {
+        gameConstants().KARDASHEV_EFFECT_RADIUS[level] = _newRadius;
+    }
+
+    function changeKardashevRequireSilverAmounts(uint256 level, uint256 _newSilver)
+        public
+        onlyAdmin
+    {
+        gameConstants().KARDASHEV_REQUIRE_SILVER_AMOUNTS[level] = _newSilver;
+    }
+
+    function changeTransferEnergyRequireSilverAmounts(uint256 level, uint256 _newSilver)
+        public
+        onlyAdmin
+    {
+        gameConstants().BLUE_PANET_REQUIRE_SILVER_AMOUNTS[level] = _newSilver;
+    }
+
     function createPlanet(AdminCreatePlanetArgs memory args) public onlyAdmin {
         require(gameConstants().ADMIN_CAN_ADD_PLANETS, "admin can no longer add planets");
         if (args.requireValidLocationId) {

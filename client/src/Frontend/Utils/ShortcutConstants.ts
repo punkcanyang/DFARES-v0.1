@@ -17,6 +17,8 @@ export const TOGGLE_HAT_PANE = 'x';
 export const TOGGLE_BUY_ARTIFACT_PANE = 'd';
 export const TOGGLE_DROP_BOMB_PANE = 'o';
 export const TOGGLE_PINK_PANE = 'p';
+export const TOGGLE_KARDASHEV_PANE = 'e';
+export const TOGGLE_BLUE_PANE = 'b';
 
 export const TOGGLE_ABANDON = 'r';
 export const INVADE = 'y';

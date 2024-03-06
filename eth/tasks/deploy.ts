@@ -247,12 +247,14 @@ export async function deployAndCut(
   const moveFacet = await deployMoveFacet({}, libraries, hre);
   const captureFacet = await deployCaptureFacet({}, libraries, hre);
   const pinkBombFacet = await deployPinkBombFacet({}, libraries, hre);
+  const kardashevFacet = await deployKardashevFacet({}, libraries, hre);
 
   const artifactFacet = await deployArtifactFacet(
     { diamondAddress: diamond.address },
     libraries,
     hre
   );
+
   const getterOneFacet = await deployGetterOneFacet({}, libraries, hre);
   const getterTwoFacet = await deployGetterTwoFacet({}, libraries, hre);
 
@@ -270,6 +272,7 @@ export async function deployAndCut(
     ...changes.getFacetCuts('DFMoveFacet', moveFacet),
     ...changes.getFacetCuts('DFCaptureFacet', captureFacet),
     ...changes.getFacetCuts('DFPinkBombFacet', pinkBombFacet),
+    ...changes.getFacetCuts('DFKardashevFacet', kardashevFacet),
     ...changes.getFacetCuts('DFArtifactFacet', artifactFacet),
     ...changes.getFacetCuts('DFGetterOneFacet', getterOneFacet),
     ...changes.getFacetCuts('DFGetterTwoFacet', getterTwoFacet),
@@ -301,6 +304,8 @@ export async function deployAndCut(
       ? 'https://nft-test.dfares.xyz/token-uri/artifact/'
       : 'https://nft.dfares.xyz/token-uri/artifact/'
   }${hre.network.config?.chainId || 'unknown'}-${diamond.address}/`;
+
+  console.log('tokenBaseUri:', tokenBaseUri);
 
   // EIP-2535 specifies that the `diamondCut` function takes two optional
   // arguments: address _init and bytes calldata _calldata
@@ -342,10 +347,14 @@ export async function deployGetterOneFacet(
 
 export async function deployGetterTwoFacet(
   {},
-  libraries: Libraries,
+  { LibGameUtils }: Libraries,
   hre: HardhatRuntimeEnvironment
 ) {
-  const factory = await hre.ethers.getContractFactory('DFGetterTwoFacet', {});
+  const factory = await hre.ethers.getContractFactory('DFGetterTwoFacet', {
+    libraries: {
+      LibGameUtils,
+    },
+  });
   const contract = await factory.deploy();
   await contract.deployTransaction.wait();
   console.log('DFGetterTwoFacet deployed to:', contract.address);
@@ -530,6 +539,25 @@ export async function deployPinkBombFacet(
   console.log(`DFPinkBombFacet deployed to: ${contract.address}`);
   return contract;
 }
+
+export async function deployKardashevFacet(
+  {},
+  { LibPlanet, LibGameUtils, LibArtifactUtils }: Libraries,
+  hre: HardhatRuntimeEnvironment
+) {
+  const factory = await hre.ethers.getContractFactory('DFKardashevFacet', {
+    libraries: {
+      LibPlanet,
+      LibGameUtils,
+      LibArtifactUtils,
+    },
+  });
+  const contract = await factory.deploy();
+  await contract.deployTransaction.wait();
+  console.log(`DFKardashevFacet deployed to: ${contract.address}`);
+  return contract;
+}
+
 async function deployDiamondCutFacet({}, libraries: Libraries, hre: HardhatRuntimeEnvironment) {
   const factory = await hre.ethers.getContractFactory('DiamondCutFacet');
   const contract = await factory.deploy();

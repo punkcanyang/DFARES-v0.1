@@ -104,6 +104,12 @@ export const decodeInitializers = decoders.guard(
     }),
     ROUND_END_REWARDS_BY_RANK: exactArray64(decoders.number),
     ENTRY_FEE: decoders.number,
+    KARDASHEV_END_TIMESTAMP: dateInSeconds,
+    KARDASHEV_PLANET_COOLDOWN: decoders.number,
+    BLUE_PLANET_COOLDOWN: decoders.number,
+    KARDASHEV_EFFECT_RADIUS: exactArray10(decoders.number),
+    KARDASHEV_REQUIRE_SILVER_AMOUNTS: exactArray10(decoders.number),
+    BLUE_PANET_REQUIRE_SILVER_AMOUNTS: exactArray10(decoders.number),
   }),
   { style: 'simple' }
 );

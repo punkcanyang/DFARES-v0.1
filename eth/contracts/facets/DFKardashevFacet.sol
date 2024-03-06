@@ -21,9 +21,9 @@ import {LibTrig} from "../vendor/libraries/LibTrig.sol";
 import {ABDKMath64x64} from "../vendor/libraries/ABDKMath64x64.sol";
 
 // Type imports
-import {Planet, Player, BurnedCoords, Artifact, ArtifactType, RevealedCoords} from "../DFTypes.sol";
+import {Planet, PlanetType, Player, BurnedCoords, Artifact, ArtifactType, KardashevCoords, RevealedCoords} from "../DFTypes.sol";
 
-contract DFPinkBombFacet is WithStorage {
+contract DFKardashevFacet is WithStorage {
     modifier notPaused() {
         require(!gs().paused, "Game is paused");
         _;
@@ -38,26 +38,29 @@ contract DFPinkBombFacet is WithStorage {
         _;
     }
 
-    event LocationBurned(address player, uint256 loc, uint256 x, uint256 y);
+    event Kardashev(address player, uint256 loc, uint256 x, uint256 y);
     event LocationRevealed(address revealer, uint256 loc, uint256 x, uint256 y);
+    event LocationBlued(address player, uint256 sourcePlanetId, uint256 targetPlanetId);
+
+    // mytodo:
 
     /**
      * Same snark args as DFCoreFacet#revealLocation
      */
-    function burnLocation(
+    function kardashev(
         uint256[2] memory _a,
         uint256[2][2] memory _b,
         uint256[2] memory _c,
         uint256[9] memory _input
     ) public onlyWhitelisted notPaused {
         require(
-            block.timestamp < gameConstants().BURN_END_TIMESTAMP,
-            "Cannot burner planets after the round has ended"
+            block.timestamp < gameConstants().KARDASHEV_END_TIMESTAMP,
+            "Cannot kardashe planet after the round has ended"
         );
         require(
-            block.timestamp - gs().lastBurnTimestamp[msg.sender] >
-                gameConstants().BURN_PLANET_COOLDOWN,
-            "wait for cooldown before burn again"
+            block.timestamp - gs().lastKardashevTimestamp[msg.sender] >
+                gameConstants().KARDASHEV_PLANET_COOLDOWN,
+            "wait for cooldown before kardashev again"
         );
 
         require(
@@ -82,81 +85,63 @@ contract DFPinkBombFacet is WithStorage {
 
         uint256 planetId = _input[0];
         LibPlanet.refreshPlanet(planetId);
-        require(gs().burnedCoords[planetId].locationId == 0, "Location already burned");
+        require(gs().kardashevCoords[planetId].locationId == 0, "kardashev before");
 
         Planet storage planet = gs().planets[planetId];
 
         require(!planet.destroyed, "planet is destroyed");
         require(!planet.frozen, "planet is frozen");
-        require(planet.burnStartTimestamp == 0, "planet is already burned");
-        bool activeBomb = false;
+        require(planet.kardashevTimestamp == 0, "kardashev this planet before");
+
+        bool activeKardashev = false;
         Artifact memory activeArtifact = LibGameUtils.getActiveArtifact(planetId);
-        if (activeArtifact.isInitialized && activeArtifact.artifactType == ArtifactType.Bomb) {
-            activeBomb = true;
+        if (activeArtifact.isInitialized && activeArtifact.artifactType == ArtifactType.Kardashev) {
+            activeKardashev = true;
             LibArtifactUtils.deactivateAndBurn(planetId, activeArtifact.id, 0, activeArtifact);
         }
-
-        require(containsPinkShip(planetId) || activeBomb, "need pink ship or active bomb");
+        require(activeKardashev, "need active kardashev");
 
         require(planet.planetLevel >= 1, "planet level >=1");
 
         Player storage player = gs().players[msg.sender];
-        player.dropBombAmount++;
+        player.kardashevAmount++;
 
-        uint256 silverAmount = gameConstants().BURN_PLANET_REQUIRE_SILVER_AMOUNTS[
-            planet.planetLevel
-        ] * (10**(player.dropBombAmount));
+        uint256 silverAmount = gameConstants().KARDASHEV_REQUIRE_SILVER_AMOUNTS[planet.planetLevel];
 
         require(gs().players[msg.sender].silver >= silverAmount * 1000, "silver is not enough");
 
         gs().players[msg.sender].silver -= silverAmount * 1000;
 
-        planet.burnOperator = msg.sender;
+        planet.kardashevOperator = msg.sender;
 
-        gs().lastBurnTimestamp[msg.sender] = block.timestamp;
-        planet.burnStartTimestamp = block.timestamp;
+        gs().lastKardashevTimestamp[msg.sender] = block.timestamp;
+        planet.kardashevTimestamp = block.timestamp;
 
-        require(gs().burnedCoords[planetId].locationId == 0, "Location already burned");
+        require(gs().kardashevCoords[planetId].locationId == 0, "kardshev before");
 
-        gs().burnedIds.push(planetId);
-        gs().burnedPlanets[msg.sender].push(planetId);
-        gs().burnedCoords[planetId] = BurnedCoords({
+        gs().kardashevIds.push(planetId);
+        gs().kardashevPlanets[msg.sender].push(planetId);
+        gs().kardashevCoords[planetId] = KardashevCoords({
             locationId: planetId,
             x: x,
             y: y,
             operator: msg.sender,
-            burnedAt: block.timestamp
+            kardashevAt: block.timestamp
         });
 
-        if (gs().firstBurnLocationOperator == address(0))
-            gs().firstBurnLocationOperator = msg.sender;
-        emit LocationBurned(msg.sender, _input[0], _input[2], _input[3]);
+        if (gs().firstKardashevOperator == address(0)) gs().firstKardashevOperator = msg.sender;
+        emit Kardashev(msg.sender, _input[0], _input[2], _input[3]);
     }
 
-    function containsPinkShip(uint256 locationId) public view returns (bool) {
-        uint256[] memory artifactIds = gs().planetArtifacts[locationId];
-
-        for (uint256 i = 0; i < artifactIds.length; i++) {
-            Artifact memory artifact = DFArtifactFacet(address(this)).getArtifact(artifactIds[i]);
-            if (
-                artifact.artifactType == ArtifactType.ShipPink && msg.sender == artifact.controller
-            ) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    function pinkLocation(
+    function blueLocation(
         uint256[2] memory _a,
         uint256[2][2] memory _b,
         uint256[2] memory _c,
         uint256[9] memory _input
     ) public onlyWhitelisted notPaused {
         require(
-            block.timestamp < gameConstants().BURN_END_TIMESTAMP,
-            "Cannot burner planets after the round has ended"
+            block.timestamp < gameConstants().KARDASHEV_END_TIMESTAMP,
+            "Cannot kardashe planet after the round has ended"
         );
 
         require(
@@ -182,30 +167,49 @@ contract DFPinkBombFacet is WithStorage {
         uint256 planetId = _input[0];
         LibPlanet.refreshPlanet(planetId);
 
-        Artifact memory activeArtifact = LibGameUtils.getActiveArtifact(planetId);
-
-        require(
-            activeArtifact.artifactType != ArtifactType.StellarShield,
-            "need no active StellarShield"
-        );
-
-        // int256 planetX = DFCaptureFacet(address(this)).getIntFromUInt(x);
-        // int256 planetY = DFCaptureFacet(address(this)).getIntFromUInt(y);
-        // uint256 distSquare = uint256(planetX**2 + planetY**2);
-
         Planet storage planet = gs().planets[planetId];
-
-        gs().players[msg.sender].pinkAmount++;
-        gs().players[planet.owner].pinkedAmount++;
 
         require(!planet.destroyed, "planet is destroyed");
         require(!planet.frozen, "planet is frozen");
         require(planet.planetLevel >= 3, "planet level >=3");
-        require(planetInPinkZone(x, y), "planet is not in your pink zone");
 
-        planet.destroyed = true;
+        uint256 centerPlanetId = getCenterPlanetId(x, y);
 
-        planet.pinkOperator = msg.sender;
+        require(centerPlanetId != 0, "planet is not in your blue zone");
+        require(centerPlanetId != planetId, "can't blue center planet");
+
+        uint256 silverAmount = gameConstants().BLUE_PANET_REQUIRE_SILVER_AMOUNTS[
+            planet.planetLevel
+        ];
+
+        require(gs().players[msg.sender].silver >= silverAmount * 1000, "silver is not enough");
+        gs().players[msg.sender].silver -= silverAmount * 1000;
+
+        LibPlanet.refreshPlanet(centerPlanetId);
+        Planet storage centerPlanet = gs().planets[centerPlanetId];
+
+        require(
+            block.timestamp - planet.kardashevTimestamp > gameConstants().BLUE_PLANET_COOLDOWN,
+            "blue cooldown"
+        );
+
+        require(planet.owner == centerPlanet.owner, "planet owner is the same");
+        require(centerPlanet.owner == msg.sender, "center planet is yours");
+
+        centerPlanet.population += planet.population;
+        centerPlanet.silver += planet.silver;
+        // make sure pop is never 0
+        planet.population = 3000;
+        planet.silver = 0;
+
+        if (centerPlanet.silver > centerPlanet.silverCap)
+            centerPlanet.silver = centerPlanet.silverCap;
+
+        if (centerPlanet.planetType == PlanetType.SILVER_BANK || centerPlanet.pausers > 0) {
+            if (centerPlanet.population > centerPlanet.populationCap) {
+                centerPlanet.population = centerPlanet.populationCap;
+            }
+        }
 
         if (gs().revealedCoords[planetId].locationId == 0) {
             gs().revealedPlanetIds.push(planetId);
@@ -218,19 +222,23 @@ contract DFPinkBombFacet is WithStorage {
 
             //myNotice: pinkLocation don't update player's lastRevealTimestamp
             // gs().players[msg.sender].lastRevealTimestamp = block.timestamp;
-            emit LocationRevealed(msg.sender, _input[0], _input[2], _input[3]);
+            emit LocationRevealed(msg.sender, planetId, x, y);
         }
+        emit LocationBlued(msg.sender, planet.locationId, centerPlanet.locationId);
     }
 
-    function planetInPinkZone(uint256 x, uint256 y) public returns (bool) {
+    function getCenterPlanetId(uint256 x, uint256 y) public returns (uint256) {
         int256 planetX = DFCaptureFacet(address(this)).getIntFromUInt(x);
         int256 planetY = DFCaptureFacet(address(this)).getIntFromUInt(y);
 
-        uint256[] memory burnedPlanets = gs().burnedPlanets[msg.sender];
-        for (uint256 i = 0; i < burnedPlanets.length; i++) {
-            uint256 planetId = burnedPlanets[i];
+        uint256 centerPlanetId = 0;
+        uint256 dis = 0;
+
+        uint256[] memory kardashevPlanets = gs().kardashevPlanets[msg.sender];
+        for (uint256 i = 0; i < kardashevPlanets.length; i++) {
+            uint256 planetId = kardashevPlanets[i];
             Planet memory planet = gs().planets[planetId];
-            BurnedCoords memory center = gs().burnedCoords[planetId];
+            KardashevCoords memory center = gs().kardashevCoords[planetId];
 
             int256 centerX = DFCaptureFacet(address(this)).getIntFromUInt(center.x);
             int256 centerY = DFCaptureFacet(address(this)).getIntFromUInt((center.y));
@@ -241,15 +249,23 @@ contract DFPinkBombFacet is WithStorage {
                 uint256(xDiff * xDiff + yDiff * yDiff)
             );
 
-            if (
-                distanceToZone <=
-                gameConstants().BURN_PLANET_LEVEL_EFFECT_RADIUS[planet.planetLevel] &&
-                block.timestamp - planet.burnStartTimestamp > gameConstants().PINK_PLANET_COOLDOWN
-            ) {
-                return true;
+            if (distanceToZone <= gameConstants().KARDASHEV_EFFECT_RADIUS[planet.planetLevel]) {
+                if (centerPlanetId == 0) {
+                    centerPlanetId = planet.locationId;
+                    dis = distanceToZone;
+                } else if (distanceToZone < dis) {
+                    centerPlanetId = planet.locationId;
+                    dis = distanceToZone;
+                } else if (distanceToZone == dis) {
+                    Planet memory tmp = gs().planets[centerPlanetId];
+                    if (tmp.kardashevTimestamp > planet.kardashevTimestamp) {
+                        centerPlanetId = planet.locationId;
+                        dis = distanceToZone;
+                    }
+                }
             }
         }
 
-        return false;
+        return centerPlanetId;
     }
 }

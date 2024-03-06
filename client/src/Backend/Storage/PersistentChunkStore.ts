@@ -4,6 +4,7 @@ import {
   ClaimedCoords,
   DiagnosticUpdater,
   EthAddress,
+  KardashevCoords,
   LocationId,
   ModalId,
   ModalPosition,
@@ -298,6 +299,22 @@ class PersistentChunkStore implements ChunkStore {
         return [];
       }
       return parsed as BurnedCoords[];
+    }
+
+    return [];
+  }
+
+  public async getSavedKardashevCoords(): Promise<KardashevCoords[]> {
+    const kardashevPlanetIds = await this.getKey('kardashevPlanetIds');
+
+    if (kardashevPlanetIds) {
+      const parsed = JSON.parse(kardashevPlanetIds);
+      // changed the type on 6/1/21 to include revealer field
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (parsed.length === 0 || !(parsed[0] as any).operator) {
+        return [];
+      }
+      return parsed as KardashevCoords[];
     }
 
     return [];

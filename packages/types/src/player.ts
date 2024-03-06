@@ -20,6 +20,7 @@ export type Player = {
   lastBurnTimestamp: number;
   lastActivateArtifactTimestamp: number;
   lastBuyArtifactTimestamp: number;
+  lastKardashevTimestamp: number;
 
   score?: number;
 
@@ -36,4 +37,5 @@ export type Player = {
   pinkedAmount: number;
   moveCount: number;
   hatCount: number;
+  kardashevAmount: number;
 };

@@ -175,7 +175,31 @@ export type LobbyConfigAction =
     }
   | { type: 'WHITELIST_ENABLED'; value: boolean | undefined }
   | { type: 'ROUND_END_REWARDS_BY_RANK'; index: number; value: number | undefined }
-  | { type: 'ENTRY_FEE'; value: Initializers['ENTRY_FEE'] | undefined };
+  | { type: 'ENTRY_FEE'; value: Initializers['ENTRY_FEE'] | undefined }
+  | {
+      type: 'KARDASHEV_END_TIMESTAMP';
+      value: Initializers['KARDASHEV_END_TIMESTAMP'] | undefined;
+    }
+  | {
+      type: 'KARDASHEV_PLANET_COOLDOWN';
+      value: Initializers['KARDASHEV_PLANET_COOLDOWN'] | undefined;
+    }
+  | {
+      type: 'BLUE_PLANET_COOLDOWN';
+      value: Initializers['BLUE_PLANET_COOLDOWN'] | undefined;
+    }
+  | {
+      type: 'KARDASHEV_EFFECT_RADIUS';
+      value: Initializers['KARDASHEV_EFFECT_RADIUS'] | undefined;
+    }
+  | {
+      type: 'KARDASHEV_REQUIRE_SILVER_AMOUNTS';
+      value: Initializers['KARDASHEV_REQUIRE_SILVER_AMOUNTS'] | undefined;
+    }
+  | {
+      type: 'BLUE_PANET_REQUIRE_SILVER_AMOUNTS';
+      value: Initializers['BLUE_PANET_REQUIRE_SILVER_AMOUNTS'] | undefined;
+    };
 
 // TODO(#2328): WHITELIST_ENABLED should just be on Initializers
 export type LobbyInitializers = Initializers & { WHITELIST_ENABLED: boolean | undefined };
@@ -439,6 +463,38 @@ export function lobbyConfigReducer(state: LobbyConfigState, action: LobbyAction)
       update = ofPositiveInteger(action, state);
       break;
     }
+
+    case 'KARDASHEV_END_TIMESTAMP': {
+      // TODO: Date
+      update = ofAny(action, state);
+      break;
+    }
+
+    case 'KARDASHEV_PLANET_COOLDOWN': {
+      update = ofPositiveInteger(action, state);
+      break;
+    }
+
+    case 'BLUE_PLANET_COOLDOWN': {
+      update = ofPositiveInteger(action, state);
+      break;
+    }
+
+    case 'KARDASHEV_EFFECT_RADIUS': {
+      update = ofKardashevEffectRadius(action, state);
+      break;
+    }
+
+    case 'KARDASHEV_REQUIRE_SILVER_AMOUNTS': {
+      update = ofKardashevRequireSilverAmounts(action, state);
+      break;
+    }
+
+    case 'BLUE_PANET_REQUIRE_SILVER_AMOUNTS': {
+      update = ofTransferEnergyRequireSilverAmounts(action, state);
+      break;
+    }
+
     case 'WHITELIST_ENABLED': {
       update = ofBoolean(action, state);
       break;
@@ -1091,6 +1147,72 @@ export function lobbyConfigInit(startingConfig: LobbyInitializers) {
       }
 
       case 'ENTRY_FEE': {
+        const defaultValue = startingConfig[key];
+        state[key] = {
+          currentValue: defaultValue,
+          displayValue: defaultValue,
+          defaultValue,
+          warning: undefined,
+        };
+        break;
+      }
+
+      case 'KARDASHEV_END_TIMESTAMP': {
+        const defaultValue = startingConfig[key];
+        state[key] = {
+          currentValue: defaultValue,
+          displayValue: defaultValue,
+          defaultValue,
+          warning: undefined,
+        };
+        break;
+      }
+
+      case 'KARDASHEV_PLANET_COOLDOWN': {
+        const defaultValue = startingConfig[key];
+        state[key] = {
+          currentValue: defaultValue,
+          displayValue: defaultValue,
+          defaultValue,
+          warning: undefined,
+        };
+        break;
+      }
+
+      case 'BLUE_PLANET_COOLDOWN': {
+        const defaultValue = startingConfig[key];
+        state[key] = {
+          currentValue: defaultValue,
+          displayValue: defaultValue,
+          defaultValue,
+          warning: undefined,
+        };
+        break;
+      }
+
+      case 'KARDASHEV_EFFECT_RADIUS': {
+        const defaultValue = startingConfig[key];
+        state[key] = {
+          currentValue: defaultValue,
+          displayValue: defaultValue,
+          defaultValue,
+          warning: undefined,
+        };
+        break;
+      }
+
+      case 'KARDASHEV_REQUIRE_SILVER_AMOUNTS': {
+        const defaultValue = startingConfig[key];
+        state[key] = {
+          currentValue: defaultValue,
+          displayValue: defaultValue,
+          defaultValue,
+          warning: undefined,
+        };
+        break;
+      }
+
+      case 'BLUE_PANET_REQUIRE_SILVER_AMOUNTS': {
         const defaultValue = startingConfig[key];
         state[key] = {
           currentValue: defaultValue,
@@ -2031,6 +2153,162 @@ export function ofBurnPlanetEffectRadius(
 
 export function ofBurnPlanetRequireSilverAmounts(
   { type, value }: Extract<LobbyConfigAction, { type: 'BURN_PLANET_REQUIRE_SILVER_AMOUNTS' }>,
+  state: LobbyConfigState
+) {
+  if (value === undefined) {
+    return {
+      ...state[type],
+      displayValue: value,
+      warning: undefined,
+    };
+  }
+
+  if (typeof value !== 'number') {
+    return {
+      ...state[type],
+      displayValue: value,
+      warning: `Value must be a number`,
+    };
+  }
+
+  if (value < 1) {
+    return {
+      ...state[type],
+      displayValue: value,
+      warning: `Value must be a greater than 0`,
+    };
+  }
+
+  if (value > SAFE_UPPER_BOUNDS) {
+    return {
+      ...state[type],
+      displayValue: value,
+      warning: `Value is too large`,
+    };
+  }
+
+  if (Math.floor(value) !== value) {
+    return {
+      ...state[type],
+      displayValue: value,
+      warning: `Value must be an integer`,
+    };
+  }
+
+  return {
+    ...state[type],
+    currentValue: value,
+    displayValue: value,
+    warning: undefined,
+  };
+}
+
+export function ofKardashevEffectRadius(
+  { type, value }: Extract<LobbyConfigAction, { type: 'KARDASHEV_EFFECT_RADIUS' }>,
+  state: LobbyConfigState
+) {
+  if (value === undefined) {
+    return {
+      ...state[type],
+      displayValue: value,
+      warning: undefined,
+    };
+  }
+
+  if (typeof value !== 'number') {
+    return {
+      ...state[type],
+      displayValue: value,
+      warning: `Value must be a number`,
+    };
+  }
+
+  if (value < 1) {
+    return {
+      ...state[type],
+      displayValue: value,
+      warning: `Value must be a greater than 0`,
+    };
+  }
+
+  if (value > SAFE_UPPER_BOUNDS) {
+    return {
+      ...state[type],
+      displayValue: value,
+      warning: `Value is too large`,
+    };
+  }
+
+  if (Math.floor(value) !== value) {
+    return {
+      ...state[type],
+      displayValue: value,
+      warning: `Value must be an integer`,
+    };
+  }
+
+  return {
+    ...state[type],
+    currentValue: value,
+    displayValue: value,
+    warning: undefined,
+  };
+}
+
+export function ofKardashevRequireSilverAmounts(
+  { type, value }: Extract<LobbyConfigAction, { type: 'KARDASHEV_REQUIRE_SILVER_AMOUNTS' }>,
+  state: LobbyConfigState
+) {
+  if (value === undefined) {
+    return {
+      ...state[type],
+      displayValue: value,
+      warning: undefined,
+    };
+  }
+
+  if (typeof value !== 'number') {
+    return {
+      ...state[type],
+      displayValue: value,
+      warning: `Value must be a number`,
+    };
+  }
+
+  if (value < 1) {
+    return {
+      ...state[type],
+      displayValue: value,
+      warning: `Value must be a greater than 0`,
+    };
+  }
+
+  if (value > SAFE_UPPER_BOUNDS) {
+    return {
+      ...state[type],
+      displayValue: value,
+      warning: `Value is too large`,
+    };
+  }
+
+  if (Math.floor(value) !== value) {
+    return {
+      ...state[type],
+      displayValue: value,
+      warning: `Value must be an integer`,
+    };
+  }
+
+  return {
+    ...state[type],
+    currentValue: value,
+    displayValue: value,
+    warning: undefined,
+  };
+}
+
+export function ofTransferEnergyRequireSilverAmounts(
+  { type, value }: Extract<LobbyConfigAction, { type: 'BLUE_PANET_REQUIRE_SILVER_AMOUNTS' }>,
   state: LobbyConfigState
 ) {
   if (value === undefined) {

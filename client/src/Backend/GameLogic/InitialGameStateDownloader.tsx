@@ -3,6 +3,7 @@ import {
   ArtifactId,
   BurnedCoords,
   ClaimedCoords,
+  KardashevCoords,
   LocationId,
   Planet,
   Player,
@@ -30,6 +31,7 @@ export interface InitialGameState {
   allRevealedCoords: RevealedCoords[];
   allClaimedCoords: ClaimedCoords[];
   allBurnedCoords: BurnedCoords[];
+  allKardashevCoords: KardashevCoords[];
   pendingMoves: QueuedArrival[];
   touchedAndLocatedPlanets: Map<LocationId, Planet>;
   artifactsOnVoyages: Artifact[];
@@ -39,6 +41,7 @@ export interface InitialGameState {
   revealedCoordsMap: Map<LocationId, RevealedCoords>;
   claimedCoordsMap: Map<LocationId, ClaimedCoords>;
   burnedCoordsMap: Map<LocationId, BurnedCoords>;
+  kardashevCoordsMap: Map<LocationId, KardashevCoords>;
   planetVoyageIdMap: Map<LocationId, VoyageId[]>;
   arrivals: Map<VoyageId, QueuedArrival>;
   twitters: AddressTwitterMap;
@@ -78,6 +81,7 @@ export class InitialGameStateDownloader {
     const storedRevealedCoords = isDev ? [] : await persistentChunkStore.getSavedRevealedCoords();
     const storedClaimedCoords = await persistentChunkStore.getSavedClaimedCoords();
     const storedBurnedCoords = await persistentChunkStore.getSavedBurnedCoords();
+    const storedKardashevCoords = await persistentChunkStore.getSavedKardashevCoords();
 
     this.terminal.printElement(<DarkForestTips tips={tips} />);
     this.terminal.newline();
@@ -92,6 +96,11 @@ export class InitialGameStateDownloader {
     const claimedPlanetsCoordsLoadingBar = this.makeProgressListener('Claimed Planet Coordinates');
     const burnedPlanetsLoadingBar = this.makeProgressListener('Burned Planet IDs');
     const burnedPlanetsCoordsLoadingBar = this.makeProgressListener('Burned Planet Coordinates');
+    const kardashevPlanetsLoadingBar = this.makeProgressListener('Kardashev Planet IDs');
+    const kardashevPlanetsCoordsLoadingBar = this.makeProgressListener(
+      'Kardashev Planet Coordinates'
+    );
+
     const pendingMovesLoadingBar = this.makeProgressListener('Pending Moves');
     const planetsLoadingBar = this.makeProgressListener('Planets');
     const artifactsOnPlanetsLoadingBar = this.makeProgressListener('Artifacts On Planets');
@@ -133,10 +142,16 @@ export class InitialGameStateDownloader {
       burnedPlanetsCoordsLoadingBar
     );
 
+    const loadedKardashevCoords = contractsAPI.getKardashevPlanetsCoords(
+      0,
+      kardashevPlanetsLoadingBar,
+      kardashevPlanetsCoordsLoadingBar
+    );
     const allTouchedPlanetIds = storedTouchedPlanetIds.concat(await loadedTouchedPlanetIds);
     const allRevealedCoords = storedRevealedCoords.concat(await loadedRevealedCoords);
     const allClaimedCoords = storedClaimedCoords.concat(await loadedClaimedCoords);
     const allBurnedCoords = storedBurnedCoords.concat(await loadedBurnedCoords);
+    const allKardashevCoords = storedKardashevCoords.concat(await loadedKardashevCoords);
 
     const revealedCoordsMap = new Map<LocationId, RevealedCoords>();
     for (const revealedCoords of allRevealedCoords) {
@@ -153,12 +168,17 @@ export class InitialGameStateDownloader {
       burnedCoordsMap.set(burnedCoords.hash, burnedCoords);
     }
 
+    const kardashevCoordsMap = new Map<LocationId, KardashevCoords>();
+    for (const kardashevCoords of allKardashevCoords) {
+      kardashevCoordsMap.set(kardashevCoords.hash, kardashevCoords);
+    }
     let planetsToLoad = allTouchedPlanetIds.filter(
       (id) =>
         minedPlanetIds.has(id) ||
         revealedCoordsMap.has(id) ||
         claimedCoordsMap.has(id) ||
-        burnedCoordsMap.has(id)
+        burnedCoordsMap.has(id) ||
+        kardashevCoordsMap.has(id)
     );
 
     const pendingMoves = await contractsAPI.getAllArrivals(planetsToLoad, pendingMovesLoadingBar);
@@ -222,6 +242,7 @@ export class InitialGameStateDownloader {
       allRevealedCoords,
       allClaimedCoords,
       allBurnedCoords,
+      allKardashevCoords,
       pendingMoves,
       touchedAndLocatedPlanets,
       artifactsOnVoyages,
@@ -231,6 +252,7 @@ export class InitialGameStateDownloader {
       revealedCoordsMap,
       claimedCoordsMap,
       burnedCoordsMap,
+      kardashevCoordsMap,
       planetVoyageIdMap,
       arrivals,
       twitters,

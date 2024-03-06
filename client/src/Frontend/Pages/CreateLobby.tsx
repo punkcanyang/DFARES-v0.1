@@ -173,6 +173,12 @@ export function CreateLobby({ match }: RouteComponentProps<{ contract: string }>
               config.MIN_LEVEL_BIAS[5],
             ],
             ENTRY_FEE: config.ENTRY_FEE,
+            KARDASHEV_END_TIMESTAMP: config.KARDASHEV_END_TIMESTAMP,
+            KARDASHEV_PLANET_COOLDOWN: config.KARDASHEV_PLANET_COOLDOWN,
+            BLUE_PLANET_COOLDOWN: config.BLUE_PLANET_COOLDOWN,
+            KARDASHEV_EFFECT_RADIUS: config.KARDASHEV_EFFECT_RADIUS,
+            KARDASHEV_REQUIRE_SILVER_AMOUNTS: config.KARDASHEV_REQUIRE_SILVER_AMOUNTS,
+            BLUE_PANET_REQUIRE_SILVER_AMOUNTS: config.BLUE_PANET_REQUIRE_SILVER_AMOUNTS,
           });
         })
         .catch((e) => {

@@ -1,5 +1,5 @@
 import { isActivated } from '@dfares/gamelogic';
-import { isUnconfirmedBurnTx } from '@dfares/serde';
+import { isUnconfirmedKardashevTx } from '@dfares/serde';
 import { ArtifactType, EthAddress, LocationId } from '@dfares/types';
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
@@ -38,7 +38,7 @@ const DropBombWrapper = styled.div`
   }
 `;
 
-// export function DropBombPaneHelpContent() {
+// export function KardashevPaneHelpContent() {
 //   return (
 //     <div>
 //       Reveal this planet's location to all other players on-chain!
@@ -49,7 +49,7 @@ const DropBombWrapper = styled.div`
 //   );
 // }
 
-export function DropBombPane({
+export function KardashevPane({
   initialPlanetId,
   modal: _modal,
 }: {
@@ -67,23 +67,23 @@ export function DropBombPane({
     return loc.coords;
   };
 
-  const dropBomb = () => {
+  const kardashev = () => {
     if (!planet || !uiManager) return;
     const loc = uiManager.getLocationOfPlanet(planet.locationId);
     if (!loc) return;
 
-    uiManager.burnLocation(loc.hash);
+    uiManager.kardashev(loc.hash);
   };
 
   const [account, setAccount] = useState<EthAddress | undefined>(undefined); // consider moving this one to parent
   const isDestoryedOrFrozen = planet?.destroyed || planet?.frozen;
-  const burnLocationCooldownPassed = uiManager.getNextBurnAvailableTimestamp() <= Date.now();
-  const currentlyBurningAnyPlanet = uiManager.isCurrentlyBurning();
+  const kardashevCooldownPassed = uiManager.getNextKardashevAvailableTimestamp() <= Date.now();
+  const currentlyKardashevingAnyPlanet = uiManager.isCurrentlyKardasheving();
 
-  const getDropBombAmount = () => {
+  const getKardashevAmount = () => {
     const player = uiManager.getPlayer(account);
     if (!player) return 0;
-    return player.dropBombAmount;
+    return player.kardashevAmount;
   };
 
   const getSilverPassed = () => {
@@ -91,8 +91,7 @@ export function DropBombPane({
     if (!account) return false;
     const playerSilver = uiManager.getPlayerSilver(account);
     if (playerSilver === undefined) return false;
-    const requireSilver = uiManager.getSilverOfBurnPlanet(account, planet.planetLevel);
-    if (!requireSilver) return false;
+    const requireSilver = uiManager.getKardashevRequireSilverAmount(planet.planetLevel);
 
     return Math.floor(playerSilver) >= Math.ceil(requireSilver);
   };
@@ -100,7 +99,7 @@ export function DropBombPane({
   const getFormatSilverAmount = () => {
     if (!planet) return 'n/a';
     if (!account) return 'n/a';
-    const res = uiManager.getSilverOfBurnPlanet(account, planet.planetLevel);
+    const res = uiManager.getKardashevRequireSilverAmount(planet.planetLevel);
     // console.log(res);
     if (res === undefined) return 'n/a';
     else return res.toLocaleString();
@@ -108,14 +107,14 @@ export function DropBombPane({
   const formatSilverAmount = getFormatSilverAmount();
 
   const silverPassed = getSilverPassed();
-  const hasOwnedShipPink = useMemo(
+  const hasActiveAritfact = useMemo(
     () =>
       planet?.heldArtifactIds
         .map((id) => uiManager.getArtifactWithId(id))
         .find(
           (artifact) =>
-            (artifact?.artifactType === ArtifactType.ShipPink && artifact.controller === account) ||
-            (artifact?.artifactType === ArtifactType.Bomb && isActivated(artifact))
+            // (artifact?.artifactType === ArtifactType.ShipPink && artifact.controller === account) ||
+            artifact?.artifactType === ArtifactType.Kardashev && isActivated(artifact)
         ),
     [account, planet, uiManager]
   );
@@ -127,37 +126,37 @@ export function DropBombPane({
     setAccount(uiManager.getAccount());
   }, [uiManager]);
 
-  let burnBtn = undefined;
+  let kardashevBtn = undefined;
 
   if (isDestoryedOrFrozen) {
-    burnBtn = <Btn disabled={true}>Drop Bomb</Btn>;
-  } else if (planet?.transactions?.hasTransaction(isUnconfirmedBurnTx)) {
-    burnBtn = (
+    kardashevBtn = <Btn disabled={true}>Kardashev</Btn>;
+  } else if (planet?.transactions?.hasTransaction(isUnconfirmedKardashevTx)) {
+    kardashevBtn = (
       <Btn disabled={true}>
-        <LoadingSpinner initialText={'Dropping Bomb...'} />
+        <LoadingSpinner initialText={'Kardasheving...'} />
       </Btn>
     );
-  } else if (!burnLocationCooldownPassed) {
-    burnBtn = <Btn disabled={true}>Drop Bomb</Btn>;
-  } else if (!hasOwnedShipPink) {
-    burnBtn = <Btn disabled={true}>Drop Bomb</Btn>;
+  } else if (!kardashevCooldownPassed) {
+    kardashevBtn = <Btn disabled={true}>Kardshaev</Btn>;
+  } else if (!hasActiveAritfact) {
+    kardashevBtn = <Btn disabled={true}>Kardshaev</Btn>;
   } else if (!silverPassed) {
-    burnBtn = <Btn disabled={true}>Drop Bomb</Btn>;
+    kardashevBtn = <Btn disabled={true}>Kardshaev</Btn>;
   } else if (!levelPassed) {
-    burnBtn = <Btn disabled={true}>Drop Bomb</Btn>;
+    kardashevBtn = <Btn disabled={true}>Kardshaev</Btn>;
   } else {
-    burnBtn = (
-      <Btn disabled={currentlyBurningAnyPlanet} onClick={dropBomb}>
-        Drop Bomb
+    kardashevBtn = (
+      <Btn disabled={currentlyKardashevingAnyPlanet} onClick={kardashev}>
+        Kardshaev
       </Btn>
     );
   }
 
   const warningsSection = (
     <div>
-      {currentlyBurningAnyPlanet && (
+      {currentlyKardashevingAnyPlanet && (
         <p>
-          <Blue>INFO:</Blue> Dropping Bomb...
+          <Blue>INFO:</Blue> Kardshaeving...
         </p>
       )}
       {/* {planet?.owner === account && (
@@ -173,24 +172,24 @@ export function DropBombPane({
 
       {isDestoryedOrFrozen && (
         <p>
-          <Blue>INFO:</Blue> You can't drop bomb to a destoryed/frozen planet.
+          <Blue>INFO:</Blue> You can't kardashev to a destoryed/frozen planet.
         </p>
       )}
-      {!burnLocationCooldownPassed && (
+      {!kardashevCooldownPassed && (
         <p>
           <Blue>INFO:</Blue> You must wait{' '}
-          <TimeUntil timestamp={uiManager.getNextBurnAvailableTimestamp()} ifPassed={'now!'} /> to
-          burn another planet.
+          <TimeUntil timestamp={uiManager.getNextKardashevAvailableTimestamp()} ifPassed={'now!'} />{' '}
+          to kardashev another planet.
         </p>
       )}
-      {!hasOwnedShipPink && (
+      {!hasActiveAritfact && (
         // round 2
         // <p>
         //   <Blue>INFO:</Blue> Your pink Ship needs to be above this planet.
         // </p>
 
         <p>
-          <Blue>INFO:</Blue> Please activate bomb on this planet.
+          <Blue>INFO:</Blue> Please activate kardashev artifact on this planet.
         </p>
       )}
 
@@ -212,13 +211,16 @@ export function DropBombPane({
     return (
       <DropBombWrapper>
         <div>
-          You can only drop bomb to a planet once every{' '}
-          <White>{formatDuration(uiManager.contractConstants.BURN_PLANET_COOLDOWN * 1000)}</White>.
+          You can only kardashev a planet once every{' '}
+          <White>
+            {formatDuration(uiManager.contractConstants.KARDASHEV_PLANET_COOLDOWN * 1000)}
+          </White>
+          .
         </div>
 
         <div className='row'>
-          <span>Your dropped bomb amount:</span>
-          <span>{getDropBombAmount()}</span>
+          <span>Your kardashev amount:</span>
+          <span>{getKardashevAmount()}</span>
         </div>
 
         <div className='row'>
@@ -231,7 +233,7 @@ export function DropBombPane({
           <span>{`(${getLoc().x}, ${getLoc().y})`}</span>
         </div>
         <Spacer height={8} />
-        <p style={{ textAlign: 'right' }}>{burnBtn}</p>
+        <p style={{ textAlign: 'right' }}>{kardashevBtn}</p>
       </DropBombWrapper>
     );
   } else {

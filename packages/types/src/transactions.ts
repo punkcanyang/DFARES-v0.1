@@ -29,7 +29,10 @@ export type ContractMethodName =
   | 'capturePlanet'
   | 'claimReward'
   | 'burnLocation'
-  | 'pinkLocation';
+  | 'pinkLocation'
+  | 'kardashev'
+  | 'blueLocation'
+  | 'refreshPlanet';
 
 export type EthTxStatus =
   | 'Init'
@@ -114,6 +117,14 @@ export type UnconfirmedUpgrade = TxIntent & {
   methodName: 'upgradePlanet';
   locationId: LocationId;
   upgradeBranch: number; // 0, 1, or 2
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedRefreshPlanet = TxIntent & {
+  methodName: 'refreshPlanet';
+  locationId: LocationId;
 };
 
 /**
@@ -275,6 +286,24 @@ export type UnconfirmedBurn = TxIntent & {
  */
 export type UnconfirmedPink = TxIntent & {
   methodName: 'pinkLocation';
+  locationId: LocationId;
+  location: WorldLocation;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedKardashev = TxIntent & {
+  methodName: 'kardashev';
+  locationId: LocationId;
+  location: WorldLocation;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedBlue = TxIntent & {
+  methodName: 'blueLocation';
   locationId: LocationId;
   location: WorldLocation;
 };

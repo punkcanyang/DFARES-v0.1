@@ -355,6 +355,16 @@ async function takeOwnership(
   return tx;
 }
 
+async function withdraw() {
+  const tx = await df.submitTransaction({
+    args: Promise.resolve([]),
+    contract: df.getContract(),
+    methodName: 'withdraw',
+  });
+
+  return tx;
+}
+
 async function pauseGame() {
   const tx = await df.submitTransaction({
     args: Promise.resolve([]),
@@ -829,6 +839,10 @@ function App() {
 
   return html`
     <div style=${wrapperStyle}>
+      <div style=${rowStyle}>
+        <df-button onClick=${() => withdraw()}> withdraw ETH to admin account </df-button>
+      </div>
+
       <p>Logged in as account: ${account}</p>
 
       <${Heading} title="Game state" />

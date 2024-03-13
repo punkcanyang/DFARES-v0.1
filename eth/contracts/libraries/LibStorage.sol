@@ -84,6 +84,10 @@ struct GameStorage {
     uint256[] kardashevIds;
     mapping(uint256 => KardashevCoords) kardashevCoords;
     mapping(address => uint256) lastKardashevTimestamp;
+    /**
+     * Map from player address to the list of spaceships they have
+     */
+    mapping(address => uint256[]) mySpaceshipIds;
     address firstMythicArtifactOwner;
     address firstBurnLocationOperator;
     address firstHat;

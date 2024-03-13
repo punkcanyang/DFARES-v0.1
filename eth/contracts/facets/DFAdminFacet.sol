@@ -245,6 +245,8 @@ contract DFAdminFacet is WithStorage {
 
         gs().planets[locationId] = planet;
 
+        gs().mySpaceshipIds[owner].push(shipId);
+
         emit AdminGiveSpaceship(locationId, owner, artifactType);
     }
 

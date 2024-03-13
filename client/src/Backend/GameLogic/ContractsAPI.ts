@@ -1331,7 +1331,19 @@ export class ContractsAPI extends EventEmitter {
   ): Promise<Artifact[]> {
     if (playerId === undefined) return [];
 
-    const myArtifactIds = (await this.makeCall(this.contract.getPlayerArtifactIds, [playerId])).map(
+    const mySpacespaceIds = (
+      await this.makeCall(this.contract.getPlayerArtifactIds, [playerId])
+    ).map(artifactIdFromEthersBN);
+    return this.bulkGetArtifacts(mySpacespaceIds, onProgress);
+  }
+
+  public async getPlayerSpaceships(
+    playerId?: EthAddress,
+    onProgress?: (percent: number) => void
+  ): Promise<Artifact[]> {
+    if (playerId === undefined) return [];
+
+    const myArtifactIds = (await this.makeCall(this.contract.getMySpaceshipIds, [playerId])).map(
       artifactIdFromEthersBN
     );
     return this.bulkGetArtifacts(myArtifactIds, onProgress);

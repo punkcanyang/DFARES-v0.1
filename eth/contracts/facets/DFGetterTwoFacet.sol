@@ -290,6 +290,10 @@ contract DFGetterTwoFacet is WithStorage {
         return gs().lastBurnTimestamp[player];
     }
 
+    function getMySpaceshipIds(address player) public view returns (uint256[] memory ret) {
+        ret = gs().mySpaceshipIds[player];
+    }
+
     /**
      * Returns the last time that the given player activated artifact
      */

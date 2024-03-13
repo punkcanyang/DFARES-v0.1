@@ -1161,6 +1161,30 @@ class GameManager extends EventEmitter {
     this.playersUpdated$.publish();
   }
 
+  private async hardRefreshPlayerSpaceships(address?: EthAddress): Promise<void> {
+    if (!address) return;
+    const spaceships = await this.contractsAPI.getPlayerSpaceships(address);
+    console.log(spaceships.length);
+    for (let i = 0; i < spaceships.length; i++) {
+      console.log('--- spaceship ', i, ' ---');
+      console.log('ship id:', spaceships[i].id);
+      this.hardRefreshArtifact(spaceships[i].id);
+      const voyageId = spaceships[i].onVoyageId;
+
+      if (voyageId !== undefined) {
+        const arrival = await this.contractsAPI.getArrival(Number(voyageId));
+        console.log('voyageId:', voyageId);
+        console.log(arrival);
+        if (arrival) {
+          const fromPlanet = arrival.fromPlanet;
+          const toPlanet = arrival.toPlanet;
+          await Promise.all([this.hardRefreshPlanet(fromPlanet), this.hardRefreshPlanet(toPlanet)]);
+          console.log('[OK] finish hard refresh from & to planets');
+        }
+      }
+    }
+  }
+
   // Dirty hack for only refreshing properties on a planet and nothing else
   private async softRefreshPlanet(planetId: LocationId): Promise<void> {
     const planet = await this.contractsAPI.getPlanetById(planetId);

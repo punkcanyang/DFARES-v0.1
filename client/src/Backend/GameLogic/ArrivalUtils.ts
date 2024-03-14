@@ -157,9 +157,10 @@ export const arrive = (
   updatePlanetToTime(toPlanet, artifactsOnPlanet, arrival.arrivalTime * 1000, contractConstants);
 
   const prevPlanet = _.cloneDeep(toPlanet);
-  if (toPlanet.destroyed || toPlanet.frozen) {
-    return { arrival: arrival, previous: toPlanet, current: toPlanet };
-  }
+
+  // if (toPlanet.destroyed || toPlanet.frozen) {
+  //   return { arrival: arrival, previous: toPlanet, current: toPlanet };
+  // }
 
   // apply energy
   const { energyArriving, arrivalTime } = arrival;

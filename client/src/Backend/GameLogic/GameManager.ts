@@ -1185,6 +1185,16 @@ class GameManager extends EventEmitter {
     }
   }
 
+  private async getArrival(arrivalId: number): Promise<void> {
+    const arrival = await this.contractsAPI.getArrival(arrivalId);
+    console.log(arrival);
+  }
+
+  private async getArrivalsForPlanet(planetId: LocationId): Promise<void> {
+    const events = await this.contractsAPI.getArrivalsForPlanet(planetId);
+    console.log(events);
+  }
+
   // Dirty hack for only refreshing properties on a planet and nothing else
   private async softRefreshPlanet(planetId: LocationId): Promise<void> {
     const planet = await this.contractsAPI.getPlanetById(planetId);
@@ -1196,6 +1206,7 @@ class GameManager extends EventEmitter {
     const planet = await this.contractsAPI.getPlanetById(planetId);
     if (!planet) return;
     const arrivals = await this.contractsAPI.getArrivalsForPlanet(planetId);
+
     const artifactsOnPlanets = await this.contractsAPI.bulkGetArtifactsOnPlanets([planetId]);
     const artifactsOnPlanet = artifactsOnPlanets[0];
 

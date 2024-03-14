@@ -218,9 +218,11 @@ library LibLazyUpdate {
         bool shoudDeactiveArtifact = false;
 
         do {
-            if (events.length == 0 || planet.destroyed || planet.frozen) {
-                break;
-            }
+            // if (events.length == 0 || planet.destroyed || planet.frozen) {
+            //     break;
+            // }
+
+            if (events.length == 0) break;
 
             // set to to the upperbound of uint256
             earliestEventTime = 115792089237316195423570985008687907853269984665640564039457584007913129639935;

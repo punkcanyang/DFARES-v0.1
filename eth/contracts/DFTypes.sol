@@ -44,6 +44,7 @@ struct Player {
     uint256 moveCount;
     uint256 hatCount;
     uint256 kardashevAmount;
+    uint256 buyPlanetId;
 }
 
 struct Planet {

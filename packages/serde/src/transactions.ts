@@ -6,6 +6,7 @@ import {
   UnconfirmedBurn,
   UnconfirmedBuyArtifact,
   UnconfirmedBuyHat,
+  UnconfirmedBuyPlanet,
   UnconfirmedCapturePlanet,
   UnconfirmedChangeArtifactImageType,
   UnconfirmedClaim,
@@ -147,6 +148,9 @@ export function isUnconfirmedBlue(txIntent: TxIntent): txIntent is UnconfirmedBl
   return txIntent.methodName === 'blueLocation';
 }
 
+export function isUnconfirmedBuyPlanet(txIntent: TxIntent): txIntent is UnconfirmedBuyPlanet {
+  return txIntent.methodName === 'buyPlanet';
+}
 export function isUnconfirmedInvadePlanet(txIntent: TxIntent): txIntent is UnconfirmedInvadePlanet {
   return txIntent.methodName === 'invadePlanet';
 }
@@ -283,4 +287,8 @@ export function isUnconfirmedKardashevTx(tx: Transaction): tx is Transaction<Unc
 
 export function isUnconfirmedBlueTx(tx: Transaction): tx is Transaction<UnconfirmedBlue> {
   return isUnconfirmedBlue(tx.intent);
+}
+
+export function isUnconfirmedBuyPlanetTx(tx: Transaction): tx is Transaction<UnconfirmedBuyPlanet> {
+  return isUnconfirmedBuyPlanet(tx.intent);
 }

@@ -270,9 +270,9 @@ library LibPlanet {
 
         SpaceType spaceType = LibGameUtils.spaceTypeFromPerlin(_perlin, _distFromOriginSquare);
 
-        require(spaceType == SpaceType.NEBULA, "GUCK U");
+        require(spaceType == SpaceType.NEBULA, "Only NEBULA");
 
-        //NEEDED?
+        //myTodo: needed?
         require(
             _perlin >= gameConstants().INIT_PERLIN_MIN,
             "Init not allowed in perlin value less than INIT_PERLIN_MIN"

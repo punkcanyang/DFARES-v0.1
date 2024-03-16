@@ -38,4 +38,5 @@ export type Player = {
   moveCount: number;
   hatCount: number;
   kardashevAmount: number;
+  buyPlanetId: LocationId;
 };

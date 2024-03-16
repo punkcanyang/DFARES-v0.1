@@ -248,6 +248,7 @@ export async function deployAndCut(
   const captureFacet = await deployCaptureFacet({}, libraries, hre);
   const pinkBombFacet = await deployPinkBombFacet({}, libraries, hre);
   const kardashevFacet = await deployKardashevFacet({}, libraries, hre);
+  const tradeFacet = await deployTradeFacet({}, libraries, hre);
 
   const artifactFacet = await deployArtifactFacet(
     { diamondAddress: diamond.address },
@@ -273,6 +274,7 @@ export async function deployAndCut(
     ...changes.getFacetCuts('DFCaptureFacet', captureFacet),
     ...changes.getFacetCuts('DFPinkBombFacet', pinkBombFacet),
     ...changes.getFacetCuts('DFKardashevFacet', kardashevFacet),
+    ...changes.getFacetCuts('DFTradeFacet', tradeFacet),
     ...changes.getFacetCuts('DFArtifactFacet', artifactFacet),
     ...changes.getFacetCuts('DFGetterOneFacet', getterOneFacet),
     ...changes.getFacetCuts('DFGetterTwoFacet', getterTwoFacet),
@@ -280,6 +282,7 @@ export async function deployAndCut(
     ...changes.getFacetCuts('DFVerifierFacet', verifierFacet),
     ...changes.getFacetCuts('DFAdminFacet', adminFacet),
     ...changes.getFacetCuts('DFLobbyFacet', lobbyFacet),
+
     //myNotice: rewardFacet don't fit v0.6.3
     // ...changes.getFacetCuts('DFRewardFacet', rewardFacet),
   ];
@@ -555,6 +558,23 @@ export async function deployKardashevFacet(
   const contract = await factory.deploy();
   await contract.deployTransaction.wait();
   console.log(`DFKardashevFacet deployed to: ${contract.address}`);
+  return contract;
+}
+
+export async function deployTradeFacet(
+  {},
+  { LibPlanet, LibGameUtils }: Libraries,
+  hre: HardhatRuntimeEnvironment
+) {
+  const factory = await hre.ethers.getContractFactory('DFTradeFacet', {
+    libraries: {
+      LibPlanet,
+      LibGameUtils,
+    },
+  });
+  const contract = await factory.deploy();
+  await contract.deployTransaction.wait();
+  console.log(`DFTradeFacet deployed to: ${contract.address}`);
   return contract;
 }
 

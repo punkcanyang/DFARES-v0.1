@@ -2,6 +2,7 @@ import {
   BLOCK_EXPLORER_URL,
   CONTRACT_PRECISION,
   EMPTY_ADDRESS,
+  EMPTY_LOCATION_ID,
   MIN_PLANET_LEVEL,
   PLANET_CLAIM_MIN_LEVEL,
 } from '@dfares/constants';
@@ -30,6 +31,7 @@ import {
   isUnconfirmedBurnTx,
   isUnconfirmedBuyArtifactTx,
   isUnconfirmedBuyHatTx,
+  isUnconfirmedBuyPlanetTx,
   isUnconfirmedCapturePlanetTx,
   isUnconfirmedChangeArtifactImageTypeTx,
   isUnconfirmedClaimTx,
@@ -92,6 +94,7 @@ import {
   UnconfirmedBurn,
   UnconfirmedBuyArtifact,
   UnconfirmedBuyHat,
+  UnconfirmedBuyPlanet,
   UnconfirmedCapturePlanet,
   UnconfirmedChangeArtifactImageType,
   UnconfirmedClaim,
@@ -988,6 +991,7 @@ class GameManager extends EventEmitter {
           await gameManager.hardRefreshPlanet(tx.intent.locationId);
           // mining manager should be initialized already via joinGame, but just in case...
           gameManager.initMiningManager(tx.intent.location.coords, 4);
+        } else if (isUnconfirmedBuyPlanetTx(tx)) {
         } else if (isUnconfirmedMoveTx(tx)) {
           const promises = [gameManager.bulkHardRefreshPlanets([tx.intent.from, tx.intent.to])];
           if (tx.intent.artifact) {
@@ -1001,6 +1005,11 @@ class GameManager extends EventEmitter {
         } else if (isUnconfirmedBuyHatTx(tx)) {
           await gameManager.hardRefreshPlanet(tx.intent.locationId);
         } else if (isUnconfirmedInitTx(tx)) {
+          await gameManager.hardRefreshPlanet(tx.intent.locationId);
+        } else if (isUnconfirmedBuyPlanetTx(tx)) {
+          //todo
+          console.log('GameManager');
+          console.log(tx);
           await gameManager.hardRefreshPlanet(tx.intent.locationId);
         } else if (isUnconfirmedFindArtifactTx(tx)) {
           await gameManager.hardRefreshPlanet(tx.intent.planetId);
@@ -3219,6 +3228,7 @@ class GameManager extends EventEmitter {
           planet.location.coords.y,
           Math.floor(Math.sqrt(planet.location.coords.x ** 2 + planet.location.coords.y ** 2)) + 1
         );
+
         this.terminal.current?.println('INIT: calculated SNARK with args:', TerminalTextStyle.Sub);
         this.terminal.current?.println(
           JSON.stringify(hexifyBigIntNestedArray(args.slice(0, 3) as unknown as string[])),
@@ -4446,6 +4456,112 @@ class GameManager extends EventEmitter {
       return tx;
     } catch (e) {
       this.getNotificationsManager().txInitError('buyHat', e.message);
+      throw e;
+    }
+  }
+  /**
+   * Submits a transaction to the blockchain to buy a planet.
+   * Warning costs real token.
+   */
+  public async buyPlanet(planetId: LocationId): Promise<Transaction<UnconfirmedBuyPlanet>> {
+    try {
+      if (!this.account) {
+        throw new Error('no account set');
+      }
+      if (this.checkGameHasEnded()) {
+        throw new Error('game has ended');
+      }
+
+      const planet = this.entityStore.getPlanetWithId(planetId);
+
+      // planet requirements
+      if (!planet) {
+        throw new Error("you can't buy a planet you haven't discovered");
+      }
+
+      if (!isLocatable(planet)) {
+        throw new Error("you can't buy a planet whose coordinates you don't know");
+      }
+
+      if (planet.destroyed || planet.frozen) {
+        throw new Error("you can't buy destroyed/frozen planets");
+      }
+
+      if (planet.planetLevel !== 0) {
+        throw new Error('only level 0');
+      }
+
+      if (planet.owner !== EMPTY_ADDRESS) {
+        throw new Error('you can only buy planet without owner');
+      }
+
+      const x: number = planet.location.coords.x;
+      const y: number = planet.location.coords.y;
+      const radius: number = Math.sqrt(x ** 2 + y ** 2);
+
+      const MAX_LEVEL_DIST = this.contractConstants.MAX_LEVEL_DIST;
+      if (!(radius > MAX_LEVEL_DIST[1])) {
+        throw new Error('Player can only spawn at the edge of universe');
+      }
+      const spaceType = this.spaceTypeFromPerlin(planet.perlin, x * x + y * y);
+
+      if (spaceType !== SpaceType.NEBULA) {
+        throw new Error('Only NEBULA');
+      }
+
+      const INIT_PERLIN_MIN = this.contractConstants.INIT_PERLIN_MIN;
+
+      if (planet.perlin >= INIT_PERLIN_MIN) {
+        throw new Error('Init not allowed in perlin value less than INIT_PERLIN_MIN');
+      }
+
+      //player requirements
+      const player = this.players.get(this.account);
+      if (!player) {
+        throw new Error('no player');
+      }
+
+      if (player.buyPlanetId !== EMPTY_LOCATION_ID) {
+        throw new Error('you have bought planet before');
+      }
+
+      // transaction requirements
+      if (planet.transactions?.hasTransaction(isUnconfirmedBuyPlanetTx)) {
+        throw new Error("you're already buying this planet");
+      }
+      if (this.entityStore.transactions.hasTransaction(isUnconfirmedBuyPlanetTx)) {
+        throw new Error("you're already buying this planet");
+      }
+
+      const getArgs = async () => {
+        const args = await this.snarkHelper.getInitArgs(
+          planet.location.coords.x,
+          planet.location.coords.y,
+          Math.floor(Math.sqrt(planet.location.coords.x ** 2 + planet.location.coords.y ** 2)) + 1
+        );
+
+        return args;
+      };
+
+      const txIntent: UnconfirmedBuyPlanet = {
+        methodName: 'buyPlanet',
+        contract: this.contractsAPI.contract,
+        locationId: planet.location.hash,
+        location: planet.location,
+        args: getArgs(),
+      };
+
+      localStorage.setItem(`${this.getAccount()?.toLowerCase()}-buyPlanet`, planetId);
+
+      const fee = bigInt(1_000_000_000_000_000_000).toString();
+
+      const tx = await this.contractsAPI.submitTransaction(txIntent, {
+        value: fee, //1 eth
+      });
+
+      return tx;
+    } catch (e) {
+      this.getNotificationsManager().txInitError('buyPlanet', e.message);
       throw e;
     }
   }

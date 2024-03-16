@@ -222,6 +222,10 @@ export function TxConfirmPopup({
 
   const buyArtifactRarity = localStorage.getItem(`${account}-buyArtifactRarity`);
 
+  //buyPlanet
+  const buyPlanet = localStorage.getItem(`${account}-buyPlanet`);
+  const buyPlanetCost = 1; //1 eth
+
   function isTypeOK() {
     if (butArtifactType === undefined) return false;
     const val = Number(butArtifactType);
@@ -285,6 +289,7 @@ export function TxConfirmPopup({
         hatCost +
         buyArtifactCost +
         joinGameCost +
+        buyPlanetCost +
         weiToEth(gweiToWei(Number(gasLimit) * Number(gasFeeGwei)));
 
       return res.toFixed(18).toString();
@@ -333,6 +338,7 @@ export function TxConfirmPopup({
             <span className='mono'>{revealPlanet}</span>
           </Row>
         )}
+
         {method === 'buyHat' && (
           <>
             <Row>
@@ -348,6 +354,22 @@ export function TxConfirmPopup({
               <b>Hat Fee </b>
               <span>
                 {hatCost} ${TOKEN_NAME}
+              </span>
+            </Row>
+          </>
+        )}
+
+        {method === 'buyPlanet' && (
+          <>
+            <Row>
+              <b>On</b>
+              <span className='mono'>{buyPlanet}</span>
+            </Row>
+
+            <Row>
+              <b>Buy Planet Fee </b>
+              <span>
+                {buyPlanetCost} ${TOKEN_NAME}
               </span>
             </Row>
           </>

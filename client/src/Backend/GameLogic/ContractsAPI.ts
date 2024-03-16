@@ -232,6 +232,7 @@ export class ContractsAPI extends EventEmitter {
           contract.filters.PlanetInvaded(null, null).topics,
           contract.filters.PlanetCaptured(null, null).topics,
           contract.filters.PlayerInitialized(null, null).topics,
+          contract.filters.PlanetBought(null, null).topics,
           contract.filters.AdminOwnershipChanged(null, null).topics,
           contract.filters.AdminGiveSpaceship(null, null).topics,
           contract.filters.PauseStateChanged(null).topics,
@@ -304,6 +305,11 @@ export class ContractsAPI extends EventEmitter {
         this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(linkTo));
       },
       [ContractEvent.PlayerInitialized]: async (player: string, locRaw: EthersBN, _: Event) => {
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(player));
+        this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(locRaw));
+        this.emit(ContractsAPIEvent.RadiusUpdated);
+      },
+      [ContractEvent.PlanetBought]: async (player: string, locRaw: EthersBN, _: Event) => {
         this.emit(ContractsAPIEvent.PlayerUpdate, address(player));
         this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(locRaw));
         this.emit(ContractsAPIEvent.RadiusUpdated);

@@ -32,7 +32,8 @@ export type ContractMethodName =
   | 'pinkLocation'
   | 'kardashev'
   | 'blueLocation'
-  | 'refreshPlanet';
+  | 'refreshPlanet'
+  | 'buyPlanet';
 
 export type EthTxStatus =
   | 'Init'
@@ -304,6 +305,15 @@ export type UnconfirmedKardashev = TxIntent & {
  */
 export type UnconfirmedBlue = TxIntent & {
   methodName: 'blueLocation';
+  locationId: LocationId;
+  location: WorldLocation;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedBuyPlanet = TxIntent & {
+  methodName: 'buyPlanet';
   locationId: LocationId;
   location: WorldLocation;
 };

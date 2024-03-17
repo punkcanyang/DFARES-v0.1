@@ -41,5 +41,6 @@ export function decodePlayer(rawPlayer: RawPlayer): Player {
     hatCount: rawPlayer.hatCount.toNumber(),
     kardashevAmount: rawPlayer.kardashevAmount.toNumber(),
     buyPlanetId: locationIdFromEthersBN(rawPlayer.buyPlanetId),
+    buySpaceshipAmount: rawPlayer.buySpaceshipAmount.toNumber(),
   };
 }

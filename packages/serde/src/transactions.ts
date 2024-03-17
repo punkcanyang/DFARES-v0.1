@@ -7,6 +7,7 @@ import {
   UnconfirmedBuyArtifact,
   UnconfirmedBuyHat,
   UnconfirmedBuyPlanet,
+  UnconfirmedBuySpaceship,
   UnconfirmedCapturePlanet,
   UnconfirmedChangeArtifactImageType,
   UnconfirmedClaim,
@@ -151,6 +152,11 @@ export function isUnconfirmedBlue(txIntent: TxIntent): txIntent is UnconfirmedBl
 export function isUnconfirmedBuyPlanet(txIntent: TxIntent): txIntent is UnconfirmedBuyPlanet {
   return txIntent.methodName === 'buyPlanet';
 }
+
+export function isUnconfirmedBuySpaceship(txIntent: TxIntent): txIntent is UnconfirmedBuySpaceship {
+  return txIntent.methodName === 'buySpaceship';
+}
+
 export function isUnconfirmedInvadePlanet(txIntent: TxIntent): txIntent is UnconfirmedInvadePlanet {
   return txIntent.methodName === 'invadePlanet';
 }
@@ -291,4 +297,10 @@ export function isUnconfirmedBlueTx(tx: Transaction): tx is Transaction<Unconfir
 
 export function isUnconfirmedBuyPlanetTx(tx: Transaction): tx is Transaction<UnconfirmedBuyPlanet> {
   return isUnconfirmedBuyPlanet(tx.intent);
+}
+
+export function isUnconfirmedBuySpaceshipTx(
+  tx: Transaction
+): tx is Transaction<UnconfirmedBuySpaceship> {
+  return isUnconfirmedBuySpaceship(tx.intent);
 }

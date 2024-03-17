@@ -39,4 +39,5 @@ export type Player = {
   hatCount: number;
   kardashevAmount: number;
   buyPlanetId: LocationId;
+  buySpaceshipAmount: number;
 };

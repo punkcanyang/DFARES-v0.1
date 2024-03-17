@@ -5,16 +5,18 @@ pragma solidity ^0.8.0;
 import {LibDiamond} from "../vendor/libraries/LibDiamond.sol";
 import {LibGameUtils} from "../libraries/LibGameUtils.sol";
 import {LibPlanet} from "../libraries/LibPlanet.sol";
+import {LibArtifactUtils} from "../libraries/LibArtifactUtils.sol";
 
 // Storage imports
 import {WithStorage} from "../libraries/LibStorage.sol";
 import {DFWhitelistFacet} from "./DFWhitelistFacet.sol";
 
 //Type imports
-import {Planet, Player, SpaceType} from "../DFTypes.sol";
+import {Planet, Player, SpaceType, ArtifactType, Artifact} from "../DFTypes.sol";
 
 contract DFTradeFacet is WithStorage {
     event PlanetBought(address player, uint256 loc);
+    event SpaceshipBought(uint256 locationId, address owner, ArtifactType artifactType);
 
     modifier notPaused() {
         require(!gs().paused, "Game is paused");
@@ -99,5 +101,36 @@ contract DFTradeFacet is WithStorage {
         planet.population = planet.populationCap;
         LibGameUtils.updateWorldRadius();
         emit PlanetBought(msg.sender, planetId);
+    }
+
+    function buySpaceship(uint256 locationId, ArtifactType artifactType) public payable notPaused {
+        require(gs().planets[locationId].isInitialized, "planet is not initialized");
+        require(LibArtifactUtils.isSpaceship(artifactType), "artifact type must be a space ship");
+        require(artifactType == ArtifactType.ShipWhale, "only whale");
+
+        //todo: may change another value
+        require(gs().players[msg.sender].buySpaceshipAmount < 3, "max buy 3 spaceships");
+
+        // price
+        uint256 fee = 1 ether; // 1 eth
+        require(msg.value == fee, "Wrong value sent");
+
+        // about spaceship
+        uint256 shipId = LibArtifactUtils.createAndPlaceSpaceship(
+            locationId,
+            msg.sender,
+            artifactType
+        );
+        Artifact memory artifact = gs().artifacts[shipId];
+        Planet memory planet = gs().planets[locationId];
+        Player memory player = gs().players[msg.sender];
+
+        planet = LibPlanet.applySpaceshipArrive(artifact, planet);
+        player.buySpaceshipAmount++;
+
+        gs().planets[locationId] = planet;
+        gs().mySpaceshipIds[msg.sender].push(shipId);
+
+        emit SpaceshipBought(locationId, msg.sender, artifactType);
     }
 }

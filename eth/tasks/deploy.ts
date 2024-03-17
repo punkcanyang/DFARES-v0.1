@@ -563,13 +563,14 @@ export async function deployKardashevFacet(
 
 export async function deployTradeFacet(
   {},
-  { LibPlanet, LibGameUtils }: Libraries,
+  { LibPlanet, LibGameUtils, LibArtifactUtils }: Libraries,
   hre: HardhatRuntimeEnvironment
 ) {
   const factory = await hre.ethers.getContractFactory('DFTradeFacet', {
     libraries: {
       LibPlanet,
       LibGameUtils,
+      LibArtifactUtils,
     },
   });
   const contract = await factory.deploy();

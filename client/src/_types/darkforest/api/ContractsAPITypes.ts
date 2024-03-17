@@ -63,6 +63,7 @@ export const enum ContractEvent {
   Kardashev = 'Kardashev',
   LocationBlued = 'LocationBlued',
   PlanetBought = 'PlanetBought',
+  SpaceshipBought = 'SpaceshipBought',
 }
 
 export const enum ContractsAPIEvent {

@@ -32,6 +32,7 @@ import {
   isUnconfirmedBuyArtifactTx,
   isUnconfirmedBuyHatTx,
   isUnconfirmedBuyPlanetTx,
+  isUnconfirmedBuySpaceshipTx,
   isUnconfirmedCapturePlanetTx,
   isUnconfirmedChangeArtifactImageTypeTx,
   isUnconfirmedClaimTx,
@@ -95,6 +96,7 @@ import {
   UnconfirmedBuyArtifact,
   UnconfirmedBuyHat,
   UnconfirmedBuyPlanet,
+  UnconfirmedBuySpaceship,
   UnconfirmedCapturePlanet,
   UnconfirmedChangeArtifactImageType,
   UnconfirmedClaim,
@@ -1008,8 +1010,9 @@ class GameManager extends EventEmitter {
           await gameManager.hardRefreshPlanet(tx.intent.locationId);
         } else if (isUnconfirmedBuyPlanetTx(tx)) {
           //todo
-          console.log('GameManager');
-          console.log(tx);
+
+          await gameManager.hardRefreshPlanet(tx.intent.locationId);
+        } else if (isUnconfirmedBuySpaceshipTx(tx)) {
           await gameManager.hardRefreshPlanet(tx.intent.locationId);
         } else if (isUnconfirmedFindArtifactTx(tx)) {
           await gameManager.hardRefreshPlanet(tx.intent.planetId);
@@ -4562,6 +4565,73 @@ class GameManager extends EventEmitter {
       return tx;
     } catch (e) {
       this.getNotificationsManager().txInitError('buyPlanet', e.message);
+      throw e;
+    }
+  }
+
+  public async buySpaceship(planetId: LocationId): Promise<Transaction<UnconfirmedBuySpaceship>> {
+    try {
+      if (!this.account) {
+        throw new Error('no account set');
+      }
+      if (this.checkGameHasEnded()) {
+        throw new Error('game has ended');
+      }
+
+      const planet = this.entityStore.getPlanetWithId(planetId);
+
+      // planet requirements
+      if (!planet) {
+        throw new Error('you should know this planet');
+      }
+
+      if (!isLocatable(planet)) {
+        throw new Error('planet is not Locatable');
+      }
+
+      if (planet.destroyed || planet.frozen) {
+        throw new Error('planet destoryed / frozen');
+      }
+
+      //player requirements
+      const player = this.players.get(this.account);
+      if (!player) {
+        throw new Error('no player');
+      }
+
+      if (player.buySpaceshipAmount >= 3) {
+        throw new Error(' you can only buy 3 spaceships');
+      }
+
+      // transaction requirements
+      if (planet.transactions?.hasTransaction(isUnconfirmedBuySpaceshipTx)) {
+        throw new Error("you're already buying this planet");
+      }
+      if (this.entityStore.transactions.hasTransaction(isUnconfirmedBuySpaceshipTx)) {
+        throw new Error("you're already buying this planet");
+      }
+
+      const spaceshipType = ArtifactType.ShipWhale;
+
+      const txIntent: UnconfirmedBuySpaceship = {
+        methodName: 'buySpaceship',
+        contract: this.contractsAPI.contract,
+        locationId: planet.location.hash,
+        location: planet.location,
+        args: Promise.resolve([locationIdToDecStr(planetId), spaceshipType]),
+      };
+
+      const fee = bigInt(1_000_000_000_000_000_000).toString(); //1 eth
+
+      localStorage.setItem(`${this.getAccount()?.toLowerCase()}-buySpaceshipOnPlanetId`, planetId);
+
+      const tx = await this.contractsAPI.submitTransaction(txIntent, {
+        value: fee, //1 eth
+      });
+
+      return tx;
+    } catch (e) {
+      this.getNotificationsManager().txInitError('buySpaceship', e.message);
       throw e;
     }
   }

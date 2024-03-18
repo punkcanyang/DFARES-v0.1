@@ -51,7 +51,7 @@ enum ArtifactType {
   BlackDomain,
   IceLink,
   FireLink,
-  SoulSwap,
+  Kardashev,
   Bomb,
   StellarShield,
   BlindBox,
@@ -81,7 +81,7 @@ const ArtifactTypeNames = [
   'Black Domain',
   'Ice Link',
   'Fire Link',
-  'Soul Swap',
+  'Kardashev',
   'Bomb',
   'StellarShield',
   'Blind Box',
@@ -351,6 +351,16 @@ async function takeOwnership(
   });
 
   tx.confirmedPromise.then(() => df.hardRefreshPlanet(planet.locationId));
+
+  return tx;
+}
+
+async function withdraw() {
+  const tx = await df.submitTransaction({
+    args: Promise.resolve([]),
+    contract: df.getContract(),
+    methodName: 'withdraw',
+  });
 
   return tx;
 }
@@ -829,6 +839,10 @@ function App() {
 
   return html`
     <div style=${wrapperStyle}>
+      <div style=${rowStyle}>
+        <df-button onClick=${() => withdraw()}> withdraw ETH to admin account </df-button>
+      </div>
+
       <p>Logged in as account: ${account}</p>
 
       <${Heading} title="Game state" />

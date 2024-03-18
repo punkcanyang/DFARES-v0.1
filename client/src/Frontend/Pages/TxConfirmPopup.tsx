@@ -222,6 +222,14 @@ export function TxConfirmPopup({
 
   const buyArtifactRarity = localStorage.getItem(`${account}-buyArtifactRarity`);
 
+  //buyPlanet
+  const buyPlanet = localStorage.getItem(`${account}-buyPlanet`);
+  const buyPlanetCost = method === 'buyPlanet' ? 1 : 0; //1 eth
+
+  //buySpaceship
+  const buySpaceshipOnPlanetId = localStorage.getItem(`${account}-buySpaceshipOnPlanetId`);
+  const buySpaceshipCost = method === 'buySpaceship' ? 1 : 0; // 1 eth
+
   function isTypeOK() {
     if (butArtifactType === undefined) return false;
     const val = Number(butArtifactType);
@@ -285,6 +293,8 @@ export function TxConfirmPopup({
         hatCost +
         buyArtifactCost +
         joinGameCost +
+        buyPlanetCost +
+        buySpaceshipCost +
         weiToEth(gweiToWei(Number(gasLimit) * Number(gasFeeGwei)));
 
       return res.toFixed(18).toString();
@@ -306,6 +316,8 @@ export function TxConfirmPopup({
         hatCost +
         buyArtifactCost +
         joinGameCost +
+        buyPlanetCost +
+        buySpaceshipCost +
         weiToEth(gweiToWei(Number(gasLimit) * Number(val)));
 
       return pre + res.toFixed(18).toString();
@@ -333,6 +345,7 @@ export function TxConfirmPopup({
             <span className='mono'>{revealPlanet}</span>
           </Row>
         )}
+
         {method === 'buyHat' && (
           <>
             <Row>
@@ -348,6 +361,38 @@ export function TxConfirmPopup({
               <b>Hat Fee </b>
               <span>
                 {hatCost} ${TOKEN_NAME}
+              </span>
+            </Row>
+          </>
+        )}
+
+        {method === 'buyPlanet' && (
+          <>
+            <Row>
+              <b>On</b>
+              <span className='mono'>{buyPlanet}</span>
+            </Row>
+
+            <Row>
+              <b>Buy Planet Fee </b>
+              <span>
+                {buyPlanetCost} ${TOKEN_NAME}
+              </span>
+            </Row>
+          </>
+        )}
+
+        {method === 'buySpaceship' && (
+          <>
+            <Row>
+              <b>On</b>
+              <span className='mono'>{buySpaceshipOnPlanetId}</span>
+            </Row>
+
+            <Row>
+              <b>Buy Spaceship Fee </b>
+              <span>
+                {buySpaceshipCost} ${TOKEN_NAME}
               </span>
             </Row>
           </>

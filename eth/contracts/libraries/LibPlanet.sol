@@ -261,6 +261,7 @@ library LibPlanet {
         require(_radius >= MAX_LEVEL_DIST[1], "Player can only spawn at the edge of universe");
 
         SpaceType spaceType = LibGameUtils.spaceTypeFromPerlin(_perlin, _distFromOriginSquare);
+        require(spaceType == SpaceType.NEBULA, "Only NEBULA");
 
         // if (gameConstants().SPAWN_RIM_AREA != 0) {
         //     require(
@@ -274,7 +275,6 @@ library LibPlanet {
         //     _perlin >= gameConstants().INIT_PERLIN_MIN,
         //     "Init not allowed in perlin value less than INIT_PERLIN_MIN"
         // );
-
         // require(
         //     _perlin < gameConstants().INIT_PERLIN_MAX,
         //     "Init not allowed in perlin value greater than or equal to the INIT_PERLIN_MAX"

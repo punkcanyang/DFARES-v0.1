@@ -289,6 +289,8 @@ contract DFArtifactFacet is WithStorage, ERC721 {
                 owner,
                 ArtifactType.ShipMothership
             );
+
+            gs().mySpaceshipIds[owner].push(id1);
             emit ArtifactFound(msg.sender, id1, locationId);
         }
 
@@ -298,6 +300,7 @@ contract DFArtifactFacet is WithStorage, ERC721 {
                 owner,
                 ArtifactType.ShipCrescent
             );
+            gs().mySpaceshipIds[owner].push(id2);
             emit ArtifactFound(msg.sender, id2, locationId);
         }
 
@@ -307,6 +310,7 @@ contract DFArtifactFacet is WithStorage, ERC721 {
                 owner,
                 ArtifactType.ShipWhale
             );
+            gs().mySpaceshipIds[owner].push(id3);
             emit ArtifactFound(msg.sender, id3, locationId);
         }
 
@@ -316,6 +320,8 @@ contract DFArtifactFacet is WithStorage, ERC721 {
                 owner,
                 ArtifactType.ShipGear
             );
+
+            gs().mySpaceshipIds[owner].push(id4);
             emit ArtifactFound(msg.sender, id4, locationId);
         }
 
@@ -325,7 +331,7 @@ contract DFArtifactFacet is WithStorage, ERC721 {
                 owner,
                 ArtifactType.ShipTitan
             );
-
+            gs().mySpaceshipIds[owner].push(id5);
             emit ArtifactFound(msg.sender, id5, locationId);
         }
 
@@ -335,7 +341,7 @@ contract DFArtifactFacet is WithStorage, ERC721 {
                 owner,
                 ArtifactType.ShipPink
             );
-
+            gs().mySpaceshipIds[owner].push(id5);
             emit ArtifactFound(msg.sender, id5, locationId);
         }
 

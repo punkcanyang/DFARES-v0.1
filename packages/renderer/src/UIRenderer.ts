@@ -64,8 +64,8 @@ export class UIRenderer implements UIRendererType {
         } else if (artifactType === ArtifactType.BlackDomain) {
           showText = 'BlackDomain Target';
           lineColor = sensaichaA;
-        } else if (artifactType === ArtifactType.SoulSwap) {
-          showText = 'SoulSwap Target';
+        } else if (artifactType === ArtifactType.Kardashev) {
+          showText = 'Kardashev Target';
           lineColor = redA;
         } else if (artifactType === ArtifactType.Bomb) {
           showText = 'Bomb Target';

@@ -2,9 +2,12 @@ import {
   Transaction,
   TxIntent,
   UnconfirmedActivateArtifact,
+  UnconfirmedBlue,
   UnconfirmedBurn,
   UnconfirmedBuyArtifact,
   UnconfirmedBuyHat,
+  UnconfirmedBuyPlanet,
+  UnconfirmedBuySpaceship,
   UnconfirmedCapturePlanet,
   UnconfirmedChangeArtifactImageType,
   UnconfirmedClaim,
@@ -14,10 +17,12 @@ import {
   UnconfirmedGetShips,
   UnconfirmedInit,
   UnconfirmedInvadePlanet,
+  UnconfirmedKardashev,
   UnconfirmedMove,
   UnconfirmedPink,
   UnconfirmedPlanetTransfer,
   UnconfirmedProspectPlanet,
+  UnconfirmedRefreshPlanet,
   UnconfirmedReveal,
   UnconfirmedUpgrade,
   UnconfirmedUseKey,
@@ -52,6 +57,12 @@ export function isUnconfirmedRelease(txIntent: TxIntent): txIntent is Unconfirme
 
 export function isUnconfirmedUpgrade(txIntent: TxIntent): txIntent is UnconfirmedUpgrade {
   return txIntent.methodName === 'upgradePlanet';
+}
+
+export function isUnconfirmedRefreshPlanet(
+  txIntent: TxIntent
+): txIntent is UnconfirmedRefreshPlanet {
+  return txIntent.methodName === 'refreshPlanet';
 }
 
 export function isUnconfirmedBuyHat(txIntent: TxIntent): txIntent is UnconfirmedBuyHat {
@@ -129,6 +140,23 @@ export function isUnconfirmedBurn(txIntent: TxIntent): txIntent is UnconfirmedBu
 export function isUnconfirmedPink(txIntent: TxIntent): txIntent is UnconfirmedPink {
   return txIntent.methodName === 'pinkLocation';
 }
+
+export function isUnconfirmedKardashev(txIntent: TxIntent): txIntent is UnconfirmedKardashev {
+  return txIntent.methodName === 'kardashev';
+}
+
+export function isUnconfirmedBlue(txIntent: TxIntent): txIntent is UnconfirmedBlue {
+  return txIntent.methodName === 'blueLocation';
+}
+
+export function isUnconfirmedBuyPlanet(txIntent: TxIntent): txIntent is UnconfirmedBuyPlanet {
+  return txIntent.methodName === 'buyPlanet';
+}
+
+export function isUnconfirmedBuySpaceship(txIntent: TxIntent): txIntent is UnconfirmedBuySpaceship {
+  return txIntent.methodName === 'buySpaceship';
+}
+
 export function isUnconfirmedInvadePlanet(txIntent: TxIntent): txIntent is UnconfirmedInvadePlanet {
   return txIntent.methodName === 'invadePlanet';
 }
@@ -159,6 +187,12 @@ export function isUnconfirmedReleaseTx(tx: Transaction): tx is Transaction<Uncon
 
 export function isUnconfirmedUpgradeTx(tx: Transaction): tx is Transaction<UnconfirmedUpgrade> {
   return isUnconfirmedUpgrade(tx.intent);
+}
+
+export function isUnconfirmedRefreshPlanetTx(
+  tx: Transaction
+): tx is Transaction<UnconfirmedRefreshPlanet> {
+  return isUnconfirmedRefreshPlanet(tx.intent);
 }
 
 export function isUnconfirmedBuyHatTx(tx: Transaction): tx is Transaction<UnconfirmedBuyHat> {
@@ -251,4 +285,22 @@ export function isUnconfirmedPinkTx(tx: Transaction): tx is Transaction<Unconfir
 
 export function isUnconfirmedUseKeyTx(tx: Transaction): tx is Transaction<UnconfirmedUseKey> {
   return isUnconfirmedUseKey(tx.intent);
+}
+
+export function isUnconfirmedKardashevTx(tx: Transaction): tx is Transaction<UnconfirmedKardashev> {
+  return isUnconfirmedKardashev(tx.intent);
+}
+
+export function isUnconfirmedBlueTx(tx: Transaction): tx is Transaction<UnconfirmedBlue> {
+  return isUnconfirmedBlue(tx.intent);
+}
+
+export function isUnconfirmedBuyPlanetTx(tx: Transaction): tx is Transaction<UnconfirmedBuyPlanet> {
+  return isUnconfirmedBuyPlanet(tx.intent);
+}
+
+export function isUnconfirmedBuySpaceshipTx(
+  tx: Transaction
+): tx is Transaction<UnconfirmedBuySpaceship> {
+  return isUnconfirmedBuySpaceship(tx.intent);
 }

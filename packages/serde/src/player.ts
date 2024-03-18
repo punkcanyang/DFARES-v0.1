@@ -22,6 +22,7 @@ export function decodePlayer(rawPlayer: RawPlayer): Player {
     lastRevealTimestamp: rawPlayer.lastRevealTimestamp.toNumber(),
     lastClaimTimestamp: rawPlayer.lastRevealTimestamp.toNumber(),
     lastBurnTimestamp: rawPlayer.lastRevealTimestamp.toNumber(),
+    lastKardashevTimestamp: rawPlayer.lastRevealTimestamp.toNumber(),
     lastActivateArtifactTimestamp: rawPlayer.lastRevealTimestamp.toNumber(),
     lastBuyArtifactTimestamp: rawPlayer.lastRevealTimestamp.toNumber(),
     score: rawPlayer.score.toNumber(),
@@ -38,5 +39,8 @@ export function decodePlayer(rawPlayer: RawPlayer): Player {
     pinkedAmount: rawPlayer.pinkedAmount.toNumber(),
     moveCount: rawPlayer.moveCount.toNumber(),
     hatCount: rawPlayer.hatCount.toNumber(),
+    kardashevAmount: rawPlayer.kardashevAmount.toNumber(),
+    buyPlanetId: locationIdFromEthersBN(rawPlayer.buyPlanetId),
+    buySpaceshipAmount: rawPlayer.buySpaceshipAmount.toNumber(),
   };
 }

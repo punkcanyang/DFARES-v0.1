@@ -144,12 +144,15 @@ export type Planet = {
   coordsRevealed: boolean;
   revealer?: EthAddress;
   claimer?: EthAddress;
-  operator?: EthAddress; //only record burn/pink operator
+  burnOperator?: EthAddress; //only record burn/pink operator
   burnStartTimestamp?: number;
+  pinkOperator?: EthAddress;
+  kardashevOperator?: EthAddress;
+  kardashevTimestamp?: number;
+
   messages?: PlanetMessage<unknown>[];
 
   bonus: PlanetBonus;
-
   pausers: number;
   energyGroDoublers: number;
   silverGroDoublers: number;

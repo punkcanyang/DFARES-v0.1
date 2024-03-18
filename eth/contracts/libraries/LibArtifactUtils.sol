@@ -238,11 +238,12 @@ library LibArtifactUtils {
         //     gs().players[msg.sender].activateArtifactAmount++;
         // }
 
-        require(
-            block.timestamp - gs().lastActivateArtifactTimestamp[msg.sender] >
-                gameConstants().ACTIVATE_ARTIFACT_COOLDOWN,
-            "wait for cooldown before activating artifact again"
-        );
+        // round 2: activate artifact cooldown
+        // require(
+        //     block.timestamp - gs().lastActivateArtifactTimestamp[msg.sender] >
+        //         gameConstants().ACTIVATE_ARTIFACT_COOLDOWN,
+        //     "wait for cooldown before activating artifact again"
+        // );
 
         gs().lastActivateArtifactTimestamp[msg.sender] = block.timestamp;
         // bool nonAvatarArtifactCanActivateWithAvatarActivated = LibGameUtils.getActiveArtifact(locationId).artifactType == ArtifactType.Avatar && artifact.artifactType != ArtifactType.Avatar;
@@ -440,41 +441,13 @@ library LibArtifactUtils {
                 // deactivateArtifact(toPlanet.locationId);
                 deactivateArtifactWithoutCheckOwner(toPlanet.locationId);
             }
-        } else if (artifact.artifactType == ArtifactType.SoulSwap) {
-            require(linkTo != 0, "you must provide a linkTo to activate a SoulSwap");
-
-            require(!gs().planets[linkTo].destroyed, "planet destroyed");
-            require(!gs().planets[linkTo].frozen, "planet frozen");
-
-            require(
-                2 * uint256(artifact.rarity) >= planet.planetLevel,
-                "artifact is not powerful enough to apply effect to this planet level"
-            );
-            require(
-                planet.population > (planet.populationCap * 9) / 10,
-                "from planet energy need gt 90%"
-            );
-
-            require(
-                // This is dependent on Arrival being the only type of planet event.
-                gs().planetEvents[planet.locationId].length == 0,
-                "fromPlanet has incoming voyages."
-            );
-
-            require(
-                // This is dependent on Arrival being the only type of planet event.
-                gs().planetEvents[linkTo].length == 0,
-                "toPlanet has incoming voyages."
-            );
-
-            planet.owner = gs().planets[linkTo].owner;
-            gs().planets[linkTo].owner = msg.sender;
-            shouldDeactivateAndBurn = true;
+        } else if (artifact.artifactType == ArtifactType.Kardashev) {
+            //
         } else if (artifact.artifactType == ArtifactType.Bomb) {
             // require(linkTo != 0, "you must provide a linkTo to activate a Bomb");
             // planet.owner = gs().planets[linkTo].owner;
             // gs().planets[linkTo].owner = msg.sender;
-            shouldDeactivateAndBurn = true;
+            // shouldDeactivateAndBurn = true;
             // } else if (artifact.artifactType == ArtifactType.Doom) {
             //     // require(linkTo != 0, "you must provide a linkTo to activate a Doom");
             //     // require(!gs().planets[linkTo].destroyed, "planet destroyed");
@@ -497,11 +470,12 @@ library LibArtifactUtils {
         }
 
         if (shouldDeactivateAndBurn) {
-            artifact.lastDeactivated = block.timestamp; // immediately deactivate
-            DFArtifactFacet(address(this)).updateArtifact(artifact); // save artifact state immediately, because _takeArtifactOffPlanet will access pull it from tokens contract
-            emit ArtifactDeactivated(msg.sender, artifactId, locationId, linkTo);
-            // burn it after use. will be owned by contract but not on a planet anyone can control
-            LibGameUtils._takeArtifactOffPlanet(artifactId, locationId);
+            deactivateAndBurn(locationId, artifactId, linkTo, artifact);
+            // artifact.lastDeactivated = block.timestamp; // immediately deactivate
+            // DFArtifactFacet(address(this)).updateArtifact(artifact); // save artifact state immediately, because _takeArtifactOffPlanet will access pull it from tokens contract
+            // emit ArtifactDeactivated(msg.sender, artifactId, locationId, linkTo);
+            // // burn it after use. will be owned by contract but not on a planet anyone can control
+            // LibGameUtils._takeArtifactOffPlanet(artifactId, locationId);
         } else {
             DFArtifactFacet(address(this)).updateArtifact(artifact);
         }
@@ -509,6 +483,19 @@ library LibArtifactUtils {
         // this is fine even tho some artifacts are immediately deactivated, because
         // those artifacts do not buff the planet.
         LibGameUtils._buffPlanet(locationId, LibGameUtils._getUpgradeForArtifact(artifact));
+    }
+
+    function deactivateAndBurn(
+        uint256 locationId,
+        uint256 artifactId,
+        uint256 linkTo,
+        Artifact memory artifact
+    ) public {
+        artifact.lastDeactivated = block.timestamp; // immediately deactivate
+        DFArtifactFacet(address(this)).updateArtifact(artifact); // save artifact state immediately, because _takeArtifactOffPlanet will access pull it from tokens contract
+        emit ArtifactDeactivated(msg.sender, artifactId, locationId, linkTo);
+        // burn it after use. will be owned by contract but not on a planet anyone can control
+        LibGameUtils._takeArtifactOffPlanet(artifactId, locationId);
     }
 
     function deactivateArtifact(uint256 locationId) public {

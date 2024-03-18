@@ -24,9 +24,9 @@ import { ArtifactRarityLabelAnim, ArtifactTypeText } from '../Components/Labels/
 import { ArtifactBiomeLabelAnim } from '../Components/Labels/BiomeLabels';
 import { AccountLabel } from '../Components/Labels/Labels';
 import { ReadMore } from '../Components/ReadMore';
-import { Blue, Green, Red, Sub, Text, Text2, White } from '../Components/Text';
+import { Green, Red, Sub, Text, Text2, White } from '../Components/Text';
 import { TextPreview } from '../Components/TextPreview';
-import { formatDuration, TimeUntil } from '../Components/TimeUntil';
+import { TimeUntil } from '../Components/TimeUntil';
 import dfstyles from '../Styles/dfstyles';
 import { useAccount, useArtifact, useUIManager } from '../Utils/AppHooks';
 import { ModalHandle } from '../Views/ModalPane';
@@ -363,7 +363,7 @@ export function ArtifactDetailsBody({
             </div>
           )} */}
 
-        {!isSpaceShip(artifact.artifactType) && (
+        {/* {!isSpaceShip(artifact.artifactType) && (
           <div>
             <br />
             You can only activate artifact once every{' '}
@@ -373,9 +373,9 @@ export function ArtifactDetailsBody({
             .
             <br />
           </div>
-        )}
+        )} */}
 
-        {!isSpaceShip(artifact.artifactType) && !activateArtifactCooldownPassed && (
+        {/* {!isSpaceShip(artifact.artifactType) && !activateArtifactCooldownPassed && (
           <p>
             <Blue>INFO:</Blue> You must wait{' '}
             <TimeUntil
@@ -384,7 +384,7 @@ export function ArtifactDetailsBody({
             />{' '}
             to activate artifact.
           </p>
-        )}
+        )} */}
 
         {!noActions && (
           <ArtifactActions artifactId={artifactWrapper.value?.id} depositOn={depositOn} />

@@ -60,6 +60,10 @@ export const enum ContractEvent {
   PauseStateChanged = 'PauseStateChanged',
   LobbyCreated = 'LobbyCreated',
   LocationBurned = 'LocationBurned',
+  Kardashev = 'Kardashev',
+  LocationBlued = 'LocationBlued',
+  PlanetBought = 'PlanetBought',
+  SpaceshipBought = 'SpaceshipBought',
 }
 
 export const enum ContractsAPIEvent {
@@ -431,6 +435,46 @@ export interface ContractConstants {
   MAX_LEVEL_DIST: number[];
   MAX_LEVEL_LIMIT: number[];
   MIN_LEVEL_BIAS: number[];
+  ENTRY_FEE: number;
+  KARDASHEV_END_TIMESTAMP: number;
+  KARDASHEV_PLANET_COOLDOWN: number;
+  BLUE_PLANET_COOLDOWN: number;
+  KARDASHEV_EFFECT_RADIUS: [
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number
+  ];
+  KARDASHEV_REQUIRE_SILVER_AMOUNTS: [
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number
+  ];
+  BLUE_PANET_REQUIRE_SILVER_AMOUNTS: [
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number
+  ];
 }
 
 export type ClientMockchainData =

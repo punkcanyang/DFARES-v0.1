@@ -17,6 +17,7 @@ import {
   decodeArtifactPointValues,
   decodeBurnedCoords,
   decodeClaimedCoords,
+  decodeKardashevCoords,
   decodePlanet,
   decodePlanetDefaults,
   decodePlayer,
@@ -34,6 +35,7 @@ import {
   ClaimedCoords,
   DiagnosticUpdater,
   EthAddress,
+  KardashevCoords,
   LocationId,
   Planet,
   Player,
@@ -222,6 +224,7 @@ export class ContractsAPI extends EventEmitter {
           contract.filters.LocationRevealed(null, null, null, null).topics,
           contract.filters.LocationClaimed(null, null, null).topics,
           contract.filters.LocationBurned(null, null, null, null).topics,
+          contract.filters.Kardashev(null, null, null, null).topics,
           contract.filters.PlanetHatBought(null, null, null).topics,
           contract.filters.PlanetProspected(null, null).topics,
           contract.filters.PlanetSilverWithdrawn(null, null, null).topics,
@@ -229,8 +232,10 @@ export class ContractsAPI extends EventEmitter {
           contract.filters.PlanetInvaded(null, null).topics,
           contract.filters.PlanetCaptured(null, null).topics,
           contract.filters.PlayerInitialized(null, null).topics,
+          contract.filters.PlanetBought(null, null).topics,
+          contract.filters.SpaceshipBought(null, null, null).topics,
           contract.filters.AdminOwnershipChanged(null, null).topics,
-          contract.filters.AdminGiveSpaceship(null, null).topics,
+          contract.filters.AdminGiveSpaceship(null, null, null).topics,
           contract.filters.PauseStateChanged(null).topics,
           contract.filters.LobbyCreated(null, null).topics,
         ].map((topicsOrUndefined) => (topicsOrUndefined || [])[0]),
@@ -304,6 +309,18 @@ export class ContractsAPI extends EventEmitter {
         this.emit(ContractsAPIEvent.PlayerUpdate, address(player));
         this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(locRaw));
         this.emit(ContractsAPIEvent.RadiusUpdated);
+      },
+      [ContractEvent.PlanetBought]: async (player: string, locRaw: EthersBN, _: Event) => {
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(player));
+        this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(locRaw));
+        this.emit(ContractsAPIEvent.RadiusUpdated);
+      },
+      [ContractEvent.SpaceshipBought]: (
+        location: EthersBN,
+        _newOwner: string,
+        _type: ArtifactType
+      ) => {
+        this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location));
       },
       [ContractEvent.PlanetTransferred]: async (
         _senderAddress: string,
@@ -413,6 +430,21 @@ export class ContractsAPI extends EventEmitter {
         );
         this.emit(ContractsAPIEvent.PlayerUpdate, address(revealerAddr));
       },
+      [ContractEvent.Kardashev]: async (
+        revealerAddr: string,
+        location: EthersBN,
+        _x: EthersBN,
+        _y: EthersBN,
+        _: Event
+      ) => {
+        this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location));
+        this.emit(
+          ContractsAPIEvent.LocationRevealed,
+          locationIdFromEthersBN(location),
+          address(revealerAddr.toLowerCase())
+        );
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(revealerAddr));
+      },
     };
 
     this.ethConnection.subscribeToContractEvents(contract, eventHandlers, filter);
@@ -437,6 +469,7 @@ export class ContractsAPI extends EventEmitter {
     contract.removeAllListeners(ContractEvent.PlanetInvaded);
     contract.removeAllListeners(ContractEvent.PlanetCaptured);
     contract.removeAllListeners(ContractEvent.LocationBurned);
+    contract.removeAllListeners(ContractEvent.Kardashev);
   }
 
   public getContractAddress(): EthAddress {
@@ -530,6 +563,13 @@ export class ContractsAPI extends EventEmitter {
       MAX_LEVEL_DIST,
       MAX_LEVEL_LIMIT,
       MIN_LEVEL_BIAS,
+      ENTRY_FEE,
+      KARDASHEV_END_TIMESTAMP,
+      KARDASHEV_PLANET_COOLDOWN,
+      BLUE_PLANET_COOLDOWN,
+      KARDASHEV_EFFECT_RADIUS,
+      KARDASHEV_REQUIRE_SILVER_AMOUNTS,
+      BLUE_PANET_REQUIRE_SILVER_AMOUNTS,
     } = await this.makeCall(this.contract.getGameConstants);
 
     // const TOKEN_MINT_END_TIMESTAMP = (
@@ -780,6 +820,47 @@ export class ContractsAPI extends EventEmitter {
         MIN_LEVEL_BIAS[4].toNumber(),
         MIN_LEVEL_BIAS[5].toNumber(),
       ],
+
+      ENTRY_FEE: ENTRY_FEE.toNumber(),
+      KARDASHEV_END_TIMESTAMP: KARDASHEV_END_TIMESTAMP.toNumber(),
+      KARDASHEV_PLANET_COOLDOWN: KARDASHEV_PLANET_COOLDOWN.toNumber(),
+      BLUE_PLANET_COOLDOWN: BLUE_PLANET_COOLDOWN.toNumber(),
+      KARDASHEV_EFFECT_RADIUS: [
+        KARDASHEV_EFFECT_RADIUS[0].toNumber(),
+        KARDASHEV_EFFECT_RADIUS[1].toNumber(),
+        KARDASHEV_EFFECT_RADIUS[2].toNumber(),
+        KARDASHEV_EFFECT_RADIUS[3].toNumber(),
+        KARDASHEV_EFFECT_RADIUS[4].toNumber(),
+        KARDASHEV_EFFECT_RADIUS[5].toNumber(),
+        KARDASHEV_EFFECT_RADIUS[6].toNumber(),
+        KARDASHEV_EFFECT_RADIUS[7].toNumber(),
+        KARDASHEV_EFFECT_RADIUS[8].toNumber(),
+        KARDASHEV_EFFECT_RADIUS[9].toNumber(),
+      ],
+      KARDASHEV_REQUIRE_SILVER_AMOUNTS: [
+        KARDASHEV_REQUIRE_SILVER_AMOUNTS[0].toNumber(),
+        KARDASHEV_REQUIRE_SILVER_AMOUNTS[1].toNumber(),
+        KARDASHEV_REQUIRE_SILVER_AMOUNTS[2].toNumber(),
+        KARDASHEV_REQUIRE_SILVER_AMOUNTS[3].toNumber(),
+        KARDASHEV_REQUIRE_SILVER_AMOUNTS[4].toNumber(),
+        KARDASHEV_REQUIRE_SILVER_AMOUNTS[5].toNumber(),
+        KARDASHEV_REQUIRE_SILVER_AMOUNTS[6].toNumber(),
+        KARDASHEV_REQUIRE_SILVER_AMOUNTS[7].toNumber(),
+        KARDASHEV_REQUIRE_SILVER_AMOUNTS[8].toNumber(),
+        KARDASHEV_REQUIRE_SILVER_AMOUNTS[9].toNumber(),
+      ],
+      BLUE_PANET_REQUIRE_SILVER_AMOUNTS: [
+        BLUE_PANET_REQUIRE_SILVER_AMOUNTS[0].toNumber(),
+        BLUE_PANET_REQUIRE_SILVER_AMOUNTS[1].toNumber(),
+        BLUE_PANET_REQUIRE_SILVER_AMOUNTS[2].toNumber(),
+        BLUE_PANET_REQUIRE_SILVER_AMOUNTS[3].toNumber(),
+        BLUE_PANET_REQUIRE_SILVER_AMOUNTS[4].toNumber(),
+        BLUE_PANET_REQUIRE_SILVER_AMOUNTS[5].toNumber(),
+        BLUE_PANET_REQUIRE_SILVER_AMOUNTS[6].toNumber(),
+        BLUE_PANET_REQUIRE_SILVER_AMOUNTS[7].toNumber(),
+        BLUE_PANET_REQUIRE_SILVER_AMOUNTS[8].toNumber(),
+        BLUE_PANET_REQUIRE_SILVER_AMOUNTS[9].toNumber(),
+      ],
     };
     // console.log(constants);
     return constants;
@@ -827,6 +908,21 @@ export class ContractsAPI extends EventEmitter {
       new Map<string, EthersBN>()
     );
 
+    const lastKardashevTimestamp = await aggregateBulkGetter(
+      nPlayers,
+      5,
+      async (start: number, end: number) =>
+        this.contractCaller.makeCall(this.contract.bulkGetLastKardashevTimestamp, [start, end])
+    );
+
+    const playerLastKardashevTimestampMap = lastKardashevTimestamp.reduce(
+      (acc, pair): Map<string, EthersBN> => {
+        acc.set(pair.player.toLowerCase(), pair.lastKardashevTimestamp);
+        return acc;
+      },
+      new Map<string, EthersBN>()
+    );
+
     const lastActivateArtifactTimestamps = await aggregateBulkGetter(
       nPlayers,
       5,
@@ -863,6 +959,9 @@ export class ContractsAPI extends EventEmitter {
     for (const player of players) {
       player.lastClaimTimestamp = playerLastClaimTimestampMap.get(player.address)?.toNumber() || 0;
       player.lastBurnTimestamp = playerLastBurnTimestampMap.get(player.address)?.toNumber() || 0;
+      player.lastKardashevTimestamp =
+        playerLastKardashevTimestampMap.get(player.address)?.toNumber() || 0;
+
       player.lastActivateArtifactTimestamp =
         playerLastActivateArtifactTimestampsMap.get(player.address)?.toNumber() || 0;
       player.lastBuyArtifactTimestamp =
@@ -880,7 +979,10 @@ export class ContractsAPI extends EventEmitter {
       playerId,
     ]);
 
-    const lastBurnedTimestamp = await this.makeCall(this.contract.getLastBurnTimestamp, [playerId]);
+    const lastBurnTimestamp = await this.makeCall(this.contract.getLastBurnTimestamp, [playerId]);
+    const lastKardashevTimestamp = await this.makeCall(this.contract.getLastKardashevTimestamp, [
+      playerId,
+    ]);
     const lastActivateArtifactTimestamp = await this.makeCall(
       this.contract.getLastActivateArtifactTimestamp,
       [playerId]
@@ -896,7 +998,8 @@ export class ContractsAPI extends EventEmitter {
 
     const player = decodePlayer(rawPlayer);
     player.lastClaimTimestamp = lastClaimedTimestamp.toNumber();
-    player.lastBurnTimestamp = lastBurnedTimestamp.toNumber();
+    player.lastBurnTimestamp = lastBurnTimestamp.toNumber();
+    player.lastKardashevTimestamp = lastKardashevTimestamp.toNumber();
     player.lastActivateArtifactTimestamp = lastActivateArtifactTimestamp.toNumber();
     player.lastBuyArtifactTimestamp = lastBuyArtifactTimestamp.toNumber();
 
@@ -1105,6 +1208,52 @@ export class ContractsAPI extends EventEmitter {
     return rawBurnedCoords.map(decodeBurnedCoords);
   }
 
+  public async getKardashevCoordsByIdIfExists(
+    planetId: LocationId
+  ): Promise<KardashevCoords | undefined> {
+    const decStrId = locationIdToDecStr(planetId);
+    const rawKardashevCoords = await this.makeCall(this.contract.kardashevCoords, [decStrId]);
+    const ret = decodeKardashevCoords(rawKardashevCoords);
+
+    if (ret.hash === EMPTY_LOCATION_ID) {
+      return undefined;
+    }
+    return ret;
+  }
+
+  public async getKardashevPlanetsCoords(
+    startingAt: number,
+    onProgressIds?: (fractionCompleted: number) => void,
+    onProgressCoords?: (fractionCompleted: number) => void
+  ): Promise<KardashevCoords[]> {
+    const nBurnedPlanets: number = (
+      await this.makeCall<EthersBN>(this.contract.getNKardashevPlanets)
+    ).toNumber();
+
+    const rawKardashevPlanetIds = await aggregateBulkGetter<EthersBN>(
+      nBurnedPlanets - startingAt,
+      500,
+      async (start, end) =>
+        await this.makeCall(this.contract.bulkGetKardashevPlanetIds, [
+          start + startingAt,
+          end + startingAt,
+        ]),
+      onProgressIds
+    );
+
+    const rawKardashevCoords = await aggregateBulkGetter(
+      rawKardashevPlanetIds.length,
+      500,
+      async (start, end) =>
+        await this.makeCall(this.contract.bulkGetKardashevCoordsByIds, [
+          rawKardashevPlanetIds.slice(start, end),
+        ]),
+      onProgressCoords
+    );
+
+    return rawKardashevCoords.map(decodeKardashevCoords);
+  }
+
   public async bulkGetPlanets(
     toLoadPlanets: LocationId[],
     onProgressPlanet?: (fractionCompleted: number) => void
@@ -1196,7 +1345,19 @@ export class ContractsAPI extends EventEmitter {
   ): Promise<Artifact[]> {
     if (playerId === undefined) return [];
 
-    const myArtifactIds = (await this.makeCall(this.contract.getPlayerArtifactIds, [playerId])).map(
+    const mySpacespaceIds = (
+      await this.makeCall(this.contract.getPlayerArtifactIds, [playerId])
+    ).map(artifactIdFromEthersBN);
+    return this.bulkGetArtifacts(mySpacespaceIds, onProgress);
+  }
+
+  public async getPlayerSpaceships(
+    playerId?: EthAddress,
+    onProgress?: (percent: number) => void
+  ): Promise<Artifact[]> {
+    if (playerId === undefined) return [];
+
+    const myArtifactIds = (await this.makeCall(this.contract.getMySpaceshipIds, [playerId])).map(
       artifactIdFromEthersBN
     );
     return this.bulkGetArtifacts(myArtifactIds, onProgress);

@@ -1,13 +1,55 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.0;
+// External contract imports
+import {DFArtifactFacet} from "./DFArtifactFacet.sol";
+
+// Library imports
+import {LibDiamond} from "../vendor/libraries/LibDiamond.sol";
+import {LibGameUtils} from "../libraries/LibGameUtils.sol";
 
 // Storage imports
 import {WithStorage, GameConstants} from "../libraries/LibStorage.sol";
 
 // Type imports
-import {RevealedCoords, ClaimedCoords, BurnedCoords, LastClaimedStruct, LastBurnedStruct, LastActivateArtifactStruct, LastBuyArtifactStruct} from "../DFTypes.sol";
+import {Artifact, ArtifactWithMetadata, RevealedCoords, ClaimedCoords, BurnedCoords, LastClaimedStruct, LastBurnedStruct, LastActivateArtifactStruct, LastBuyArtifactStruct, KardashevCoords, LastKardashevStruct} from "../DFTypes.sol";
 
 contract DFGetterTwoFacet is WithStorage {
+    /**
+     * Get a group or artifacts based on their index, fetch all between startIdx & endIdx.
+     Indexes are assigned to artifacts based on the order in which they are minted.
+     * index 0 would be the first Artifact minted, etc.
+     * @param startIdx index of the first element to get
+     * @param endIdx index of the last element to get
+     */
+    function bulkGetArtifacts(uint256 startIdx, uint256 endIdx)
+        public
+        view
+        returns (ArtifactWithMetadata[] memory ret)
+    {
+        ret = new ArtifactWithMetadata[](endIdx - startIdx);
+
+        for (uint256 i = startIdx; i < endIdx; i++) {
+            Artifact memory artifact = DFArtifactFacet(address(this)).getArtifactAtIndex(i);
+            address owner = address(0);
+
+            try DFArtifactFacet(address(this)).ownerOf(artifact.id) returns (address addr) {
+                owner = addr;
+            } catch Error(string memory) {
+                // artifact is probably burned or owned by 0x0, so owner is 0x0
+            } catch (bytes memory) {
+                // this shouldn't happen
+            }
+            ret[i - startIdx] = ArtifactWithMetadata({
+                artifact: artifact,
+                upgrade: LibGameUtils._getUpgradeForArtifact(artifact),
+                timeDelayedUpgrade: LibGameUtils.timeDelayUpgrade(artifact),
+                owner: owner,
+                locationId: gs().artifactIdToPlanetId[artifact.id],
+                voyageId: gs().artifactIdToVoyageId[artifact.id]
+            });
+        }
+    }
+
     //About Claim
     function CLAIM_END_TIMESTAMP() public view returns (uint256) {
         return gameConstants().CLAIM_END_TIMESTAMP;
@@ -194,6 +236,64 @@ contract DFGetterTwoFacet is WithStorage {
         }
     }
 
+    // Kardashev
+    function KARDASHEV_END_TIMESTAMP() public view returns (uint256) {
+        return gameConstants().KARDASHEV_END_TIMESTAMP;
+    }
+
+    function kardashevCoords(uint256 key) public view returns (KardashevCoords memory) {
+        return gs().kardashevCoords[key];
+    }
+
+    function getNKardashevPlanets() public view returns (uint256) {
+        return gs().kardashevIds.length;
+    }
+
+    function bulkGetKardashevPlanetIds(uint256 startIdx, uint256 endIdx)
+        public
+        view
+        returns (uint256[] memory ret)
+    {
+        ret = new uint256[](endIdx - startIdx);
+        for (uint256 i = startIdx; i < endIdx; i++) {
+            ret[i - startIdx] = gs().kardashevIds[i];
+        }
+    }
+
+    function bulkGetKardashevCoordsByIds(uint256[] calldata ids)
+        public
+        view
+        returns (KardashevCoords[] memory ret)
+    {
+        ret = new KardashevCoords[](ids.length);
+        for (uint256 i = 0; i < ids.length; i++) {
+            ret[i] = gs().kardashevCoords[ids[i]];
+        }
+    }
+
+    function bulkGetLastKardashevTimestamp(uint256 startIdx, uint256 endIdx)
+        public
+        view
+        returns (LastKardashevStruct[] memory ret)
+    {
+        ret = new LastKardashevStruct[](endIdx - startIdx);
+        for (uint256 i = startIdx; i < endIdx; i++) {
+            address player = gs().playerIds[i];
+            ret[i - startIdx] = LastKardashevStruct({
+                player: player,
+                lastKardashevTimestamp: gs().lastKardashevTimestamp[player]
+            });
+        }
+    }
+
+    function getLastKardashevTimestamp(address player) public view returns (uint256) {
+        return gs().lastBurnTimestamp[player];
+    }
+
+    function getMySpaceshipIds(address player) public view returns (uint256[] memory ret) {
+        ret = gs().mySpaceshipIds[player];
+    }
+
     /**
      * Returns the last time that the given player activated artifact
      */
@@ -207,6 +307,10 @@ contract DFGetterTwoFacet is WithStorage {
 
     function getFirstBurnLocationOperator() public view returns (address) {
         return gs().firstBurnLocationOperator;
+    }
+
+    function getFirstKardashevOperator() public view returns (address) {
+        return gs().firstKardashevOperator;
     }
 
     function getFirstHat() public view returns (address) {

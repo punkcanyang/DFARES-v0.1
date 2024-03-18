@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 // Type imports
-import {Planet, PlanetEventMetadata, PlanetDefaultStats, Upgrade, RevealedCoords, Player, ArrivalData, Artifact, ClaimedCoords, BurnedCoords} from "../DFTypes.sol";
+import {Planet, PlanetEventMetadata, PlanetDefaultStats, Upgrade, RevealedCoords, Player, ArrivalData, Artifact, ClaimedCoords, BurnedCoords, KardashevCoords} from "../DFTypes.sol";
 
 struct WhitelistStorage {
     bool enabled;
@@ -77,9 +77,21 @@ struct GameStorage {
     mapping(address => uint256) lastBurnTimestamp;
     mapping(address => uint256) lastActivateArtifactTimestamp;
     mapping(address => uint256) lastBuyArtifactTimestamp;
+    /**
+     * Map from player address to the list of planets they [kardashev] before
+     */
+    mapping(address => uint256[]) kardashevPlanets;
+    uint256[] kardashevIds;
+    mapping(uint256 => KardashevCoords) kardashevCoords;
+    mapping(address => uint256) lastKardashevTimestamp;
+    /**
+     * Map from player address to the list of spaceships they have
+     */
+    mapping(address => uint256[]) mySpaceshipIds;
     address firstMythicArtifactOwner;
     address firstBurnLocationOperator;
     address firstHat;
+    address firstKardashevOperator;
 }
 
 // Game config
@@ -157,6 +169,13 @@ struct GameConstants {
     uint256[5] MAX_LEVEL_DIST;
     uint256[6] MAX_LEVEL_LIMIT;
     uint256[6] MIN_LEVEL_BIAS;
+    uint256 ENTRY_FEE;
+    uint256 KARDASHEV_END_TIMESTAMP;
+    uint256 KARDASHEV_PLANET_COOLDOWN;
+    uint256 BLUE_PLANET_COOLDOWN;
+    uint256[10] KARDASHEV_EFFECT_RADIUS;
+    uint256[10] KARDASHEV_REQUIRE_SILVER_AMOUNTS;
+    uint256[10] BLUE_PANET_REQUIRE_SILVER_AMOUNTS;
 }
 
 struct SpaceshipConstants {

@@ -404,40 +404,4 @@ contract DFGetterOneFacet is WithStorage {
             });
         }
     }
-
-    /**
-     * Get a group or artifacts based on their index, fetch all between startIdx & endIdx.
-     Indexes are assigned to artifacts based on the order in which they are minted.
-     * index 0 would be the first Artifact minted, etc.
-     * @param startIdx index of the first element to get
-     * @param endIdx index of the last element to get
-     */
-    function bulkGetArtifacts(uint256 startIdx, uint256 endIdx)
-        public
-        view
-        returns (ArtifactWithMetadata[] memory ret)
-    {
-        ret = new ArtifactWithMetadata[](endIdx - startIdx);
-
-        for (uint256 i = startIdx; i < endIdx; i++) {
-            Artifact memory artifact = DFArtifactFacet(address(this)).getArtifactAtIndex(i);
-            address owner = address(0);
-
-            try DFArtifactFacet(address(this)).ownerOf(artifact.id) returns (address addr) {
-                owner = addr;
-            } catch Error(string memory) {
-                // artifact is probably burned or owned by 0x0, so owner is 0x0
-            } catch (bytes memory) {
-                // this shouldn't happen
-            }
-            ret[i - startIdx] = ArtifactWithMetadata({
-                artifact: artifact,
-                upgrade: LibGameUtils._getUpgradeForArtifact(artifact),
-                timeDelayedUpgrade: LibGameUtils.timeDelayUpgrade(artifact),
-                owner: owner,
-                locationId: gs().artifactIdToPlanetId[artifact.id],
-                voyageId: gs().artifactIdToVoyageId[artifact.id]
-            });
-        }
-    }
 }

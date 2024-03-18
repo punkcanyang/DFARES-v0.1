@@ -31,6 +31,7 @@ import {
   Transaction,
   UnconfirmedActivateArtifact,
   UnconfirmedMove,
+  UnconfirmedRefreshPlanet,
   UnconfirmedUpgrade,
   Upgrade,
   UpgradeBranchName,
@@ -486,6 +487,14 @@ class GameUIManager extends EventEmitter {
     this.gameManager.pinkLocation(locationId);
   }
 
+  public kardashev(locationId: LocationId) {
+    this.gameManager.kardashev(locationId);
+  }
+
+  public blueLocation(locationId: LocationId) {
+    this.gameManager.blueLocation(locationId);
+  }
+
   public getNextBroadcastAvailableTimestamp() {
     return this.gameManager.getNextBroadcastAvailableTimestamp();
   }
@@ -512,6 +521,18 @@ class GameUIManager extends EventEmitter {
 
   public getNextPinkAvailableTimestamp(planetId: LocationId) {
     return this.gameManager.getNextPinkAvailableTimestamp(planetId);
+  }
+
+  public getBlueZoneCenterPlanetId(planetId: LocationId) {
+    return this.gameManager.getBlueZoneCenterPlanetId(planetId);
+  }
+
+  public getNextKardashevAvailableTimestamp() {
+    return this.gameManager.getNextKardashevAvailableTimestamp();
+  }
+
+  public getNextBlueAvailableTimestamp(planetId: LocationId) {
+    return this.gameManager.getNextBlueAvailableTimestamp(planetId);
   }
 
   public getNextActivateArtifactAvailableTimestamp() {
@@ -1256,6 +1277,10 @@ class GameUIManager extends EventEmitter {
     return this.gameManager.getUnconfirmedUpgrades();
   }
 
+  public getUnconfirmedRefreshPlanets(): Transaction<UnconfirmedRefreshPlanet>[] {
+    return this.gameManager.getUnconfirmedRefreshPlanets();
+  }
+
   public isCurrentlyRevealing(): boolean {
     return this.gameManager.getNextRevealCountdownInfo().currentlyRevealing;
   }
@@ -1266,6 +1291,10 @@ class GameUIManager extends EventEmitter {
 
   public isCurrentlyBurning(): boolean {
     return this.gameManager.getNextBurnCountdownInfo().currentlyBurning;
+  }
+
+  public isCurrentlyKardasheving(): boolean {
+    return this.gameManager.getNextKardashevCountdownInfo().currentlyKardasheving;
   }
 
   public getUnconfirmedLinkActivations(): Transaction<UnconfirmedActivateArtifact>[] {
@@ -1302,6 +1331,14 @@ class GameUIManager extends EventEmitter {
 
   public getMyPinkZones() {
     return this.gameManager.getMyPinkZones();
+  }
+
+  public getBlueZones() {
+    return this.gameManager.getBlueZones();
+  }
+
+  public getMyBlueZones() {
+    return this.gameManager.getMyBlueZones();
   }
 
   public getCaptureZoneGenerator() {
@@ -1363,6 +1400,12 @@ class GameUIManager extends EventEmitter {
     // TODO: do something like JSON.stringify(args) so we know formatting is correct
     this.terminal.current?.printShellLn(`df.upgrade('${planet.locationId}', ${branch})`);
     this.gameManager.upgrade(planet.locationId, branch);
+  }
+
+  public refreshPlanet(planet: Planet): void {
+    // TODO: do something like JSON.stringify(args) so we know formatting is correct
+    this.terminal.current?.printShellLn(`df.refreshPlanet('${planet.locationId})`);
+    this.gameManager.refreshPlanet(planet.locationId);
   }
 
   public buyHat(planet: Planet, hatType: number): void {
@@ -1467,6 +1510,14 @@ class GameUIManager extends EventEmitter {
       10 ** (player.dropBombAmount + 1);
 
     return silverAmount;
+  }
+
+  public getKardashevRequireSilverAmount(planetLevel: number): number {
+    return this.contractConstants.KARDASHEV_REQUIRE_SILVER_AMOUNTS[planetLevel];
+  }
+
+  public getBlueRequireSilverAmount(planetLevel: number): number {
+    return this.contractConstants.BURN_PLANET_REQUIRE_SILVER_AMOUNTS[planetLevel];
   }
 
   public getDefaultSpaceJunkForPlanetLevel(level: number): number {

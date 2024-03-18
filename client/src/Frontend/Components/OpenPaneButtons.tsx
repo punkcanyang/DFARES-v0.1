@@ -1,9 +1,11 @@
 import { LocationId } from '@dfares/types';
 import React, { useCallback } from 'react';
+import { BluePane } from '../Panes/BluePane';
 import { BroadcastPane, BroadcastPaneHelpContent } from '../Panes/BroadcastPane';
 import { BuyArtifactPane } from '../Panes/BuyArtifactPane';
 import { DropBombPane } from '../Panes/DropBombPane';
 import { HatPane } from '../Panes/HatPane';
+import { KardashevPane } from '../Panes/KardashevPane';
 import {
   ManagePlanetArtifactsHelpContent,
   ManagePlanetArtifactsPane,
@@ -13,10 +15,12 @@ import { PinkPane } from '../Panes/PinkPane';
 import { PlanetInfoPane } from '../Panes/PlanetInfoPane';
 import { UpgradeDetailsPane, UpgradeDetailsPaneHelpContent } from '../Panes/UpgradeDetailsPane';
 import {
+  TOGGLE_BLUE_PANE,
   TOGGLE_BROADCAST_PANE,
   TOGGLE_BUY_ARTIFACT_PANE,
   TOGGLE_DROP_BOMB_PANE,
   TOGGLE_HAT_PANE,
+  TOGGLE_KARDASHEV_PANE,
   TOGGLE_PINK_PANE,
   TOGGLE_PLANET_ARTIFACTS_PANE,
   TOGGLE_PLANET_INFO_PANE,
@@ -195,6 +199,42 @@ export function OpenPinkButton({
       title='Pink'
       shortcut={TOGGLE_PINK_PANE}
       element={() => <PinkPane initialPlanetId={planetId} modal={modal} />}
+      helpContent={PlanetInfoHelpContent()}
+    />
+  );
+}
+
+export function OpenKardashevButton({
+  modal,
+  planetId,
+}: {
+  modal: ModalHandle;
+  planetId: LocationId | undefined;
+}) {
+  return (
+    <OpenPaneButton
+      modal={modal}
+      title='Kardashev'
+      shortcut={TOGGLE_KARDASHEV_PANE}
+      element={() => <KardashevPane initialPlanetId={planetId} modal={modal} />}
+      helpContent={PlanetInfoHelpContent()}
+    />
+  );
+}
+
+export function OpenBlueButton({
+  modal,
+  planetId,
+}: {
+  modal: ModalHandle;
+  planetId: LocationId | undefined;
+}) {
+  return (
+    <OpenPaneButton
+      modal={modal}
+      title='Blue'
+      shortcut={TOGGLE_BLUE_PANE}
+      element={() => <BluePane initialPlanetId={planetId} modal={modal} />}
       helpContent={PlanetInfoHelpContent()}
     />
   );

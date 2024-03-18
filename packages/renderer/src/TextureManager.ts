@@ -123,7 +123,11 @@ const biomeSpriteInfo = (): BiomeSpriteLocations => {
       } else if (type === ArtifactType.Bomb) {
         xIdx = 0;
         yIdx = 11;
+      } else if (type === ArtifactType.Kardashev) {
+        xIdx = 2;
+        yIdx = 11;
       }
+
       for (let biome: Biome = Biome.UNKNOWN; biome <= MAX_BIOME; biome++) {
         biomeInfo[biome] = {
           shiny: spriteRectangleFromIndex(xIdx, yIdx),
@@ -147,17 +151,18 @@ const biomeSpriteInfo = (): BiomeSpriteLocations => {
     // BlackDomain: 9 as ArtifactType,
     // IceLink: 10 as ArtifactType,
     // FireLink: 11 as ArtifactType,
-    // SoulSwap: 12 as ArtifactType,
+    // Kardashev: 12 as ArtifactType,
     // Bomb: 13 as ArtifactType,
     // StellarShield: 14 as ArtifactType,
     // BlindBox: 15 as ArtifactType,
     // Avatar: 16 as ArtifactType,
 
     if (
-      type >= ArtifactType.SoulSwap &&
+      type >= ArtifactType.Kardashev &&
       type <= ArtifactType.BlindBox &&
       type !== ArtifactType.StellarShield &&
-      type !== ArtifactType.Bomb
+      type !== ArtifactType.Bomb &&
+      type !== ArtifactType.Kardashev
     ) {
       //MyTodo:
       //new added artifact use wormhole icon temporarily

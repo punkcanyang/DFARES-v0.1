@@ -31,6 +31,7 @@ export * from './artifact';
 export * from './burn';
 export * from './claim';
 export * from './event';
+export * from './kardashev';
 export * from './location';
 export * from './planet';
 export * from './player';

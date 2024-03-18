@@ -199,6 +199,7 @@ export const RendererType = {
   QuasarRay: 24 as RendererType,
   CaptureZone: 25 as RendererType,
   PinkZone: 26 as RendererType,
+  BlueZone: 27 as RendererType,
 };
 
 export interface PlanetRendererType {
@@ -974,6 +975,19 @@ export interface PinkZoneRendererType {
   flush(): void;
 }
 
+export interface BlueZoneRendererType {
+  rendererType: RendererType;
+
+  /**
+   * Queue all Blue Zones
+   */
+  queueBlueZones(): void;
+
+  /**
+   * Draw all Blue Zones
+   */
+  flush(): void;
+}
 /**
  * The purpose of this interface is for type checking
  * It make sures that the variable is a type of renderer

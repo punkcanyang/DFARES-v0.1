@@ -257,26 +257,24 @@ library LibPlanet {
         require(!gs().players[msg.sender].isInitialized, "Player is already initialized");
         require(_radius <= gs().worldRadius, "Init radius is bigger than the current world radius");
 
-        if (gameConstants().SPAWN_RIM_AREA != 0) {
-            require(
-                (_radius**2 * 314) / 100 + gameConstants().SPAWN_RIM_AREA >=
-                    (gs().worldRadius**2 * 314) / 100,
-                "Player can only spawn at the universe rim"
-            );
-        }
-
         uint256[5] memory MAX_LEVEL_DIST = gameConstants().MAX_LEVEL_DIST;
-        require(_radius > MAX_LEVEL_DIST[1], "Player can only spawn at the edge of universe");
+        require(_radius >= MAX_LEVEL_DIST[1], "Player can only spawn at the edge of universe");
 
         SpaceType spaceType = LibGameUtils.spaceTypeFromPerlin(_perlin, _distFromOriginSquare);
 
-        require(spaceType == SpaceType.NEBULA, "GUCK U");
+        // if (gameConstants().SPAWN_RIM_AREA != 0) {
+        //     require(
+        //         (_radius**2 * 314) / 100 + gameConstants().SPAWN_RIM_AREA >=
+        //             (gs().worldRadius**2 * 314) / 100,
+        //         "Player can only spawn at the universe rim"
+        //     );
+        // }
+        // require(spaceType == SpaceType.NEBULA, "GUCK U");
+        // require(
+        //     _perlin >= gameConstants().INIT_PERLIN_MIN,
+        //     "Init not allowed in perlin value less than INIT_PERLIN_MIN"
+        // );
 
-        //NEEDED?
-        require(
-            _perlin >= gameConstants().INIT_PERLIN_MIN,
-            "Init not allowed in perlin value less than INIT_PERLIN_MIN"
-        );
         // require(
         //     _perlin < gameConstants().INIT_PERLIN_MAX,
         //     "Init not allowed in perlin value greater than or equal to the INIT_PERLIN_MAX"

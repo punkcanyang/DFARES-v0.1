@@ -3349,18 +3349,29 @@ class GameManager extends EventEmitter {
       const x: number = _selectedCoords.x;
       const y: number = _selectedCoords.y;
       const d: number = Math.sqrt(x ** 2 + y ** 2);
-      const p: number = this.spaceTypePerlin({ x, y }, false);
+      // const p: number = this.spaceTypePerlin({ x, y }, false);
 
       // if this.contractConstants.SPAWN_RIM_AREA is non-zero, then players must spawn in that
       // area, distributed evenly in the inner perimeter of the world
-      let spawnInnerRadius = Math.sqrt(
-        Math.max(Math.PI * this.worldRadius ** 2 - this.contractConstants.SPAWN_RIM_AREA, 0) /
-          Math.PI
-      );
+      // let spawnInnerRadius = Math.sqrt(
+      //   Math.max(Math.PI * this.worldRadius ** 2 - this.contractConstants.SPAWN_RIM_AREA, 0) /
+      //     Math.PI
+      // );
 
-      if (this.contractConstants.SPAWN_RIM_AREA === 0) {
-        spawnInnerRadius = 0;
-      }
+      // if (this.contractConstants.SPAWN_RIM_AREA === 0) {
+      //   spawnInnerRadius = 0;
+      // }
+
+      const requireRadiusMin = this.contractConstants.MAX_LEVEL_DIST[1];
+      // const requireRadiusMax = this.contractConstants.MAX_LEVEL_DIST[0];
+      const checkCoords = () => {
+        console.log(d);
+        console.log('[' + requireRadiusMin + ',+)');
+        return d >= requireRadiusMin;
+      };
+
+      //myNotice: check coords
+      console.log(checkCoords());
 
       // do {
       //   // sample from square
@@ -3381,9 +3392,7 @@ class GameManager extends EventEmitter {
       //
       // ?searchCenter=2866,5627
       //
-
       // const params = new URLSearchParams(window.location.search);
-
       // if (params.has('searchCenter')) {
       //   const parts = params.get('searchCenter')?.split(',');
 
@@ -3416,7 +3425,7 @@ class GameManager extends EventEmitter {
         `Each chunk contains ${MIN_CHUNK_SIZE}x${MIN_CHUNK_SIZE} coordinates.`
       );
       const percentSpawn = (1 / this.contractConstants.PLANET_RARITY) * 100;
-      const printProgress = 8;
+      const printProgress = 4;
       this.terminal.current?.print(`Each coordinate has a`);
       this.terminal.current?.print(` ${percentSpawn}%`, TerminalTextStyle.Text);
       this.terminal.current?.print(` chance of spawning a planet.`);
@@ -3434,17 +3443,13 @@ class GameManager extends EventEmitter {
         chunkStore.addChunk(chunk);
         minedChunksCount++;
 
-        this.terminal.current?.println(
-          `Hashed ${minedChunksCount * MIN_CHUNK_SIZE ** 2} potential home planets...`
-        );
-
         if (minedChunksCount % printProgress === 0) {
           this.terminal.current?.println(
             `Hashed ${minedChunksCount * MIN_CHUNK_SIZE ** 2} potential home planets...`
           );
         }
         for (const homePlanetLocation of chunk.planetLocations) {
-          const planetPerlin = homePlanetLocation.perlin;
+          // const planetPerlin = homePlanetLocation.perlin;
           const planetX = homePlanetLocation.coords.x;
           const planetY = homePlanetLocation.coords.y;
           const distFromOrigin = Math.sqrt(planetX ** 2 + planetY ** 2);
@@ -3465,10 +3470,12 @@ class GameManager extends EventEmitter {
           const planet = this.getPlanetWithId(homePlanetLocation.hash);
 
           if (
-            planetPerlin < initPerlinMax &&
-            planetPerlin >= initPerlinMin &&
-            distFromOrigin < this.worldRadius &&
-            distFromOrigin > spawnInnerRadius &&
+            // planetPerlin < initPerlinMax &&
+            // planetPerlin >= initPerlinMin &&
+            // distFromOrigin < this.worldRadius &&
+            // distFromOrigin >= spawnInnerRadius &&
+            distFromOrigin >= requireRadiusMin &&
+            // distFromOrigin < requireRadiusMax &&
             planetLevel === MIN_PLANET_LEVEL &&
             planetType === PlanetType.PLANET &&
             (!planet || !planet.isInContract) // init will fail if planet has been initialized in contract already

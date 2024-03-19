@@ -81,6 +81,7 @@ export function BuyArtifactPane({
   }
 
   function getCost() {
+    return 0.001; //0.001 eth
     return 50;
     const rarityVal = parseInt(rarity);
     const typeVal = parseInt(type);

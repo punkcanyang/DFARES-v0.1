@@ -993,7 +993,6 @@ class GameManager extends EventEmitter {
           await gameManager.hardRefreshPlanet(tx.intent.locationId);
           // mining manager should be initialized already via joinGame, but just in case...
           gameManager.initMiningManager(tx.intent.location.coords, 4);
-        } else if (isUnconfirmedBuyPlanetTx(tx)) {
         } else if (isUnconfirmedMoveTx(tx)) {
           const promises = [gameManager.bulkHardRefreshPlanets([tx.intent.from, tx.intent.to])];
           if (tx.intent.artifact) {
@@ -1010,7 +1009,6 @@ class GameManager extends EventEmitter {
           await gameManager.hardRefreshPlanet(tx.intent.locationId);
         } else if (isUnconfirmedBuyPlanetTx(tx)) {
           //todo
-
           await gameManager.hardRefreshPlanet(tx.intent.locationId);
         } else if (isUnconfirmedBuySpaceshipTx(tx)) {
           await gameManager.hardRefreshPlanet(tx.intent.locationId);
@@ -3988,7 +3986,7 @@ class GameManager extends EventEmitter {
       const tx = await this.contractsAPI.submitTransaction(txIntent, {
         // MyNotice: when change gasLimit, need change the value in TxConfirmPopup.tsx
         gasLimit: 2000000,
-        value: bigInt(1000000000000000000).multiply(price()).toString(),
+        value: bigInt(1_000_000_000_000_000).toString(), //0.001eth
       });
 
       return tx;
@@ -4513,17 +4511,20 @@ class GameManager extends EventEmitter {
       if (!(radius > MAX_LEVEL_DIST[1])) {
         throw new Error('Player can only spawn at the edge of universe');
       }
-      const spaceType = this.spaceTypeFromPerlin(planet.perlin, x * x + y * y);
+      const spaceType = this.spaceTypeFromPerlin(
+        planet.perlin,
+        Math.floor(Math.sqrt(x * x + y * y))
+      );
 
       if (spaceType !== SpaceType.NEBULA) {
         throw new Error('Only NEBULA');
       }
 
-      const INIT_PERLIN_MIN = this.contractConstants.INIT_PERLIN_MIN;
+      // const INIT_PERLIN_MIN = this.contractConstants.INIT_PERLIN_MIN;
 
-      if (planet.perlin >= INIT_PERLIN_MIN) {
-        throw new Error('Init not allowed in perlin value less than INIT_PERLIN_MIN');
-      }
+      // if (planet.perlin >= INIT_PERLIN_MIN) {
+      //   throw new Error('Init not allowed in perlin value less than INIT_PERLIN_MIN');
+      // }
 
       //player requirements
       const player = this.players.get(this.account);
@@ -4563,10 +4564,10 @@ class GameManager extends EventEmitter {
 
       localStorage.setItem(`${this.getAccount()?.toLowerCase()}-buyPlanet`, planetId);
 
-      const fee = bigInt(1_000_000_000_000_000_000).toString();
+      const fee = bigInt(1_000_000_000_000_000).toString();
 
       const tx = await this.contractsAPI.submitTransaction(txIntent, {
-        value: fee, //1 eth
+        value: fee, // 0.001 eth
       });
 
       return tx;
@@ -4628,12 +4629,12 @@ class GameManager extends EventEmitter {
         args: Promise.resolve([locationIdToDecStr(planetId), spaceshipType]),
       };
 
-      const fee = bigInt(1_000_000_000_000_000_000).toString(); //1 eth
+      const fee = bigInt(1_000_000_000_000_000).toString(); //0.001 eth
 
       localStorage.setItem(`${this.getAccount()?.toLowerCase()}-buySpaceshipOnPlanetId`, planetId);
 
       const tx = await this.contractsAPI.submitTransaction(txIntent, {
-        value: fee, //1 eth
+        value: fee, //0.001 eth
       });
 
       return tx;

@@ -92,7 +92,7 @@ contract DFTradeFacet is WithStorage {
         // );
 
         // price
-        uint256 fee = 1 ether; // 1 eth
+        uint256 fee = 0.001 ether; // 0.001 eth
         require(msg.value == fee, "Wrong value sent");
 
         player.buyPlanetId = planetId;
@@ -112,7 +112,7 @@ contract DFTradeFacet is WithStorage {
         require(gs().players[msg.sender].buySpaceshipAmount < 3, "max buy 3 spaceships");
 
         // price
-        uint256 fee = 1 ether; // 1 eth
+        uint256 fee = 0.001 ether; // 0.001 eth
         require(msg.value == fee, "Wrong value sent");
 
         // about spaceship

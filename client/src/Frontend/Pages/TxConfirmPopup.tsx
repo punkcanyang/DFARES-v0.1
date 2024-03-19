@@ -224,11 +224,11 @@ export function TxConfirmPopup({
 
   //buyPlanet
   const buyPlanet = localStorage.getItem(`${account}-buyPlanet`);
-  const buyPlanetCost = method === 'buyPlanet' ? 1 : 0; //1 eth
+  const buyPlanetCost = method === 'buyPlanet' ? 0.001 : 0; //0.001 eth
 
   //buySpaceship
   const buySpaceshipOnPlanetId = localStorage.getItem(`${account}-buySpaceshipOnPlanetId`);
-  const buySpaceshipCost = method === 'buySpaceship' ? 1 : 0; // 1 eth
+  const buySpaceshipCost = method === 'buySpaceship' ? 0.001 : 0; // 0.001 eth
 
   function isTypeOK() {
     if (butArtifactType === undefined) return false;
@@ -244,6 +244,7 @@ export function TxConfirmPopup({
   }
 
   function price() {
+    return 0.001; // 0.001 eth
     return 50;
     // console.warn('this is price');
     // console.log(butArtifactType);

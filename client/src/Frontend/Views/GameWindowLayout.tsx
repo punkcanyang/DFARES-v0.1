@@ -15,6 +15,7 @@ import { CoordsPane } from '../Panes/CoordsPane';
 import { DiagnosticsPane } from '../Panes/DiagnosticsPane';
 import { ExplorePane } from '../Panes/ExplorePane';
 import { HelpPane } from '../Panes/HelpPane';
+import { HotkeysArtShipPane, HotkeysMainLinePane } from '../Panes/HotKeyPane';
 import { HoverPlanetPane } from '../Panes/HoverPlanetPane';
 import OnboardingPane from '../Panes/OnboardingPane';
 import { PlanetContextPane } from '../Panes/PlanetContextPane';
@@ -194,7 +195,8 @@ export function GameWindowLayout({
           <NotificationsPane />
           <CoordsPane />
           <ExplorePane />
-
+          <HotkeysArtShipPane />
+          <HotkeysMainLinePane selectedPlanetVisible={selectedPlanetVisible} />
           <HoverPlanetPane />
           <ArtifactHoverPane />
 

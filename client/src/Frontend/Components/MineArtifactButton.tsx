@@ -17,7 +17,7 @@ const StyledArtifactRow = styled(Row)`
   .button {
     margin-top: 4px;
     margin-bottom: 4px;
-
+    z-index: 9999; /* Ensure the button overlays other elements */
     flex-grow: 1;
   }
 `;

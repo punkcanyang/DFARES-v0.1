@@ -1,4 +1,4 @@
-import { isSpaceShip } from '@dfares/gamelogic';
+import { getPlanetRank, isSpaceShip } from '@dfares/gamelogic';
 import { Artifact, LocationId } from '@dfares/types';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -18,11 +18,17 @@ interface Hotkey {
   artifact?: Artifact;
 }
 
-export function HotkeyThumbArtShips({ hotkey }: { hotkey: Hotkey }) {
+export function HotkeyThumbArtShips({
+  hotkey,
+  selectedPlanetVisible,
+}: {
+  hotkey: Hotkey;
+  selectedPlanetVisible: { selectedPlanetVisible: boolean };
+}) {
   const uiManager = useUIManager();
 
   const click = useCallback(() => {
-    if (hotkey.location) {
+    if (hotkey.location && !selectedPlanetVisible.selectedPlanetVisible) {
       uiManager.centerLocationId(hotkey.location);
     }
   }, [hotkey]);
@@ -40,16 +46,20 @@ export function HotkeyThumbArtShips({ hotkey }: { hotkey: Hotkey }) {
   );
 }
 
-export function HotkeysArtShipPane() {
+export function HotkeysArtShipPane(selectedPlanetVisible: { selectedPlanetVisible: boolean }) {
   const uiManager = useUIManager();
   const artifacts = useMyArtifactsList(uiManager);
-  const shipArtifacts = artifacts.filter((a) => isSpaceShip(a.artifactType));
+  const shipArtifacts = artifacts.filter(
+    (a) => !isSpaceShip(a.artifactType) || isSpaceShip(a.artifactType)
+  );
+
   const [hotkeys, setHotkeys] = useState<Hotkey[]>([]);
 
   useEffect(() => {
     if (shipArtifacts.length !== hotkeys.length) {
+      const limitedShipArtifacts = shipArtifacts.slice(0, 10); // Limit to maximum of 10 artifacts
       setHotkeys(
-        shipArtifacts
+        limitedShipArtifacts
           .sort((a, b) => b.artifactType - a.artifactType)
           .map((a, i) => ({
             location: a.onPlanetId,
@@ -60,12 +70,39 @@ export function HotkeysArtShipPane() {
     }
   }, [shipArtifacts]);
 
+  const handleSetArtifact = (index: number) => {
+    // put from ArtifactDetailsPane.artifact.Id
+
+    const trial = document.querySelector(
+      "[class^='ArtifactDetailsPane__StyledArtifactDetailsBody']"
+    );
+    if (trial) {
+      const rowId = trial.getAttribute('id');
+      console.log('Row ID:', rowId);
+    } else {
+      console.error('Artifact details pane not found.');
+    }
+    debugger;
+    const selectedArtifact = uiManager.getMyArtifacts()[0];
+    if (selectedArtifact !== undefined) {
+      const updatedHotkeys = [...hotkeys];
+      updatedHotkeys[index].location = selectedArtifact.onPlanetId;
+      updatedHotkeys[index].artifact = selectedArtifact;
+      setHotkeys(updatedHotkeys);
+    } else {
+      console.log('Artifact or ship not selected to be able set shortcut');
+    }
+  };
   return (
     <StyledHotkeysArtShipsPane>
       {hotkeys.length > 0 &&
         hotkeys.map((h, i) => (
           <div key={i}>
-            <HotkeyThumbArtShips hotkey={{ ...h, key: shipLine[i] }} />
+            <HotkeyThumbArtShips
+              hotkey={{ ...h, key: shipLine[i] }}
+              selectedPlanetVisible={selectedPlanetVisible}
+            />
+            <SetKeyButtonArt onClick={() => handleSetArtifact(i)} />
             <Spacer width={4} />
           </div>
         ))}
@@ -73,7 +110,7 @@ export function HotkeysArtShipPane() {
   );
 }
 
-export function HotkeysMainLinePane(selectedPlanetVisible: any) {
+export function HotkeysMainLinePane(selectedPlanetVisible: { selectedPlanetVisible: boolean }) {
   const uiManager = useUIManager();
 
   const [hotkeys, setHotkeys] = useState<Hotkey[]>([]);
@@ -100,9 +137,10 @@ export function HotkeysMainLinePane(selectedPlanetVisible: any) {
   return (
     <StyledHotkeysMainLinePane>
       {hotkeys.map((hotkey, index) => (
-        <div key={index} style={{ display: 'flex', margin: 0 }}>
+        <div key={index} style={{ display: 'flex', marginInline: 0 }}>
           <HotkeyThumbMainLine hotkey={hotkey} selectedPlanetVisible={selectedPlanetVisible} />
-          <SetKeyButton onClick={() => handleSetLocation(index)} />
+          <Spacer width={2} />
+          <SetKeyButtonPlanets onClick={() => handleSetLocation(index)} />
         </div>
       ))}
     </StyledHotkeysMainLinePane>
@@ -114,7 +152,7 @@ const HotkeyThumbMainLine = ({
   selectedPlanetVisible,
 }: {
   hotkey: Hotkey;
-  selectedPlanetVisible: any;
+  selectedPlanetVisible: { selectedPlanetVisible: boolean };
 }) => {
   const uiManager = useUIManager();
 
@@ -133,7 +171,13 @@ const HotkeyThumbMainLine = ({
       shortcutText={hotkey.key}
     >
       {/* For now, we'll display a test image if position is occupied */}
-      {hotkey.location ? <PlaceholderImage>X</PlaceholderImage> : <div>{hotkey.key}</div>}
+      {hotkey.location ? (
+        <PlaceholderImage>
+          {ui.getPlanetLevel(hotkey.location)}|{getPlanetRank(ui.getPlanetWithId(hotkey.location))}
+        </PlaceholderImage>
+      ) : (
+        <div>{hotkey.key}</div>
+      )}
     </HotkeyButton>
   );
 };
@@ -144,38 +188,35 @@ const PlaceholderImage = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 14px; /* Adjust font size as needed */
+  margin: 0;
+  font-size: 10px; /* Adjust font size as needed */
 `;
 
 const StyledHotkeysMainLinePane = styled.div`
   position: absolute;
-  bottom: 0;
+  bottom: 1%;
   left: 50%;
   transform: translateX(-50%);
-  margin: 0.25em;
-
+  margin: 0;
   display: flex;
   flex-direction: row;
   align-items: center;
+  z-index: 9989; /* Ensure the button overlays other elements */
 `;
 
 const StyledHotkeysArtShipsPane = styled.div`
   position: absolute;
-  bottom: 5%;
+  bottom: 7%;
   left: 50%;
   transform: translateX(-50%);
-
-  margin: 0.25em;
-
+  margin: 0;
   display: flex;
   flex-direction: row;
   align-items: center;
+  z-index: 9989; /* Ensure the button overlays other elements */
 `;
 
 const HotkeyButton = styled(ShortcutBtn)`
-  min-width: 2em;
-  min-height: 2em;
-
   &:last-child {
     margin-right: none;
   }
@@ -194,14 +235,29 @@ const HotkeyButton = styled(ShortcutBtn)`
   }
 `;
 
-const SetKeyButton = styled(Btn)`
-  min-width: 2em;
-  min-height: 3em;
-
+const SetKeyButtonPlanets = styled(Btn)`
   left: -40px; /* Move 50px to the left */
-  bottom: -25px; /* Move 50px to the left */
+  bottom: -16px; /* Move 50px to the left */
   position: relative;
-  z-index: 9999; /* Ensure the button overlays other elements */
+  z-index: 9989; /* Ensure the button overlays other elements */
+
+  .test {
+    background: red !important;
+  }
+  &:last-child {
+    margin: none;
+  }
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
+const SetKeyButtonArt = styled(Btn)`
+  left: -40px; /* Move 50px to the left */
+  bottom: -5px; /* Move 50px to the left */
+  position: relative;
+  z-index: 9989; /* Ensure the button overlays other elements */
 
   .test {
     background: red !important;

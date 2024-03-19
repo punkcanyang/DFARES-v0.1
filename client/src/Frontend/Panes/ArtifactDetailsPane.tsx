@@ -334,7 +334,7 @@ export function ArtifactDetailsBody({
         )}
         <div className='row'>
           <span>ID</span>
-          <TextPreview text={artifact.id} />
+          <TextPreview data-artifact-id={artifact.id} text={artifact.id} />
         </div>
 
         {artifact.controller !== EMPTY_ADDRESS && (
@@ -412,6 +412,7 @@ export function ArtifactDetailsPane({
       artifactId={artifactId}
       contractConstants={contractConstants}
       depositOn={depositOn}
+      data-artifact-details-pane
     />
   );
 }

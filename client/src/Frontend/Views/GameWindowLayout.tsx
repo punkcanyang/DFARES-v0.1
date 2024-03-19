@@ -195,7 +195,7 @@ export function GameWindowLayout({
           <NotificationsPane />
           <CoordsPane />
           <ExplorePane />
-          <HotkeysArtShipPane />
+          <HotkeysArtShipPane selectedPlanetVisible={selectedPlanetVisible} />
           <HotkeysMainLinePane selectedPlanetVisible={selectedPlanetVisible} />
           <HoverPlanetPane />
           <ArtifactHoverPane />

@@ -251,7 +251,7 @@ export function ArtifactDetailsBody({
   //   : 0;
 
   return (
-    <>
+    <div className='artifact-details-pane-body'>
       <div style={{ display: 'inline-block' }}>
         <ArtifactImage artifact={artifact} size={32} />
       </div>
@@ -332,9 +332,9 @@ export function ArtifactDetailsBody({
             <span>{owner()}</span>
           </div>
         )}
-        <div className='row'>
+        <div className='row artifact-id-container'>
           <span>ID</span>
-          <TextPreview data-artifact-id={artifact.id} text={artifact.id} />
+          <TextPreview text={artifact.id} />
         </div>
 
         {artifact.controller !== EMPTY_ADDRESS && (
@@ -390,7 +390,7 @@ export function ArtifactDetailsBody({
           <ArtifactActions artifactId={artifactWrapper.value?.id} depositOn={depositOn} />
         )}
       </StyledArtifactDetailsBody>
-    </>
+    </div>
   );
 }
 
@@ -412,7 +412,6 @@ export function ArtifactDetailsPane({
       artifactId={artifactId}
       contractConstants={contractConstants}
       depositOn={depositOn}
-      data-artifact-details-pane
     />
   );
 }

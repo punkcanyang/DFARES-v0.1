@@ -1,5 +1,5 @@
 import { getPlanetRank, isSpaceShip } from '@dfares/gamelogic';
-import { Artifact, LocationId } from '@dfares/types';
+import { Artifact, ArtifactId, LocationId } from '@dfares/types';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ArtifactImage } from '../Components/ArtifactImage';
@@ -28,8 +28,17 @@ export function HotkeyThumbArtShips({
   const uiManager = useUIManager();
 
   const click = useCallback(() => {
-    if (hotkey.location && !selectedPlanetVisible.selectedPlanetVisible) {
-      uiManager.centerLocationId(hotkey.location);
+    if (hotkey.artifact && !selectedPlanetVisible.selectedPlanetVisible) {
+      const selectedArtifact = hotkey.artifact as unknown as Artifact;
+      const refreshArt: Artifact | undefined = ui.getArtifactWithId(selectedArtifact.id);
+      if (refreshArt?.onPlanetId === undefined) {
+        console.log('Artifact / ship on move');
+        return;
+      }
+
+      uiManager.centerLocationId(refreshArt.onPlanetId);
+    } else {
+      console.log('Deselect planet ');
     }
   }, [hotkey]);
 
@@ -57,7 +66,15 @@ export function HotkeysArtShipPane(selectedPlanetVisible: { selectedPlanetVisibl
 
   useEffect(() => {
     if (shipArtifacts.length !== hotkeys.length) {
-      const limitedShipArtifacts = shipArtifacts.slice(0, 10); // Limit to maximum of 10 artifacts
+      let limitedShipArtifacts = shipArtifacts.slice(0, 10); // Limit to maximum of 10 artifacts
+
+      // Fill limitedShipArtifacts repeatedly until it reaches a length of 10
+      while (limitedShipArtifacts.length < 10) {
+        limitedShipArtifacts = limitedShipArtifacts.concat(
+          shipArtifacts.slice(0, 10 - limitedShipArtifacts.length)
+        );
+      }
+
       setHotkeys(
         limitedShipArtifacts
           .sort((a, b) => b.artifactType - a.artifactType)
@@ -68,30 +85,22 @@ export function HotkeysArtShipPane(selectedPlanetVisible: { selectedPlanetVisibl
           }))
       );
     }
-  }, [shipArtifacts]);
+  }, []);
 
   const handleSetArtifact = (index: number) => {
-    // put from ArtifactDetailsPane.artifact.Id
-
-    const trial = document.querySelector(
-      "[class^='ArtifactDetailsPane__StyledArtifactDetailsBody']"
+    const element: HTMLElement | null = document.querySelector(
+      '.artifact-details-pane-body .artifact-id-container [class^="TextPreview__ShortenedText"'
     );
-    if (trial) {
-      const rowId = trial.getAttribute('id');
-      console.log('Row ID:', rowId);
-    } else {
-      console.error('Artifact details pane not found.');
-    }
-    debugger;
-    const selectedArtifact = uiManager.getMyArtifacts()[0];
-    if (selectedArtifact !== undefined) {
-      const updatedHotkeys = [...hotkeys];
-      updatedHotkeys[index].location = selectedArtifact.onPlanetId;
-      updatedHotkeys[index].artifact = selectedArtifact;
-      setHotkeys(updatedHotkeys);
-    } else {
+    if (element === null) {
       console.log('Artifact or ship not selected to be able set shortcut');
+      return;
     }
+    const selectedArtifact = element.innerText as unknown as ArtifactId;
+    const art: Artifact | undefined = ui.getArtifactWithId(selectedArtifact);
+    const updatedHotkeys = [...hotkeys];
+    updatedHotkeys[index].location = art?.onPlanetId;
+    updatedHotkeys[index].artifact = art;
+    setHotkeys(updatedHotkeys);
   };
   return (
     <StyledHotkeysArtShipsPane>
@@ -206,7 +215,7 @@ const StyledHotkeysMainLinePane = styled.div`
 
 const StyledHotkeysArtShipsPane = styled.div`
   position: absolute;
-  bottom: 7%;
+  bottom: 3%;
   left: 50%;
   transform: translateX(-50%);
   margin: 0;
@@ -254,8 +263,8 @@ const SetKeyButtonPlanets = styled(Btn)`
 `;
 
 const SetKeyButtonArt = styled(Btn)`
-  left: -40px; /* Move 50px to the left */
-  bottom: -5px; /* Move 50px to the left */
+  left: 35px; /* Move 50px to the left */
+  bottom: 18px; /* Move 50px to the left */
   position: relative;
   z-index: 9989; /* Ensure the button overlays other elements */
 

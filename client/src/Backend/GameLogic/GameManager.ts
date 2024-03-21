@@ -4792,27 +4792,29 @@ class GameManager extends EventEmitter {
    * know the location of either planet. Takes into account links.
    */
   getDist(fromId: LocationId, toId: LocationId): number {
-    const from = this.entityStore.getPlanetWithId(fromId);
-    const to = this.entityStore.getPlanetWithId(toId);
-
-    if (!from) throw new Error('origin planet unknown');
-    if (!to) throw new Error('destination planet unknown');
-    if (!isLocatable(from)) throw new Error('origin location unknown');
-    if (!isLocatable(to)) throw new Error('destination location unknown');
-
-    const wormholeFactors = this.getWormholeFactors(from, to);
-
-    let distance = this.getDistCoords(from.location.coords, to.location.coords);
-
-    if (wormholeFactors) {
-      distance /= wormholeFactors.distanceFactor;
+    const planetFrom = this.entityStore.getPlanetWithId(fromId);
+    if (!isLocatable(planetFrom)) {
+      throw new Error(`origin planet not locatable (fromId: ${fromId}) (locationId: ${planetFrom?.locationId})`)
     }
 
-    return distance;
+    const planetTo = this.entityStore.getPlanetWithId(toId);
+    if (!isLocatable(planetTo)) {
+      throw new Error(`origin planet not locatable (toId: ${fromId}) (locationId: ${planetTo?.locationId})`)
+    }
+
+    const wormholeFactors = this.getWormholeFactors(planetFrom, planetTo);
+    const distance = this.getDistCoords(planetFrom.location.coords, planetTo.location.coords);
+    const distanceFactor = wormholeFactors
+      ? wormholeFactors.distanceFactor
+      : 1;
+
+    return distance / distanceFactor;
   }
 
   /**
-   * Gets the distance between two coordinates in space.
+   * Gets the distance between two coordinates in space using manhattan geometry
+   *
+   * @see https://en.wikipedia.org/wiki/Taxicab_geometry
    */
   getDistCoords(fromCoords: WorldCoords, toCoords: WorldCoords) {
     return Math.sqrt((fromCoords.x - toCoords.x) ** 2 + (fromCoords.y - toCoords.y) ** 2);
@@ -4924,33 +4926,36 @@ class GameManager extends EventEmitter {
     const fromActiveArtifact = this.getActiveArtifact(fromPlanet);
     const toActiveArtifact = this.getActiveArtifact(toPlanet);
 
-    let greaterRarity: ArtifactRarity | undefined;
+    const fromHasActiveWormhole = fromActiveArtifact?.artifactType === ArtifactType.Wormhole &&
+      fromActiveArtifact.linkTo === toPlanet.locationId;
+    const toHasActiveWormhole = toActiveArtifact?.artifactType === ArtifactType.Wormhole &&
+      toActiveArtifact.linkTo === fromPlanet.locationId
 
-    if (
-      fromActiveArtifact?.artifactType === ArtifactType.Wormhole &&
-      fromActiveArtifact.linkTo === toPlanet.locationId
-    ) {
-      greaterRarity = fromActiveArtifact.rarity;
+    let greaterRarity: ArtifactRarity | undefined = undefined;
+    switch(true) {
+      // active wormhole on both from and to planets choose the biggest rarity
+      case fromHasActiveWormhole && toHasActiveWormhole: {
+        greaterRarity = Math.max(fromActiveArtifact.rarity, toActiveArtifact.rarity) as ArtifactRarity;
+        break;
+      }
+      // only from planet has active wormhole, use that one
+      case fromHasActiveWormhole: {
+        greaterRarity = fromActiveArtifact.rarity;
+        break;
+      }
+      // only destination planet has active wormhole, use that one
+      case toHasActiveWormhole: {
+        greaterRarity = toActiveArtifact.rarity;
+        break;
+      }
     }
 
-    if (
-      toActiveArtifact?.artifactType === ArtifactType.Wormhole &&
-      toActiveArtifact.linkTo === fromPlanet.locationId
-    ) {
-      if (greaterRarity === undefined) {
-        greaterRarity = toActiveArtifact.rarity;
-      } else {
-        greaterRarity = Math.max(greaterRarity, toActiveArtifact.rarity) as ArtifactRarity;
-      }
+    if (greaterRarity === undefined || greaterRarity <= ArtifactRarity.Unknown) {
+      return undefined;
     }
 
     const rangeUpgradesPerRarity = [0, 2, 4, 6, 8, 10];
     const speedUpgradesPerRarity = [0, 10, 20, 30, 40, 50];
-
-    if (!greaterRarity || greaterRarity <= ArtifactRarity.Unknown) {
-      return undefined;
-    }
-
     return {
       distanceFactor: rangeUpgradesPerRarity[greaterRarity],
       speedFactor: speedUpgradesPerRarity[greaterRarity],

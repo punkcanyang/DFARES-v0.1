@@ -407,6 +407,8 @@ library LibPlanet {
             "tried to withdraw more silver than exists on planet"
         );
 
+        require(planet.silverCap <= silverToWithdraw * 5, "amount >= 0.2 * silverCap");
+
         planet.silver -= silverToWithdraw;
         gs().players[msg.sender].silver += silverToWithdraw;
 

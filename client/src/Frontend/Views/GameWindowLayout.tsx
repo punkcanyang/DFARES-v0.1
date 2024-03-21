@@ -23,6 +23,7 @@ import { PlayerArtifactsPane } from '../Panes/PlayerArtifactsPane';
 import { PluginLibraryPane } from '../Panes/PluginLibraryPane';
 import { PrivatePane } from '../Panes/PrivatePane';
 import { SettingsPane } from '../Panes/SettingsPane';
+import { TradePane } from '../Panes/TradePane';
 import { TransactionLogPane } from '../Panes/TransactionLogPane';
 import { TutorialPane } from '../Panes/TutorialPane';
 import { TwitterVerifyPane } from '../Panes/TwitterVerifyPane';
@@ -76,6 +77,8 @@ export function GameWindowLayout({
   const [twitterVerifyVisible, setTwitterVerifyVisible] = useState<boolean>(
     isModalOpen(ModalName.TwitterVerify)
   );
+
+  const [tradeVisible, setTradeVisible] = useState<boolean>(isModalOpen(ModalName.Trade));
   const [settingsVisible, setSettingsVisible] = useState<boolean>(isModalOpen(ModalName.Settings));
   const [privateVisible, setPrivateVisible] = useState<boolean>(isModalOpen(ModalName.Private));
   const [pluginsVisible, setPluginsVisible] = useState<boolean>(isModalOpen(ModalName.Plugins));
@@ -143,6 +146,8 @@ export function GameWindowLayout({
           visible={twitterVerifyVisible}
           onClose={() => setTwitterVerifyVisible(false)}
         />
+
+        <TradePane visible={tradeVisible} onClose={() => setTradeVisible(false)} />
         <SettingsPane
           ethConnection={uiManager.getEthConnection()}
           visible={settingsVisible}
@@ -154,6 +159,7 @@ export function GameWindowLayout({
           visible={playerArtifactsVisible}
           onClose={() => setPlayerArtifactsVisible(false)}
         />
+
         <PlanetContextPane
           visible={selectedPlanetVisible}
           onClose={() => setSelectedPlanetVisible(false)}
@@ -180,6 +186,7 @@ export function GameWindowLayout({
             <ZoomPane />
           </UpperLeft>
           <SidebarPane
+            tradeHook={[tradeVisible, setTradeVisible]}
             transactionLogHook={[transactionLogVisible, setTransactionLogVisible]}
             settingsHook={[settingsVisible, setSettingsVisible]}
             helpHook={[helpVisible, setHelpVisible]}

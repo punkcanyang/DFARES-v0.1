@@ -8,6 +8,7 @@ import {
   TOGGLE_HELP_PANE,
   TOGGLE_PLUGINS_PANE,
   TOGGLE_SETTINGS_PANE,
+  TOGGLE_TRADE_PANE,
   TOGGLE_TRANSACTIONS_PANE,
   TOGGLE_YOUR_ARTIFACTS_PANE,
   TOGGLE_YOUR_PLANETS_DEX_PANE,
@@ -15,6 +16,7 @@ import {
 import { ModalToggleButton } from './ModalIcon';
 
 export function SidebarPane({
+  tradeHook,
   settingsHook,
   helpHook,
   pluginsHook,
@@ -22,6 +24,7 @@ export function SidebarPane({
   planetdexHook,
   transactionLogHook,
 }: {
+  tradeHook: Hook<boolean>;
   settingsHook: Hook<boolean>;
   helpHook: Hook<boolean>;
   pluginsHook: Hook<boolean>;
@@ -37,6 +40,15 @@ export function SidebarPane({
       onMouseLeave={() => setSidebarHovered(false)}
     >
       <BorderlessPane style={{ zIndex: sidebarHovered ? DFZIndex.Tooltip : undefined }}>
+        <ModalToggleButton
+          modal={ModalName.Trade}
+          hook={tradeHook}
+          text={sidebarHovered ? 'Trade' : undefined}
+          size='stretch'
+          shortcutKey={TOGGLE_TRADE_PANE}
+          shortcutText={sidebarHovered ? TOGGLE_TRADE_PANE : undefined}
+        />
+        <EmSpacer height={0.5} />
         <ModalToggleButton
           modal={ModalName.Settings}
           hook={settingsHook}

@@ -121,11 +121,11 @@ contract DFTradeFacet is WithStorage {
             msg.sender,
             artifactType
         );
-        Artifact memory artifact = gs().artifacts[shipId];
+        Artifact storage artifact = gs().artifacts[shipId];
         Planet memory planet = gs().planets[locationId];
-        Player memory player = gs().players[msg.sender];
-
         planet = LibPlanet.applySpaceshipArrive(artifact, planet);
+
+        Player storage player = gs().players[msg.sender];
         player.buySpaceshipAmount++;
 
         gs().planets[locationId] = planet;

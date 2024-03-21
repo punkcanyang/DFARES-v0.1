@@ -1414,6 +1414,16 @@ class GameUIManager extends EventEmitter {
     this.gameManager.buyHat(planet.locationId, hatType);
   }
 
+  public buyPlanet(planet: Planet): void {
+    this.terminal.current?.printShellLn(`df.buyPlanet('${planet.locationId}')`);
+    this.gameManager.buyPlanet(planet.locationId);
+  }
+
+  public buySpaceship(planet: Planet): void {
+    this.terminal.current?.printShellLn(`df.buySpaceship('${planet.locationId}')`);
+    this.gameManager.buySpaceship(planet.locationId);
+  }
+
   // non-nullable
   public getHomeCoords(): WorldCoords {
     return this.gameManager.getHomeCoords() || { x: 0, y: 0 };

@@ -4023,9 +4023,15 @@ class GameManager extends EventEmitter {
         if (amount > planet.silver) {
           throw new Error('not enough silver to withdraw!');
         }
+
+        if (amount * 5 < planet.silverCap) {
+          throw new Error('require silverAmount >= silverCap * 0.2');
+        }
+
         if (amount === 0) {
           throw new Error('must withdraw more than 0 silver!');
         }
+
         if (planet.destroyed || planet.frozen) {
           throw new Error("can't withdraw silver from a destroyed/frozen planet");
         }

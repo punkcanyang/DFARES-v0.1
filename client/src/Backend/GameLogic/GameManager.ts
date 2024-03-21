@@ -4969,20 +4969,35 @@ class GameManager extends EventEmitter {
    */
   getTimeForMove(fromId: LocationId, toId: LocationId, abandoning = false): number {
     const from = this.getPlanetWithId(fromId);
-    if (!from) throw new Error('origin planet unknown');
-    const dist = this.getDist(fromId, toId);
-
-    const speed = from.speed * this.getSpeedBuff(abandoning);
-
-    let deltaTime = dist / (speed / 100);
-
-    // //round 1
-    // const artifact = this.getActiveArtifact(from);
-    // //MyTodo:    //all photoid travel same time
-    // if (artifact?.artifactType === ArtifactType.PhotoidCannon) deltaTime = 600;
+    if (!isLocatable(from)) {
+      throw new Error(`Could not find planet from (fromId: ${fromId})`);
+    }
 
     const to = this.getPlanetWithId(toId);
-    if (to?.planetType === PlanetType.SILVER_BANK) deltaTime = deltaTime / 2;
+    if (!isLocatable(to)) {
+      throw new Error(`Could not find planet from (toId: ${to})`);
+    }
+
+    // NOTE: The get distance will throw if both the fromId and toId planets are not located.
+    const dist = this.getDist(fromId, toId);
+
+    // NOTE: The speed factor will always be 1 when SPACE_JUNK_ENABLED=false
+    const speedFactor = this.getSpeedBuff(abandoning);
+    const speed = from.speed * speedFactor;
+
+    let deltaTime = dist / (speed / 100);
+    switch(true) {
+      // 1. We have an active photoid cannon on from planet, and all photoid travel at same time
+      case this.getActiveArtifact(from)?.artifactType === ArtifactType.PhotoidCannon: {
+        deltaTime = 600;
+        break;
+      }
+      // 2. Destination planet is a silver bank, we travel twice as fast to these.
+      case to.planetType === PlanetType.SILVER_BANK: {
+        deltaTime = deltaTime / 2;
+        break;
+      }
+    }
 
     return deltaTime;
   }

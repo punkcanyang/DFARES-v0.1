@@ -287,7 +287,7 @@ library LibPlanet {
         view
         returns (
             Planet memory,
-            // myNotice: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
+            // NOTE: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
 
             uint256[16] memory eventsToRemove,
             uint256[16] memory artifactsToAdd,
@@ -296,7 +296,7 @@ library LibPlanet {
     {
         Planet memory planet = gs().planets[location];
 
-        // myNotice: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
+        // NOTE: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
 
         // first 16 are event ids to remove
         // last 16 are artifact ids that are new on the planet
@@ -357,7 +357,7 @@ library LibPlanet {
 
         (
             Planet memory planet,
-            // myNotice: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
+            // NOTE: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
 
             uint256[16] memory eventsToRemove,
             uint256[16] memory artifactIdsToAddToPlanet,
@@ -372,7 +372,7 @@ library LibPlanet {
 
         PlanetEventMetadata[] storage events = gs().planetEvents[location];
 
-        // myNotice: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
+        // NOTE: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
 
         for (uint256 toRemoveIdx = 0; toRemoveIdx < 16; toRemoveIdx++) {
             for (uint256 i = 0; i < events.length; i++) {
@@ -382,7 +382,7 @@ library LibPlanet {
                 }
             }
         }
-        // myNotice: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
+        // NOTE: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
 
         for (uint256 i = 0; i < 16; i++) {
             if (artifactIdsToAddToPlanet[i] != 0) {

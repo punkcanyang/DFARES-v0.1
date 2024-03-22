@@ -196,7 +196,7 @@ export class ContractsAPI extends EventEmitter {
   }
 
   private async afterTransaction(_txRequest: Transaction, txDiagnosticInfo: unknown) {
-    // myNotice: remove /event
+    // NOTE: remove /event
     // eventLogger.logEvent(EventType.Transaction, txDiagnosticInfo);
   }
 

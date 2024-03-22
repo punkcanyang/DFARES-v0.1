@@ -247,7 +247,7 @@ export function SettingsPane({
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('1000'))
                 .toFixed(FIXED_DIGIT_NUMBER)
                 .toString(), //'40',
-              //MyNotice: altlayer don't have GAS_PRICE_API
+              // NOTE: round 1 don't have GAS_PRICE_API
               // AutoGasSetting.Slow,
               // AutoGasSetting.Average,
               // AutoGasSetting.Fast,

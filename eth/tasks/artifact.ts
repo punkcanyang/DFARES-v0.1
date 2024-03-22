@@ -26,7 +26,7 @@ async function getArtifactsOnPlanet(args: { planetId: string }, hre: HardhatRunt
   console.log(res);
 }
 
-// myNotice: after install dfares/serde
+// NOTE: after install dfares/serde
 // task('artifact:getArtifactById', '')
 //   .addOptionalParam('id', 'id', undefined, types.string)
 //   .setAction(getArtifactById);

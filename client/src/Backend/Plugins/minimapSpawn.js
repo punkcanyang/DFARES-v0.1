@@ -136,7 +136,7 @@ class MinimapSpawnPlugin {
         ctx.fill();
         ctx.stroke();
       }
-      //myNotice:
+      // NOTE:
       // draw inner circle of map
       // let rimNormalized = (normalize(rim) / 2) * 0.91; // idk why here need
       // to be corection??

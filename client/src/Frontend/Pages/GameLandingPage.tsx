@@ -84,7 +84,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
   const [spectate, setSpectate] = useState(false);
 
   const params = new URLSearchParams(location.search);
-  // myNotice: round 2
+  // NOTE: round 2
   const useZkWhitelist = true;
   // const useZkWhitelist = params.has('zkWhitelist');
   const selectedAddress = params.get('account');

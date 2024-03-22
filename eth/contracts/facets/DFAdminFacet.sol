@@ -210,7 +210,7 @@ contract DFAdminFacet is WithStorage {
         //mytodo: need pass dist here, get wrong space type if some condition at
         //new map algo, need to be fixed
         //
-        //myNotice: admin only add Level 9
+        //NOTE: admin only add Level 9
         SpaceType spaceType = LibGameUtils.spaceTypeFromPerlin(args.perlin, 0);
         LibPlanet._initializePlanet(
             DFPInitPlanetArgs(

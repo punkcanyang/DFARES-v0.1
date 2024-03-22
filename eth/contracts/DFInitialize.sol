@@ -165,7 +165,7 @@ contract DFInitialize is WithStorage {
 
         gs().planetLevelsCount = 10;
 
-        // MyNotice: only effect move speed
+        // NOTE: only effect move speed
         gs().dynamicTimeFactor = 100;
 
         snarkConstants().DISABLE_ZK_CHECKS = initArgs.DISABLE_ZK_CHECKS;
@@ -277,7 +277,7 @@ contract DFInitialize is WithStorage {
                 populationCap: 100000,
                 populationGrowth: 417,
                 range: 99,
-                speed: 225,
+                speed: 75,
                 defense: 400,
                 silverGrowth: 0,
                 silverCap: 0,
@@ -291,7 +291,7 @@ contract DFInitialize is WithStorage {
                 populationCap: 400000,
                 populationGrowth: 833,
                 range: 177,
-                speed: 225,
+                speed: 75,
                 defense: 400,
                 silverGrowth: 56,
                 silverCap: 100000,
@@ -305,7 +305,7 @@ contract DFInitialize is WithStorage {
                 populationCap: 1600000,
                 populationGrowth: 1250,
                 range: 315,
-                speed: 225,
+                speed: 75,
                 defense: 300,
                 silverGrowth: 167,
                 silverCap: 500000,
@@ -319,7 +319,7 @@ contract DFInitialize is WithStorage {
                 populationCap: 6000000,
                 populationGrowth: 1667,
                 range: 591,
-                speed: 225,
+                speed: 75,
                 defense: 300,
                 silverGrowth: 417,
                 silverCap: 2500000,
@@ -333,7 +333,7 @@ contract DFInitialize is WithStorage {
                 populationCap: 25000000,
                 populationGrowth: 2083,
                 range: 1025,
-                speed: 225,
+                speed: 75,
                 defense: 300,
                 silverGrowth: 833,
                 silverCap: 12000000,
@@ -347,7 +347,7 @@ contract DFInitialize is WithStorage {
                 populationCap: 100000000,
                 populationGrowth: 2500,
                 range: 1734,
-                speed: 225,
+                speed: 75,
                 defense: 200,
                 silverGrowth: 1667,
                 silverCap: 50000000,
@@ -361,7 +361,7 @@ contract DFInitialize is WithStorage {
                 populationCap: 300000000,
                 populationGrowth: 2917,
                 range: 2838,
-                speed: 225,
+                speed: 75,
                 defense: 200,
                 silverGrowth: 2778,
                 silverCap: 100000000,
@@ -375,7 +375,7 @@ contract DFInitialize is WithStorage {
                 populationCap: 500000000,
                 populationGrowth: 3333,
                 range: 4414,
-                speed: 225,
+                speed: 75,
                 defense: 200,
                 silverGrowth: 2778,
                 silverCap: 200000000,
@@ -389,7 +389,7 @@ contract DFInitialize is WithStorage {
                 populationCap: 700000000,
                 populationGrowth: 3750,
                 range: 6306,
-                speed: 225,
+                speed: 75,
                 defense: 200,
                 silverGrowth: 2778,
                 silverCap: 300000000,
@@ -403,7 +403,7 @@ contract DFInitialize is WithStorage {
                 populationCap: 800000000,
                 populationGrowth: 4167,
                 range: 8829,
-                speed: 225,
+                speed: 75,
                 defense: 200,
                 silverGrowth: 2778,
                 silverCap: 400000000,

@@ -73,7 +73,7 @@ contract DFCoreFacet is WithStorage {
         view
         returns (
             Planet memory,
-            // myNotice: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
+            // NOTE: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
 
             uint256[16] memory eventsToRemove,
             uint256[16] memory artifactsToAdd,

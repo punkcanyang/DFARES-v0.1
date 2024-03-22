@@ -226,7 +226,7 @@ contract DFKardashevFacet is WithStorage {
                 revealer: msg.sender
             });
 
-            //myNotice: pinkLocation don't update player's lastRevealTimestamp
+            //NOTE: pinkLocation don't update player's lastRevealTimestamp
             // gs().players[msg.sender].lastRevealTimestamp = block.timestamp;
             emit LocationRevealed(msg.sender, planetId, x, y);
         }

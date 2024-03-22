@@ -202,7 +202,7 @@ library LibLazyUpdate {
         view
         returns (
             Planet memory,
-            // myNotice: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
+            // NOTE: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
             uint256[32] memory,
             bool
         )
@@ -270,7 +270,7 @@ library LibLazyUpdate {
                     );
 
                     if (newArtifactId != 0) {
-                        // myNotice: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
+                        // NOTE: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
 
                         eventIdsAndArtifacts[16 + numNewArtifactsOnPlanet++] = newArtifactId;
                     }

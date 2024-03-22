@@ -104,7 +104,7 @@ async function upgrade({}, hre: HardhatRuntimeEnvironment) {
     ...changes.getFacetCuts('DFVerifierFacet', verifierFacet),
     ...changes.getFacetCuts('DFAdminFacet', adminFacet),
     ...changes.getFacetCuts('DFLobbyFacet', lobbyFacet),
-    //myNotice: rewardFacet don't fit v0.6.3
+    //NOTE: rewardFacet don't fit v0.6.3
     // ...changes.getFacetCuts('DFRewardFacet', rewardFacet),
   ];
 

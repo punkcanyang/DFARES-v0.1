@@ -264,7 +264,7 @@ export async function deployAndCut(
   const adminFacet = await deployAdminFacet({}, libraries, hre);
   const lobbyFacet = await deployLobbyFacet({}, {}, hre);
 
-  //myNotice: rewardFacet don't fit v0.6.3
+  //NOTE: rewardFacet don't fit v0.6.3
   // const rewardFacet = await deployRewardFacet({}, {}, hre);
 
   // The `cuts` to perform for Dark Forest facets
@@ -283,7 +283,7 @@ export async function deployAndCut(
     ...changes.getFacetCuts('DFAdminFacet', adminFacet),
     ...changes.getFacetCuts('DFLobbyFacet', lobbyFacet),
 
-    //myNotice: rewardFacet don't fit v0.6.3
+    //NOTE: rewardFacet don't fit v0.6.3
     // ...changes.getFacetCuts('DFRewardFacet', rewardFacet),
   ];
 

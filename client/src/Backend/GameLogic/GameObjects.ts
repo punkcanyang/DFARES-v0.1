@@ -1583,7 +1583,7 @@ export class GameObjects {
       defense *= 0.5;
     } else if (planetType === PlanetType.SILVER_BANK) {
       // speed /= 2;
-      //MyNotice
+      //NOTE
       speed *= 2;
       silCap *= 10;
       energyGro = 0;

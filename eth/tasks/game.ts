@@ -1,4 +1,4 @@
-// myNotice: after install dfares/serde
+// NOTE: after install dfares/serde
 import { task } from 'hardhat/config';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 
@@ -110,7 +110,7 @@ async function getFirstHat({}, hre: HardhatRuntimeEnvironment) {
   console.log('first hat owner: ', amount.toString());
 }
 
-// myNotice: after install dfares/serde
+// NOTE: after install dfares/serde
 
 // task('game:rank', 'get the final rank').setAction(getRank);
 

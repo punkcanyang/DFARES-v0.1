@@ -357,7 +357,7 @@ contract DFArtifactFacet is WithStorage, ERC721 {
     }
 
     function buyArtifact(DFTCreateArtifactArgs memory args) public payable notPaused {
-        // myNotice: only use args.planetId
+        // NOTE: only use args.planetId
         uint256 _location = args.planetId;
         require(gs().planets[_location].isInitialized == true, "Planet is not initialized");
         LibPlanet.refreshPlanet(_location);

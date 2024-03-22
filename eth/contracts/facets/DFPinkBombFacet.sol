@@ -224,7 +224,7 @@ contract DFPinkBombFacet is WithStorage {
                 revealer: msg.sender
             });
 
-            //myNotice: pinkLocation don't update player's lastRevealTimestamp
+            //NOTE: pinkLocation don't update player's lastRevealTimestamp
             // gs().players[msg.sender].lastRevealTimestamp = block.timestamp;
             emit LocationRevealed(msg.sender, _input[0], _input[2], _input[3]);
         }

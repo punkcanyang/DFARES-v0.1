@@ -574,11 +574,11 @@ class GameManager extends EventEmitter {
     this.paused = paused;
 
     this.ethConnection = ethConnection;
-    // myNotice: event
+    // NOTE: event
     // this.diagnosticsInterval = setInterval(this.uploadDiagnostics.bind(this), 10_000);
     this.scoreboardInterval = setInterval(this.refreshScoreboard.bind(this), 10_000);
 
-    //myNotice: network health
+    //NOTE: network health
     // this.networkHealthInterval = setInterval(this.refreshNetworkHealth.bind(this), 10_000);
     this.pinkZoneInterval = setInterval(this.hardRefreshPinkZones.bind(this), 10_000);
     this.blueZoneInterval = setInterval(this.hardRefreshBlueZones.bind(this), 10_000);
@@ -604,7 +604,7 @@ class GameManager extends EventEmitter {
     });
 
     this.refreshScoreboard();
-    // myNotice: network health
+    // NOTE: network health
     // this.refreshNetworkHealth();
     this.hardRefreshPinkZones();
     this.hardRefreshBlueZones();
@@ -728,10 +728,10 @@ class GameManager extends EventEmitter {
     this.contractsAPI.destroy();
     this.persistentChunkStore.destroy();
     clearInterval(this.playerInterval);
-    // myNotice: event
+    // NOTE: event
     // clearInterval(this.diagnosticsInterval);
     clearInterval(this.scoreboardInterval);
-    // myNotice: network health
+    // NOTE: network health
     // clearInterval(this.networkHealthInterval);
     clearInterval(this.pinkZoneInterval);
     clearInterval(this.blueZoneInterval);
@@ -3380,7 +3380,7 @@ class GameManager extends EventEmitter {
         return d >= requireRadiusMin;
       };
 
-      //myNotice: check coords
+      //NOTE: check coords
       console.log(checkCoords());
 
       // do {
@@ -3968,7 +3968,7 @@ class GameManager extends EventEmitter {
         } else return 0;
       }
 
-      //MyNotice: this will not be the true artifactId
+      //NOTE: this will not be the true artifactId
       const artifactId: ArtifactId = random256Id() as ArtifactId;
 
       const args = Promise.resolve([
@@ -3996,7 +3996,7 @@ class GameManager extends EventEmitter {
       // Always await the submitTransaction so we can catch rejections
 
       const tx = await this.contractsAPI.submitTransaction(txIntent, {
-        // MyNotice: when change gasLimit, need change the value in TxConfirmPopup.tsx
+        // NOTE: when change gasLimit, need change the value in TxConfirmPopup.tsx
         gasLimit: 2000000,
         value: bigInt(1_000_000_000_000_000).toString(), //0.001eth
       });
@@ -4472,7 +4472,7 @@ class GameManager extends EventEmitter {
       // Always await the submitTransaction so we can catch rejections
 
       const tx = await this.contractsAPI.submitTransaction(txIntent, {
-        // MyNotice: when change gasLimit, need change the value in TxConfirmPopup.tsx
+        // NOTE: when change gasLimit, need change the value in TxConfirmPopup.tsx
         gasLimit: 500000,
         value: bigInt(100000000000000000) //0.1eth
           .multiply(1 + 0 * planet.hatLevel)
@@ -4706,7 +4706,7 @@ class GameManager extends EventEmitter {
     }
   }
 
-  // myNotice: get claimRoundEndReward back
+  // NOTE: get claimRoundEndReward back
   // /**
   //  * Receive XDAI for the claiming player based on their score rank at the end of the round.
   //  */
@@ -4812,19 +4812,21 @@ class GameManager extends EventEmitter {
   getDist(fromId: LocationId, toId: LocationId): number {
     const planetFrom = this.entityStore.getPlanetWithId(fromId);
     if (!isLocatable(planetFrom)) {
-      throw new Error(`origin planet not locatable (fromId: ${fromId}) (locationId: ${planetFrom?.locationId})`)
+      throw new Error(
+        `origin planet not locatable (fromId: ${fromId}) (locationId: ${planetFrom?.locationId})`
+      );
     }
 
     const planetTo = this.entityStore.getPlanetWithId(toId);
     if (!isLocatable(planetTo)) {
-      throw new Error(`origin planet not locatable (toId: ${fromId}) (locationId: ${planetTo?.locationId})`)
+      throw new Error(
+        `origin planet not locatable (toId: ${fromId}) (locationId: ${planetTo?.locationId})`
+      );
     }
 
     const wormholeFactors = this.getWormholeFactors(planetFrom, planetTo);
     const distance = this.getDistCoords(planetFrom.location.coords, planetTo.location.coords);
-    const distanceFactor = wormholeFactors
-      ? wormholeFactors.distanceFactor
-      : 1;
+    const distanceFactor = wormholeFactors ? wormholeFactors.distanceFactor : 1;
 
     return distance / distanceFactor;
   }
@@ -4944,17 +4946,23 @@ class GameManager extends EventEmitter {
     const fromActiveArtifact = this.getActiveArtifact(fromPlanet);
     const toActiveArtifact = this.getActiveArtifact(toPlanet);
 
-    const fromHasActiveWormhole = fromActiveArtifact?.artifactType === ArtifactType.Wormhole &&
+    const fromHasActiveWormhole =
+      fromActiveArtifact?.artifactType === ArtifactType.Wormhole &&
       fromActiveArtifact.linkTo === toPlanet.locationId;
-    const toHasActiveWormhole = toActiveArtifact?.artifactType === ArtifactType.Wormhole &&
-      toActiveArtifact.linkTo === fromPlanet.locationId
+    const toHasActiveWormhole =
+      toActiveArtifact?.artifactType === ArtifactType.Wormhole &&
+      toActiveArtifact.linkTo === fromPlanet.locationId;
 
     let greaterRarity: ArtifactRarity | undefined = undefined;
-    switch(true) {
+    switch (true) {
       // active wormhole on both from and to planets choose the biggest rarity
       case fromHasActiveWormhole && toHasActiveWormhole: {
-        // @ts-ignore: we know the artifacts are set
-        greaterRarity = Math.max(fromActiveArtifact.rarity, toActiveArtifact.rarity) as ArtifactRarity;
+        greaterRarity = Math.max(
+          // @ts-ignore: we know the artifacts are set
+          fromActiveArtifact.rarity,
+          // @ts-ignore: we know the artifacts are set
+          toActiveArtifact.rarity
+        ) as ArtifactRarity;
         break;
       }
       // only from planet has active wormhole, use that one

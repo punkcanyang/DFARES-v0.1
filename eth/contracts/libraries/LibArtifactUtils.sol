@@ -228,7 +228,7 @@ library LibArtifactUtils {
         //     uint256 totalAmount = gs().players[msg.sender].activateArtifactAmount + 1;
         //     uint256 totalGameBlocks = block.number - gameConstants().GAME_START_BLOCK;
 
-        //     //myNotice: redstone 2 sec for 1 block
+        //     //NOTE: redstone 2 sec for 1 block
         //     //1 hour 1 artifact
         //     //require(totalGameBlocks * 2 >= amount * 60 * 60, "block number limit");
 
@@ -328,7 +328,7 @@ library LibArtifactUtils {
             planet.destroyed = true;
             shouldDeactivateAndBurn = true;
 
-            // myNotice: we change the effect of BlockDomain in round 1
+            // NOTE: we change the effect of BlockDomain in round 1
             // require(linkTo != 0, "you must provide a linkTo to activate a BlockDomain");
             // Planet storage toPlanet = gs().planets[linkTo];
 

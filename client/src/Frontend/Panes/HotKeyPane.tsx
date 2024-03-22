@@ -106,13 +106,13 @@ export function HotkeysArtShipPane(selectedPlanetVisible: { selectedPlanetVisibl
     <StyledHotkeysArtShipsPane>
       {hotkeys.length > 0 &&
         hotkeys.map((h, i) => (
-          <div key={i}>
+          <div key={i} style={{ display: 'flex', marginInline: 0 }}>
             <HotkeyThumbArtShips
               hotkey={{ ...h, key: shipLine[i] }}
               selectedPlanetVisible={selectedPlanetVisible}
             />
+            <Spacer width={1} />
             <SetKeyButtonArt onClick={() => handleSetArtifact(i)} />
-            <Spacer width={4} />
           </div>
         ))}
     </StyledHotkeysArtShipsPane>
@@ -148,7 +148,7 @@ export function HotkeysMainLinePane(selectedPlanetVisible: { selectedPlanetVisib
       {hotkeys.map((hotkey, index) => (
         <div key={index} style={{ display: 'flex', marginInline: 0 }}>
           <HotkeyThumbMainLine hotkey={hotkey} selectedPlanetVisible={selectedPlanetVisible} />
-          <Spacer width={2} />
+          <Spacer width={1} />
           <SetKeyButtonPlanets onClick={() => handleSetLocation(index)} />
         </div>
       ))}
@@ -199,6 +199,19 @@ const PlaceholderImage = styled.div`
   align-items: center;
   margin: 0;
   font-size: 10px; /* Adjust font size as needed */
+  &:hover::after {
+    content: 'Hotkey planet'; /* Add your tooltip text */
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: black;
+    color: white;
+    padding: 0.5em;
+    border-radius: 0.25em;
+    white-space: nowrap;
+    font-size: 85%;
+  }
 `;
 
 const StyledHotkeysMainLinePane = styled.div`
@@ -215,7 +228,7 @@ const StyledHotkeysMainLinePane = styled.div`
 
 const StyledHotkeysArtShipsPane = styled.div`
   position: absolute;
-  bottom: 3%;
+  bottom: 5%;
   left: 50%;
   transform: translateX(-50%);
   margin: 0;
@@ -239,17 +252,27 @@ const HotkeyButton = styled(ShortcutBtn)`
     background: red !important;
   }
 
-  &:hover {
-    cursor: pointer;
+  &:hover::after {
+    content: 'Hotkey button'; /* Add your tooltip text */
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: black;
+    color: white;
+    padding: 0.5em;
+    border-radius: 0.25em;
+    white-space: nowrap;
+    font-size: 85%;
   }
 `;
 
 const SetKeyButtonPlanets = styled(Btn)`
   left: -40px; /* Move 50px to the left */
-  bottom: -16px; /* Move 50px to the left */
+  bottom: -48px; /* Move 50px to the left */
   position: relative;
   z-index: 9989; /* Ensure the button overlays other elements */
-
+  min-height: 6em;
   .test {
     background: red !important;
   }
@@ -257,17 +280,27 @@ const SetKeyButtonPlanets = styled(Btn)`
     margin: none;
   }
 
-  &:hover {
-    cursor: pointer;
+  &:hover::after {
+    content: 'Set hotkey for within opened pane Planet'; /* Add your tooltip text */
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: black;
+    color: white;
+    padding: 0.5em;
+    border-radius: 0.25em;
+    white-space: nowrap;
+    font-size: 85%;
   }
 `;
 
 const SetKeyButtonArt = styled(Btn)`
-  left: 35px; /* Move 50px to the left */
-  bottom: 18px; /* Move 50px to the left */
+  left: -40px; /* Move 50px to the left */
+  bottom: -16px; /* Move 50px to the left */
   position: relative;
   z-index: 9989; /* Ensure the button overlays other elements */
-
+  min-height: 6em;
   .test {
     background: red !important;
   }
@@ -277,5 +310,19 @@ const SetKeyButtonArt = styled(Btn)`
 
   &:hover {
     cursor: pointer;
+  }
+
+  &:hover::after {
+    content: 'Set hotkey within open Pane for Artifact or Ship'; /* Add your tooltip text */
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+    color: white;
+    padding: 0.5em;
+    border-radius: 0.25em;
+    white-space: nowrap;
+    font-size: 85%;
   }
 `;

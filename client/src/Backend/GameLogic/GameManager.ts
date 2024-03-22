@@ -4975,7 +4975,7 @@ class GameManager extends EventEmitter {
 
     const to = this.getPlanetWithId(toId);
     if (!isLocatable(to)) {
-      throw new Error(`Could not find planet from (toId: ${to})`);
+      throw new Error(`Could not find planet to (toId: ${to})`);
     }
 
     // NOTE: The get distance will throw if both the fromId and toId planets are not located.

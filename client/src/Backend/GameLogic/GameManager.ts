@@ -4812,21 +4812,19 @@ class GameManager extends EventEmitter {
   getDist(fromId: LocationId, toId: LocationId): number {
     const planetFrom = this.entityStore.getPlanetWithId(fromId);
     if (!isLocatable(planetFrom)) {
-      throw new Error(
-        `origin planet not locatable (fromId: ${fromId}) (locationId: ${planetFrom?.locationId})`
-      );
+      throw new Error(`origin planet not locatable (fromId: ${fromId}) (locationId: ${planetFrom?.locationId})`)
     }
 
     const planetTo = this.entityStore.getPlanetWithId(toId);
     if (!isLocatable(planetTo)) {
-      throw new Error(
-        `origin planet not locatable (toId: ${fromId}) (locationId: ${planetTo?.locationId})`
-      );
+      throw new Error(`origin planet not locatable (toId: ${fromId}) (locationId: ${planetTo?.locationId})`)
     }
 
     const wormholeFactors = this.getWormholeFactors(planetFrom, planetTo);
     const distance = this.getDistCoords(planetFrom.location.coords, planetTo.location.coords);
-    const distanceFactor = wormholeFactors ? wormholeFactors.distanceFactor : 1;
+    const distanceFactor = wormholeFactors
+      ? wormholeFactors.distanceFactor
+      : 1;
 
     return distance / distanceFactor;
   }
@@ -4946,30 +4944,29 @@ class GameManager extends EventEmitter {
     const fromActiveArtifact = this.getActiveArtifact(fromPlanet);
     const toActiveArtifact = this.getActiveArtifact(toPlanet);
 
-    const fromHasActiveWormhole =
-      fromActiveArtifact?.artifactType === ArtifactType.Wormhole &&
+    const fromHasActiveWormhole = fromActiveArtifact?.artifactType === ArtifactType.Wormhole &&
       fromActiveArtifact.linkTo === toPlanet.locationId;
-    const toHasActiveWormhole =
-      toActiveArtifact?.artifactType === ArtifactType.Wormhole &&
-      toActiveArtifact.linkTo === fromPlanet.locationId;
+    const toHasActiveWormhole = toActiveArtifact?.artifactType === ArtifactType.Wormhole &&
+      toActiveArtifact.linkTo === fromPlanet.locationId
 
     let greaterRarity: ArtifactRarity | undefined = undefined;
-    switch (true) {
+    switch(true) {
       // active wormhole on both from and to planets choose the biggest rarity
       case fromHasActiveWormhole && toHasActiveWormhole: {
-        greaterRarity = Math.max(
-          fromActiveArtifact.rarity,
-          toActiveArtifact.rarity
-        ) as ArtifactRarity;
+        // @ts-ignore: we know the artifacts are set
+        greaterRarity = Math.max(fromActiveArtifact.rarity, toActiveArtifact.rarity) as ArtifactRarity;
         break;
       }
       // only from planet has active wormhole, use that one
+
       case fromHasActiveWormhole: {
+        // @ts-ignore: we know the artifact is set
         greaterRarity = fromActiveArtifact.rarity;
         break;
       }
       // only destination planet has active wormhole, use that one
       case toHasActiveWormhole: {
+        // @ts-ignore: we know the artifact is set
         greaterRarity = toActiveArtifact.rarity;
         break;
       }

@@ -309,31 +309,36 @@ contract DFMoveFacet is WithStorage {
         view
         returns (bool wormholePresent, uint256 effectiveDistModifier)
     {
-        Artifact memory relevantWormhole;
         Artifact memory activeArtifactFrom = LibGameUtils.getActiveArtifact(args.oldLoc);
         Artifact memory activeArtifactTo = LibGameUtils.getActiveArtifact(args.newLoc);
 
-        // TODO: take the greater rarity of these, or disallow wormholes between planets that
-        // already have a wormhole between them
-        if (
-            activeArtifactFrom.isInitialized &&
+        bool fromHasActiveWormhole = activeArtifactFrom.isInitialized &&
             activeArtifactFrom.artifactType == ArtifactType.Wormhole &&
-            activeArtifactFrom.linkTo == args.newLoc
-        ) {
-            relevantWormhole = activeArtifactFrom;
-        } else if (
-            activeArtifactTo.isInitialized &&
+            activeArtifactFrom.linkTo == args.newLoc;
+
+        bool toHasActiveWormhole = activeArtifactTo.isInitialized &&
             activeArtifactTo.artifactType == ArtifactType.Wormhole &&
-            activeArtifactTo.linkTo == args.oldLoc
-        ) {
-            relevantWormhole = activeArtifactTo;
-        }
+            activeArtifactTo.linkTo == args.oldLoc;
 
-        if (relevantWormhole.isInitialized) {
+        uint256[6] memory speedBoosts = [uint256(1), 2, 4, 8, 16, 32];
+        uint256 greaterRarity;
+
+        if (fromHasActiveWormhole && toHasActiveWormhole) {
             wormholePresent = true;
-            uint256[6] memory speedBoosts = [uint256(1), 2, 4, 8, 16, 32];
-
-            effectiveDistModifier = speedBoosts[uint256(relevantWormhole.rarity)];
+            greaterRarity = uint256(activeArtifactFrom.rarity);
+            if (uint256(activeArtifactTo.rarity) > greaterRarity)
+                greaterRarity = uint256(activeArtifactTo.rarity);
+            effectiveDistModifier = speedBoosts[greaterRarity];
+        } else if (fromHasActiveWormhole) {
+            wormholePresent = true;
+            greaterRarity = uint256(activeArtifactFrom.rarity);
+            effectiveDistModifier = speedBoosts[greaterRarity];
+        } else if (toHasActiveWormhole) {
+            wormholePresent = true;
+            greaterRarity = uint256(activeArtifactTo.rarity);
+            effectiveDistModifier = speedBoosts[greaterRarity];
+        } else {
+            wormholePresent = false;
         }
     }
 

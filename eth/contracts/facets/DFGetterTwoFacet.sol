@@ -287,7 +287,7 @@ contract DFGetterTwoFacet is WithStorage {
     }
 
     function getLastKardashevTimestamp(address player) public view returns (uint256) {
-        return gs().lastBurnTimestamp[player];
+        return gs().lastKardashevTimestamp[player];
     }
 
     function getMySpaceshipIds(address player) public view returns (uint256[] memory ret) {

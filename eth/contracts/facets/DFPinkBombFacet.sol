@@ -91,8 +91,16 @@ contract DFPinkBombFacet is WithStorage {
         require(planet.burnStartTimestamp == 0, "planet is already burned");
         bool activeBomb = false;
         Artifact memory activeArtifact = LibGameUtils.getActiveArtifact(planetId);
+
         if (activeArtifact.isInitialized && activeArtifact.artifactType == ArtifactType.Bomb) {
+            require(
+                block.timestamp - activeArtifact.lastActivated >
+                    gameConstants().BURN_PLANET_COOLDOWN,
+                "active artifact cooldown"
+            );
+
             activeBomb = true;
+
             LibArtifactUtils.deactivateAndBurn(planetId, activeArtifact.id, 0, activeArtifact);
         }
 
@@ -243,8 +251,8 @@ contract DFPinkBombFacet is WithStorage {
 
             if (
                 distanceToZone <=
-                gameConstants().BURN_PLANET_LEVEL_EFFECT_RADIUS[planet.planetLevel]
-                // && block.timestamp - planet.burnStartTimestamp > gameConstants().PINK_PLANET_COOLDOWN
+                gameConstants().BURN_PLANET_LEVEL_EFFECT_RADIUS[planet.planetLevel] &&
+                block.timestamp - planet.burnStartTimestamp > gameConstants().PINK_PLANET_COOLDOWN
             ) {
                 return true;
             }

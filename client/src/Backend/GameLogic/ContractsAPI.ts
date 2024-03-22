@@ -908,14 +908,14 @@ export class ContractsAPI extends EventEmitter {
       new Map<string, EthersBN>()
     );
 
-    const lastKardashevTimestamp = await aggregateBulkGetter(
+    const lastKardashevTimestamps = await aggregateBulkGetter(
       nPlayers,
       5,
       async (start: number, end: number) =>
         this.contractCaller.makeCall(this.contract.bulkGetLastKardashevTimestamp, [start, end])
     );
 
-    const playerLastKardashevTimestampMap = lastKardashevTimestamp.reduce(
+    const playerLastKardashevTimestampMap = lastKardashevTimestamps.reduce(
       (acc, pair): Map<string, EthersBN> => {
         acc.set(pair.player.toLowerCase(), pair.lastKardashevTimestamp);
         return acc;

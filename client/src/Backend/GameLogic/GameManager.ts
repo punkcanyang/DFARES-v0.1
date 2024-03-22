@@ -2735,6 +2735,11 @@ class GameManager extends EventEmitter {
         throw new Error('player silver is not enough');
       }
 
+      const activeArtifact = this.getActiveArtifact(planet);
+      if (!activeArtifact || activeArtifact.artifactType !== ArtifactType.Bomb) {
+        throw new Error('no active kardashev on this planet');
+      }
+
       // this is shitty. used for the popup window
       localStorage.setItem(`${this.getAccount()?.toLowerCase()}-burnLocationId`, planetId);
 
@@ -2935,6 +2940,13 @@ class GameManager extends EventEmitter {
       const activeArtifact = this.getActiveArtifact(planet);
       if (!activeArtifact || activeArtifact.artifactType !== ArtifactType.Kardashev) {
         throw new Error('no active kardashev on this planet');
+      }
+
+      if (
+        Date.now() - 1000 * activeArtifact.lastActivated <=
+        1000 * this.contractConstants.KARDASHEV_PLANET_COOLDOWN
+      ) {
+        throw new Error('still on cooldown for kardasheving');
       }
 
       // this is shitty. used for the popup window

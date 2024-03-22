@@ -96,6 +96,12 @@ contract DFKardashevFacet is WithStorage {
         bool activeKardashev = false;
         Artifact memory activeArtifact = LibGameUtils.getActiveArtifact(planetId);
         if (activeArtifact.isInitialized && activeArtifact.artifactType == ArtifactType.Kardashev) {
+            require(
+                block.timestamp - activeArtifact.lastActivated >
+                    gameConstants().KARDASHEV_PLANET_COOLDOWN,
+                "active artifact cooldown"
+            );
+
             activeKardashev = true;
             LibArtifactUtils.deactivateAndBurn(planetId, activeArtifact.id, 0, activeArtifact);
         }

@@ -243,8 +243,8 @@ contract DFPinkBombFacet is WithStorage {
 
             if (
                 distanceToZone <=
-                gameConstants().BURN_PLANET_LEVEL_EFFECT_RADIUS[planet.planetLevel] &&
-                block.timestamp - planet.burnStartTimestamp > gameConstants().PINK_PLANET_COOLDOWN
+                gameConstants().BURN_PLANET_LEVEL_EFFECT_RADIUS[planet.planetLevel]
+                // && block.timestamp - planet.burnStartTimestamp > gameConstants().PINK_PLANET_COOLDOWN
             ) {
                 return true;
             }

@@ -170,8 +170,8 @@ contract DFMoveFacet is WithStorage {
             travelTime = 1;
         }
 
-        //myNotice: change the photoid travel time in sec
-        //all photoid travel same time
+        // NOTE: We have disabled the change the photoid travel time in seconds here
+        // all photoid travel same time
         // if (photoidPresent) {
         //     travelTime = 600;
         // }

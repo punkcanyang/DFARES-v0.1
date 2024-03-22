@@ -4986,17 +4986,16 @@ class GameManager extends EventEmitter {
     const speed = from.speed * speedFactor;
 
     let deltaTime = dist / (speed / 100);
-    switch(true) {
-      // 1. We have an active photoid cannon on from planet, and all photoid travel at same time
-      case this.getActiveArtifact(from)?.artifactType === ArtifactType.PhotoidCannon: {
-        deltaTime = 600;
-        break;
-      }
-      // 2. Destination planet is a silver bank, we travel twice as fast to these.
-      case to.planetType === PlanetType.SILVER_BANK: {
-        deltaTime = deltaTime / 2;
-        break;
-      }
+
+    // NOTE: We have disabled the change the photoid travel time in seconds here
+    // all photoid travel same time
+    // if (this.getActiveArtifact(from)?.artifactType === ArtifactType.PhotoidCannon:) {
+    //     deltaTime = 600;
+    // }
+
+    // Destination planet is a silver bank, we travel twice as fast to these.
+    if (to.planetType === PlanetType.SILVER_BANK) {
+      deltaTime = deltaTime / 2;
     }
 
     return deltaTime;

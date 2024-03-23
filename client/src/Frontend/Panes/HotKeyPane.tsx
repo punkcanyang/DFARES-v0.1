@@ -1,5 +1,13 @@
 import { getPlanetRank, isSpaceShip } from '@dfares/gamelogic';
-import { Artifact, ArtifactId, LocationId } from '@dfares/types';
+import {
+  Artifact,
+  ArtifactId,
+  Biome,
+  LocatablePlanet,
+  LocationId,
+  Planet,
+  WorldLocation,
+} from '@dfares/types';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ArtifactImage } from '../Components/ArtifactImage';
@@ -49,8 +57,14 @@ export function HotkeyThumbArtShips({
       onShortcutPressed={click}
       shortcutKey={hotkey.key}
       shortcutText={hotkey.key}
+      onMouseEnter={() => {
+        uiManager?.setHoveringOverArtifact(hotkey?.artifact?.id);
+      }}
+      onMouseLeave={() => {
+        uiManager?.setHoveringOverArtifact(undefined);
+      }}
     >
-      {hotkey.artifact && <ArtifactImage artifact={hotkey.artifact} thumb size={24} />}
+      {hotkey.artifact && <ArtifactImage artifact={hotkey.artifact} size={24} />}
     </HotkeyButton>
   );
 }
@@ -178,6 +192,12 @@ const HotkeyThumbMainLine = ({
       onShortcutPressed={handleClick}
       shortcutKey={hotkey.key}
       shortcutText={hotkey.key}
+      onMouseEnter={() => {
+        uiManager?.setHoveringOverPlanet(getPlanetHover(hotkey.location as LocationId), false);
+      }}
+      onMouseLeave={() => {
+        uiManager?.setHoveringOverPlanet(undefined, false);
+      }}
     >
       {/* For now, we'll display a test image if position is occupied */}
       {hotkey.location ? (
@@ -190,6 +210,22 @@ const HotkeyThumbMainLine = ({
     </HotkeyButton>
   );
 };
+
+function getPlanetHover(locationId: LocationId): LocatablePlanet | undefined {
+  const origPlanet: Planet | undefined = ui.getPlanetWithId(locationId);
+  const location: WorldLocation | undefined = ui.getLocationOfPlanet(locationId);
+  debugger;
+  if (!origPlanet && !location) {
+    return undefined;
+  }
+
+  const locatedAblePlanet: LocatablePlanet = {
+    ...(origPlanet as Planet),
+    location: location as WorldLocation,
+    biome: location?.biomebase as Biome,
+  };
+  return locatedAblePlanet;
+}
 
 const PlaceholderImage = styled.div`
   width: 24px;
@@ -216,7 +252,7 @@ const PlaceholderImage = styled.div`
 
 const StyledHotkeysMainLinePane = styled.div`
   position: absolute;
-  bottom: 1%;
+  bottom: 0%;
   left: 50%;
   transform: translateX(-50%);
   margin: 0;
@@ -239,37 +275,34 @@ const StyledHotkeysArtShipsPane = styled.div`
 `;
 
 const HotkeyButton = styled(ShortcutBtn)`
-  &:last-child {
-    margin-right: none;
-  }
+  // Ensure the button has a fixed width and height based on its content
+  width: fit-content;
+  height: fit-content;
 
-  display: inline-flex;
-  flex-direction: row;
-  justify-content: space-around;
+  // Center the content horizontally and vertically
+  display: flex;
+  justify-content: center;
   align-items: center;
 
+  // Style the internal elements
   .test {
     background: red !important;
   }
 
-  &:hover::after {
-    content: 'Hotkey button'; /* Add your tooltip text */
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: black;
-    color: white;
-    padding: 0.5em;
-    border-radius: 0.25em;
-    white-space: nowrap;
-    font-size: 85%;
+  // Remove margin from the last child
+  &:last-child {
+    margin: 0;
+  }
+
+  // Change cursor on hover
+  &:hover {
+    cursor: pointer;
   }
 `;
 
 const SetKeyButtonPlanets = styled(Btn)`
   left: -40px; /* Move 50px to the left */
-  bottom: -48px; /* Move 50px to the left */
+  bottom: -16px; /* Move 50px to the left */
   position: relative;
   z-index: 9989; /* Ensure the button overlays other elements */
   min-height: 6em;
@@ -286,7 +319,7 @@ const SetKeyButtonPlanets = styled(Btn)`
     bottom: 100%;
     left: 50%;
     transform: translateX(-50%);
-    background-color: black;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
     color: white;
     padding: 0.5em;
     border-radius: 0.25em;

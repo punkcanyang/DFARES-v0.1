@@ -98,6 +98,11 @@ export function GameWindowLayout({
     Setting.TerminalVisible
   );
 
+  const [userHotKeysVisibleSetting] = useBooleanSetting(uiManager, Setting.DisableDefaultShortcuts);
+  const [userExperimentalVisibleSetting] = useBooleanSetting(
+    uiManager,
+    Setting.ExperimentalFeatures
+  );
   useEffect(() => {
     uiManager.setOverlayContainer(modalsContainer);
   }, [uiManager, modalsContainer]);
@@ -195,8 +200,13 @@ export function GameWindowLayout({
           <NotificationsPane />
           <CoordsPane />
           <ExplorePane />
-          <HotkeysArtShipPane selectedPlanetVisible={selectedPlanetVisible} />
-          <HotkeysMainLinePane selectedPlanetVisible={selectedPlanetVisible} />
+          {!userHotKeysVisibleSetting && userExperimentalVisibleSetting && (
+            <HotkeysArtShipPane selectedPlanetVisible={selectedPlanetVisible} />
+          )}
+
+          {!userHotKeysVisibleSetting && userExperimentalVisibleSetting && (
+            <HotkeysMainLinePane selectedPlanetVisible={selectedPlanetVisible} />
+          )}
           <HoverPlanetPane />
           <ArtifactHoverPane />
 

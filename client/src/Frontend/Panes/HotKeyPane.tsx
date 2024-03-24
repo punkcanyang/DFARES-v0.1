@@ -8,11 +8,10 @@ import {
   Planet,
   WorldLocation,
 } from '@dfares/types';
-import { createComponent } from '@lit-labs/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ArtifactImage } from '../Components/ArtifactImage';
-import { Btn, DarkForestShortcutButton, ShortcutPressedEvent } from '../Components/Btn';
+import { Btn, ShortcutBtn } from '../Components/Btn';
 import { Spacer } from '../Components/CoreUI';
 import { useUIManager } from '../Utils/AppHooks';
 
@@ -289,19 +288,8 @@ const StyledHotkeysArtShipsPane = styled.div`
   align-items: center;
   z-index: 9989; /* Ensure the button overlays other elements */
 `;
-const ShortcutBtn1 = createComponent<
-  DarkForestShortcutButton,
-  {
-    onClick: (evt: Event & React.MouseEvent<DarkForestShortcutButton>) => void;
-    onShortcutPressed: (evt: ShortcutPressedEvent) => void;
-    disabled?: boolean | ((e: Event) => unknown) | undefined;
-  }
->(React, DarkForestShortcutButton.tagName, DarkForestShortcutButton, {
-  onClick: 'click',
-  onShortcutPressed: 'shortcut-pressed',
-});
 
-const HotkeyButton = styled((props) => <ShortcutBtn1 {...props} />)`
+const HotkeyButton = styled(ShortcutBtn)`
   // Ensure the button has a fixed width and height based on its content
   width: fit-content;
   height: fit-content;

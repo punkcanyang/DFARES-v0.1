@@ -1,4 +1,4 @@
-import { getPlanetRank, isSpaceShip } from '@dfares/gamelogic';
+import { getPlanetRank } from '@dfares/gamelogic';
 import {
   Artifact,
   ArtifactId,
@@ -8,12 +8,13 @@ import {
   Planet,
   WorldLocation,
 } from '@dfares/types';
+import { createComponent } from '@lit-labs/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ArtifactImage } from '../Components/ArtifactImage';
-import { Btn, ShortcutBtn } from '../Components/Btn';
+import { Btn, DarkForestShortcutButton, ShortcutPressedEvent } from '../Components/Btn';
 import { Spacer } from '../Components/CoreUI';
-import { useMyArtifactsList, useUIManager } from '../Utils/AppHooks';
+import { useUIManager } from '../Utils/AppHooks';
 
 const mainLine = '1234567890'.split('');
 
@@ -46,7 +47,7 @@ export function HotkeyThumbArtShips({
 
       uiManager.centerLocationId(refreshArt.onPlanetId);
     } else {
-      console.log('Deselect planet ');
+      console.log('Deselect planet!!!');
     }
   }, [hotkey]);
 
@@ -63,43 +64,38 @@ export function HotkeyThumbArtShips({
       onMouseLeave={() => {
         uiManager?.setHoveringOverArtifact(undefined);
       }}
+      disabled={selectedPlanetVisible.selectedPlanetVisible}
     >
-      {hotkey.artifact && <ArtifactImage artifact={hotkey.artifact} size={24} />}
+      {hotkey.artifact ? <ArtifactImage artifact={hotkey.artifact} size={24} /> : hotkey.key}
     </HotkeyButton>
   );
 }
 
 export function HotkeysArtShipPane(selectedPlanetVisible: { selectedPlanetVisible: boolean }) {
-  const uiManager = useUIManager();
-  const artifacts = useMyArtifactsList(uiManager);
-  const shipArtifacts = artifacts.filter(
-    (a) => !isSpaceShip(a.artifactType) || isSpaceShip(a.artifactType)
-  );
-
   const [hotkeys, setHotkeys] = useState<Hotkey[]>([]);
 
   useEffect(() => {
-    if (shipArtifacts.length !== hotkeys.length) {
-      let limitedShipArtifacts = shipArtifacts.slice(0, 10); // Limit to maximum of 10 artifacts
-
-      // Fill limitedShipArtifacts repeatedly until it reaches a length of 10
-      while (limitedShipArtifacts.length < 10) {
-        limitedShipArtifacts = limitedShipArtifacts.concat(
-          shipArtifacts.slice(0, 10 - limitedShipArtifacts.length)
-        );
-      }
-
-      setHotkeys(
-        limitedShipArtifacts
-          .sort((a, b) => b.artifactType - a.artifactType)
-          .map((a, i) => ({
-            location: a.onPlanetId,
-            key: `${(i + 1).toString()}`,
-            artifact: a,
-          }))
-      );
+    // Load hotkeys from localStorage or initialize them if not present
+    const savedHotkeys = localStorage.getItem('shipHotkeys');
+    if (savedHotkeys) {
+      setHotkeys(JSON.parse(savedHotkeys));
+    } else {
+      initializeHotkeys();
     }
   }, []);
+
+  const initializeHotkeys = () => {
+    const newHotkeys = shipLine.map((key) => ({
+      location: undefined,
+      key,
+    }));
+    setHotkeys(newHotkeys);
+    saveHotkeys(newHotkeys);
+  };
+
+  const saveHotkeys = (hotkeysToSave: Hotkey[]) => {
+    localStorage.setItem('shipHotkeys', JSON.stringify(hotkeysToSave));
+  };
 
   const handleSetArtifact = (index: number) => {
     const element: HTMLElement | null = document.querySelector(
@@ -115,7 +111,9 @@ export function HotkeysArtShipPane(selectedPlanetVisible: { selectedPlanetVisibl
     updatedHotkeys[index].location = art?.onPlanetId;
     updatedHotkeys[index].artifact = art;
     setHotkeys(updatedHotkeys);
+    saveHotkeys(updatedHotkeys);
   };
+
   return (
     <StyledHotkeysArtShipsPane>
       {hotkeys.length > 0 &&
@@ -139,12 +137,26 @@ export function HotkeysMainLinePane(selectedPlanetVisible: { selectedPlanetVisib
   const [hotkeys, setHotkeys] = useState<Hotkey[]>([]);
 
   useEffect(() => {
-    const newHotkeys = mainLine.map((key, index) => ({
-      location: undefined, // Initially no location assigned
+    const savedHotkeys = localStorage.getItem('planetHotkeys');
+    if (savedHotkeys) {
+      setHotkeys(JSON.parse(savedHotkeys));
+    } else {
+      initializeHotkeys();
+    }
+  }, []);
+
+  const initializeHotkeys = () => {
+    const newHotkeys = mainLine.map((key) => ({
+      location: undefined,
       key,
     }));
     setHotkeys(newHotkeys);
-  }, []);
+    saveHotkeys(newHotkeys);
+  };
+
+  const saveHotkeys = (hotkeysToSave: Hotkey[]) => {
+    localStorage.setItem('planetHotkeys', JSON.stringify(hotkeysToSave));
+  };
 
   const handleSetLocation = (index: number) => {
     const selectedPlanet = uiManager.getSelectedPlanet();
@@ -152,6 +164,7 @@ export function HotkeysMainLinePane(selectedPlanetVisible: { selectedPlanetVisib
       const updatedHotkeys = [...hotkeys];
       updatedHotkeys[index].location = selectedPlanet.locationId;
       setHotkeys(updatedHotkeys);
+      saveHotkeys(updatedHotkeys);
     } else {
       console.log('Planet not selected to be able set shortcut');
     }
@@ -182,6 +195,8 @@ const HotkeyThumbMainLine = ({
   const handleClick = () => {
     if (hotkey.location && !selectedPlanetVisible.selectedPlanetVisible) {
       uiManager.centerLocationId(hotkey.location);
+    } else {
+      console.log('Deselect planet!!!');
     }
   };
 
@@ -198,6 +213,7 @@ const HotkeyThumbMainLine = ({
       onMouseLeave={() => {
         uiManager?.setHoveringOverPlanet(undefined, false);
       }}
+      disabled={selectedPlanetVisible.selectedPlanetVisible}
     >
       {/* For now, we'll display a test image if position is occupied */}
       {hotkey.location ? (
@@ -214,7 +230,7 @@ const HotkeyThumbMainLine = ({
 function getPlanetHover(locationId: LocationId): LocatablePlanet | undefined {
   const origPlanet: Planet | undefined = ui.getPlanetWithId(locationId);
   const location: WorldLocation | undefined = ui.getLocationOfPlanet(locationId);
-  debugger;
+
   if (!origPlanet && !location) {
     return undefined;
   }
@@ -273,8 +289,19 @@ const StyledHotkeysArtShipsPane = styled.div`
   align-items: center;
   z-index: 9989; /* Ensure the button overlays other elements */
 `;
+const ShortcutBtn1 = createComponent<
+  DarkForestShortcutButton,
+  {
+    onClick: (evt: Event & React.MouseEvent<DarkForestShortcutButton>) => void;
+    onShortcutPressed: (evt: ShortcutPressedEvent) => void;
+    disabled?: boolean | ((e: Event) => unknown) | undefined;
+  }
+>(React, DarkForestShortcutButton.tagName, DarkForestShortcutButton, {
+  onClick: 'click',
+  onShortcutPressed: 'shortcut-pressed',
+});
 
-const HotkeyButton = styled(ShortcutBtn)`
+const HotkeyButton = styled((props) => <ShortcutBtn1 {...props} />)`
   // Ensure the button has a fixed width and height based on its content
   width: fit-content;
   height: fit-content;

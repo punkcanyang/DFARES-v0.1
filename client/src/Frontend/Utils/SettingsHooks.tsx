@@ -62,7 +62,7 @@ const defaultSettings: Record<Setting, string> = {
   [Setting.MiningCores]: '1',
   [Setting.IsMining]: 'true',
   [Setting.DisableDefaultShortcuts]: 'false',
-  [Setting.ExperimentalFeatures]: 'false',
+  [Setting.ExperimentalFeatures]: 'true',
   [Setting.DisableEmojiRendering]: 'false',
   [Setting.DisableHatRendering]: 'false',
   [Setting.AutoClearConfirmedTransactionsAfterSeconds]: '-1',

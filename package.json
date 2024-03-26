@@ -24,7 +24,7 @@
     "clean": "yarn workspaces run clean",
     "format": "yarn workspaces run format",
     "docs": "lerna run --scope @dfares/* docs",
-    "start": "concurrently -n contracts,client,watch -c cyan,magenta,blue \"yarn workspace eth start\" \"yarn workspace client start\" \"yarn watch\" "
+    "start": "concurrently -n contracts,client,watch -c cyan,magenta,blue \"yarn workspace eth start\" \"yarn workspace client start:dev\" \"yarn watch\" "
   },
   "devDependencies": {
     "@dfares/constants": "6.8.6",

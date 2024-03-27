@@ -60,7 +60,7 @@ export const MainWindow = styled.div`
   position: absolute;
   top: 0;
   flex-grow: 1;
-
+  overflow: hidden;
   // styling
   background: ${dfstyles.colors.background};
 

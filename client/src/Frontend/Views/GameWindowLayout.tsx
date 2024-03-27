@@ -15,6 +15,7 @@ import { CoordsPane } from '../Panes/CoordsPane';
 import { DiagnosticsPane } from '../Panes/DiagnosticsPane';
 import { ExplorePane } from '../Panes/ExplorePane';
 import { HelpPane } from '../Panes/HelpPane';
+import { HotkeysArtShipPane, HotkeysMainLinePane } from '../Panes/HotKeyPane';
 import { HoverPlanetPane } from '../Panes/HoverPlanetPane';
 import OnboardingPane from '../Panes/OnboardingPane';
 import { PlanetContextPane } from '../Panes/PlanetContextPane';
@@ -100,6 +101,11 @@ export function GameWindowLayout({
     Setting.TerminalVisible
   );
 
+  const [userHotKeysVisibleSetting] = useBooleanSetting(uiManager, Setting.DisableDefaultShortcuts);
+  const [userExperimentalVisibleSetting] = useBooleanSetting(
+    uiManager,
+    Setting.ExperimentalFeatures
+  );
   useEffect(() => {
     uiManager.setOverlayContainer(modalsContainer);
   }, [uiManager, modalsContainer]);
@@ -201,7 +207,13 @@ export function GameWindowLayout({
           <NotificationsPane />
           <CoordsPane />
           <ExplorePane />
+          {!userHotKeysVisibleSetting && userExperimentalVisibleSetting && (
+            <HotkeysArtShipPane selectedPlanetVisible={selectedPlanetVisible} />
+          )}
 
+          {!userHotKeysVisibleSetting && userExperimentalVisibleSetting && (
+            <HotkeysMainLinePane selectedPlanetVisible={selectedPlanetVisible} />
+          )}
           <HoverPlanetPane />
           <ArtifactHoverPane />
 

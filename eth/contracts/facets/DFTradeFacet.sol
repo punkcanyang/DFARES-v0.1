@@ -123,6 +123,9 @@ contract DFTradeFacet is WithStorage {
         );
         Artifact storage artifact = gs().artifacts[shipId];
         Planet memory planet = gs().planets[locationId];
+        //about planet
+        require(planet.owner == msg.sender, "only allow planet owner");
+
         planet = LibPlanet.applySpaceshipArrive(artifact, planet);
 
         Player storage player = gs().players[msg.sender];

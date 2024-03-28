@@ -111,14 +111,13 @@ class MinimapSpawnPlugin {
 
       ctx.beginPath();
       ctx.arc(radiusNormalized + 2, radiusNormalized + 3, radiusNormalized, 0, 2 * Math.PI);
-      ctx.strokeStyle = 'pink';
+      ctx.strokeStyle = 'rgb(255,180,193,1)';
       ctx.fillStyle = 'rgb(255,180,193,0.5)';
       ctx.lineWidth = 4;
       ctx.stroke();
       ctx.closePath();
 
-      //draw pink circle
-
+      //draw pink circles
       const pinkZones = Array.from(df.getPinkZones());
       for (let i = 0; i < pinkZones.length; i++) {
         // console.log(pinkZones[i]);
@@ -131,11 +130,31 @@ class MinimapSpawnPlugin {
 
         ctx.beginPath();
         ctx.arc(normalizeX, normalizeY, normalizePinkCircleRadius, 0, 2 * Math.PI);
-        ctx.strokeStyle = 'pink';
+        // pink color
+        ctx.strokeStyle = 'rgb(255,180,193,1)';
         ctx.lineWidth = 1;
         ctx.fill();
         ctx.stroke();
       }
+      // draw blue circles
+      const blueZones = Array.from(df.getBlueZones());
+      for (let i = 0; i < blueZones.length; i++) {
+        let coords = blueZones[i].coords;
+        let blueZoneRadius = blueZones[i].radius;
+        let normalizeX = normalize(coords.x);
+        let normalizeY = normalize(coords.y * -1);
+        let normalizeBlueCircleRadius = (blueZoneRadius * radiusNormalized) / radius;
+        ctx.beginPath();
+        ctx.arc(normalizeX, normalizeY, normalizeBlueCircleRadius, 0, 2 * Math.PI);
+        // blue circle
+        ctx.strokeStyle = 'rgb(0, 173, 225, 1)';
+        ctx.fillStyle = 'rgb(0, 173, 225, 0.6)';
+
+        ctx.lineWidth = 1;
+        ctx.fill();
+        ctx.stroke();
+      }
+
       // NOTE:
       // draw inner circle of map
       // let rimNormalized = (normalize(rim) / 2) * 0.91; // idk why here need

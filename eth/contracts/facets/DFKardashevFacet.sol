@@ -40,7 +40,13 @@ contract DFKardashevFacet is WithStorage {
 
     event Kardashev(address player, uint256 loc, uint256 x, uint256 y);
     event LocationRevealed(address revealer, uint256 loc, uint256 x, uint256 y);
-    event LocationBlued(address player, uint256 sourcePlanetId, uint256 targetPlanetId);
+    event LocationBlued(
+        address player,
+        uint256 sourcePlanetId,
+        uint256 x,
+        uint256 y,
+        uint256 targetPlanetId
+    );
 
     // mytodo:
 
@@ -226,11 +232,11 @@ contract DFKardashevFacet is WithStorage {
                 revealer: msg.sender
             });
 
-            //NOTE: pinkLocation don't update player's lastRevealTimestamp
+            //NOTE: blueLocation don't update player's lastRevealTimestamp
             // gs().players[msg.sender].lastRevealTimestamp = block.timestamp;
             emit LocationRevealed(msg.sender, planetId, x, y);
         }
-        emit LocationBlued(msg.sender, planet.locationId, centerPlanet.locationId);
+        emit LocationBlued(msg.sender, planet.locationId, x, y, centerPlanet.locationId);
     }
 
     function getCenterPlanetId(uint256 x, uint256 y) public returns (uint256) {

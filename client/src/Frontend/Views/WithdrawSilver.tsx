@@ -80,7 +80,7 @@ function SilverInput({
 }
 
 const TextWrapper = styled.span`
-  width: 120px;
+  width: 140px;
   font-size: ${dfstyles.fontSizeXS};
   text-align: center;
 `;
@@ -140,7 +140,9 @@ export function WithdrawSilver({ wrapper }: { wrapper: Wrapper<Planet | undefine
                     'Withdraw Silver'
                   )
                 ) : (
-                  'Need At Least ' + Math.ceil(wrapper.value.silverCap * 0.2) + ' Silver'
+                  'Need at least ' +
+                  Math.ceil(wrapper.value.silverCap * 0.2) +
+                  ' silver to withdraw'
                 )}
               </TextWrapper>
             </Btn>

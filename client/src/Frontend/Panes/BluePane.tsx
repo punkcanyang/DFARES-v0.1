@@ -6,6 +6,7 @@ import { Btn } from '../Components/Btn';
 import { CenterBackgroundSubtext, Spacer } from '../Components/CoreUI';
 import { LoadingSpinner } from '../Components/LoadingSpinner';
 import { Blue, White } from '../Components/Text';
+import { TextPreview } from '../Components/TextPreview';
 import { formatDuration, TimeUntil } from '../Components/TimeUntil';
 import dfstyles from '../Styles/dfstyles';
 import { usePlanet, useUIManager } from '../Utils/AppHooks';
@@ -202,19 +203,31 @@ export function BluePane({
           after kardashev.
         </div>
         {blueZoneCheckPassed && (
-          <p>center planetId: {centerPlanetId.slice(0, 5) + '...' + centerPlanetId.slice(-5)}</p>
+          <div className='row'>
+            <span> Center Planet ID:</span>
+
+            <span>
+              <TextPreview
+                style={{ color: dfstyles.colors.subtext }}
+                text={centerPlanet.locationId}
+                focusedWidth={'150px'}
+                unFocusedWidth={'150px'}
+              />
+            </span>
+          </div>
         )}
 
         <div className='row'>
           <span>Require silver amount: </span>
           <span>{formatSilverAmount}</span>
         </div>
-
-        <div className='message'>{warningsSection}</div>
         <div className='row'>
-          <span>Coordinates</span>
+          <span>Coordinates:</span>
           <span>{`(${getLoc().x}, ${getLoc().y})`}</span>
         </div>
+
+        <div className='message'>{warningsSection}</div>
+
         <Spacer height={8} />
         <p style={{ textAlign: 'right' }}>{blueBtn}</p>
       </BlueWrapper>

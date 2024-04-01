@@ -50,6 +50,7 @@ export function BuySpaceshipPane(): React.ReactElement {
   const planet = selectedPlanet;
   const planetLocatable = planet && isLocatable(planet);
   const planetNotDestoryedOrFrozen = planetLocatable && !planet.destroyed && !planet.frozen;
+  const planetOwnerCheckPassed = planet && planet.owner === account;
 
   //player
   const currentBuySpaceshipAmount = player.buySpaceshipAmount;
@@ -70,6 +71,7 @@ export function BuySpaceshipPane(): React.ReactElement {
   const disableBuyButton =
     !planetLocatable ||
     !planetNotDestoryedOrFrozen ||
+    !planetOwnerCheckPassed ||
     !amountCheckPassed ||
     !balanceCheckPassed ||
     isBuyingNow;
@@ -87,6 +89,8 @@ export function BuySpaceshipPane(): React.ReactElement {
     buttonContent = <>planet is not locatable</>;
   } else if (!planetNotDestoryedOrFrozen) {
     buttonContent = <>Planet can't be destoryed or frozen</>;
+  } else if (!planetOwnerCheckPassed) {
+    buttonContent = <>you should choose a planet belong to you</>;
   } else if (!amountCheckPassed) {
     buttonContent = <>1 player can only buy 3 Whale</>;
   } else if (!balanceCheckPassed) {

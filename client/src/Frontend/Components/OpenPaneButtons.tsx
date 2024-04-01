@@ -73,7 +73,7 @@ export function OpenHatPaneButton({
   return (
     <OpenPaneButton
       modal={modal}
-      title='Hat'
+      title='Buy Hat'
       shortcut={TOGGLE_HAT_PANE}
       element={() => <HatPane modal={modal} initialPlanetId={planetId} />}
     />

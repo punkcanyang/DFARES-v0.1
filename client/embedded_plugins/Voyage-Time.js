@@ -3,18 +3,20 @@
 // View estimated move time and energy for a voyage.
 
 const secondsPerMinute = 60;
-const secondsPerHour   = 3600;
+const secondsPerHour = 3600;
 
 function debounce(fn, timeout) {
   let timer;
   return (...args) => {
     clearTimeout(timer);
-    timer = setTimeout(() => { fn.apply(this, args); }, timeout);
+    timer = setTimeout(() => {
+      fn.apply(this, args);
+    }, timeout);
   };
 }
 
 function formatEstimatedTime({ hours, minutes, seconds }) {
-  switch(true) {
+  switch (true) {
     case hours >= 1:
       return `${hours} hrs, ${minutes} mins, ${seconds} secs`;
     case minutes >= 1:
@@ -36,28 +38,19 @@ function formatEnergy(value) {
   }
 }
 
-function computeVoyageTime({
-  planetFrom,
-  planetTo
-}) {
+function computeVoyageTime({ planetFrom, planetTo }) {
   // Move time is in seconds with floating decimals, we normalize it and remove floating precision
-  const time = parseInt(Math.ceil(
-    df.getTimeForMove(planetFrom.locationId, planetTo.locationId)
-  ));
+  const time = parseInt(Math.ceil(df.getTimeForMove(planetFrom.locationId, planetTo.locationId)));
 
   return {
     time,
     hours: Math.floor(time / secondsPerHour),
     minutes: Math.floor((time % secondsPerHour) / 60),
-    seconds: time % secondsPerHour % secondsPerMinute,
+    seconds: (time % secondsPerHour) % secondsPerMinute,
   };
 }
 
-function computeVoyageEnergy({
-  planetFrom,
-  planetTo,
-  energyPercent
-}) {
+function computeVoyageEnergy({ planetFrom, planetTo, energyPercent }) {
   const energySent = (planetFrom.energyCap * energyPercent) / 100;
   let energyArriving = df.getEnergyArrivingForMove(
     planetFrom.locationId,
@@ -72,45 +65,44 @@ function computeVoyageEnergy({
 
   return {
     sent: Math.ceil(energySent),
-    arriving: Math.ceil(energyArriving)
-  }
+    arriving: Math.ceil(energyArriving),
+  };
 }
 
 class VoyageTime {
   #energyPercent = 55;
   #element = document.createElement('voyage-time', {
-    is: 'div'
+    is: 'div',
   });
   #debouncedUpdate = debounce(() => this.update(), 30);
 
   update() {
     const planetFrom = ui.getSelectedPlanet();
-    const planetTo   = ui.getHoveringOverPlanet();
+    const planetTo = ui.getHoveringOverPlanet();
 
     const shouldCompute =
       // both from and to planets must be set
-      (planetFrom && planetTo) &&
+      planetFrom &&
+      planetTo &&
       // also planet from and to can't be the same
-      (planetFrom.locationId !== planetTo.locationId);
+      planetFrom.locationId !== planetTo.locationId;
 
     const computedVoyageTime = shouldCompute
       ? computeVoyageTime({
           planetFrom,
-          planetTo
+          planetTo,
         })
       : undefined;
     const computedVoyageEnergy = shouldCompute
       ? computeVoyageEnergy({
           planetFrom,
           planetTo,
-          energyPercent: this.#energyPercent
+          energyPercent: this.#energyPercent,
         })
       : undefined;
 
     const timeElement = this.#element.querySelector('code[data-time]');
-    timeElement.innerText = computedVoyageTime?.time
-      ? `${computedVoyageTime.time} secs`
-      : 'n/a';
+    timeElement.innerText = computedVoyageTime?.time ? `${computedVoyageTime.time} secs` : 'n/a';
 
     const estimatedTimeElement = this.#element.querySelector('code[data-estimated-time]');
     estimatedTimeElement.innerText = computedVoyageTime
@@ -131,7 +123,9 @@ class VoyageTime {
   render(container) {
     const element = this.#element;
 
-    element.insertAdjacentHTML('afterbegin', `
+    element.insertAdjacentHTML(
+      'afterbegin',
+      `
       <style>
         voyage-time {
           display: block;
@@ -180,9 +174,12 @@ class VoyageTime {
           width: 80px;
         }
       </style>
-    `);
+    `
+    );
 
-    element.insertAdjacentHTML('afterbegin', `
+    element.insertAdjacentHTML(
+      'afterbegin',
+      `
       <h4>Time for move</h4>
       <div data-table>
         <p>Total:</p>
@@ -204,7 +201,8 @@ class VoyageTime {
         <p>Arriving:</p>
         <p><code data-energy-arriving>n/a</code></p>
       </div>
-    `);
+    `
+    );
 
     element.querySelector('[data-slider] input').addEventListener('change', (event) => {
       const value = Number(event.target.value);

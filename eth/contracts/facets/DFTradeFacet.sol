@@ -58,7 +58,9 @@ contract DFTradeFacet is WithStorage {
 
         // player requirements
         require(player.isInitialized, "player need to be initialized before");
-        require(player.buyPlanetId == 0, "not buy planet before");
+        //NOTE: using this way is easier
+        uint256 MAX_BUY_PLANET_AMOUNT = 6;
+        require(player.buyPlanetAmount < MAX_BUY_PLANET_AMOUNT, "buy planet amount limit");
 
         if (!ws().enabled) {
             require(ws().allowedAccounts[msg.sender], "player is already allowed");
@@ -68,34 +70,38 @@ contract DFTradeFacet is WithStorage {
         require(planet.planetLevel == 0, "only level 0");
         require(planet.owner == address(0), "no owner before");
         require(_radius <= gs().worldRadius, "Init radius is bigger than the current world radius");
-        if (gameConstants().SPAWN_RIM_AREA != 0) {
-            require(
-                (_radius**2 * 314) / 100 + gameConstants().SPAWN_RIM_AREA >=
-                    (gs().worldRadius**2 * 314) / 100,
-                "Player can only spawn at the universe rim"
-            );
-        }
 
         uint256[5] memory MAX_LEVEL_DIST = gameConstants().MAX_LEVEL_DIST;
         require(_radius > MAX_LEVEL_DIST[1], "Player can only spawn at the edge of universe");
+
         SpaceType spaceType = LibGameUtils.spaceTypeFromPerlin(_perlin, _distFromOriginSquare);
         require(spaceType == SpaceType.NEBULA, "Only NEBULA");
-        //myTodo: needed?
-        require(
-            _perlin >= gameConstants().INIT_PERLIN_MIN,
-            "Init not allowed in perlin value less than INIT_PERLIN_MIN"
-        );
 
+        // NOTE: the same as checkPlayerInit function
+        //
+        // if (gameConstants().SPAWN_RIM_AREA != 0) {
+        //     require(
+        //         (_radius**2 * 314) / 100 + gameConstants().SPAWN_RIM_AREA >=
+        //             (gs().worldRadius**2 * 314) / 100,
+        //         "Player can only spawn at the universe rim"
+        //     );
+        // }
+        // require(
+        //     _perlin >= gameConstants().INIT_PERLIN_MIN,
+        //     "Init not allowed in perlin value less than INIT_PERLIN_MIN"
+        // );
         // require(
         //     _perlin < gameConstants().INIT_PERLIN_MAX,
         //     "Init not allowed in perlin value greater than or equal to the INIT_PERLIN_MAX"
         // );
 
         // price
-        uint256 fee = 0.001 ether; // 0.001 eth
+        uint256 fee = 0.003 ether; // 0.003 eth
+        fee = fee * (2**player.buyPlanetAmount);
+
         require(msg.value == fee, "Wrong value sent");
 
-        player.buyPlanetId = planetId;
+        player.buyPlanetAmount++;
 
         planet.owner = msg.sender;
         planet.population = planet.populationCap;

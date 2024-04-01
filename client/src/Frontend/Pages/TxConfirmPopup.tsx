@@ -193,7 +193,7 @@ export function TxConfirmPopup({
   const hatLevel = localStorage.getItem(`${account}-hatLevel`);
   // const hatCost: number = method === 'buyHat' && hatLevel ? 2 **
   // parseInt(hatLevel) : 0;
-  const hatCost: number = method === 'buyHat' && hatLevel ? 0.1 : 0;
+  const hatCost: number = method === 'buyHat' && hatLevel && Number(hatLevel) === 0 ? 0.0001 : 0;
 
   const upPlanet = localStorage.getItem(`${account}-upPlanet`);
   const branch = localStorage.getItem(`${account}-branch`);
@@ -224,7 +224,8 @@ export function TxConfirmPopup({
 
   //buyPlanet
   const buyPlanet = localStorage.getItem(`${account}-buyPlanet`);
-  const buyPlanetCost = method === 'buyPlanet' ? 0.001 : 0; //0.001 eth
+  const buyPlanetAmountBefore = localStorage.getItem(`${account}-buyPlanetAmountBefore`);
+  const buyPlanetCost = method === 'buyPlanet' ? 0.003 * 2 ** Number(buyPlanetAmountBefore) : 0; //0.001 eth
 
   //buySpaceship
   const buySpaceshipOnPlanetId = localStorage.getItem(`${account}-buySpaceshipOnPlanetId`);

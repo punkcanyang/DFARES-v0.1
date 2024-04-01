@@ -31,11 +31,6 @@ const StyledHatPane = styled.div`
   }
 `;
 
-const getHatCostEth = (planet: Planet) => {
-  return 0.1 + 0 * planet.hatLevel;
-  // return 2 ** planet.hatLevel;
-};
-
 export function HatPane({
   initialPlanetId,
   modal: _modal,
@@ -51,6 +46,12 @@ export function HatPane({
   const balanceEth = weiToEth(
     useEmitterValue(uiManager.getEthConnection().myBalance$, BigNumber.from('0'))
   );
+
+  const getHatCostEth = (planet: Planet) => {
+    if (planet.hatLevel === 0) return 0.0001;
+    else return 0;
+    // return 2 ** planet.hatLevel;
+  };
   const enabled = (planet: Planet): boolean =>
     !planet.transactions?.hasTransaction(isUnconfirmedBuyHatTx) &&
     planet?.owner === account &&

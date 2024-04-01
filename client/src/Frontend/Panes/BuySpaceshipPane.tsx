@@ -126,13 +126,6 @@ export function BuySpaceshipPane(): React.ReactElement {
         </Row>
 
         <Row>
-          <span>My Balance </span>
-          <span>
-            {balanceEth} ${TOKEN_NAME}
-          </span>
-        </Row>
-
-        <Row>
           <span>Cost </span>
           <span>
             {'0.001 '} ${TOKEN_NAME}
@@ -140,12 +133,19 @@ export function BuySpaceshipPane(): React.ReactElement {
         </Row>
 
         <Row>
-          <span>My amount </span>
+          <span>My Balance </span>
+          <span>
+            {balanceEth} ${TOKEN_NAME}
+          </span>
+        </Row>
+
+        <Row>
+          <span>My Amount </span>
           <span>{currentBuySpaceshipAmount}</span>
         </Row>
 
         <Row>
-          <span>Max amount </span>
+          <span>Max Amount </span>
           <span>3</span>
         </Row>
       </Section>

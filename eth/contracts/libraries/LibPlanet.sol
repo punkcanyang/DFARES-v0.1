@@ -270,7 +270,6 @@ library LibPlanet {
         //         "Player can only spawn at the universe rim"
         //     );
         // }
-        // require(spaceType == SpaceType.NEBULA, "GUCK U");
         // require(
         //     _perlin >= gameConstants().INIT_PERLIN_MIN,
         //     "Init not allowed in perlin value less than INIT_PERLIN_MIN"

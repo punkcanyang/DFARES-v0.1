@@ -2,7 +2,6 @@ import {
   BLOCK_EXPLORER_URL,
   CONTRACT_PRECISION,
   EMPTY_ADDRESS,
-  EMPTY_LOCATION_ID,
   MIN_PLANET_LEVEL,
   PLANET_CLAIM_MIN_LEVEL,
 } from '@dfares/constants';
@@ -4469,9 +4468,7 @@ class GameManager extends EventEmitter {
       const tx = await this.contractsAPI.submitTransaction(txIntent, {
         // NOTE: when change gasLimit, need change the value in TxConfirmPopup.tsx
         gasLimit: 500000,
-        value: bigInt(100000000000000000) //0.1eth
-          .multiply(1 + 0 * planet.hatLevel)
-          .toString(),
+        value: planet.hatLevel === 0 ? bigInt(100_000_000_000_000).toString() : '0', //0.0001eth
       });
 
       return tx;
@@ -4544,9 +4541,9 @@ class GameManager extends EventEmitter {
       if (!player) {
         throw new Error('no player');
       }
-
-      if (player.buyPlanetId !== EMPTY_LOCATION_ID) {
-        throw new Error('you have bought planet before');
+      const MAX_BUY_PLANET_AMOUNT = 6;
+      if (player.buyPlanetAmount >= MAX_BUY_PLANET_AMOUNT) {
+        throw new Error('buy planet amount limit');
       }
 
       // transaction requirements
@@ -4576,11 +4573,18 @@ class GameManager extends EventEmitter {
       };
 
       localStorage.setItem(`${this.getAccount()?.toLowerCase()}-buyPlanet`, planetId);
+      localStorage.setItem(
+        `${this.getAccount()?.toLowerCase()}-buyPlanetAmountBefore`,
+        player.buyPlanetAmount.toString()
+      );
 
-      const fee = bigInt(1_000_000_000_000_000).toString();
+      const fee_delete = 2 ** player.buyPlanetAmount;
+
+      // 0.003 *(2**(num-1)) eth
+      const fee = bigInt(3_000_000_000_000_000).multiply(fee_delete).toString();
 
       const tx = await this.contractsAPI.submitTransaction(txIntent, {
-        value: fee, // 0.001 eth
+        value: fee,
       });
 
       return tx;

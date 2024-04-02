@@ -1,4 +1,4 @@
-import { EMPTY_ADDRESS, EMPTY_LOCATION_ID, TOKEN_NAME } from '@dfares/constants';
+import { EMPTY_ADDRESS, TOKEN_NAME } from '@dfares/constants';
 import { isLocatable } from '@dfares/gamelogic';
 import { weiToEth } from '@dfares/network';
 import { getPlanetName } from '@dfares/procedural';
@@ -47,7 +47,7 @@ export function BuyPlanetPane(): React.ReactElement {
   if (!account || !player) return <></>;
 
   const getPlanetCostEth = () => {
-    return 0.001;
+    return 0.003 * 2 ** player.buyPlanetAmount;
   };
 
   //level
@@ -71,8 +71,9 @@ export function BuyPlanetPane(): React.ReactElement {
   const rangeCheckPassed = getRangeCheck();
 
   //amount
-  const currentPlayerBuyPlanetAmount = player.buyPlanetId !== EMPTY_LOCATION_ID ? 1 : 0;
-  const amountCheckPassed = currentPlayerBuyPlanetAmount === 0;
+  const MAX_BUY_PLANET_AMOUNT = 6;
+  //TODO: make a better UI
+  const amountCheckPassed = player.buyPlanetAmount < MAX_BUY_PLANET_AMOUNT;
 
   // balance
   const balanceCheckPassed = balanceEth >= getPlanetCostEth();
@@ -115,7 +116,7 @@ export function BuyPlanetPane(): React.ReactElement {
   } else if (!rangeCheckPassed) {
     buttonContent = <>Planet should on the edge of universe</>;
   } else if (!amountCheckPassed) {
-    buttonContent = <>Only Can Buy one</>;
+    buttonContent = <>You can't buy more</>;
   } else if (!balanceCheckPassed) {
     buttonContent = <> You balance is too low</>;
   } else if (isBuyingNow) {
@@ -170,6 +171,16 @@ export function BuyPlanetPane(): React.ReactElement {
           <span>
             {balanceEth} ${TOKEN_NAME}
           </span>
+        </Row>
+
+        <Row>
+          <span>My Amount </span>
+          <span>{player.buyPlanetAmount}</span>
+        </Row>
+
+        <Row>
+          <span>Max Amount </span>
+          <span>6</span>
         </Row>
       </Section>
 

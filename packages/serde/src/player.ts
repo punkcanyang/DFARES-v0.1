@@ -40,7 +40,7 @@ export function decodePlayer(rawPlayer: RawPlayer): Player {
     moveCount: rawPlayer.moveCount.toNumber(),
     hatCount: rawPlayer.hatCount.toNumber(),
     kardashevAmount: rawPlayer.kardashevAmount.toNumber(),
-    buyPlanetId: locationIdFromEthersBN(rawPlayer.buyPlanetId),
+    buyPlanetAmount: rawPlayer.buyPlanetAmount.toNumber(),
     buySpaceshipAmount: rawPlayer.buySpaceshipAmount.toNumber(),
   };
 }

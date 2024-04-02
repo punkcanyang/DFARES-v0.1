@@ -12,7 +12,7 @@ import {LibArtifactUtils} from "./LibArtifactUtils.sol";
 import {LibStorage, GameStorage, GameConstants, SnarkConstants} from "./LibStorage.sol";
 
 // Type imports
-import {Artifact, ArtifactType, DFPInitPlanetArgs, Planet, PlanetEventMetadata, PlanetType, RevealedCoords, SpaceType, Upgrade, UpgradeBranch} from "../DFTypes.sol";
+import {Artifact, ArtifactType, DFPInitPlanetArgs, Planet, PlanetEventMetadata, PlanetType, RevealedCoords, SpaceType, Upgrade, UpgradeBranch, ArtifactRarity, Biome} from "../DFTypes.sol";
 
 library LibPlanet {
     function gs() internal pure returns (GameStorage storage) {

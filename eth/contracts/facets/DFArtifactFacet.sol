@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 // Contract imports
 import {ERC721} from "@solidstate/contracts/token/ERC721/ERC721.sol";
 import {ERC721BaseStorage} from "@solidstate/contracts/token/ERC721/base/ERC721BaseStorage.sol";
+
 import {DFVerifierFacet} from "./DFVerifierFacet.sol";
 import {DFWhitelistFacet} from "./DFWhitelistFacet.sol";
 
@@ -11,6 +12,8 @@ import {DFWhitelistFacet} from "./DFWhitelistFacet.sol";
 import {LibDiamond} from "../vendor/libraries/LibDiamond.sol";
 import {LibGameUtils} from "../libraries/LibGameUtils.sol";
 import {LibArtifactUtils} from "../libraries/LibArtifactUtils.sol";
+import {LibArtifactExtendUtils} from "../libraries/LibArtifactExtendUtils.sol";
+
 import {LibPlanet} from "../libraries/LibPlanet.sol";
 
 // Storage imports
@@ -22,18 +25,8 @@ import {Artifact, ArtifactType, Biome, ArtifactRarity, DFTCreateArtifactArgs, DF
 contract DFArtifactFacet is WithStorage, ERC721 {
     using ERC721BaseStorage for ERC721BaseStorage.Layout;
 
-    event PlanetProspected(address player, uint256 loc);
     event ArtifactFound(address player, uint256 artifactId, uint256 loc);
-    event ArtifactDeposited(address player, uint256 artifactId, uint256 loc);
-    event ArtifactWithdrawn(address player, uint256 artifactId, uint256 loc);
-    event ArtifactActivated(address player, uint256 artifactId, uint256 loc, uint256 linkTo); // also emitted in LibPlanet
-    event ArtifactDeactivated(address player, uint256 artifactId, uint256 loc, uint256 linkTo); // also emitted in LibPlanet
-    event ArtifactChangeImageType(
-        address player,
-        uint256 artifactId,
-        uint256 loc,
-        uint256 imageType
-    );
+
     modifier onlyWhitelisted() {
         require(
             DFWhitelistFacet(address(this)).isWhitelisted(msg.sender) ||
@@ -181,55 +174,12 @@ contract DFArtifactFacet is WithStorage, ERC721 {
         return ERC721BaseStorage.layout().exists(tokenId);
     }
 
-    function findArtifact(
-        uint256[2] memory _a,
-        uint256[2][2] memory _b,
-        uint256[2] memory _c,
-        uint256[7] memory _input
-    ) public notPaused notTokenEnded {
-        uint256 planetId = _input[0];
-        uint256 biomebase = _input[1];
+    function adminGiveArtifact(DFTCreateArtifactArgs memory args) public onlyAdmin {
+        Artifact memory artifact = createArtifact(args);
+        transferArtifact(artifact.id, address(this));
+        LibGameUtils._putArtifactOnPlanet(artifact.id, args.planetId);
 
-        LibGameUtils.revertIfBadSnarkPerlinFlags(
-            [_input[2], _input[3], _input[4], _input[5], _input[6]],
-            true
-        );
-
-        LibPlanet.refreshPlanet(planetId);
-
-        if (!snarkConstants().DISABLE_ZK_CHECKS) {
-            require(
-                DFVerifierFacet(address(this)).verifyBiomebaseProof(_a, _b, _c, _input),
-                "biome zkSNARK failed doesn't check out"
-            );
-        }
-
-        uint256 foundArtifactId = LibArtifactUtils.findArtifact(
-            DFPFindArtifactArgs(planetId, biomebase, address(this))
-        );
-
-        emit ArtifactFound(msg.sender, foundArtifactId, planetId);
-    }
-
-    function depositArtifact(uint256 locationId, uint256 artifactId) public notPaused {
-        // should this be implemented as logic that is triggered when a player sends
-        // an artifact to the contract with locationId in the extra data?
-        // might be better use of the ERC721 standard - can use safeTransfer then
-        LibPlanet.refreshPlanet(locationId);
-
-        LibArtifactUtils.depositArtifact(locationId, artifactId, address(this));
-
-        emit ArtifactDeposited(msg.sender, artifactId, locationId);
-    }
-
-    // withdraws the given artifact from the given planet. you must own the planet,
-    // the artifact must be on the given planet
-    function withdrawArtifact(uint256 locationId, uint256 artifactId) public notPaused {
-        LibPlanet.refreshPlanet(locationId);
-
-        LibArtifactUtils.withdrawArtifact(locationId, artifactId);
-
-        emit ArtifactWithdrawn(msg.sender, artifactId, locationId);
+        emit ArtifactFound(args.owner, artifact.id, args.planetId);
     }
 
     // activates the given artifact on the given planet. the artifact must have
@@ -248,112 +198,6 @@ contract DFArtifactFacet is WithStorage, ERC721 {
 
         LibArtifactUtils.activateArtifact(locationId, artifactId, linkTo);
         // event is emitted in the above library function
-    }
-
-    // if there's an activated artifact on this planet, deactivates it. otherwise reverts.
-    // deactivating an artifact this debuffs the planet, and also removes whatever special
-    // effect that the artifact bestowned upon this planet.
-    function deactivateArtifact(uint256 locationId) public notPaused {
-        LibPlanet.refreshPlanet(locationId);
-
-        LibArtifactUtils.deactivateArtifact(locationId);
-        // event is emitted in the above library function
-    }
-
-    // in order to be able to find an artifact on a planet, the planet
-    // must first be 'prospected'. prospecting commits to a currently-unknown
-    // seed that is used to randomly generate the artifact that will be
-    // found on this planet.
-    function prospectPlanet(uint256 locationId) public notPaused {
-        LibPlanet.refreshPlanet(locationId);
-        LibArtifactUtils.prospectPlanet(locationId);
-        emit PlanetProspected(msg.sender, locationId);
-    }
-
-    /**
-      Gives players 5 spaceships on their home planet. Can only be called once
-      by a given player. This is a first pass at getting spaceships into the game.
-      Eventually ships will be able to spawn in the game naturally (construction, capturing, etc.)
-     */
-    function giveSpaceShips(uint256 locationId) public onlyWhitelisted {
-        require(!gs().players[msg.sender].claimedShips, "player already claimed ships");
-        require(
-            gs().planets[locationId].owner == msg.sender && gs().planets[locationId].isHomePlanet,
-            "you can only spawn ships on your home planet"
-        );
-
-        address owner = gs().planets[locationId].owner;
-        if (gameConstants().SPACESHIPS.MOTHERSHIP) {
-            uint256 id1 = LibArtifactUtils.createAndPlaceSpaceship(
-                locationId,
-                owner,
-                ArtifactType.ShipMothership
-            );
-
-            gs().mySpaceshipIds[owner].push(id1);
-            emit ArtifactFound(msg.sender, id1, locationId);
-        }
-
-        if (gameConstants().SPACESHIPS.CRESCENT) {
-            uint256 id2 = LibArtifactUtils.createAndPlaceSpaceship(
-                locationId,
-                owner,
-                ArtifactType.ShipCrescent
-            );
-            gs().mySpaceshipIds[owner].push(id2);
-            emit ArtifactFound(msg.sender, id2, locationId);
-        }
-
-        if (gameConstants().SPACESHIPS.WHALE) {
-            uint256 id3 = LibArtifactUtils.createAndPlaceSpaceship(
-                locationId,
-                owner,
-                ArtifactType.ShipWhale
-            );
-            gs().mySpaceshipIds[owner].push(id3);
-            emit ArtifactFound(msg.sender, id3, locationId);
-        }
-
-        if (gameConstants().SPACESHIPS.GEAR) {
-            uint256 id4 = LibArtifactUtils.createAndPlaceSpaceship(
-                locationId,
-                owner,
-                ArtifactType.ShipGear
-            );
-
-            gs().mySpaceshipIds[owner].push(id4);
-            emit ArtifactFound(msg.sender, id4, locationId);
-        }
-
-        if (gameConstants().SPACESHIPS.TITAN) {
-            uint256 id5 = LibArtifactUtils.createAndPlaceSpaceship(
-                locationId,
-                owner,
-                ArtifactType.ShipTitan
-            );
-            gs().mySpaceshipIds[owner].push(id5);
-            emit ArtifactFound(msg.sender, id5, locationId);
-        }
-
-        if (gameConstants().SPACESHIPS.PINKSHIP) {
-            uint256 id5 = LibArtifactUtils.createAndPlaceSpaceship(
-                locationId,
-                owner,
-                ArtifactType.ShipPink
-            );
-            gs().mySpaceshipIds[owner].push(id5);
-            emit ArtifactFound(msg.sender, id5, locationId);
-        }
-
-        gs().players[msg.sender].claimedShips = true;
-    }
-
-    function adminGiveArtifact(DFTCreateArtifactArgs memory args) public onlyAdmin {
-        Artifact memory artifact = createArtifact(args);
-        transferArtifact(artifact.id, address(this));
-        LibGameUtils._putArtifactOnPlanet(artifact.id, args.planetId);
-
-        emit ArtifactFound(args.owner, artifact.id, args.planetId);
     }
 
     function buyArtifact(DFTCreateArtifactArgs memory args) public payable notPaused {
@@ -389,159 +233,134 @@ contract DFArtifactFacet is WithStorage, ERC721 {
         args.controller = address(0);
         args.imageType = 0;
 
-        uint256 lastByteOfSeed = id % 10000;
-        uint256 secondLastByteOfSeed = ((id - lastByteOfSeed) / 10000) % 10;
-
-        if (secondLastByteOfSeed == 0) {
-            args.biome = Biome.Ocean;
-        } else if (secondLastByteOfSeed == 1) {
-            args.biome = Biome.Forest;
-        } else if (secondLastByteOfSeed == 2) {
-            args.biome = Biome.Grassland;
-        } else if (secondLastByteOfSeed == 3) {
-            args.biome = Biome.Tundra;
-        } else if (secondLastByteOfSeed == 4) {
-            args.biome = Biome.Swamp;
-        } else if (secondLastByteOfSeed == 5) {
-            args.biome = Biome.Desert;
-        } else if (secondLastByteOfSeed == 6) {
-            args.biome = Biome.Ice;
-        } else if (secondLastByteOfSeed == 7) {
-            args.biome = Biome.Wasteland;
-        } else if (secondLastByteOfSeed == 8) {
-            args.biome = Biome.Lava;
-        } else {
-            args.biome = Biome.Corrupted;
-        }
-
-        if (lastByteOfSeed < 1400) {
-            args.rarity = ArtifactRarity.Common;
-            args.artifactType = ArtifactType.Wormhole;
-        } else if (lastByteOfSeed < 1750) {
-            args.rarity = ArtifactRarity.Rare;
-            args.artifactType = ArtifactType.Wormhole;
-        } else if (lastByteOfSeed < 1964) {
-            args.rarity = ArtifactRarity.Epic;
-            args.artifactType = ArtifactType.Wormhole;
-        } else if (lastByteOfSeed < 2016) {
-            args.rarity = ArtifactRarity.Legendary;
-            args.artifactType = ArtifactType.Wormhole;
-        } else if (lastByteOfSeed < 2033) {
-            args.rarity = ArtifactRarity.Mythic;
-            args.artifactType = ArtifactType.Wormhole;
-        } else if (lastByteOfSeed < 3373) {
-            args.rarity = ArtifactRarity.Common;
-            args.artifactType = ArtifactType.PlanetaryShield;
-        } else if (lastByteOfSeed < 3716) {
-            args.rarity = ArtifactRarity.Rare;
-            args.artifactType = ArtifactType.PlanetaryShield;
-        } else if (lastByteOfSeed < 3930) {
-            args.rarity = ArtifactRarity.Epic;
-            args.artifactType = ArtifactType.PlanetaryShield;
-        } else if (lastByteOfSeed < 3983) {
-            args.rarity = ArtifactRarity.Legendary;
-            args.artifactType = ArtifactType.PlanetaryShield;
-        } else if (lastByteOfSeed < 4000) {
-            args.rarity = ArtifactRarity.Mythic;
-            args.artifactType = ArtifactType.PlanetaryShield;
-        } else if (lastByteOfSeed < 5000) {
-            args.rarity = ArtifactRarity.Common;
-            args.artifactType = ArtifactType.PhotoidCannon;
-        } else if (lastByteOfSeed < 5550) {
-            args.rarity = ArtifactRarity.Rare;
-            args.artifactType = ArtifactType.PhotoidCannon;
-        } else if (lastByteOfSeed < 5800) {
-            args.rarity = ArtifactRarity.Epic;
-            args.artifactType = ArtifactType.PhotoidCannon;
-        } else if (lastByteOfSeed < 5950) {
-            args.rarity = ArtifactRarity.Legendary;
-            args.artifactType = ArtifactType.PhotoidCannon;
-        } else if (lastByteOfSeed < 6000) {
-            args.rarity = ArtifactRarity.Mythic;
-            args.artifactType = ArtifactType.PhotoidCannon;
-        } else if (lastByteOfSeed < 6700) {
-            args.rarity = ArtifactRarity.Common;
-            args.artifactType = ArtifactType.BloomFilter;
-        } else if (lastByteOfSeed < 6860) {
-            args.rarity = ArtifactRarity.Rare;
-            args.artifactType = ArtifactType.BloomFilter;
-        } else if (lastByteOfSeed < 6970) {
-            args.rarity = ArtifactRarity.Epic;
-            args.artifactType = ArtifactType.BloomFilter;
-        } else if (lastByteOfSeed < 6995) {
-            args.rarity = ArtifactRarity.Legendary;
-            args.artifactType = ArtifactType.BloomFilter;
-        } else if (lastByteOfSeed < 7000) {
-            args.rarity = ArtifactRarity.Mythic;
-            args.artifactType = ArtifactType.BloomFilter;
-        } else if (lastByteOfSeed < 7700) {
-            args.rarity = ArtifactRarity.Common;
-            args.artifactType = ArtifactType.BlackDomain;
-        } else if (lastByteOfSeed < 7860) {
-            args.rarity = ArtifactRarity.Rare;
-            args.artifactType = ArtifactType.BlackDomain;
-        } else if (lastByteOfSeed < 7970) {
-            args.rarity = ArtifactRarity.Epic;
-            args.artifactType = ArtifactType.BlackDomain;
-        } else if (lastByteOfSeed < 7995) {
-            args.rarity = ArtifactRarity.Legendary;
-            args.artifactType = ArtifactType.BlackDomain;
-        } else if (lastByteOfSeed < 8000) {
-            args.rarity = ArtifactRarity.Mythic;
-            args.artifactType = ArtifactType.BlackDomain;
-        } else if (lastByteOfSeed < 9000) {
-            args.rarity = ArtifactRarity.Common;
-            args.artifactType = ArtifactType.StellarShield;
-        } else if (lastByteOfSeed < 9550) {
-            args.rarity = ArtifactRarity.Rare;
-            args.artifactType = ArtifactType.StellarShield;
-        } else if (lastByteOfSeed < 9800) {
-            args.rarity = ArtifactRarity.Epic;
-            args.artifactType = ArtifactType.StellarShield;
-        } else if (lastByteOfSeed < 9950) {
-            args.rarity = ArtifactRarity.Legendary;
-            args.artifactType = ArtifactType.StellarShield;
-        } else {
-            args.rarity = ArtifactRarity.Mythic;
-            args.artifactType = ArtifactType.StellarShield;
-        }
+        (Biome biome, ArtifactType artifactType, ArtifactRarity rarity) = LibArtifactUtils
+            ._randomBuyArtifactTypeAndRarity(id);
+        args.biome = biome;
+        args.artifactType = artifactType;
+        args.rarity = rarity;
 
         Artifact memory artifact = createArtifactToSell(args);
         transferArtifactToSell(artifact.id, address(this));
         LibGameUtils._putArtifactOnPlanet(artifact.id, args.planetId);
 
         emit ArtifactFound(args.owner, artifact.id, args.planetId);
-
         gs().players[msg.sender].buyArtifactAmount++;
     }
 
-    function changeArtifactImageType(
-        uint256 locationId,
-        uint256 artifactId,
-        uint256 newImageType
-    ) public notPaused {
-        LibPlanet.refreshPlanet(locationId);
-        Planet storage planet = gs().planets[locationId];
-
-        require(!planet.destroyed, "planet is destroyed");
-        require(!planet.frozen, "planet is frozen");
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         require(
-            planet.owner == msg.sender,
-            "you can only change artifactImageType on a planet you own"
+            ERC721BaseStorage.layout().exists(tokenId),
+            "ERC721Metadata: URI query for nonexistent token"
         );
 
-        require(
-            LibGameUtils.isArtifactOnPlanet(locationId, artifactId),
-            "artifact is not on planet"
+        Artifact memory artifact = getArtifact(tokenId);
+
+        // ArtifactType
+        // ArtifactRarity
+        // planetBiome
+        // mintedAtTimestamp
+        // lastActivated
+        // lastDeactivated
+
+        string[17] memory parts;
+
+        parts[
+            0
+        ] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="black" /><text x="10" y="20" class="base">';
+
+        parts[1] = LibArtifactExtendUtils.getArtifactTypeNames(artifact.artifactType);
+
+        parts[2] = '</text><text x="10" y="40" class="base">';
+
+        parts[3] = LibArtifactExtendUtils.getArtifactRarityNames(artifact.rarity);
+
+        parts[4] = '</text><text x="10" y="60" class="base">';
+
+        parts[5] = LibArtifactExtendUtils.getBiomeNames(artifact.planetBiome);
+
+        parts[6] = '</text><text x="10" y="80" class="base">';
+
+        parts[7] = string(
+            abi.encodePacked(
+                "mintedAt ",
+                LibArtifactExtendUtils.toString(artifact.mintedAtTimestamp)
+            )
         );
 
-        Artifact storage artifact = gs().artifacts[artifactId];
+        parts[8] = '</text><text x="10" y="100" class="base">';
 
-        require(artifact.isInitialized, "Artifact has not been initialized");
-        require(artifact.artifactType == ArtifactType.Avatar, "artifact type should by avatar");
-        require(artifact.imageType != newImageType, "need change imageType");
-        artifact.imageType = newImageType;
+        parts[9] = artifact.lastActivated != 0
+            ? string(
+                abi.encodePacked(
+                    "lastActivated ",
+                    LibArtifactExtendUtils.toString(artifact.lastActivated)
+                )
+            )
+            : "";
 
-        emit ArtifactChangeImageType(msg.sender, artifactId, locationId, newImageType);
+        parts[10] = '</text><text x="10" y="120" class="base">';
+
+        parts[11] = artifact.lastDeactivated != 0
+            ? string(
+                abi.encodePacked(
+                    "lastDeactivated ",
+                    LibArtifactExtendUtils.toString(artifact.lastDeactivated)
+                )
+            )
+            : "";
+
+        parts[12] = '</text><text x="10" y="140" class="base">';
+
+        parts[13] = "";
+
+        parts[14] = '</text><text x="10" y="160" class="base">';
+
+        parts[15] = "";
+
+        parts[16] = "</text></svg>";
+
+        string memory output = string(
+            abi.encodePacked(
+                parts[0],
+                parts[1],
+                parts[2],
+                parts[3],
+                parts[4],
+                parts[5],
+                parts[6],
+                parts[7],
+                parts[8]
+            )
+        );
+        output = string(
+            abi.encodePacked(
+                output,
+                parts[9],
+                parts[10],
+                parts[11],
+                parts[12],
+                parts[13],
+                parts[14],
+                parts[15],
+                parts[16]
+            )
+        );
+
+        string memory json = LibArtifactExtendUtils.encode(
+            bytes(
+                string(
+                    abi.encodePacked(
+                        '{"name": "Artifact #',
+                        LibArtifactExtendUtils.toHexString(tokenId),
+                        '", "description": "Artifact is a gift from the DFAres universe.", "image": "data:image/svg+xml;base64,',
+                        LibArtifactExtendUtils.encode(bytes(output)),
+                        '"}'
+                    )
+                )
+            )
+        );
+        output = string(abi.encodePacked("data:application/json;base64,", json));
+
+        return output;
     }
 }

@@ -673,4 +673,136 @@ library LibArtifactUtils {
     function isSpaceship(ArtifactType artifactType) public pure returns (bool) {
         return artifactType >= ArtifactType.ShipMothership && artifactType <= ArtifactType.ShipPink;
     }
+
+    function _randomBuyArtifactTypeAndRarity(uint256 artifactSeed)
+        internal
+        pure
+        returns (
+            Biome,
+            ArtifactType,
+            ArtifactRarity
+        )
+    {
+        uint256 lastByteOfSeed = artifactSeed % 10000;
+        uint256 secondLastByteOfSeed = ((artifactSeed - lastByteOfSeed) / 10000) % 10;
+
+        Biome biome = Biome.Ocean;
+        ArtifactType artifactType = ArtifactType.Wormhole;
+        ArtifactRarity rarity = ArtifactRarity.Common;
+
+        if (secondLastByteOfSeed == 0) {
+            biome = Biome.Ocean;
+        } else if (secondLastByteOfSeed == 1) {
+            biome = Biome.Forest;
+        } else if (secondLastByteOfSeed == 2) {
+            biome = Biome.Grassland;
+        } else if (secondLastByteOfSeed == 3) {
+            biome = Biome.Tundra;
+        } else if (secondLastByteOfSeed == 4) {
+            biome = Biome.Swamp;
+        } else if (secondLastByteOfSeed == 5) {
+            biome = Biome.Desert;
+        } else if (secondLastByteOfSeed == 6) {
+            biome = Biome.Ice;
+        } else if (secondLastByteOfSeed == 7) {
+            biome = Biome.Wasteland;
+        } else if (secondLastByteOfSeed == 8) {
+            biome = Biome.Lava;
+        } else {
+            biome = Biome.Corrupted;
+        }
+
+        if (lastByteOfSeed < 1400) {
+            rarity = ArtifactRarity.Common;
+            artifactType = ArtifactType.Wormhole;
+        } else if (lastByteOfSeed < 1750) {
+            rarity = ArtifactRarity.Rare;
+            artifactType = ArtifactType.Wormhole;
+        } else if (lastByteOfSeed < 1964) {
+            rarity = ArtifactRarity.Epic;
+            artifactType = ArtifactType.Wormhole;
+        } else if (lastByteOfSeed < 2016) {
+            rarity = ArtifactRarity.Legendary;
+            artifactType = ArtifactType.Wormhole;
+        } else if (lastByteOfSeed < 2033) {
+            rarity = ArtifactRarity.Mythic;
+            artifactType = ArtifactType.Wormhole;
+        } else if (lastByteOfSeed < 3373) {
+            rarity = ArtifactRarity.Common;
+            artifactType = ArtifactType.PlanetaryShield;
+        } else if (lastByteOfSeed < 3716) {
+            rarity = ArtifactRarity.Rare;
+            artifactType = ArtifactType.PlanetaryShield;
+        } else if (lastByteOfSeed < 3930) {
+            rarity = ArtifactRarity.Epic;
+            artifactType = ArtifactType.PlanetaryShield;
+        } else if (lastByteOfSeed < 3983) {
+            rarity = ArtifactRarity.Legendary;
+            artifactType = ArtifactType.PlanetaryShield;
+        } else if (lastByteOfSeed < 4000) {
+            rarity = ArtifactRarity.Mythic;
+            artifactType = ArtifactType.PlanetaryShield;
+        } else if (lastByteOfSeed < 5000) {
+            rarity = ArtifactRarity.Common;
+            artifactType = ArtifactType.PhotoidCannon;
+        } else if (lastByteOfSeed < 5550) {
+            rarity = ArtifactRarity.Rare;
+            artifactType = ArtifactType.PhotoidCannon;
+        } else if (lastByteOfSeed < 5800) {
+            rarity = ArtifactRarity.Epic;
+            artifactType = ArtifactType.PhotoidCannon;
+        } else if (lastByteOfSeed < 5950) {
+            rarity = ArtifactRarity.Legendary;
+            artifactType = ArtifactType.PhotoidCannon;
+        } else if (lastByteOfSeed < 6000) {
+            rarity = ArtifactRarity.Mythic;
+            artifactType = ArtifactType.PhotoidCannon;
+        } else if (lastByteOfSeed < 6700) {
+            rarity = ArtifactRarity.Common;
+            artifactType = ArtifactType.BloomFilter;
+        } else if (lastByteOfSeed < 6860) {
+            rarity = ArtifactRarity.Rare;
+            artifactType = ArtifactType.BloomFilter;
+        } else if (lastByteOfSeed < 6970) {
+            rarity = ArtifactRarity.Epic;
+            artifactType = ArtifactType.BloomFilter;
+        } else if (lastByteOfSeed < 6995) {
+            rarity = ArtifactRarity.Legendary;
+            artifactType = ArtifactType.BloomFilter;
+        } else if (lastByteOfSeed < 7000) {
+            rarity = ArtifactRarity.Mythic;
+            artifactType = ArtifactType.BloomFilter;
+        } else if (lastByteOfSeed < 7700) {
+            rarity = ArtifactRarity.Common;
+            artifactType = ArtifactType.BlackDomain;
+        } else if (lastByteOfSeed < 7860) {
+            rarity = ArtifactRarity.Rare;
+            artifactType = ArtifactType.BlackDomain;
+        } else if (lastByteOfSeed < 7970) {
+            rarity = ArtifactRarity.Epic;
+            artifactType = ArtifactType.BlackDomain;
+        } else if (lastByteOfSeed < 7995) {
+            rarity = ArtifactRarity.Legendary;
+            artifactType = ArtifactType.BlackDomain;
+        } else if (lastByteOfSeed < 8000) {
+            rarity = ArtifactRarity.Mythic;
+            artifactType = ArtifactType.BlackDomain;
+        } else if (lastByteOfSeed < 9000) {
+            rarity = ArtifactRarity.Common;
+            artifactType = ArtifactType.StellarShield;
+        } else if (lastByteOfSeed < 9550) {
+            rarity = ArtifactRarity.Rare;
+            artifactType = ArtifactType.StellarShield;
+        } else if (lastByteOfSeed < 9800) {
+            rarity = ArtifactRarity.Epic;
+            artifactType = ArtifactType.StellarShield;
+        } else if (lastByteOfSeed < 9950) {
+            rarity = ArtifactRarity.Legendary;
+            artifactType = ArtifactType.StellarShield;
+        } else {
+            rarity = ArtifactRarity.Mythic;
+            artifactType = ArtifactType.StellarShield;
+        }
+        return (biome, artifactType, rarity);
+    }
 }

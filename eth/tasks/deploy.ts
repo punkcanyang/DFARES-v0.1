@@ -416,12 +416,13 @@ export async function deployVerifierFacet({}, {}: Libraries, hre: HardhatRuntime
 
 export async function deployArtifactFacet(
   {},
-  { LibGameUtils, LibPlanet, LibArtifactUtils }: Libraries,
+  { LibGameUtils, LibPlanet, LibArtifactUtils, LibArtifactExtendUtils }: Libraries,
   hre: HardhatRuntimeEnvironment
 ) {
   const factory = await hre.ethers.getContractFactory('DFArtifactFacet', {
     libraries: {
       LibArtifactUtils,
+      LibArtifactExtendUtils,
       LibGameUtils,
       LibPlanet,
     },
@@ -457,6 +458,15 @@ export async function deployLibraries({}, hre: HardhatRuntimeEnvironment) {
   await LibArtifactUtils.deployTransaction.wait();
   console.log(`LibArtifactUtils deployed to: ${LibArtifactUtils.address}`);
 
+  const LibArtifactExtendUtilsFactory = await hre.ethers.getContractFactory(
+    'LibArtifactExtendUtils',
+    {}
+  );
+
+  const LibArtifactExtendUtils = await LibArtifactExtendUtilsFactory.deploy();
+  await LibArtifactExtendUtils.deployTransaction.wait();
+  console.log(`LibArtifactExtendUtils deployed to: ${LibArtifactExtendUtils.address}`);
+
   const LibPlanetFactory = await hre.ethers.getContractFactory('LibPlanet', {
     libraries: {
       LibGameUtils: LibGameUtils.address,
@@ -471,18 +481,20 @@ export async function deployLibraries({}, hre: HardhatRuntimeEnvironment) {
     LibGameUtils: LibGameUtils.address,
     LibPlanet: LibPlanet.address,
     LibArtifactUtils: LibArtifactUtils.address,
+    LibArtifactExtendUtils: LibArtifactExtendUtils.address,
   };
 }
 
 export async function deployCoreFacet(
   {},
-  { LibGameUtils, LibPlanet }: Libraries,
+  { LibGameUtils, LibPlanet, LibArtifactUtils }: Libraries,
   hre: HardhatRuntimeEnvironment
 ) {
   const factory = await hre.ethers.getContractFactory('DFCoreFacet', {
     libraries: {
       LibGameUtils,
       LibPlanet,
+      LibArtifactUtils,
     },
   });
   const contract = await factory.deploy();

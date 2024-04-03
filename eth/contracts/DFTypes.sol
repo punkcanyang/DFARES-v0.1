@@ -46,6 +46,7 @@ struct Player {
     uint256 kardashevAmount;
     uint256 buyPlanetAmount;
     uint256 buySpaceshipAmount;
+    uint256 donationAmount; // amount (ether) * CONTRACT_PERCISION
 }
 
 struct Planet {

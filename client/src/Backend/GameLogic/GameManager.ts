@@ -37,6 +37,7 @@ import {
   isUnconfirmedClaimTx,
   isUnconfirmedDeactivateArtifactTx,
   isUnconfirmedDepositArtifactTx,
+  isUnconfirmedDonateTx,
   isUnconfirmedFindArtifactTx,
   isUnconfirmedInitTx,
   isUnconfirmedInvadePlanetTx,
@@ -101,6 +102,7 @@ import {
   UnconfirmedClaim,
   UnconfirmedDeactivateArtifact,
   UnconfirmedDepositArtifact,
+  UnconfirmedDonate,
   UnconfirmedFindArtifact,
   UnconfirmedInit,
   UnconfirmedInvadePlanet,
@@ -4444,6 +4446,13 @@ class GameManager extends EventEmitter {
         throw new Error('[TX ERROR] hatType Error');
       }
 
+      // price requirements
+      const balanceEth = this.getMyBalanceEth();
+      const hatCostEth = planet.hatLevel === 0 ? 0.0001 : 0;
+      if (balanceEth < hatCostEth) {
+        throw new Error("you don't have enough ETH");
+      }
+
       localStorage.setItem(`${this.getAccount()?.toLowerCase()}-hatPlanet`, planetId);
       localStorage.setItem(
         `${this.getAccount()?.toLowerCase()}-hatLevel`,
@@ -4546,8 +4555,15 @@ class GameManager extends EventEmitter {
         throw new Error('buy planet amount limit');
       }
 
-      // transaction requirements
+      // price requirements
+      const balanceEth = this.getMyBalanceEth();
+      const planetCostEth = 0.003 * 2 ** player.buyPlanetAmount;
+      if (balanceEth < planetCostEth) {
+        throw new Error("you don't have enough ETH");
+      }
+
       if (planet.transactions?.hasTransaction(isUnconfirmedBuyPlanetTx)) {
+        // transaction requirements
         throw new Error("you're already buying this planet");
       }
       if (this.entityStore.transactions.hasTransaction(isUnconfirmedBuyPlanetTx)) {
@@ -4624,6 +4640,13 @@ class GameManager extends EventEmitter {
         throw new Error('no player');
       }
 
+      // price requirements
+      const balanceEth = this.getMyBalanceEth();
+      const spaceshipCostEth = 0.001;
+      if (balanceEth < spaceshipCostEth) {
+        throw new Error("you don't have enough ETH");
+      }
+
       if (player.buySpaceshipAmount >= 3) {
         throw new Error(' you can only buy 3 spaceships');
       }
@@ -4657,6 +4680,53 @@ class GameManager extends EventEmitter {
       return tx;
     } catch (e) {
       this.getNotificationsManager().txInitError('buySpaceship', e.message);
+      throw e;
+    }
+  }
+
+  public async donate(amount: number): Promise<Transaction<UnconfirmedDonate>> {
+    try {
+      if (!this.account) {
+        throw new Error('no account set');
+      }
+      if (this.checkGameHasEnded()) {
+        throw new Error('game has ended');
+      }
+
+      //player requirements
+      const player = this.players.get(this.account);
+      if (!player) {
+        throw new Error('no player');
+      }
+
+      // price requirements
+      const balanceEth = this.getMyBalanceEth();
+      const donationCostEth = amount * 0.001;
+      if (balanceEth < donationCostEth) {
+        throw new Error("you don't have enough ETH");
+      }
+
+      // transaction requirements
+      if (this.entityStore.transactions.hasTransaction(isUnconfirmedDonateTx)) {
+        throw new Error("you're donating");
+      }
+
+      const txIntent: UnconfirmedDonate = {
+        methodName: 'donate',
+        contract: this.contractsAPI.contract,
+        amount: amount,
+        args: Promise.resolve([amount]),
+      };
+
+      const fee = bigInt(1_000_000_000_000_000).multiply(amount).toString();
+
+      localStorage.setItem(`${this.getAccount()?.toLowerCase()}-donateAmount`, amount.toString());
+      const tx = await this.contractsAPI.submitTransaction(txIntent, {
+        value: fee,
+      });
+      return tx;
+    } catch (e) {
+      this.getNotificationsManager().txInitError('donate', e.message);
       throw e;
     }
   }

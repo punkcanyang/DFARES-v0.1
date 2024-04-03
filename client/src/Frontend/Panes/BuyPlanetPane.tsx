@@ -160,27 +160,15 @@ export function BuyPlanetPane(): React.ReactElement {
         </Row>
 
         <Row>
-          <span>Cost </span>
+          <span>Cost / My Balance </span>
           <span>
-            {getPlanetCostEth()} ${TOKEN_NAME}
+            {getPlanetCostEth()} ${TOKEN_NAME} / {balanceEth} ${TOKEN_NAME}
           </span>
         </Row>
 
         <Row>
-          <span>My Balance </span>
-          <span>
-            {balanceEth} ${TOKEN_NAME}
-          </span>
-        </Row>
-
-        <Row>
-          <span>My Amount </span>
-          <span>{player.buyPlanetAmount}</span>
-        </Row>
-
-        <Row>
-          <span>Max Amount </span>
-          <span>6</span>
+          <span>My Amount / Max Amount </span>
+          <span>{player.buyPlanetAmount} / 6</span>
         </Row>
       </Section>
 

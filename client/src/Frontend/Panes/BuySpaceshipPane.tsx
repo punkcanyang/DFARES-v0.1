@@ -126,27 +126,15 @@ export function BuySpaceshipPane(): React.ReactElement {
         </Row>
 
         <Row>
-          <span>Cost </span>
+          <span>Cost / My Balance </span>
           <span>
-            {'0.001 '} ${TOKEN_NAME}
+            {'0.001 '} ${TOKEN_NAME} / {balanceEth} ${TOKEN_NAME}
           </span>
         </Row>
 
         <Row>
-          <span>My Balance </span>
-          <span>
-            {balanceEth} ${TOKEN_NAME}
-          </span>
-        </Row>
-
-        <Row>
-          <span>My Amount </span>
-          <span>{currentBuySpaceshipAmount}</span>
-        </Row>
-
-        <Row>
-          <span>Max Amount </span>
-          <span>3</span>
+          <span>My Amount / Max Amount </span>
+          <span>{currentBuySpaceshipAmount} / 3</span>
         </Row>
       </Section>
 

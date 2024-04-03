@@ -1424,6 +1424,11 @@ class GameUIManager extends EventEmitter {
     this.gameManager.buySpaceship(planet.locationId);
   }
 
+  public donate(amount: number): void {
+    // this.terminal.current?.printShellLn(`df.donate('${amount}')`);
+    this.gameManager.donate(amount);
+  }
+
   // non-nullable
   public getHomeCoords(): WorldCoords {
     return this.gameManager.getHomeCoords() || { x: 0, y: 0 };

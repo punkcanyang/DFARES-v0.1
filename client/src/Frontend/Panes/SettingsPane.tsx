@@ -179,6 +179,8 @@ export function SettingsPane({
     Viewport.instance.setMouseSensitivty(scrollSpeed / 10000);
   }, [scrollSpeed]);
 
+  const defaultEnergySendValues = [...new Array(101)].map((_, index) => String(index));
+
   return (
     <ModalPane id={ModalName.Settings} title='Settings' visible={visible} onClose={onClose}>
       <SettingsContent>
@@ -345,6 +347,26 @@ export function SettingsPane({
             uiManager={uiManager}
             setting={Setting.AutoApproveNonPurchaseTransactions}
             settingDescription={'auto confirm non-purchase transactions'}
+          />
+        </Section>
+
+        <Section>
+          <SectionHeader>Planet Default Energy Level To Send</SectionHeader>
+          Select the planet default energy level to send from planets, note that if you adjust the value manually for a planet this will be new value used.
+          <Spacer height={16} />
+          <MultiSelectSetting
+            uiManager={uiManager}
+            setting={Setting.PlanetDefaultEnergyLevelToSend}
+            values={defaultEnergySendValues}
+            labels={defaultEnergySendValues}
+          />
+          <Spacer height={16} />
+          Select checkbox below if you want that the default energy send value to be used, after energy has been sent from a planet.
+          <Spacer height={16} />
+          <BooleanSetting
+            uiManager={uiManager}
+            setting={Setting.PlanetDefaultEnergyLevelToSendReset}
+            settingDescription={'reset to default energy level'}
           />
         </Section>
 

@@ -50,8 +50,11 @@ import { getObjectWithIdFromMap } from '../../Frontend/Utils/EmitterUtils';
 import { listenForKeyboardEvents, unlinkKeyboardEvents } from '../../Frontend/Utils/KeyEmitters';
 import {
   getBooleanSetting,
+  getNumberSetting,
   getSetting,
   setBooleanSetting,
+  settingChanged$,
+  useSetting,
 } from '../../Frontend/Utils/SettingsHooks';
 import UIEmitter, { UIEmitterEvent } from '../../Frontend/Utils/UIEmitter';
 import { TerminalHandle } from '../../Frontend/Views/Terminal';
@@ -180,6 +183,15 @@ class GameUIManager extends EventEmitter {
 
     this.isSending$ = monomitter(true);
     this.isAbandoning$ = monomitter(true);
+
+    settingChanged$.subscribe((setting) => {
+      // If user selects to always use the default energy level, we need to clear existing energy send level values set.
+      if (setting === Setting.PlanetDefaultEnergyLevelToSendReset && this.getBooleanSetting(Setting.PlanetDefaultEnergyLevelToSendReset)) {
+        for (const id of Object.keys(this.forcesSending)) {
+          delete this.forcesSending[id];
+        }
+      }
+    });
 
     autoBind(this);
   }
@@ -688,6 +700,10 @@ class GameUIManager extends EventEmitter {
           tutorialManager.acceptInput(TutorialState.SendFleet);
         }
 
+        if(this.getBooleanSetting(Setting.PlanetDefaultEnergyLevelToSendReset)) {
+          delete this.forcesSending[from.locationId];
+        }
+
         uiEmitter.emit(UIEmitterEvent.SendCompleted, from.locationId);
       }
 
@@ -1142,7 +1158,8 @@ class GameUIManager extends EventEmitter {
    * Percent from 0 to 100.
    */
   public getForcesSending(planetId?: LocationId): number {
-    const defaultSending = 50;
+    const config = { contractAddress: this.getContractAddress(), account: this.getAccount() };
+    const defaultSending = getNumberSetting(config, Setting.PlanetDefaultEnergyLevelToSend);
     if (!planetId) return defaultSending;
 
     if (this.isAbandoning()) return 100;

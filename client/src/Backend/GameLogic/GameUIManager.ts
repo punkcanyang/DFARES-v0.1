@@ -828,7 +828,7 @@ class GameUIManager extends EventEmitter {
   }
 
   private getBiomeKey(biome: Biome) {
-    return `${this.getAccount()}-${this.gameManager.getContractAddress()}-biome-${biome}`;
+    return `${this.gameManager.getContractAddress()}-${this.getAccount()?.toLowerCase()}-biome-${biome}`;
   }
 
   public getDiscoverBiomeName(biome: Biome): string {

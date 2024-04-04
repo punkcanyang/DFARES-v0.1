@@ -71,11 +71,18 @@ export function HotkeyThumbArtShips({
 }
 
 export function HotkeysArtShipPane(selectedPlanetVisible: { selectedPlanetVisible: boolean }) {
+  const uiManager = useUIManager();
+
   const [hotkeys, setHotkeys] = useState<Hotkey[]>([]);
+
+  const getShipHotkeys = () => {
+    return `${uiManager.getContractAddress()}-${uiManager.getAccount()?.toLowerCase()}-shipHotkeys`;
+  };
 
   useEffect(() => {
     // Load hotkeys from localStorage or initialize them if not present
-    const savedHotkeys = localStorage.getItem('shipHotkeys');
+    const shipHotkeys = getShipHotkeys();
+    const savedHotkeys = localStorage.getItem(shipHotkeys);
     if (savedHotkeys) {
       setHotkeys(JSON.parse(savedHotkeys));
     } else {
@@ -93,7 +100,8 @@ export function HotkeysArtShipPane(selectedPlanetVisible: { selectedPlanetVisibl
   };
 
   const saveHotkeys = (hotkeysToSave: Hotkey[]) => {
-    localStorage.setItem('shipHotkeys', JSON.stringify(hotkeysToSave));
+    const shipHotkeys = getShipHotkeys();
+    localStorage.setItem(shipHotkeys, JSON.stringify(hotkeysToSave));
   };
 
   const handleSetArtifact = (index: number) => {
@@ -135,8 +143,15 @@ export function HotkeysMainLinePane(selectedPlanetVisible: { selectedPlanetVisib
 
   const [hotkeys, setHotkeys] = useState<Hotkey[]>([]);
 
+  const getPlanetHotkeys = () => {
+    return `${uiManager.getContractAddress()}-${uiManager
+      .getAccount()
+      ?.toLowerCase()}-planetHotKeys`;
+  };
+
   useEffect(() => {
-    const savedHotkeys = localStorage.getItem('planetHotkeys');
+    const planetHotKeys = getPlanetHotkeys();
+    const savedHotkeys = localStorage.getItem(planetHotKeys);
     if (savedHotkeys) {
       setHotkeys(JSON.parse(savedHotkeys));
     } else {
@@ -154,7 +169,8 @@ export function HotkeysMainLinePane(selectedPlanetVisible: { selectedPlanetVisib
   };
 
   const saveHotkeys = (hotkeysToSave: Hotkey[]) => {
-    localStorage.setItem('planetHotkeys', JSON.stringify(hotkeysToSave));
+    const planetHotKeys = getPlanetHotkeys();
+    localStorage.setItem(planetHotKeys, JSON.stringify(hotkeysToSave));
   };
 
   const handleSetLocation = (index: number) => {

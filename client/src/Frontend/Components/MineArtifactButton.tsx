@@ -105,6 +105,11 @@ export function MineArtifactButton({
                     </>
                   )
                 }
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  textAlign: 'center',
+                }}
               >
                 {!prospecting ? 'Prospect Artifact' : 'Prospecting...'}
               </TooltipTrigger>
@@ -134,6 +139,11 @@ export function MineArtifactButton({
                     </>
                   )
                 }
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  textAlign: 'center',
+                }}
               >
                 {!finding ? 'Find Artifact' : 'Finding Artifact...'}
               </TooltipTrigger>

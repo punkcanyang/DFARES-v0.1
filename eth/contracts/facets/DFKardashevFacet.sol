@@ -91,14 +91,23 @@ contract DFKardashevFacet is WithStorage {
 
         uint256 planetId = _input[0];
         LibPlanet.refreshPlanet(planetId);
-        require(gs().kardashevCoords[planetId].locationId == 0, "kardashev before");
 
         Planet storage planet = gs().planets[planetId];
+        Player storage player = gs().players[msg.sender];
 
+        //destoryed or frozen
         require(!planet.destroyed, "planet is destroyed");
         require(!planet.frozen, "planet is frozen");
-        require(planet.kardashevTimestamp == 0, "kardashev this planet before");
 
+        //kardashev before
+        require(planet.kardashevTimestamp == 0, "kardashev this planet before");
+        require(gs().kardashevCoords[planetId].locationId == 0, "kardashev before");
+
+        // planet owner & level
+        require(planet.owner == msg.sender, "only you");
+        require(planet.planetLevel >= 3, "planet level >= 3");
+
+        //active artifact & cooldown check
         bool activeKardashev = false;
         Artifact memory activeArtifact = LibGameUtils.getActiveArtifact(planetId);
         if (activeArtifact.isInitialized && activeArtifact.artifactType == ArtifactType.Kardashev) {
@@ -113,23 +122,23 @@ contract DFKardashevFacet is WithStorage {
         }
         require(activeKardashev, "need active kardashev");
 
-        require(planet.planetLevel >= 1, "planet level >=1");
-
-        Player storage player = gs().players[msg.sender];
-        player.kardashevAmount++;
-
+        // silver amount
         uint256 silverAmount = gameConstants().KARDASHEV_REQUIRE_SILVER_AMOUNTS[planet.planetLevel];
-
         require(gs().players[msg.sender].silver >= silverAmount * 1000, "silver is not enough");
 
-        gs().players[msg.sender].silver -= silverAmount * 1000;
+        require(
+            block.timestamp - gs().lastKardashevTimestamp[msg.sender] >
+                gameConstants().KARDASHEV_PLANET_COOLDOWN,
+            "kardashev cooldown"
+        );
+
+        player.kardashevAmount++;
+        player.silver -= silverAmount * 1000;
 
         planet.kardashevOperator = msg.sender;
 
         gs().lastKardashevTimestamp[msg.sender] = block.timestamp;
         planet.kardashevTimestamp = block.timestamp;
-
-        require(gs().kardashevCoords[planetId].locationId == 0, "kardshev before");
 
         gs().kardashevIds.push(planetId);
         gs().kardashevPlanets[msg.sender].push(planetId);

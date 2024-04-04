@@ -1,15 +1,14 @@
-import { isUnconfirmedBlueTx } from '@dfares/serde';
-import { EthAddress, LocationId } from '@dfares/types';
-import React, { useEffect, useState } from 'react';
+import { LocationId } from '@dfares/types';
+import React from 'react';
 import styled from 'styled-components';
 import { Btn } from '../Components/Btn';
 import { CenterBackgroundSubtext, Spacer } from '../Components/CoreUI';
 import { LoadingSpinner } from '../Components/LoadingSpinner';
-import { Blue, White } from '../Components/Text';
+import { Blue, Green, White } from '../Components/Text';
 import { TextPreview } from '../Components/TextPreview';
 import { formatDuration, TimeUntil } from '../Components/TimeUntil';
 import dfstyles from '../Styles/dfstyles';
-import { usePlanet, useUIManager } from '../Utils/AppHooks';
+import { useAccount, usePlanet, useUIManager } from '../Utils/AppHooks';
 import { useEmitterValue } from '../Utils/EmitterHooks';
 import { ModalHandle } from '../Views/ModalPane';
 
@@ -59,6 +58,15 @@ export function BluePane({
   const uiManager = useUIManager();
   const planetId = useEmitterValue(uiManager.selectedPlanetId$, initialPlanetId);
   const planet = usePlanet(uiManager, planetId).value;
+  const account = useAccount(uiManager);
+
+  const notice = (
+    <CenterBackgroundSubtext width='100%' height='75px'>
+      You can't <br /> blue this planet.
+    </CenterBackgroundSubtext>
+  );
+
+  if (!planetId || !planet || !uiManager) return notice;
 
   const getLoc = () => {
     if (!planet || !uiManager) return { x: 0, y: 0 };
@@ -75,11 +83,12 @@ export function BluePane({
     uiManager.blueLocation(loc.hash);
   };
 
-  const [account, setAccount] = useState<EthAddress | undefined>(undefined); // consider moving this one to parent
-
   const isDestoryedOrFrozen = planet?.destroyed || planet?.frozen;
-
   const planetLevelCheckPassed = planet && planet?.planetLevel >= 3;
+  const blueZoneCheckPassed = planetId && uiManager.checkPlanetCanBlue(planetId);
+  if (isDestoryedOrFrozen || !planetLevelCheckPassed || !blueZoneCheckPassed) return notice;
+
+  const centerPlanetId = uiManager.getBlueZoneCenterPlanetId(planetId);
 
   const getSilverPassed = () => {
     if (!planet) return false;
@@ -104,34 +113,12 @@ export function BluePane({
   };
   const formatSilverAmount = getFormatSilverAmount();
 
-  const getCenterPlanetId = () => {
-    if (!planetId) return undefined;
-    return uiManager.getBlueZoneCenterPlanetId(planetId);
-  };
-
-  const centerPlanetId = getCenterPlanetId();
-
-  const getCenterPlanet = () => {
-    const _ = getCenterPlanetId();
-    if (!_) return undefined;
-    return uiManager.getPlanetWithId(_);
-  };
-  const centerPlanet = getCenterPlanet();
-
-  const blueZoneCheckPassed =
-    centerPlanetId !== undefined &&
-    centerPlanet !== undefined &&
-    centerPlanet.kardashevTimestamp !== undefined;
-
   const timeCheckPassed =
     planetId === undefined
       ? false
       : uiManager.getNextBlueAvailableTimestamp(planetId) <= Date.now();
 
-  useEffect(() => {
-    if (!uiManager) return;
-    setAccount(uiManager.getAccount());
-  }, [uiManager]);
+  const notBlueingAnyPlanet = uiManager.isCurrentlyBlueing() === false;
 
   let blueBtn = undefined;
 
@@ -143,7 +130,7 @@ export function BluePane({
     blueBtn = <Btn disabled={true}>Blue It </Btn>;
   } else if (!timeCheckPassed) {
     blueBtn = <Btn disabled={true}>Blue It </Btn>;
-  } else if (planet?.transactions?.hasTransaction(isUnconfirmedBlueTx)) {
+  } else if (!notBlueingAnyPlanet) {
     blueBtn = (
       <Btn disabled={true}>
         <LoadingSpinner initialText={'Blueing It...'} />
@@ -198,10 +185,32 @@ export function BluePane({
     return (
       <BlueWrapper>
         <div>
+          <Blue>
+            Transfer energy from this planet to the planet in the center of the blue circle.
+          </Blue>
+        </div>
+
+        <Spacer height={8} />
+        <div>
+          <Green>Tip:</Green>
+          If the planet is in two blue circles, the energy will be transferred to the closer central
+          planet.
+        </div>
+        <div>
+          <Green>Tip:</Green>
           You need to wait{' '}
-          <White>{formatDuration(uiManager.contractConstants.BLUE_PLANET_COOLDOWN * 1000)}</White>{' '}
+          <White>
+            {formatDuration(uiManager.contractConstants.BLUE_PLANET_COOLDOWN * 1000)}
+          </White>{' '}
           after kardashev.
         </div>
+        <div>
+          <Green>Tip:</Green>
+          Each time requires the same amount of silver.
+        </div>
+
+        <Spacer height={8} />
+
         {blueZoneCheckPassed && (
           <div className='row'>
             <span> Center Planet ID:</span>
@@ -209,7 +218,7 @@ export function BluePane({
             <span>
               <TextPreview
                 style={{ color: dfstyles.colors.subtext }}
-                text={centerPlanet.locationId}
+                text={centerPlanetId}
                 focusedWidth={'150px'}
                 unFocusedWidth={'150px'}
               />

@@ -491,6 +491,10 @@ class GameUIManager extends EventEmitter {
     this.gameManager.kardashev(locationId);
   }
 
+  public checkPlanetCanBlue(planetId: LocationId): boolean {
+    return this.gameManager.checkPlanetCanBlue(planetId);
+  }
+
   public blueLocation(locationId: LocationId) {
     this.gameManager.blueLocation(locationId);
   }
@@ -1295,6 +1299,14 @@ class GameUIManager extends EventEmitter {
 
   public isCurrentlyKardasheving(): boolean {
     return this.gameManager.getNextKardashevCountdownInfo().currentlyKardasheving;
+  }
+
+  public isCurrentlyPinking(): boolean {
+    return this.gameManager.isCurrentlyPinking();
+  }
+
+  public isCurrentlyBlueing(): boolean {
+    return this.gameManager.isCurrentlyBlueing();
   }
 
   public getUnconfirmedLinkActivations(): Transaction<UnconfirmedActivateArtifact>[] {

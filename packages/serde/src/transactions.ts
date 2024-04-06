@@ -13,6 +13,7 @@ import {
   UnconfirmedClaim,
   UnconfirmedDeactivateArtifact,
   UnconfirmedDepositArtifact,
+  UnconfirmedDonate,
   UnconfirmedFindArtifact,
   UnconfirmedGetShips,
   UnconfirmedInit,
@@ -155,6 +156,10 @@ export function isUnconfirmedBuyPlanet(txIntent: TxIntent): txIntent is Unconfir
 
 export function isUnconfirmedBuySpaceship(txIntent: TxIntent): txIntent is UnconfirmedBuySpaceship {
   return txIntent.methodName === 'buySpaceship';
+}
+
+export function isUnconfirmedDonate(txIntent: TxIntent): txIntent is UnconfirmedDonate {
+  return txIntent.methodName === 'donate';
 }
 
 export function isUnconfirmedInvadePlanet(txIntent: TxIntent): txIntent is UnconfirmedInvadePlanet {
@@ -303,4 +308,8 @@ export function isUnconfirmedBuySpaceshipTx(
   tx: Transaction
 ): tx is Transaction<UnconfirmedBuySpaceship> {
   return isUnconfirmedBuySpaceship(tx.intent);
+}
+
+export function isUnconfirmedDonateTx(tx: Transaction): tx is Transaction<UnconfirmedDonate> {
+  return isUnconfirmedDonate(tx.intent);
 }

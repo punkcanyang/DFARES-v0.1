@@ -34,7 +34,8 @@ export type ContractMethodName =
   | 'blueLocation'
   | 'refreshPlanet'
   | 'buyPlanet'
-  | 'buySpaceship';
+  | 'buySpaceship'
+  | 'donate';
 
 export type EthTxStatus =
   | 'Init'
@@ -326,4 +327,12 @@ export type UnconfirmedBuySpaceship = TxIntent & {
   methodName: 'buySpaceship';
   locationId: LocationId;
   location: WorldLocation;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedDonate = TxIntent & {
+  methodName: 'donate';
+  amount: number;
 };

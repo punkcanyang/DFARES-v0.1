@@ -15,6 +15,7 @@ import {DFWhitelistFacet} from "./DFWhitelistFacet.sol";
 import {Planet, Player, SpaceType, ArtifactType, Artifact} from "../DFTypes.sol";
 
 contract DFTradeFacet is WithStorage {
+    event PlayerDonate(address player, uint256 amount);
     event PlanetBought(address player, uint256 loc);
     event SpaceshipBought(uint256 locationId, address owner, ArtifactType artifactType);
 
@@ -141,5 +142,12 @@ contract DFTradeFacet is WithStorage {
         gs().mySpaceshipIds[msg.sender].push(shipId);
 
         emit SpaceshipBought(locationId, msg.sender, artifactType);
+    }
+
+    function donate(uint256 amount) public payable {
+        require(amount > 0, "amount gt 0");
+        require(amount * 0.001 ether == msg.value, "Wrong value sent");
+        gs().players[msg.sender].donationAmount += amount;
+        emit PlayerDonate(msg.sender, amount);
     }
 }

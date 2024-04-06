@@ -3,25 +3,17 @@ import React, { useCallback } from 'react';
 import { BluePane } from '../Panes/BluePane';
 import { BroadcastPane, BroadcastPaneHelpContent } from '../Panes/BroadcastPane';
 import { BuyArtifactPane } from '../Panes/BuyArtifactPane';
-import { DropBombPane } from '../Panes/DropBombPane';
-import { HatPane } from '../Panes/HatPane';
-import { KardashevPane } from '../Panes/KardashevPane';
 import {
   ManagePlanetArtifactsHelpContent,
   ManagePlanetArtifactsPane,
   PlanetInfoHelpContent,
 } from '../Panes/ManagePlanetArtifacts/ManagePlanetArtifactsPane';
-import { PinkPane } from '../Panes/PinkPane';
 import { PlanetInfoPane } from '../Panes/PlanetInfoPane';
 import { UpgradeDetailsPane, UpgradeDetailsPaneHelpContent } from '../Panes/UpgradeDetailsPane';
 import {
   TOGGLE_BLUE_PANE,
   TOGGLE_BROADCAST_PANE,
   TOGGLE_BUY_ARTIFACT_PANE,
-  TOGGLE_DROP_BOMB_PANE,
-  TOGGLE_HAT_PANE,
-  TOGGLE_KARDASHEV_PANE,
-  TOGGLE_PINK_PANE,
   TOGGLE_PLANET_ARTIFACTS_PANE,
   TOGGLE_PLANET_INFO_PANE,
   TOGGLE_UPGRADES_PANE,
@@ -60,23 +52,6 @@ export function OpenPaneButton({
     >
       {title}
     </MaybeShortcutButton>
-  );
-}
-
-export function OpenHatPaneButton({
-  modal,
-  planetId,
-}: {
-  modal: ModalHandle;
-  planetId: LocationId | undefined;
-}) {
-  return (
-    <OpenPaneButton
-      modal={modal}
-      title='Buy Hat'
-      shortcut={TOGGLE_HAT_PANE}
-      element={() => <HatPane modal={modal} initialPlanetId={planetId} />}
-    />
   );
 }
 
@@ -132,6 +107,7 @@ export function OpenUpgradeDetailsPaneButton({
     />
   );
 }
+
 export function OpenManagePlanetArtifactsButton({
   modal,
   planetId,
@@ -163,60 +139,6 @@ export function OpenPlanetInfoButton({
       title='Info/Claim'
       shortcut={TOGGLE_PLANET_INFO_PANE}
       element={() => <PlanetInfoPane initialPlanetId={planetId} modal={modal} />}
-      helpContent={PlanetInfoHelpContent()}
-    />
-  );
-}
-
-export function OpenDropBombButton({
-  modal,
-  planetId,
-}: {
-  modal: ModalHandle;
-  planetId: LocationId | undefined;
-}) {
-  return (
-    <OpenPaneButton
-      modal={modal}
-      title='Drop Bomb'
-      shortcut={TOGGLE_DROP_BOMB_PANE}
-      element={() => <DropBombPane initialPlanetId={planetId} modal={modal} />}
-      helpContent={PlanetInfoHelpContent()}
-    />
-  );
-}
-
-export function OpenPinkButton({
-  modal,
-  planetId,
-}: {
-  modal: ModalHandle;
-  planetId: LocationId | undefined;
-}) {
-  return (
-    <OpenPaneButton
-      modal={modal}
-      title='Pink'
-      shortcut={TOGGLE_PINK_PANE}
-      element={() => <PinkPane initialPlanetId={planetId} modal={modal} />}
-      helpContent={PlanetInfoHelpContent()}
-    />
-  );
-}
-
-export function OpenKardashevButton({
-  modal,
-  planetId,
-}: {
-  modal: ModalHandle;
-  planetId: LocationId | undefined;
-}) {
-  return (
-    <OpenPaneButton
-      modal={modal}
-      title='Kardashev'
-      shortcut={TOGGLE_KARDASHEV_PANE}
-      element={() => <KardashevPane initialPlanetId={planetId} modal={modal} />}
       helpContent={PlanetInfoHelpContent()}
     />
   );

@@ -1,14 +1,16 @@
-import { getPlanetName } from '@dfares/procedural';
+import { weiToEth } from '@dfares/network';
 import { ModalName } from '@dfares/types';
+import { BigNumber } from 'ethers';
 import React from 'react';
 import styled from 'styled-components';
-import { Section, SectionHeader, Spacer } from '../Components/CoreUI';
-import { useAccount, usePlayer, useSelectedPlanet, useUIManager } from '../Utils/AppHooks';
+import { Btn } from '../Components/Btn';
+import { EmSpacer, Section, SectionHeader, Spacer } from '../Components/CoreUI';
+import { MythicLabelText } from '../Components/Labels/MythicLabel';
+import { useAccount, usePlayer, useUIManager } from '../Utils/AppHooks';
+import { useEmitterValue } from '../Utils/EmitterHooks';
 import { ModalPane } from '../Views/ModalPane';
-import { PlanetLink } from '../Views/PlanetLink';
 import { BuyPlanetPane } from './BuyPlanetPane';
 import { BuySpaceshipPane } from './BuySpaceshipPane';
-import { PlanetThumb } from './PlanetDexPane';
 
 const TradeContent = styled.div`
   width: 500px;
@@ -47,9 +49,18 @@ export function TradePane({ visible, onClose }: { visible: boolean; onClose: () 
 
   const account = useAccount(uiManager);
   const player = usePlayer(uiManager).value;
-  const selectedPlanet = useSelectedPlanet(uiManager).value;
+  const balanceEth = weiToEth(
+    useEmitterValue(uiManager.getEthConnection().myBalance$, BigNumber.from('0'))
+  );
 
   if (!account || !player) return <></>;
+
+  const disabled_1 = balanceEth < 0.001;
+  const disabled_2 = balanceEth < 0.01;
+  const disabled_3 = balanceEth < 0.1;
+  const disabled_4 = balanceEth < 1;
+  const disabled_5 = balanceEth < 10;
+  const disabled_6 = balanceEth < 100;
 
   return (
     <ModalPane
@@ -61,34 +72,37 @@ export function TradePane({ visible, onClose }: { visible: boolean; onClose: () 
     >
       <TradeContent>
         <Section>
-          <SectionHeader>Basic Info</SectionHeader>
+          <SectionHeader>Donation </SectionHeader>
           <Row>
-            <span>Public Key</span>
-            <span>{account}</span>
+            <MythicLabelText text={'Thanks for supporting our development!'} />
           </Row>
-
-          <Row>
-            <span> Selected Planet</span>
+          {/* <Row>
+            <span>My Balance </span>
             <span>
-              {selectedPlanet ? (
-                <span
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                  }}
-                >
-                  &nbsp;
-                  <PlanetThumb planet={selectedPlanet} />
-                  <PlanetLink planet={selectedPlanet}>{getPlanetName(selectedPlanet)}</PlanetLink>
-                </span>
-              ) : (
-                <span>{'(none)'}</span>
-              )}
+              {balanceEth} ${TOKEN_NAME}
             </span>
-          </Row>
+          </Row> */}
+          <EmSpacer height={1} />
+          <Btn disabled={disabled_1} onClick={() => uiManager.donate(1)}>
+            donate 0.001 ETH
+          </Btn>{' '}
+          <Btn disabled={disabled_2} onClick={() => uiManager.donate(10)}>
+            donate 0.01 ETH
+          </Btn>{' '}
+          <Btn disabled={disabled_3} onClick={() => uiManager.donate(100)}>
+            donate 0.1 ETH
+          </Btn>
+          <EmSpacer height={1} />
+          <Btn disabled={disabled_4} onClick={() => uiManager.donate(1000)}>
+            donate 1 ETH
+          </Btn>{' '}
+          <Btn disabled={disabled_5} onClick={() => uiManager.donate(10000)}>
+            donate 10 ETH
+          </Btn>{' '}
+          <Btn disabled={disabled_6} onClick={() => uiManager.donate(100000)}>
+            donate 100 ETH
+          </Btn>{' '}
         </Section>
-
         <BuyPlanetPane />
         <BuySpaceshipPane />
       </TradeContent>

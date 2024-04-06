@@ -5,7 +5,7 @@ import { TooltipTrigger } from '../../Panes/Tooltip';
 import dfstyles from '../../Styles/dfstyles';
 
 const StyledSilverLabel = styled.span`
-  color: ${dfstyles.colors.text};
+  color: ${dfstyles.colors.dfyellow};
 `;
 export const SilverLabel = () => <StyledSilverLabel>Silver</StyledSilverLabel>;
 export const SilverLabelTip = () => (

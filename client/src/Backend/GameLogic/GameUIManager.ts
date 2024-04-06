@@ -503,6 +503,10 @@ class GameUIManager extends EventEmitter {
     this.gameManager.kardashev(locationId);
   }
 
+  public checkPlanetCanBlue(planetId: LocationId): boolean {
+    return this.gameManager.checkPlanetCanBlue(planetId);
+  }
+
   public blueLocation(locationId: LocationId) {
     this.gameManager.blueLocation(locationId);
   }
@@ -844,7 +848,7 @@ class GameUIManager extends EventEmitter {
   }
 
   private getBiomeKey(biome: Biome) {
-    return `${this.getAccount()}-${this.gameManager.getContractAddress()}-biome-${biome}`;
+    return `${this.gameManager.getContractAddress()}-${this.getAccount()?.toLowerCase()}-biome-${biome}`;
   }
 
   public getDiscoverBiomeName(biome: Biome): string {
@@ -1314,6 +1318,14 @@ class GameUIManager extends EventEmitter {
     return this.gameManager.getNextKardashevCountdownInfo().currentlyKardasheving;
   }
 
+  public isCurrentlyPinking(): boolean {
+    return this.gameManager.isCurrentlyPinking();
+  }
+
+  public isCurrentlyBlueing(): boolean {
+    return this.gameManager.isCurrentlyBlueing();
+  }
+
   public getUnconfirmedLinkActivations(): Transaction<UnconfirmedActivateArtifact>[] {
     return this.gameManager.getUnconfirmedLinkActivations();
   }
@@ -1439,6 +1451,11 @@ class GameUIManager extends EventEmitter {
   public buySpaceship(planet: Planet): void {
     this.terminal.current?.printShellLn(`df.buySpaceship('${planet.locationId}')`);
     this.gameManager.buySpaceship(planet.locationId);
+  }
+
+  public donate(amount: number): void {
+    // this.terminal.current?.printShellLn(`df.donate('${amount}')`);
+    this.gameManager.donate(amount);
   }
 
   // non-nullable

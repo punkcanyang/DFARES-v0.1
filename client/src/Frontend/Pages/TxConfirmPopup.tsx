@@ -231,6 +231,11 @@ export function TxConfirmPopup({
   const buySpaceshipOnPlanetId = localStorage.getItem(`${account}-buySpaceshipOnPlanetId`);
   const buySpaceshipCost = method === 'buySpaceship' ? 0.001 : 0; // 0.001 eth
 
+  //donate
+  const rawDonateAmount = localStorage.getItem(`${account}-donateAmount`);
+
+  const donationAmount = method === 'donate' ? Number(rawDonateAmount) * 0.001 : 0;
+
   function isTypeOK() {
     if (butArtifactType === undefined) return false;
     const val = Number(butArtifactType);
@@ -297,6 +302,7 @@ export function TxConfirmPopup({
         joinGameCost +
         buyPlanetCost +
         buySpaceshipCost +
+        donationAmount +
         weiToEth(gweiToWei(Number(gasLimit) * Number(gasFeeGwei)));
 
       return res.toFixed(18).toString();
@@ -320,6 +326,7 @@ export function TxConfirmPopup({
         joinGameCost +
         buyPlanetCost +
         buySpaceshipCost +
+        donationAmount +
         weiToEth(gweiToWei(Number(gasLimit) * Number(val)));
 
       return pre + res.toFixed(18).toString();
@@ -395,6 +402,17 @@ export function TxConfirmPopup({
               <b>Buy Spaceship Fee </b>
               <span>
                 {buySpaceshipCost} ${TOKEN_NAME}
+              </span>
+            </Row>
+          </>
+        )}
+
+        {method === 'donate' && (
+          <>
+            <Row>
+              <b>Donation Amount </b>
+              <span>
+                {donationAmount} ${TOKEN_NAME}
               </span>
             </Row>
           </>

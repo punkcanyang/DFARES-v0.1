@@ -4,9 +4,9 @@ import { ArtifactType, LocationId } from '@dfares/types';
 import React from 'react';
 import styled from 'styled-components';
 import { Btn } from '../Components/Btn';
-import { Spacer } from '../Components/CoreUI';
+import { CenterBackgroundSubtext, Spacer } from '../Components/CoreUI';
 import { LoadingSpinner } from '../Components/LoadingSpinner';
-import { Blue, White } from '../Components/Text';
+import { Blue, Green, White } from '../Components/Text';
 import { formatDuration, TimeUntil } from '../Components/TimeUntil';
 import dfstyles from '../Styles/dfstyles';
 import {
@@ -72,7 +72,29 @@ export function KardashevPane({
 
   const activeArtifact = useActiveArtifact(planetWrapper, uiManager);
 
-  if (!account || !player || !planet) return <></>;
+  const notice = (
+    <CenterBackgroundSubtext width='100%' height='75px'>
+      You can't <br /> kardashev this planet.
+    </CenterBackgroundSubtext>
+  );
+
+  if (!account || !player || !planet) return notice;
+
+  const planetIsLocatable = isLocatable(planet);
+  const notDestoryedOrFrozen = !planet.destroyed && !planet?.frozen;
+  const levelCheckPassed = planet.planetLevel >= 3;
+  const ownerCheckPassed = planet.owner === account;
+  const kardashevOperatorCheckPassed =
+    planet.kardashevOperator === undefined || planet.kardashevOperator === EMPTY_ADDRESS;
+
+  if (
+    !planetIsLocatable ||
+    !notDestoryedOrFrozen ||
+    !levelCheckPassed ||
+    !ownerCheckPassed ||
+    !kardashevOperatorCheckPassed
+  )
+    return notice;
 
   const getLoc = () => {
     if (!planet || !uiManager) return { x: 0, y: 0 };
@@ -82,16 +104,13 @@ export function KardashevPane({
   };
 
   const func = async () => {
-    if (!uiManager) return;
-    await uiManager.kardashev(planet.locationId);
+    if (!planet || !uiManager) return;
+    const loc = uiManager.getLocationOfPlanet(planet.locationId);
+    if (!loc) return;
+    await uiManager.kardashev(loc.hash);
   };
 
-  const notDestoryedOrFrozen = isLocatable(planet) && !planet.destroyed && !planet?.frozen;
-  const notLevel0 = planet.planetLevel > 0;
-  const kardashevbefore =
-    planet.kardashevOperator !== undefined && planet.kardashevOperator !== EMPTY_ADDRESS;
-
-  const currentlyKardashevingAnyPlanet = uiManager.isCurrentlyKardasheving();
+  const notKardashevingAnyPlanet = uiManager.isCurrentlyKardasheving() === false;
 
   const kardashevCooldownPassed = uiManager.getNextKardashevAvailableTimestamp() <= Date.now();
 
@@ -127,10 +146,7 @@ export function KardashevPane({
   };
 
   const disabled =
-    !notDestoryedOrFrozen ||
-    !notLevel0 ||
-    kardashevbefore ||
-    currentlyKardashevingAnyPlanet ||
+    !notKardashevingAnyPlanet ||
     !kardashevCooldownPassed ||
     !silverAmountPassed ||
     !activeArtifactCheckPased ||
@@ -138,45 +154,23 @@ export function KardashevPane({
 
   let buttonContent = <></>;
 
-  if (!notDestoryedOrFrozen) {
-    buttonContent = <>Planet destroyed or frozen </>;
-  } else if (!notLevel0) {
-    buttonContent = <>Require planet level is higher than 0</>;
-  } else if (kardashevbefore) {
-    buttonContent = <>kardashev before</>;
-  } else if (currentlyKardashevingAnyPlanet) {
+  if (!notKardashevingAnyPlanet) {
     buttonContent = <LoadingSpinner initialText={'Kardasheving...'} />;
   } else if (!kardashevCooldownPassed) {
-    buttonContent = <>Wait for the cooldown </>;
+    buttonContent = <>Wait For Operation Cooldown </>;
   } else if (!silverAmountPassed) {
-    buttonContent = <>Not enough silver</>;
+    buttonContent = <>Not Enough Silver</>;
   } else if (!activeArtifactCheckPased) {
-    buttonContent = <>Need active karhashev artifact</>;
+    buttonContent = <>Need Active Karhashev Artifact</>;
   } else if (!artifactCooldownPassed) {
-    buttonContent = <>Wait for the cooldown</>;
+    buttonContent = <>Wait For Artifact Cooldown</>;
   } else {
     buttonContent = <>Kardashev</>;
   }
 
   const warningsSection = (
     <div>
-      {!notDestoryedOrFrozen && (
-        <p>
-          <Blue>INFO:</Blue> planet is destoryed or frozen
-        </p>
-      )}
-      {!notLevel0 && (
-        <p>
-          <Blue>INFO:</Blue> planet level musd be bigger than 0
-        </p>
-      )}
-      {kardashevbefore && (
-        <p>
-          <Blue>INFO: </Blue> can't kardashev the planet
-        </p>
-      )}
-
-      {currentlyKardashevingAnyPlanet && (
+      {!notKardashevingAnyPlanet && (
         <p>
           <Blue>INFO:</Blue> Kardshaeving...
         </p>
@@ -184,7 +178,7 @@ export function KardashevPane({
 
       {!kardashevCooldownPassed && (
         <p>
-          <Blue>INFO:</Blue> {' [kardashev cooldown] You must wait '}
+          <Blue>INFO:</Blue> {' [KARDASHEV COOLDOWN] You must wait '}
           <TimeUntil
             timestamp={uiManager.getNextKardashevAvailableTimestamp()}
             ifPassed={'now!'}
@@ -200,13 +194,13 @@ export function KardashevPane({
 
       {!activeArtifactCheckPased && (
         <p>
-          <Blue>INFO:</Blue> Please activate kardashev artifact on this planet.
+          <Blue>INFO:</Blue> Please activate Kardashev Artifact on this planet.
         </p>
       )}
 
       {activeArtifactCheckPased && !artifactCooldownPassed && (
         <p>
-          <Blue>INFO:</Blue> {' [artifact cooldown] You must wait '}
+          <Blue>INFO:</Blue> {' [ARTIFACT COOLDOWN] You must wait '}
           <TimeUntil timestamp={getTimestamp()} ifPassed={'now!'} />{' '}
         </p>
       )}
@@ -216,7 +210,16 @@ export function KardashevPane({
   return (
     <KardashevWrapper>
       <div>
+        <Green>Tip:</Green>
         You can only kardashev a planet once every{' '}
+        <White>
+          {formatDuration(uiManager.contractConstants.KARDASHEV_PLANET_COOLDOWN * 1000)}
+        </White>
+        .
+      </div>
+
+      <div>
+        <Green>Tip:</Green> After activating the Kardashev artifact, you need to wait for{' '}
         <White>
           {formatDuration(uiManager.contractConstants.KARDASHEV_PLANET_COOLDOWN * 1000)}
         </White>

@@ -237,7 +237,7 @@ class Viewport {
   private getStorageKey(): string {
     const acc = this.gameUIManager.getAccount();
     const addr = this.gameUIManager.getContractAddress();
-    return `${acc}-${addr}-viewport`;
+    return `${addr}-${acc}-viewport`;
   }
 
   // returns this viewport's ViewportData, which will let us initialize it at the same zoom / pos

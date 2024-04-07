@@ -153,14 +153,17 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       } else {
         terminal.current?.newline();
         terminal.current?.newline();
-        // terminal.current?.printElement(
-        //   <MythicLabelText text={`Welcome To Dark Forest Ares v0.1.2`} />
-        // );
-
-        terminal.current?.print(
-          'Welcome To Dark Forest Ares v0.1 Round 2: Pinkship',
-          TerminalTextStyle.Pink
+        terminal.current?.printElement(
+          <MythicLabelText
+            text={`Welcome To Dark Forest Ares v0.1.3: Kardashev`}
+            style={{ fontFamily: "'Start Press 2P', sans-serif" }}
+          />
         );
+
+        terminal.current?.newline();
+
+        terminal.current?.print('Pink is the color for operation prompts', TerminalTextStyle.Pink);
+
         terminal.current?.newline();
         terminal.current?.newline();
         terminal.current?.printLink(

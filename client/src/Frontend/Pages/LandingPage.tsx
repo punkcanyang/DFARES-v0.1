@@ -7,6 +7,7 @@ import { Link, Spacer, Title } from '../Components/CoreUI';
 import { Modal } from '../Components/Modal';
 import dfstyles from '../Styles/dfstyles';
 import { LandingPageRoundArt } from '../Views/LandingPageRoundArt';
+
 export const enum LandingPageZIndex {
   Background = 0,
   Canvas = 1,
@@ -65,7 +66,7 @@ export default function LandingPage() {
           <Spacer height={8} />
         </OnlyMobile>
         <HideOnMobile>
-          <Spacer height={150} />
+          <Spacer height={100} />
         </HideOnMobile>
 
         <MainContentContainer>
@@ -101,27 +102,67 @@ export default function LandingPage() {
               <Spacer height={12} />
             </HideOnMobile>
 
-            <Spacer height={10} />
-            <div style={{ fontSize: '30px' }}>NOW I AM BECOME DEATH</div>
+            {/* <Spacer height={6} /> */}
 
-            <div style={{ fontSize: '50px' }}> THE DESTROYER OF WORLDS</div>
-            <Spacer height={28} />
+            <PreTitle>
+              <div style={{ fontSize: '50px', color: '#ffb4c1' }}>
+                <Round3Title>DFAres v0.1</Round3Title>
+              </div>
+              <div style={{ fontSize: '40px', color: '#ffb4c1' }}>
+                <Round3Title>Round 3 : Kardashev</Round3Title>
+              </div>
+            </PreTitle>
+
+            {/* <div style={{ fontSize: '30px' }}>
+              <Round3Title>NOW I AM BECOME DEATH</Round3Title>
+            </div>
+
+            <div style={{ fontSize: '50px' }}> THE DESTROYER OF WORLDS</div> */}
 
             <LandingPageRoundArt />
 
-            <LinkContainer>
-              <a className={'link'} href={DFArchonLinks.twitter} target='_blank' rel='noreferrer'>
-                Twitter
-              </a>
-              <Spacer width={6} />
-              <a className={'link'} href={DFArchonLinks.discord} target='_blank' rel='noreferrer'>
-                Discord
-              </a>
-              <Spacer width={6} />
-              <a className={'link'} href={DFArchonLinks.github} target='_blank' rel='noreferrer'>
-                Github
-              </a>
-            </LinkContainer>
+            <SubTitle>
+              <div style={{ fontSize: '30px', color: '#05fe1a' }}>
+                <Round3Title> Dark Forest Community Round</Round3Title>
+              </div>
+
+              <div style={{ fontSize: '30px', color: 'red' }}>
+                <Round3Title> Redstone Mainnet</Round3Title>
+              </div>
+
+              <Spacer height={48} />
+
+              <LinkContainer>
+                <Round3Title>
+                  <a
+                    className={'link'}
+                    href={DFArchonLinks.twitter}
+                    target='_blank'
+                    rel='noreferrer'
+                  >
+                    Twitter
+                  </a>
+                  <Spacer width={6} />
+                  <a
+                    className={'link'}
+                    href={DFArchonLinks.discord}
+                    target='_blank'
+                    rel='noreferrer'
+                  >
+                    Discord
+                  </a>
+                  <Spacer width={6} />
+                  <a
+                    className={'link'}
+                    href={DFArchonLinks.github}
+                    target='_blank'
+                    rel='noreferrer'
+                  >
+                    Github
+                  </a>
+                </Round3Title>
+              </LinkContainer>
+            </SubTitle>
 
             {/*
             <p>
@@ -338,6 +379,26 @@ export default function LandingPage() {
   );
 }
 
+const Round3Title = styled.a`
+  font-family: 'Start Press 2P', sans-serif;
+`;
+
+const PreTitle = styled.div`
+  width: 1000px;
+  position: absolute;
+  top: 25%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+`;
+
+const SubTitle = styled.div`
+  width: 1000px;
+  position: absolute;
+  top: 80%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+`;
+
 const PrettyOverlayGradient = styled.div`
   width: 100vw;
   height: 100vh;
@@ -386,12 +447,18 @@ const Page = styled.div`
   max-width: 100vw;
   height: 100%;
   color: white;
-  background-color: #ffb4c1;
+  /* background-color: #ffb4c1; */
+  background-color: 'black';
   font-size: ${dfstyles.fontSize};
   display: flex;
   flex-direction: column;
   align-items: center;
   z-index: ${LandingPageZIndex.BasePage};
+  background-image: url('/public/background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  /* background-position: 1%; */
 `;
 
 const HallOfFameTitle = styled.div`
@@ -405,7 +472,7 @@ export const LinkContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 130pt;
+  /* margin-top: 130pt; */
 
   a {
     margin: 0 6pt;

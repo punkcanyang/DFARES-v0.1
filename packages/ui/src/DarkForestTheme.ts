@@ -20,6 +20,7 @@ Theme.registerThemeFragment(
     :root {
       color: ${unsafeCSS(dfstyles.colors.text)};
       font-family: 'Inconsolata', monospace;
+
       font-weight: 300;
 
       width: 100%;

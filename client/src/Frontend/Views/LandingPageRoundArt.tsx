@@ -12,7 +12,8 @@ export function LandingPageRoundArt() {
     <Container>
       <ImgContainer>
         <LandingPageRoundArtImg
-          src={'/public/DFARESLogo-v3.svg'}
+          // src={'/public/DFARESLogo-v3.svg'}
+          src={'/public/favicon.ico'}
           onClick={() => history.push(`/play/${defaultAddress}`)}
         />
         {/* <Smaller>
@@ -27,16 +28,23 @@ const Container = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 `;
 
 const ImgContainer = styled.div`
   display: inline-block;
   text-align: right;
-  width: 200px; //750px;
+  width: 150px; //750px;
   max-width: 80vw;
 
+  background-color: #ffb4c1;
+
   img:hover {
-    transform: scale(1.3);
+    transform: scale(1.8);
   }
 
   @media only screen and (max-device-width: 1000px) {

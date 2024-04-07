@@ -352,7 +352,8 @@ export function SettingsPane({
 
         <Section>
           <SectionHeader>Planet Default Energy Level To Send</SectionHeader>
-          Select the planet default energy level to send from planets, note that if you adjust the value manually for a planet this will be new value used.
+          Select the planet default energy level to send from planets, note that if you adjust the
+          value manually for a planet this will be new value used.
           <Spacer height={16} />
           <MultiSelectSetting
             uiManager={uiManager}
@@ -361,7 +362,8 @@ export function SettingsPane({
             labels={defaultEnergySendValues}
           />
           <Spacer height={16} />
-          Select checkbox below if you want that the default energy send value to be used, after energy has been sent from a planet.
+          Select checkbox below if you want that the default energy send value to be used, after
+          energy has been sent from a planet.
           <Spacer height={16} />
           <BooleanSetting
             uiManager={uiManager}

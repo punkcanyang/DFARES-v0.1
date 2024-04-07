@@ -54,7 +54,6 @@ import {
   getSetting,
   setBooleanSetting,
   settingChanged$,
-  useSetting,
 } from '../../Frontend/Utils/SettingsHooks';
 import UIEmitter, { UIEmitterEvent } from '../../Frontend/Utils/UIEmitter';
 import { TerminalHandle } from '../../Frontend/Views/Terminal';
@@ -186,7 +185,10 @@ class GameUIManager extends EventEmitter {
 
     settingChanged$.subscribe((setting) => {
       // If user selects to always use the default energy level, we need to clear existing energy send level values set.
-      if (setting === Setting.PlanetDefaultEnergyLevelToSendReset && this.getBooleanSetting(Setting.PlanetDefaultEnergyLevelToSendReset)) {
+      if (
+        setting === Setting.PlanetDefaultEnergyLevelToSendReset &&
+        this.getBooleanSetting(Setting.PlanetDefaultEnergyLevelToSendReset)
+      ) {
         for (const id of Object.keys(this.forcesSending)) {
           delete this.forcesSending[id];
         }
@@ -704,7 +706,7 @@ class GameUIManager extends EventEmitter {
           tutorialManager.acceptInput(TutorialState.SendFleet);
         }
 
-        if(this.getBooleanSetting(Setting.PlanetDefaultEnergyLevelToSendReset)) {
+        if (this.getBooleanSetting(Setting.PlanetDefaultEnergyLevelToSendReset)) {
           delete this.forcesSending[from.locationId];
         }
 

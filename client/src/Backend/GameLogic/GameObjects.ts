@@ -11,6 +11,10 @@ import { TxCollection } from '@dfares/network';
 import {
   isUnconfirmedActivateArtifact,
   isUnconfirmedActivateArtifactTx,
+  isUnconfirmedBlue,
+  isUnconfirmedBlueTx,
+  isUnconfirmedBurn,
+  isUnconfirmedBurnTx,
   isUnconfirmedBuyArtifact,
   isUnconfirmedBuyArtifactTx,
   isUnconfirmedBuyHat,
@@ -28,8 +32,12 @@ import {
   isUnconfirmedFindArtifactTx,
   isUnconfirmedGetShipsTx,
   isUnconfirmedInvadePlanetTx,
+  isUnconfirmedKardashev,
+  isUnconfirmedKardashevTx,
   isUnconfirmedMove,
   isUnconfirmedMoveTx,
+  isUnconfirmedPink,
+  isUnconfirmedPinkTx,
   isUnconfirmedProspectPlanet,
   isUnconfirmedProspectPlanetTx,
   isUnconfirmedRefreshPlanet,
@@ -882,6 +890,30 @@ export class GameObjects {
         planet.transactions?.addTransaction(tx);
         this.setPlanet(planet);
       }
+    } else if (isUnconfirmedBurnTx(tx)) {
+      const planet = this.getPlanetWithId(tx.intent.locationId);
+      if (planet) {
+        planet.transactions?.addTransaction(tx);
+        this.setPlanet(planet);
+      }
+    } else if (isUnconfirmedPinkTx(tx)) {
+      const planet = this.getPlanetWithId(tx.intent.locationId);
+      if (planet) {
+        planet.transactions?.addTransaction(tx);
+        this.setPlanet(planet);
+      }
+    } else if (isUnconfirmedKardashevTx(tx)) {
+      const planet = this.getPlanetWithId(tx.intent.locationId);
+      if (planet) {
+        planet.transactions?.addTransaction(tx);
+        this.setPlanet(planet);
+      }
+    } else if (isUnconfirmedBlueTx(tx)) {
+      const planet = this.getPlanetWithId(tx.intent.locationId);
+      if (planet) {
+        planet.transactions?.addTransaction(tx);
+        this.setPlanet(planet);
+      }
     }
   }
 
@@ -1042,6 +1074,30 @@ export class GameObjects {
         this.setPlanet(planet);
       }
     } else if (isUnconfirmedInvadePlanetTx(tx)) {
+      const planet = this.getPlanetWithId(tx.intent.locationId);
+      if (planet) {
+        planet.transactions?.removeTransaction(tx);
+        this.setPlanet(planet);
+      }
+    } else if (isUnconfirmedBurn(tx.intent)) {
+      const planet = this.getPlanetWithId(tx.intent.locationId);
+      if (planet) {
+        planet.transactions?.removeTransaction(tx);
+        this.setPlanet(planet);
+      }
+    } else if (isUnconfirmedPink(tx.intent)) {
+      const planet = this.getPlanetWithId(tx.intent.locationId);
+      if (planet) {
+        planet.transactions?.removeTransaction(tx);
+        this.setPlanet(planet);
+      }
+    } else if (isUnconfirmedKardashev(tx.intent)) {
+      const planet = this.getPlanetWithId(tx.intent.locationId);
+      if (planet) {
+        planet.transactions?.removeTransaction(tx);
+        this.setPlanet(planet);
+      }
+    } else if (isUnconfirmedBlue(tx.intent)) {
       const planet = this.getPlanetWithId(tx.intent.locationId);
       if (planet) {
         planet.transactions?.removeTransaction(tx);

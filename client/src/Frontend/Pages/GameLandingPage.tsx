@@ -146,7 +146,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       if (isLobby) {
         terminal.current?.newline();
         terminal.current?.printElement(
-          <MythicLabelText text={`You are joining a Dark Forest lobby`} />
+          <MythicLabelText text={`You are joining a Dark Forest Ares lobby`} />
         );
         terminal.current?.newline();
         terminal.current?.newline();
@@ -161,8 +161,6 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
         );
 
         terminal.current?.newline();
-
-        terminal.current?.print('Pink is the color for operation prompts', TerminalTextStyle.Pink);
 
         terminal.current?.newline();
         terminal.current?.newline();
@@ -324,6 +322,10 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       terminal.current?.print('(s) ', TerminalTextStyle.Sub);
       terminal.current?.println(`Spectate.`);
       terminal.current?.println(``);
+      terminal.current?.println(
+        'You can input [a], [n], [i] or [s], then press [enter].',
+        TerminalTextStyle.Pink
+      );
       terminal.current?.println(`Select an option:`, TerminalTextStyle.Text);
 
       if (selectedAddress !== null) {
@@ -377,6 +379,10 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
         terminal.current?.println(`${accounts[i].address}`);
       }
       terminal.current?.println(``);
+      terminal.current?.println(
+        'You can input [1], [2], [3] or other number, then press [enter].',
+        TerminalTextStyle.Pink
+      );
       terminal.current?.println(`Select an account:`, TerminalTextStyle.Text);
 
       const selection = +((await terminal.current?.getInput()) || '');
@@ -416,7 +422,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
         terminal.current?.println('');
         terminal.current?.println(
           'Note: Burner wallets are stored in local storage.',
-          TerminalTextStyle.Text
+          TerminalTextStyle.Pink
         );
         terminal.current?.println('They are relatively insecure and you should avoid ');
         terminal.current?.println('storing substantial funds in them.');
@@ -426,7 +432,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
           'burner wallets inaccessible, unless you export your private keys.'
         );
         terminal.current?.println('');
-        terminal.current?.println('Press any key to continue:', TerminalTextStyle.Text);
+        terminal.current?.println('Press [enter] to continue:', TerminalTextStyle.Pink);
 
         await terminal.current?.getInput();
         setStep(TerminalPromptStep.ACCOUNT_SET);
@@ -665,7 +671,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
               setStep(TerminalPromptStep.ASKING_WAITLIST_EMAIL);
             } else {
               terminal.current?.println(`ERROR: Something went wrong.`, TerminalTextStyle.Red);
-              terminal.current?.println('Press any key to try again.');
+              terminal.current?.println('Press [Enter] to try again.', TerminalTextStyle.Pink);
               await terminal.current?.getInput();
               advanceStateFromAskWhitelistKey(terminal);
             }
@@ -757,9 +763,9 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
         );
 
         terminal.current?.printLink(
-          'https://explorer.holesky.redstone.xyz/',
+          BLOCK_EXPLORER_URL,
           () => {
-            window.open('https://explorer.holesky.redstone.xyz/');
+            window.open(BLOCK_EXPLORER_URL);
           },
           TerminalTextStyle.Red
         );
@@ -778,7 +784,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       window.ui = newGameUIManager;
 
       terminal.current?.newline();
-      terminal.current?.println('Connected to Dark Forest Contract');
+      terminal.current?.println('Connected to Dark Forest Ares Contract');
       gameUIManagerRef.current = newGameUIManager;
 
       if (!newGameManager.hasJoinedGame() && spectate === false) {
@@ -810,22 +816,27 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
 
   const advanceStateFromAskAddAccount = useCallback(
     async (terminal: React.MutableRefObject<TerminalHandle | undefined>) => {
-      terminal.current?.println('Import account home coordinates? (y/n)', TerminalTextStyle.Text);
-      terminal.current?.println(
-        "If you're importing an account, make sure you know what you're doing."
-      );
-      const userInput = await terminal.current?.getInput();
-      if (userInput === 'y') {
+      console.log('spectate:', spectate);
+      if (spectate) {
         setStep(TerminalPromptStep.ADD_ACCOUNT);
-      } else if (userInput === 'n') {
-        terminal.current?.println('Try using a different account and reload.');
-        setStep(TerminalPromptStep.TERMINATED);
       } else {
-        terminal.current?.println('Unrecognized input. Please try again.');
-        await advanceStateFromAskAddAccount(terminal);
+        terminal.current?.println('Import account home coordinates? (y/n)', TerminalTextStyle.Text);
+        terminal.current?.println(
+          "If you're importing an account, make sure you know what you're doing."
+        );
+        const userInput = await terminal.current?.getInput();
+        if (userInput === 'y') {
+          setStep(TerminalPromptStep.ADD_ACCOUNT);
+        } else if (userInput === 'n') {
+          terminal.current?.println('Try using a different account and reload.');
+          setStep(TerminalPromptStep.TERMINATED);
+        } else {
+          terminal.current?.println('Unrecognized input. Please try again.');
+          await advanceStateFromAskAddAccount(terminal);
+        }
       }
     },
-    []
+    [spectate]
   );
 
   const advanceStateFromAddAccount = useCallback(
@@ -834,24 +845,34 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
 
       if (gameUIManager) {
         try {
-          terminal.current?.println('x: ', TerminalTextStyle.Blue);
-          const x = parseInt((await terminal.current?.getInput()) || '');
-          terminal.current?.println('y: ', TerminalTextStyle.Blue);
-          const y = parseInt((await terminal.current?.getInput()) || '');
-          if (
-            Number.isNaN(x) ||
-            Number.isNaN(y) ||
-            Math.abs(x) > 2 ** 32 ||
-            Math.abs(y) > 2 ** 32
-          ) {
-            throw 'Invalid home coordinates.';
-          }
-          if (await gameUIManager.addAccount({ x, y })) {
-            terminal.current?.println('Successfully added account.');
-            terminal.current?.println('Initializing game...');
-            setStep(TerminalPromptStep.ALL_CHECKS_PASS);
+          if (spectate) {
+            if (await gameUIManager.addAccount({ x: 0, y: 0 })) {
+              terminal.current?.println('Successfully added account.');
+              terminal.current?.println('Initializing game...');
+              setStep(TerminalPromptStep.ALL_CHECKS_PASS);
+            } else {
+              throw 'Invalid home coordinates.';
+            }
           } else {
-            throw 'Invalid home coordinates.';
+            terminal.current?.println('x: ', TerminalTextStyle.Blue);
+            const x = parseInt((await terminal.current?.getInput()) || '');
+            terminal.current?.println('y: ', TerminalTextStyle.Blue);
+            const y = parseInt((await terminal.current?.getInput()) || '');
+            if (
+              Number.isNaN(x) ||
+              Number.isNaN(y) ||
+              Math.abs(x) > 2 ** 32 ||
+              Math.abs(y) > 2 ** 32
+            ) {
+              throw 'Invalid home coordinates.';
+            }
+            if (await gameUIManager.addAccount({ x, y })) {
+              terminal.current?.println('Successfully added account.');
+              terminal.current?.println('Initializing game...');
+              setStep(TerminalPromptStep.ALL_CHECKS_PASS);
+            } else {
+              throw 'Invalid home coordinates.';
+            }
           }
         } catch (e) {
           terminal.current?.println(`ERROR: ${e}`, TerminalTextStyle.Red);
@@ -862,7 +883,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
         setStep(TerminalPromptStep.TERMINATED);
       }
     },
-    []
+    [spectate]
   );
 
   const advanceStateFromNoHomePlanet = useCallback(
@@ -910,7 +931,10 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       do {
         try {
           _run = true;
-          terminal.current?.println('Select area where is cursor pointer "👆🏻" on Minimap.');
+          terminal.current?.println(
+            'Please left-click on the right map to select your birth area.',
+            TerminalTextStyle.Pink
+          );
 
           terminal.current?.println('You can choose "Inner Nebula" only. ', TerminalTextStyle.Blue);
 
@@ -957,10 +981,11 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       );
 
       setMiniMapOn(false);
-      terminal.current?.println(
-        'To select different spawn area please refresh page otherwise press ENTER to find a home planet.  '
-      );
+      terminal.current?.println('To select different spawn area please refresh website page.');
       terminal.current?.println('This may take up to 120s, and will consume a lot of CPU.');
+
+      terminal.current?.println('Press [enter] to find a home planet. ', TerminalTextStyle.Pink);
+
       await terminal.current?.getInput();
 
       gameUIManager.getGameManager().on(GameManagerEvent.InitializedPlayer, () => {
@@ -1049,8 +1074,11 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
   const advanceStateFromAllChecksPass = useCallback(
     async (terminal: React.MutableRefObject<TerminalHandle | undefined>) => {
       terminal.current?.println('');
-      terminal.current?.println('Press ENTER to begin');
-      terminal.current?.println("Press 's' then ENTER to begin in SAFE MODE - plugins disabled");
+      terminal.current?.println('Press [enter] to begin', TerminalTextStyle.Pink);
+      terminal.current?.println(
+        'Press [s] then [enter] to begin in SAFE MODE - plugins disabled',
+        TerminalTextStyle.Pink
+      );
 
       const input = await terminal.current?.getInput();
 

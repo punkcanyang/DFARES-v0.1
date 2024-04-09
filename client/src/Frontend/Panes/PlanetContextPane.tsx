@@ -12,7 +12,6 @@ import { OpenHatPaneButton } from '../Components/OpenHatPaneButton';
 import { OpenKardashevButton } from '../Components/OpenKardashevButton';
 import {
   OpenBroadcastPaneButton,
-  OpenBuyArtifactPaneButton,
   OpenManagePlanetArtifactsButton,
   OpenPlanetInfoButton,
   OpenUpgradeDetailsPaneButton,
@@ -68,7 +67,7 @@ function PlanetContextPaneContent({
   }
 
   let upgradeRow = null;
-  if (!p?.destroyed && !p?.frozen && owned) {
+  if (!p?.destroyed && !p?.frozen && owned && p?.planetType === PlanetType.PLANET) {
     upgradeRow = <OpenUpgradeDetailsPaneButton modal={modal} planetId={p?.locationId} />;
   }
 
@@ -100,10 +99,10 @@ function PlanetContextPaneContent({
     blueRow = <OpenBlueButton modal={modal} planetId={p?.locationId} />;
   }
 
-  let buyArtifactRow = null;
-  if (!p?.destroyed && !p?.frozen && owned) {
-    buyArtifactRow = <OpenBuyArtifactPaneButton modal={modal} planetId={p?.locationId} />;
-  }
+  // let buyArtifactRow = null;
+  // if (!p?.destroyed && !p?.frozen && owned) {
+  //   buyArtifactRow = <OpenBuyArtifactPaneButton modal={modal} planetId={p?.locationId} />;
+  // }
 
   const artifactsRow = <OpenManagePlanetArtifactsButton modal={modal} planetId={p?.locationId} />;
   let withdrawRow = null;
@@ -120,7 +119,7 @@ function PlanetContextPaneContent({
   if (upgradeRow) rows.push(upgradeRow);
   if (boardcastRow) rows.push(boardcastRow);
   if (infoRow) rows.push(infoRow);
-  if (buyArtifactRow) rows.push(buyArtifactRow);
+  // if (buyArtifactRow) rows.push(buyArtifactRow);
   if (artifactsRow) rows.push(artifactsRow);
   if (dropBombRow) rows.push(dropBombRow);
   if (pinkRow) rows.push(pinkRow);

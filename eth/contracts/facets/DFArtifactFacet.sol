@@ -65,6 +65,11 @@ contract DFArtifactFacet is WithStorage, ERC721 {
         _;
     }
 
+    modifier disabled() {
+        require(false, "This functionality is disabled for the current round.");
+        _;
+    }
+
     function createArtifact(DFTCreateArtifactArgs memory args)
         public
         onlyAdminOrCore
@@ -200,7 +205,7 @@ contract DFArtifactFacet is WithStorage, ERC721 {
         // event is emitted in the above library function
     }
 
-    function buyArtifact(DFTCreateArtifactArgs memory args) public payable notPaused {
+    function buyArtifact(DFTCreateArtifactArgs memory args) public payable notPaused disabled {
         // NOTE: only use args.planetId
         uint256 _location = args.planetId;
         require(gs().planets[_location].isInitialized == true, "Planet is not initialized");

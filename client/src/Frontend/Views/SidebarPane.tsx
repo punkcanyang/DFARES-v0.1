@@ -49,15 +49,7 @@ export function SidebarPane({
           shortcutText={sidebarHovered ? TOGGLE_TRADE_PANE : undefined}
         />
         <EmSpacer height={0.5} />
-        <ModalToggleButton
-          modal={ModalName.Settings}
-          hook={settingsHook}
-          text={sidebarHovered ? 'Settings' : undefined}
-          size='stretch'
-          shortcutKey={TOGGLE_SETTINGS_PANE}
-          shortcutText={sidebarHovered ? TOGGLE_SETTINGS_PANE : undefined}
-        />
-        <EmSpacer height={0.5} />
+
         <ModalToggleButton
           modal={ModalName.Help}
           hook={helpHook}
@@ -66,6 +58,17 @@ export function SidebarPane({
           shortcutKey={TOGGLE_HELP_PANE}
           shortcutText={sidebarHovered ? TOGGLE_HELP_PANE : undefined}
         />
+
+        <EmSpacer height={0.5} />
+        <ModalToggleButton
+          modal={ModalName.Settings}
+          hook={settingsHook}
+          text={sidebarHovered ? 'Settings' : undefined}
+          size='stretch'
+          shortcutKey={TOGGLE_SETTINGS_PANE}
+          shortcutText={sidebarHovered ? TOGGLE_SETTINGS_PANE : undefined}
+        />
+
         <EmSpacer height={0.5} />
         <ModalToggleButton
           modal={ModalName.Plugins}

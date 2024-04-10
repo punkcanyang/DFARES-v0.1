@@ -32,7 +32,19 @@ import { ZoomPane } from '../Panes/ZoomPane';
 import { useSelectedPlanet, useUIManager } from '../Utils/AppHooks';
 import { useOnUp } from '../Utils/KeyEmitters';
 import { useBooleanSetting } from '../Utils/SettingsHooks';
-import { TOGGLE_DIAGNOSTICS_PANE } from '../Utils/ShortcutConstants';
+import {
+  TOGGLE_DIAGNOSTICS_PANE,
+  TOGGLE_HELP_PANE,
+  TOGGLE_HOTKEY_VISIBLE,
+  TOGGLE_PANE_VISIBLE,
+  TOGGLE_PLUGINS_PANE,
+  TOGGLE_SETTINGS_PANE,
+  TOGGLE_TERMINAL,
+  TOGGLE_TRADE_PANE,
+  TOGGLE_TRANSACTIONS_PANE,
+  TOGGLE_YOUR_ARTIFACTS_PANE,
+  TOGGLE_YOUR_PLANETS_DEX_PANE,
+} from '../Utils/ShortcutConstants';
 import { NotificationsPane } from './Notifications';
 import { SidebarPane } from './SidebarPane';
 import { TopBar } from './TopBar';
@@ -64,6 +76,9 @@ export function GameWindowLayout({
     },
     [modalPositions]
   );
+
+  const [paneVisible, setPaneVisible] = useState<boolean>(true);
+  const [bottomHotkeyVisible, setBottomHotkeyVisible] = useState<boolean>(true);
 
   const [helpVisible, setHelpVisible] = useState<boolean>(isModalOpen(ModalName.Help));
   const [transactionLogVisible, setTransactionLogVisible] = useState<boolean>(
@@ -106,11 +121,21 @@ export function GameWindowLayout({
     uiManager,
     Setting.ExperimentalFeatures
   );
+
+  const [userPaneVisibleSetting, setUserPaneVisibleSetting] = useBooleanSetting(
+    uiManager,
+    Setting.PaneVisible
+  );
+  const [userBottomHotkeyVisibleSetting, setUserBottomHotkeyVisibleSetting] = useBooleanSetting(
+    uiManager,
+    Setting.BottomHotkeyVisible
+  );
   useEffect(() => {
     uiManager.setOverlayContainer(modalsContainer);
   }, [uiManager, modalsContainer]);
 
   const account = uiManager.getAccount();
+
   useEffect(() => {
     if (uiManager.getAccount()) {
       setTerminalVisible(uiManager.getBooleanSetting(Setting.TerminalVisible));
@@ -123,6 +148,30 @@ export function GameWindowLayout({
     }
   }, [userTerminalVisibleSetting, setTerminalVisibleSetting, terminalVisible]);
 
+  useEffect(() => {
+    if (uiManager.getAccount()) {
+      setPaneVisible(uiManager.getBooleanSetting(Setting.PaneVisible));
+    }
+  }, [account, uiManager, setPaneVisible]);
+
+  useEffect(() => {
+    if (userPaneVisibleSetting !== paneVisible) {
+      setUserPaneVisibleSetting(paneVisible);
+    }
+  }, [paneVisible, userPaneVisibleSetting, setUserPaneVisibleSetting]);
+
+  useEffect(() => {
+    if (uiManager.getAccount()) {
+      setBottomHotkeyVisible(uiManager.getBooleanSetting(Setting.BottomHotkeyVisible));
+    }
+  }, [account, uiManager, setBottomHotkeyVisible]);
+
+  useEffect(() => {
+    if (userBottomHotkeyVisibleSetting !== bottomHotkeyVisible) {
+      setUserBottomHotkeyVisibleSetting(bottomHotkeyVisible);
+    }
+  }, [bottomHotkeyVisible, userBottomHotkeyVisibleSetting, setUserBottomHotkeyVisibleSetting]);
+
   useEffect(() => setSelectedPlanetVisible(!!selected), [selected, setSelectedPlanetVisible]);
 
   useOnUp(
@@ -131,12 +180,92 @@ export function GameWindowLayout({
       setDiagnosticsVisible((value) => !value);
     }, [setDiagnosticsVisible])
   );
+  useOnUp(
+    TOGGLE_TERMINAL,
+    useCallback(() => {
+      setTerminalVisible(!terminalVisible);
+    }, [terminalVisible, setTerminalVisible])
+  );
+
+  useOnUp(
+    TOGGLE_PANE_VISIBLE,
+    useCallback(() => {
+      setPaneVisible(!paneVisible);
+    }, [paneVisible, setPaneVisible])
+  );
+
+  useOnUp(
+    TOGGLE_HOTKEY_VISIBLE,
+    useCallback(() => {
+      setBottomHotkeyVisible(!bottomHotkeyVisible);
+    }, [bottomHotkeyVisible, setBottomHotkeyVisible])
+  );
+
+  useOnUp(
+    TOGGLE_TRADE_PANE,
+    useCallback(() => {
+      if (paneVisible) return;
+
+      setTradeVisible(!tradeVisible);
+    }, [paneVisible, tradeVisible, setTradeVisible])
+  );
+
+  useOnUp(
+    TOGGLE_HELP_PANE,
+    useCallback(() => {
+      if (paneVisible) return;
+      setHelpVisible(!helpVisible);
+    }, [paneVisible, helpVisible, setHelpVisible])
+  );
+
+  useOnUp(
+    TOGGLE_SETTINGS_PANE,
+    useCallback(() => {
+      if (paneVisible) return;
+      setSettingsVisible(!settingsVisible);
+    }, [paneVisible, settingsVisible, setSettingsVisible])
+  );
+
+  useOnUp(
+    TOGGLE_PLUGINS_PANE,
+    useCallback(() => {
+      if (paneVisible) return;
+      setPluginsVisible(!pluginsVisible);
+    }, [paneVisible, pluginsVisible, setPluginsVisible])
+  );
+
+  useOnUp(
+    TOGGLE_YOUR_ARTIFACTS_PANE,
+    useCallback(() => {
+      if (paneVisible) return;
+
+      setPlayerArtifactsVisible(!playerArtifactsVisible);
+    }, [paneVisible, playerArtifactsVisible, setPlayerArtifactsVisible])
+  );
+
+  useOnUp(
+    TOGGLE_YOUR_PLANETS_DEX_PANE,
+    useCallback(() => {
+      if (paneVisible) return;
+      setPlanetdexVisible(!planetdexVisible);
+    }, [paneVisible, planetdexVisible, setPlanetdexVisible])
+  );
+
+  useOnUp(
+    TOGGLE_TRANSACTIONS_PANE,
+    useCallback(() => {
+      if (paneVisible) return;
+      setTransactionLogVisible(!transactionLogVisible);
+    }, [paneVisible, transactionLogVisible, setTransactionLogVisible])
+  );
 
   return (
     <WindowWrapper>
       <TopBarPaneContainer>
         <BorderlessPane>
-          <TopBar twitterVerifyHook={[twitterVerifyVisible, setTwitterVerifyVisible]} />
+          {paneVisible && (
+            <TopBar twitterVerifyHook={[twitterVerifyVisible, setTwitterVerifyVisible]} />
+          )}
         </BorderlessPane>
       </TopBarPaneContainer>
 
@@ -188,35 +317,38 @@ export function GameWindowLayout({
 
       <MainWindow>
         <CanvasContainer>
-          <UpperLeft>
-            <ZoomPane />
-          </UpperLeft>
-          <SidebarPane
-            tradeHook={[tradeVisible, setTradeVisible]}
-            transactionLogHook={[transactionLogVisible, setTransactionLogVisible]}
-            settingsHook={[settingsVisible, setSettingsVisible]}
-            helpHook={[helpVisible, setHelpVisible]}
-            pluginsHook={[pluginsVisible, setPluginsVisible]}
-            yourArtifactsHook={[playerArtifactsVisible, setPlayerArtifactsVisible]}
-            planetdexHook={[planetdexVisible, setPlanetdexVisible]}
-          />
+          {paneVisible && (
+            <UpperLeft>
+              <ZoomPane />
+            </UpperLeft>
+          )}
+
+          {paneVisible && (
+            <SidebarPane
+              tradeHook={[tradeVisible, setTradeVisible]}
+              transactionLogHook={[transactionLogVisible, setTransactionLogVisible]}
+              settingsHook={[settingsVisible, setSettingsVisible]}
+              helpHook={[helpVisible, setHelpVisible]}
+              pluginsHook={[pluginsVisible, setPluginsVisible]}
+              yourArtifactsHook={[playerArtifactsVisible, setPlayerArtifactsVisible]}
+              planetdexHook={[planetdexVisible, setPlanetdexVisible]}
+            />
+          )}
           <CanvasWrapper>
             <ControllableCanvas />
           </CanvasWrapper>
-
           <NotificationsPane />
-          <CoordsPane />
-          <ExplorePane />
-          {!userHotKeysVisibleSetting && userExperimentalVisibleSetting && (
-            <HotkeysArtShipPane selectedPlanetVisible={selectedPlanetVisible} />
+          {paneVisible && <CoordsPane />}
+          {paneVisible && <ExplorePane />}
+          {bottomHotkeyVisible && !userHotKeysVisibleSetting && userExperimentalVisibleSetting && (
+            <>
+              <HotkeysArtShipPane selectedPlanetVisible={selectedPlanetVisible} />
+              <HotkeysMainLinePane selectedPlanetVisible={selectedPlanetVisible} />
+            </>
           )}
 
-          {!userHotKeysVisibleSetting && userExperimentalVisibleSetting && (
-            <HotkeysMainLinePane selectedPlanetVisible={selectedPlanetVisible} />
-          )}
           <HoverPlanetPane />
           <ArtifactHoverPane />
-
           <TutorialPane tutorialHook={tutorialHook} />
         </CanvasContainer>
       </MainWindow>

@@ -13,7 +13,7 @@ import styled from 'styled-components';
 import { ArtifactImage } from '../Components/ArtifactImage';
 import { Btn, ShortcutBtn } from '../Components/Btn';
 import { Spacer } from '../Components/CoreUI';
-import { useUIManager } from '../Utils/AppHooks';
+import { usePlanet, useUIManager } from '../Utils/AppHooks';
 
 const mainLine = '1234567890'.split('');
 
@@ -206,6 +206,8 @@ const HotkeyThumbMainLine = ({
   selectedPlanetVisible: { selectedPlanetVisible: boolean };
 }) => {
   const uiManager = useUIManager();
+  const planetWrapper = usePlanet(uiManager, hotkey.location);
+  const planet = planetWrapper.value;
 
   const handleClick = () => {
     if (hotkey.location && !selectedPlanetVisible.selectedPlanetVisible) {
@@ -233,7 +235,7 @@ const HotkeyThumbMainLine = ({
       {/* For now, we'll display a test image if position is occupied */}
       {hotkey.location ? (
         <PlaceholderImage>
-          {ui.getPlanetLevel(hotkey.location)}|{getPlanetRank(ui.getPlanetWithId(hotkey.location))}
+          {planet?.planetLevel}|{getPlanetRank(planet)}
         </PlaceholderImage>
       ) : (
         <div>{hotkey.key}</div>

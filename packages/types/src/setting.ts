@@ -62,4 +62,8 @@ export const Setting = {
   RendererColorDeadSpace: 'RendererColorDeadSpace' as Setting,
   DisableFancySpaceEffect: 'DisableFancySpaceEffect' as Setting,
   ForceReloadEmbeddedPlugins: 'ForceReloadEmbeddedPlugins' as Setting,
+
+  //round3
+  PaneVisible: 'PaneVisible' as Setting,
+  BottomHotkeyVisible: 'BottomHotkeyVisible' as Setting,
 };

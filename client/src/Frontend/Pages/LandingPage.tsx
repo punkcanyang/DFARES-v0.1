@@ -133,34 +133,17 @@ export default function LandingPage() {
               <Spacer height={48} />
 
               <LinkContainer>
-                <Round3Title>
-                  <a
-                    className={'link'}
-                    href={DFArchonLinks.twitter}
-                    target='_blank'
-                    rel='noreferrer'
-                  >
-                    Twitter
-                  </a>
-                  <Spacer width={6} />
-                  <a
-                    className={'link'}
-                    href={DFArchonLinks.discord}
-                    target='_blank'
-                    rel='noreferrer'
-                  >
-                    Discord
-                  </a>
-                  <Spacer width={6} />
-                  <a
-                    className={'link'}
-                    href={DFArchonLinks.github}
-                    target='_blank'
-                    rel='noreferrer'
-                  >
-                    Github
-                  </a>
-                </Round3Title>
+                <a className={'link'} href={DFArchonLinks.twitter} target='_blank' rel='noreferrer'>
+                  Twitter
+                </a>
+                <Spacer width={6} />
+                <a className={'link'} href={DFArchonLinks.discord} target='_blank' rel='noreferrer'>
+                  Discord
+                </a>
+                <Spacer width={6} />
+                <a className={'link'} href={DFArchonLinks.github} target='_blank' rel='noreferrer'>
+                  Github
+                </a>
               </LinkContainer>
             </SubTitle>
 
@@ -473,6 +456,7 @@ export const LinkContainer = styled.div`
   justify-content: center;
   align-items: center;
   /* margin-top: 130pt; */
+  font-family: 'Start Press 2P', sans-serif;
 
   a {
     margin: 0 6pt;

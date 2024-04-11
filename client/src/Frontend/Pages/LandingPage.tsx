@@ -133,34 +133,32 @@ export default function LandingPage() {
               <Spacer height={48} />
 
               <LinkContainer>
-                <Round3Title>
-                  <a
-                    className={'link'}
-                    href={DFArchonLinks.twitter}
-                    target='_blank'
-                    rel='noreferrer'
-                  >
-                    Twitter
-                  </a>
-                  <Spacer width={6} />
-                  <a
-                    className={'link'}
-                    href={DFArchonLinks.discord}
-                    target='_blank'
-                    rel='noreferrer'
-                  >
-                    Discord
-                  </a>
-                  <Spacer width={6} />
-                  <a
-                    className={'link'}
-                    href={DFArchonLinks.github}
-                    target='_blank'
-                    rel='noreferrer'
-                  >
-                    Github
-                  </a>
-                </Round3Title>
+                <a
+                  className={'link'}
+                  href={DFArchonLinks.twitter}
+                  target='_blank'
+                  rel='noreferrer'
+                >
+                  Twitter
+                </a>
+                <Spacer width={6} />
+                <a
+                  className={'link'}
+                  href={DFArchonLinks.discord}
+                  target='_blank'
+                  rel='noreferrer'
+                >
+                  Discord
+                </a>
+                <Spacer width={6} />
+                <a
+                  className={'link'}
+                  href={DFArchonLinks.github}
+                  target='_blank'
+                  rel='noreferrer'
+                >
+                  Github
+                </a>
               </LinkContainer>
             </SubTitle>
 
@@ -379,7 +377,7 @@ export default function LandingPage() {
   );
 }
 
-const Round3Title = styled.a`
+const Round3Title = styled.span`
   font-family: 'Start Press 2P', sans-serif;
 `;
 
@@ -481,6 +479,7 @@ export const LinkContainer = styled.div`
     justify-content: center;
     align-items: center;
     color:  ${'#ffc3cd'};
+    font-family: 'Start Press 2P', sans-serif;
 
     &:hover {
       cursor: pointer;

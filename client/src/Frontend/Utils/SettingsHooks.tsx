@@ -76,6 +76,8 @@ const defaultSettings: Record<Setting, string> = {
   [Setting.RendererColorDeepSpace]: '#0B061F',
   [Setting.RendererColorDeadSpace]: '#11291b',
   [Setting.ForceReloadEmbeddedPlugins]: 'false',
+  [Setting.PaneVisible]: 'true',
+  [Setting.BottomHotkeyVisible]: 'true',
 };
 
 interface SettingStorageConfig {

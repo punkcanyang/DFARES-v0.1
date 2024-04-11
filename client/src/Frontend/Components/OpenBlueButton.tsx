@@ -1,5 +1,5 @@
 import { LocationId, TooltipName } from '@dfares/types';
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { BluePane } from '../Panes/BluePane';
 import { TooltipTrigger } from '../Panes/Tooltip';
 import { usePlanet, useUIManager } from '../Utils/AppHooks';
@@ -18,7 +18,9 @@ export function OpenBlueButton({
   const planetWrapper = usePlanet(uiManager, planetId);
   const planet = planetWrapper.value;
 
-  const blueZonePassed = planet && uiManager.checkPlanetCanBlue(planet.locationId);
+  const blueZonePassed = useMemo(() => {
+    return planet && uiManager.checkPlanetCanBlue(planet.locationId);
+  }, [planet]);
 
   const title = 'Blue';
   const shortcut = TOGGLE_BLUE_PANE;

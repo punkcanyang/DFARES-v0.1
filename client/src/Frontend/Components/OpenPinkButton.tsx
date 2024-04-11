@@ -1,5 +1,5 @@
 import { LocationId, TooltipName } from '@dfares/types';
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { PinkPane } from '../Panes/PinkPane';
 import { TooltipTrigger } from '../Panes/Tooltip';
 import { usePlanet, useUIManager } from '../Utils/AppHooks';
@@ -18,7 +18,9 @@ export function OpenPinkButton({
   const planetWrapper = usePlanet(uiManager, planetId);
   const planet = planetWrapper.value;
 
-  const pinkZonePassed = planet && uiManager.checkPlanetCanPink(planet.locationId);
+  const pinkZonePassed = useMemo(() => {
+    return planet && uiManager.checkPlanetCanPink(planet.locationId);
+  }, [planet]);
 
   const title = 'Pink';
   const shortcut = TOGGLE_PINK_PANE;

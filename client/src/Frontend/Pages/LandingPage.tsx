@@ -471,6 +471,7 @@ export const LinkContainer = styled.div`
   justify-content: center;
   align-items: center;
   /* margin-top: 130pt; */
+  font-family: 'Start Press 2P', sans-serif;
 
   a {
     margin: 0 6pt;

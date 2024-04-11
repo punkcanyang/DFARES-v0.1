@@ -29,6 +29,20 @@ import { getNotifsForPlanet, PlanetNotifications } from '../Views/PlanetNotifica
 import { SendResources } from '../Views/SendResources';
 import { WithdrawSilver } from '../Views/WithdrawSilver';
 
+export const PlanetPaneName = {
+  Capture: 'Capture',
+  Upgrade: 'Upgrade',
+  Boardcast: 'Boardcast',
+  Info: 'Info',
+  BuyArtifact: 'BuyArtifact',
+  Artifacts: 'Artifacts',
+  DropBomb: 'DropBomb',
+  Pink: 'Pink',
+  Kardashev: 'Kardashev',
+  Blue: 'Blue',
+  Hat: 'Hat',
+};
+
 function PlanetContextPaneContent({
   modal,
   planet,
@@ -58,53 +72,83 @@ function PlanetContextPaneContent({
 
   const gt3 = p && p.planetLevel >= 3;
 
-  const pinkZonePassed = p && uiManager.checkPlanetCanPink(p.locationId);
-  const blueZonePassed = p && uiManager.checkPlanetCanBlue(p.locationId);
+  const pinkZonePassed = useMemo(() => {
+    return p && uiManager.checkPlanetCanPink(p.locationId);
+  }, [p]);
+
+  const blueZonePassed = useMemo(() => {
+    return p && uiManager.checkPlanetCanBlue(p.locationId);
+  }, [p]);
 
   let captureRow = null;
   if (!p?.destroyed && !p?.frozen && uiManager.captureZonesEnabled) {
-    captureRow = <CapturePlanetButton planetWrapper={planet} />;
+    captureRow = <CapturePlanetButton planetWrapper={planet} key={PlanetPaneName.Capture} />;
   }
 
   let upgradeRow = null;
   if (!p?.destroyed && !p?.frozen && owned && p?.planetType === PlanetType.PLANET) {
-    upgradeRow = <OpenUpgradeDetailsPaneButton modal={modal} planetId={p?.locationId} />;
+    upgradeRow = (
+      <OpenUpgradeDetailsPaneButton
+        modal={modal}
+        planetId={p?.locationId}
+        key={PlanetPaneName.Upgrade}
+      />
+    );
   }
 
-  const boardcastRow = <OpenBroadcastPaneButton modal={modal} planetId={p?.locationId} />;
-  const infoRow = <OpenPlanetInfoButton modal={modal} planetId={p?.locationId} />;
+  const boardcastRow = (
+    <OpenBroadcastPaneButton
+      modal={modal}
+      planetId={p?.locationId}
+      key={PlanetPaneName.Boardcast}
+    />
+  );
+  const infoRow = (
+    <OpenPlanetInfoButton modal={modal} planetId={p?.locationId} key={PlanetPaneName.Info} />
+  );
 
   let hatRow = null;
   if (!p?.destroyed && !p?.frozen && owned) {
-    hatRow = <OpenHatPaneButton modal={modal} planetId={p?.locationId} />;
+    hatRow = <OpenHatPaneButton modal={modal} planetId={p?.locationId} key={PlanetPaneName.Hat} />;
   }
 
   let dropBombRow = null;
   if (!p?.destroyed && !p?.frozen && owned && gt3 && !burned) {
-    dropBombRow = <OpenDropBombButton modal={modal} planetId={p?.locationId} />;
+    dropBombRow = (
+      <OpenDropBombButton modal={modal} planetId={p?.locationId} key={PlanetPaneName.DropBomb} />
+    );
   }
 
   let pinkRow = null;
   if (!p?.destroyed && !p?.frozen && gt3 && pinkZonePassed) {
-    pinkRow = <OpenPinkButton modal={modal} planetId={p?.locationId} />;
+    pinkRow = <OpenPinkButton modal={modal} planetId={p?.locationId} key={PlanetPaneName.Pink} />;
   }
 
   let kardashevRow = null;
   if (!p?.destroyed && !p?.frozen && owned && gt3 && !kardasheved) {
-    kardashevRow = <OpenKardashevButton modal={modal} planetId={p?.locationId} />;
+    kardashevRow = (
+      <OpenKardashevButton modal={modal} planetId={p?.locationId} key={PlanetPaneName.Kardashev} />
+    );
   }
 
   let blueRow = null;
   if (!p?.destroyed && !p?.frozen && gt3 && owned && blueZonePassed) {
-    blueRow = <OpenBlueButton modal={modal} planetId={p?.locationId} />;
+    blueRow = <OpenBlueButton modal={modal} planetId={p?.locationId} key={PlanetPaneName.Blue} />;
   }
 
   // let buyArtifactRow = null;
   // if (!p?.destroyed && !p?.frozen && owned) {
-  //   buyArtifactRow = <OpenBuyArtifactPaneButton modal={modal} planetId={p?.locationId} />;
+  // buyArtifactRow = <OpenBuyArtifactPaneButton modal={modal}
+  // planetId={p?.locationId} key={PlanetPaneName.BuyArtifact} />;
   // }
 
-  const artifactsRow = <OpenManagePlanetArtifactsButton modal={modal} planetId={p?.locationId} />;
+  const artifactsRow = (
+    <OpenManagePlanetArtifactsButton
+      modal={modal}
+      planetId={p?.locationId}
+      key={PlanetPaneName.Artifacts}
+    />
+  );
   let withdrawRow = null;
   if (!p?.destroyed && !p?.frozen && owned && p?.planetType === PlanetType.TRADING_POST) {
     withdrawRow = <WithdrawSilver wrapper={planet} />;

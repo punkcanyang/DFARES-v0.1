@@ -8,13 +8,40 @@ import { ModalPane } from '../Views/ModalPane';
 
 const HelpContent = styled.div`
   width: 500px;
-  height: 500px;
-  max-height: 500px;
+  height: 700px;
+  max-height: 700px;
   max-width: 500px;
   overflow-y: scroll;
   text-align: justify;
   color: ${dfstyles.colors.text};
 `;
+
+const StyledTable = styled.table`
+  border-collapse: collapse;
+  width: 100%;
+`;
+
+const StyledTh = styled.th`
+  border: 1px solid #dddddd;
+  padding: 8px;
+  text-align: center;
+  /* background-color: #f2f2f2; */
+`;
+
+const StyledTd = styled.td`
+  border: 1px solid #dddddd;
+  padding: 8px;
+  text-align: center;
+`;
+
+interface RowData {
+  hotkey: string;
+  intro: string;
+}
+
+interface TableProps {
+  data: RowData[];
+}
 
 export function HelpPane({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const uiManager = useUIManager();
@@ -33,34 +60,70 @@ export function HelpPane({ visible, onClose }: { visible: boolean; onClose: () =
     plugins: 'https://dfares-plugins.netlify.app/',
   };
 
+  const data = [
+    { hotkey: 'n', intro: 'toggle terminal' },
+    { hotkey: 'm', intro: 'toggle around-screen panes' },
+    { hotkey: ',', intro: 'toggle bottom hotkey pane' },
+    { hotkey: 'g', intro: 'you can buy planet & spaceship here' },
+    { hotkey: 'h', intro: 'help pane' },
+    { hotkey: 'j', intro: 'settings pane' },
+    { hotkey: 'k', intro: 'plugins pane' },
+    { hotkey: 'l', intro: 'your artifacts pane' },
+    { hotkey: ';', intro: 'your planets pane' },
+    { hotkey: "'", intro: 'transactions pane' },
+    { hotkey: 'i', intro: 'diagnostics pane' },
+  ];
+
+  const Table: React.FC<TableProps> = ({ data }) => {
+    return (
+      <StyledTable>
+        <thead>
+          <tr>
+            <StyledTh>Hotkey</StyledTh>
+            <StyledTh>Intro</StyledTh>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((row, index) => (
+            <tr key={index}>
+              <StyledTd>{row.hotkey}</StyledTd>
+              <StyledTd>{row.intro}</StyledTd>
+            </tr>
+          ))}
+        </tbody>
+      </StyledTable>
+    );
+  };
+
   return (
     <ModalPane id={ModalName.Help} title='Help' visible={visible} onClose={onClose}>
       <HelpContent>
         {uiManager.isRoundOver() && (
-          // <Section>
-          //   <SectionHeader>Round 5 Complete</SectionHeader>
-          //   Dark Forest v0.6 Round 5 is now complete! Scores are being compiled and winners will be
-          //   announced shortly. Also, Artifacts will no longer be mintable. Thanks for playing!
-          // </Section>
-
           <Section>
-            <SectionHeader>Round 2: Pinkship Complete</SectionHeader>
-            Dark Forest Ares v0.1 Round 2 is now complete! Scores are being compiled and winners
+            <SectionHeader>Round 3: Kardashev Complete</SectionHeader>
+            Dark Forest Ares v0.1 Round 3 is now complete! Scores are being compiled and winners
             will be announced shortly. Also, Artifacts will no longer be mintable. Thanks for
             playing!
           </Section>
         )}
+        <Section>
+          <SectionHeader>HotKey Intro</SectionHeader>
+          <Table data={data} />
+        </Section>
 
         <Section>
           <SectionHeader>Dark Forest Ares</SectionHeader>
           Dark Forest Ares is a series of{' '}
-          <Link to='https://zkga.me' color='green'>
+          <Link to='https://zkga.me' color={dfstyles.colors.dfgreen}>
             Dark Forest
           </Link>{' '}
-          community rounds hosted by DFArchon team. We hope to innovate game mechanics while
-          maintaining the original style of Dark Forest. Recently We choose to host Dark Forest Ares
-          v0.1 Round 2: PinkShip on{' '}
-          <Link to='https://redstone.xyz/' color='red'>
+          community rounds hosted by{' '}
+          <Link to='https://twitter.com/DFArchon' color={dfstyles.colors.dfpink}>
+            DFArchon team
+          </Link>
+          . We hope to innovate game mechanics while maintaining the original style of Dark Forest.
+          Recently We choose to host Dark Forest Ares v0.1 Round 3: Kardashev on{' '}
+          <Link to='https://redstone.xyz/' color={'rgb(243,66,66)'}>
             Redstone
           </Link>
           .
@@ -86,7 +149,7 @@ export function HelpPane({ visible, onClose }: { visible: boolean; onClose: () =
         </Section>
 
         <Section>
-          <SectionHeader>Dark Forest Ares v0.1 Round 2: PinkShip</SectionHeader>
+          <SectionHeader>Dark Forest Ares v0.1 Round 3: Kardashev</SectionHeader>
           {/* The game is a vast universe, obfuscated by zero-knowledge cryptography. Your{' '}
           <White>explorer</White> (bottom left) explores the universe, searching for{' '}
           <White>Planets</White> and other players.

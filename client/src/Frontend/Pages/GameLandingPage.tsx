@@ -1,4 +1,4 @@
-import { BLOCK_EXPLORER_URL } from '@dfares/constants';
+import { BLOCKCHAIN_BRIDGE, BLOCK_EXPLORER_URL } from '@dfares/constants';
 import { CONTRACT_ADDRESS } from '@dfares/contracts';
 import { DarkForest } from '@dfares/contracts/typechain';
 import { EthConnection, neverResolves, weiToEth } from '@dfares/network';
@@ -9,6 +9,7 @@ import { utils, Wallet } from 'ethers';
 import { reverse } from 'lodash';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { RouteComponentProps, useHistory } from 'react-router-dom';
+import styled from 'styled-components';
 import { makeContractsAPI } from '../../Backend/GameLogic/ContractsAPI';
 import GameManager, { GameManagerEvent } from '../../Backend/GameLogic/GameManager';
 import GameUIManager from '../../Backend/GameLogic/GameUIManager';
@@ -20,7 +21,6 @@ import {
   EmailResponse,
   RegisterConfirmationResponse,
   requestDevFaucet,
-  requestFaucet,
   submitInterestedEmail,
   submitPlayerEmail,
 } from '../../Backend/Network/UtilityServerAPI';
@@ -42,7 +42,6 @@ import { TerminalTextStyle } from '../Utils/TerminalTypes';
 import UIEmitter, { UIEmitterEvent } from '../Utils/UIEmitter';
 import { GameWindowLayout } from '../Views/GameWindowLayout';
 import { Terminal, TerminalHandle } from '../Views/Terminal';
-import styled from 'styled-components';
 
 const enum TerminalPromptStep {
   NONE,
@@ -81,21 +80,23 @@ const BrowserIssue = styled.p`
   line-height: 1.2em;
   width: 1000%;
   padding: 1em 0.5em;
-`
+`;
 
 function BrowserIssues({
   issues,
   state,
 }: {
-  issues: Incompatibility[]
-  state: BrowserCompatibleState
+  issues: Incompatibility[];
+  state: BrowserCompatibleState;
 }): JSX.Element {
   if (state !== 'unsupported') {
     return <></>;
   }
 
   if (issues.includes(Incompatibility.MobileOrTablet)) {
-    return <BrowserIssue>ERROR: Mobile or tablet device detected. Please use desktop.</BrowserIssue>;
+    return (
+      <BrowserIssue>ERROR: Mobile or tablet device detected. Please use desktop.</BrowserIssue>
+    );
   }
 
   if (issues.includes(Incompatibility.NoIDB)) {
@@ -103,7 +104,9 @@ function BrowserIssues({
   }
 
   if (issues.includes(Incompatibility.UnsupportedBrowser)) {
-    return <BrowserIssue>ERROR: Unsupported browser. Try using Brave, Firefox, or Chrome.</BrowserIssue>;
+    return (
+      <BrowserIssue>ERROR: Unsupported browser. Try using Brave, Firefox, or Chrome.</BrowserIssue>
+    );
   }
 
   return <BrowserIssue>ERROR: Unknonwn error, please refresh browser.</BrowserIssue>;
@@ -121,7 +124,8 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
   const [ethConnection, setEthConnection] = useState<EthConnection | undefined>();
   const [step, setStep] = useState(TerminalPromptStep.NONE);
 
-  const [browserCompatibleState, setBrowserCompatibleState] = useState<BrowserCompatibleState>('unknown');
+  const [browserCompatibleState, setBrowserCompatibleState] =
+    useState<BrowserCompatibleState>('unknown');
   const [browserIssues, setBrowserIssues] = useState<Incompatibility[]>([]);
   const [isMiniMapOn, setMiniMapOn] = useState(false);
   const [spectate, setSpectate] = useState(false);
@@ -161,13 +165,10 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
   const advanceStateFromCompatibilityPassed = useCallback(
     async (
       terminal: React.MutableRefObject<TerminalHandle | undefined>,
-      {
-        showHelp,
-        depth
-      }: TerminalStateOptions = {
+      { showHelp, depth }: TerminalStateOptions = {
         showHelp: true,
         depth: 0,
-      },
+      }
     ) => {
       const accounts = getAccounts();
       const totalAccounts = accounts.length;
@@ -185,10 +186,6 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
           if (depth === 0) {
             terminal.current?.newline();
 
-            terminal.current?.newline();
-
-            terminal.current?.newline();
-            terminal.current?.newline();
             terminal.current?.printLink(
               'Announcement',
               () => {
@@ -215,7 +212,9 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
           terminal.current?.newline();
         }
         if (totalAccounts > 0) {
-          terminal.current?.println(`Found ${totalAccounts} account${totalAccounts > 1 ? 's' : ''} on this device.`);
+          terminal.current?.println(
+            `Found ${totalAccounts} account${totalAccounts > 1 ? 's' : ''} on this device.`
+          );
           terminal.current?.println(``);
           terminal.current?.println('(a) Login with existing account.', TerminalTextStyle.Sub);
         }
@@ -235,7 +234,10 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       }
 
       if (selectedAddress !== null) {
-        terminal.current?.println(`Selecting account ${selectedAddress} from url...`, TerminalTextStyle.Green);
+        terminal.current?.println(
+          `Selecting account ${selectedAddress} from url...`,
+          TerminalTextStyle.Green
+        );
 
         // Search accounts backwards in case a player has used a private key more than once.
         // In that case, we want to take the most recently created account.
@@ -250,7 +252,10 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
           setStep(TerminalPromptStep.ACCOUNT_SET);
         } catch (e) {
           // unwanted state, client will need to reload browser here
-          terminal.current?.println('An unknown error occurred. please try again.', TerminalTextStyle.Red);
+          terminal.current?.println(
+            'An unknown error occurred. please try again.',
+            TerminalTextStyle.Red
+          );
         }
         return;
       }
@@ -266,7 +271,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
           setStep(TerminalPromptStep.GENERATE_ACCOUNT);
           return;
         case userInput === 'i':
-          setStep(TerminalPromptStep.IMPORT_ACCOUNT)
+          setStep(TerminalPromptStep.IMPORT_ACCOUNT);
           return;
         case userInput === 's':
           setStep(TerminalPromptStep.SPECTATING);
@@ -277,22 +282,26 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       switch (true) {
         case userInput === 'clear': {
           terminal.current?.clear();
+
           showHelp = false;
           break;
         }
-        case userInput === 'h' || userInput === 'help': {
+        case userInput === 'h' || userInput === 'help' || userInput === 'ls': {
           showHelp = true;
           break;
         }
         default: {
-          terminal.current?.println('Invalid option, please try again', TerminalTextStyle.Red);
+          terminal.current?.println(
+            'Invalid option, please try press [help]',
+            TerminalTextStyle.Red
+          );
           showHelp = false;
         }
       }
 
       advanceStateFromCompatibilityPassed(terminal, {
         showHelp,
-        depth: depth! + 1
+        depth: depth! + 1,
       });
     },
     [isLobby, ethConnection, selectedAddress]
@@ -301,9 +310,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
   const advanceStateFromDisplayAccounts = useCallback(
     async (
       terminal: React.MutableRefObject<TerminalHandle | undefined>,
-      {
-        showHelp,
-      }: TerminalStateOptions = {
+      { showHelp }: TerminalStateOptions = {
         showHelp: true,
       }
     ) => {
@@ -322,16 +329,16 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
         let accountsMessage = 'Select account option [1], then press [enter].';
         if (totalAccounts > 1) {
           let args = [...Array(totalAccounts - 1)].map((_, i) => `[${i + 1}]`);
-          accountsMessage = `Select one of the account options ${args.join(', ')} or [${totalAccounts}], then press [enter].`;
+          accountsMessage = `Select one of the account options ${args.join(
+            ', '
+          )} or [${totalAccounts}], then press [enter].`;
         }
 
         terminal.current?.println(accountsMessage, TerminalTextStyle.Sub);
       }
 
       const userInput = (await terminal.current?.getInput())?.trim() ?? '';
-      const selection = userInput !== ''
-        ? Number(userInput)
-        : NaN;
+      const selection = userInput !== '' ? Number(userInput) : NaN;
 
       // stop option, go to next step
       if (Number.isInteger(selection) && accounts[selection - 1] !== undefined) {
@@ -340,16 +347,19 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
           await ethConnection?.setAccount(account.privateKey);
           setStep(TerminalPromptStep.ACCOUNT_SET);
         } catch (e) {
-          terminal.current?.println('An unknown error occurred. please try again.',TerminalTextStyle.Red);
+          terminal.current?.println(
+            'An unknown error occurred. please try again.',
+            TerminalTextStyle.Red
+          );
           advanceStateFromDisplayAccounts(terminal, {
-            showHelp: false
+            showHelp: false,
           });
         }
         return;
       }
 
       // continue waiting for user input
-      switch(true) {
+      switch (true) {
         case userInput === 'clear': {
           terminal.current?.clear();
           showHelp = false;
@@ -371,8 +381,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
   );
 
   const advanceStateFromGenerateAccount = useCallback(
-    async (
-      terminal: React.MutableRefObject<TerminalHandle | undefined>) => {
+    async (terminal: React.MutableRefObject<TerminalHandle | undefined>) => {
       const newWallet = Wallet.createRandom();
       const newSKey = newWallet.privateKey;
       const newAddr = address(newWallet.address);
@@ -404,7 +413,10 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
         setStep(TerminalPromptStep.ACCOUNT_SET);
       } catch (e) {
         // unwanted state, user will need to reload browser here
-        terminal.current?.println('An unknown error occurred. please try again.', TerminalTextStyle.Red);
+        terminal.current?.println(
+          'An unknown error occurred. please try again.',
+          TerminalTextStyle.Red
+        );
       }
     },
     [ethConnection]
@@ -413,9 +425,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
   const advanceStateFromImportAccount = useCallback(
     async (
       terminal: React.MutableRefObject<TerminalHandle | undefined>,
-      {
-        showHelp,
-      }: TerminalStateOptions = {
+      { showHelp }: TerminalStateOptions = {
         showHelp: true,
       }
     ) => {
@@ -448,14 +458,17 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
           setStep(TerminalPromptStep.ACCOUNT_SET);
           return;
         } catch (e) {
-          terminal.current?.println('An unknown error occurred. please try again.', TerminalTextStyle.Red);
+          terminal.current?.println(
+            'An unknown error occurred. please try again.',
+            TerminalTextStyle.Red
+          );
           advanceStateFromImportAccount(terminal, { showHelp: false });
           return;
         }
       }
 
       // continue waiting for user input
-      switch(true) {
+      switch (true) {
         case userInput === 'clear': {
           terminal.current?.clear();
           showHelp = false;
@@ -598,7 +611,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
           terminal.current?.printLink(
             '(View Transaction)',
             () => {
-              window.open(`${BLOCK_EXPLORER_URL}/${registerConfirmationResponse.txHash}`);
+              window.open(`${BLOCK_EXPLORER_URL}/tx/${registerConfirmationResponse.txHash}`);
             },
             TerminalTextStyle.Blue
           );
@@ -645,7 +658,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
           // terminal.current?.printLink(
           //   '(View Transaction)',
           //   () => {
-          //     window.open(`${BLOCK_EXPLORER_URL}/${ukReceipt.hash}`);
+          //     window.open(`${BLOCK_EXPLORER_URL}/tx/${ukReceipt.hash}`);
           //   },
           //   TerminalTextStyle.Blue
           // );
@@ -653,7 +666,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
           terminal.current?.printLink(
             '(View Transaction)',
             () => {
-              window.open(`${BLOCK_EXPLORER_URL}/${tx.hash}`);
+              window.open(`${BLOCK_EXPLORER_URL}/tx/${tx.hash}`);
             },
             TerminalTextStyle.Pink
           );
@@ -832,7 +845,6 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
         return;
       }
 
-
       terminal.current?.println('Import account home coordinates? (y/n)', TerminalTextStyle.Text);
       terminal.current?.println(
         "If you're importing an account, make sure you know what you're doing."
@@ -901,23 +913,26 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
   const advanceStateFromNoHomePlanet = useCallback(
     async (
       terminal: React.MutableRefObject<TerminalHandle | undefined>,
-      {
-        showHelp,
-        coords,
-      }: TerminalStateOptions & { coords?: { x: number; y: number }} = {
+      { showHelp, coords }: TerminalStateOptions & { coords?: { x: number; y: number } } = {
         showHelp: true,
         coords: undefined,
-      },
+      }
     ) => {
       const gameUIManager = gameUIManagerRef.current;
       if (!gameUIManager) {
-        terminal.current?.println('ERROR: Game UI Manager not found. Terminating session.', TerminalTextStyle.Red);
+        terminal.current?.println(
+          'ERROR: Game UI Manager not found. Terminating session.',
+          TerminalTextStyle.Red
+        );
         setStep(TerminalPromptStep.TERMINATED);
         return;
       }
 
       if (Date.now() / 1000 > gameUIManager.getEndTimeSeconds()) {
-        terminal.current?.println('ERROR: This game has ended. Terminating session.', TerminalTextStyle.Red);
+        terminal.current?.println(
+          'ERROR: This game has ended. Terminating session.',
+          TerminalTextStyle.Red
+        );
         setStep(TerminalPromptStep.TERMINATED);
         return;
       }
@@ -925,7 +940,6 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       if (showHelp) {
         terminal.current?.println('Select home planet.', TerminalTextStyle.Green);
       }
-
 
       // terminal.current?.println('Press ENTER to find a home planet. This may take up to 120s.');
       // terminal.current?.println('This will consume a lot of CPU.');
@@ -954,9 +968,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       // Introduce a 100ms (0.1s) delay using a timer
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const selectedCoords = coords
-        ? coords
-        : await minimapPlugin.runAndGetUserCoords();
+      const selectedCoords = coords ? coords : await minimapPlugin.runAndGetUserCoords();
       const distFromOrigin = Math.sqrt(selectedCoords.x ** 2 + selectedCoords.y ** 2);
 
       if (selectedCoords.x === 0 || selectedCoords.y === 0) {
@@ -967,8 +979,12 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       }
 
       terminal.current?.println(
-        `Coordinates: (${selectedCoords.x}, ${selectedCoords.y}) were selected, ${distFromOrigin.toFixed(0)} ly away from center.`
+        `Coordinates: (${selectedCoords.x}, ${
+          selectedCoords.y
+        }) were selected, ${distFromOrigin.toFixed(0)} ly away from center.`
       );
+
+      setMiniMapOn(false);
 
       terminal.current?.println('(f) find home planet.');
       terminal.current?.println('(s) select new coordinates.');
@@ -978,12 +994,12 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       const userInput = (await terminal.current?.getInput())?.trim() ?? '';
       if (userInput !== 'f') {
         coords = selectedCoords;
-        switch(true) {
-          case userInput === 'clear': {
-            terminal.current?.clear();
-            showHelp = false;
-            break;
-          }
+        switch (true) {
+          // case userInput === 'clear': {
+          //   terminal.current?.clear();
+          //   showHelp = false;
+          //   break;
+          // }
           case userInput === 'h' || userInput === 'help': {
             showHelp = true;
             break;
@@ -995,7 +1011,10 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
           }
           default: {
             showHelp = false;
-            terminal.current?.println('Invalid option, please try again.', TerminalTextStyle.Red);
+            terminal.current?.println(
+              'Please select [f] or [h], then press [enter].',
+              TerminalTextStyle.Pink
+            );
             terminal.current?.newline();
           }
         }
@@ -1012,12 +1031,12 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
         });
       });
 
-      console.log('getGameManager', Date.now() - start)
+      console.log('getGameManager', Date.now() - start);
       start = Date.now();
 
       // requestFaucet
       const playerAddress = ethConnection?.getAddress();
-      console.log('getAddress', Date.now() - start)
+      console.log('getAddress', Date.now() - start);
       start = Date.now();
 
       gameUIManager
@@ -1046,22 +1065,13 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
             terminal.current?.printLink(
               'Deposit to Redstone',
               () => {
-                window.open('https://redstone.xyz/deposit');
+                window.open(BLOCKCHAIN_BRIDGE);
               },
               TerminalTextStyle.Pink
             );
             terminal.current?.newline();
             terminal.current?.newline();
 
-            console.log(process.env.FAUCET_SERVICE_URL);
-            if (e.message === 'ETH balance too low!' && process.env.FAUCET_SERVICE_URL) {
-              terminal.current?.printElement(
-                <div onClick={() => requestFaucet(playerAddress as string)}>
-                  click me request faucet!
-                </div>
-              );
-              terminal.current?.println('');
-            }
             terminal.current?.println('Press Enter to Try Again:');
 
             await terminal.current?.getInput();
@@ -1084,7 +1094,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
     async (
       terminal: React.MutableRefObject<TerminalHandle | undefined>,
       showHelp: boolean = true,
-      depth = 0,
+      depth = 0
     ) => {
       if (showHelp) {
         if (depth === 0) {
@@ -1100,7 +1110,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       }
 
       const input = (await terminal.current?.getInput())?.trim() ?? '';
-      switch(true) {
+      switch (true) {
         // set safe mode
         case input === 's': {
           const gameUIManager = gameUIManagerRef.current;
@@ -1122,9 +1132,8 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
           terminal.current?.println('Invalid option, please try again...', TerminalTextStyle.Red);
           advanceStateFromAllChecksPass(terminal, false, depth + 1);
           return;
+        }
       }
-    }
-
 
       setStep(TerminalPromptStep.COMPLETE);
       setInitRenderState(InitRenderState.COMPLETE);
@@ -1184,9 +1193,9 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
           TerminalTextStyle.Red
         );
         terminal.current?.printLink(
-          'https://explorer.holesky.redstone.xyz/',
+          BLOCK_EXPLORER_URL,
           () => {
-            window.open('https://explorer.holesky.redstone.xyz/');
+            window.open(BLOCK_EXPLORER_URL);
           },
           TerminalTextStyle.Red
         );
@@ -1207,10 +1216,10 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       }
 
       switch (true) {
-        case  step === TerminalPromptStep.COMPATIBILITY_CHECKS_PASSED:
+        case step === TerminalPromptStep.COMPATIBILITY_CHECKS_PASSED:
           advanceStateFromCompatibilityPassed(terminal);
           return;
-        case (step === TerminalPromptStep.DISPLAY_ACCOUNTS):
+        case step === TerminalPromptStep.DISPLAY_ACCOUNTS:
           advanceStateFromDisplayAccounts(terminal);
           return;
         case step === TerminalPromptStep.GENERATE_ACCOUNT:
@@ -1355,10 +1364,10 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
           text={`Welcome To Dark Forest Ares v0.1.3: Kardashev`}
           style={{
             fontFamily: "'Start Press 2P', sans-serif",
-            display: initRenderState !== InitRenderState.COMPLETE ? 'block' : 'none'
+            display: initRenderState !== InitRenderState.COMPLETE ? 'block' : 'none',
           }}
         />
-        <BrowserIssues issues={browserIssues} state={browserCompatibleState}/>
+        <BrowserIssues issues={browserIssues} state={browserCompatibleState} />
         <Terminal
           ref={terminalHandle}
           promptCharacter={'>'}

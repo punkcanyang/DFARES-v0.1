@@ -159,7 +159,7 @@ export function TxConfirmPopup({
 
   // public getGasFeeForTransaction(tx: Transaction): AutoGasSetting | string {
   //   if (
-  //     (tx.intent.methodName === 'initializePlayer' || tx.intent.methodName === 'getSpaceShips') &&
+  //     (tx.intent.methodName === 'initializePlayer' || tx.intent.methodName === 'giveSpaceShips') &&
   //     tx.intent.contract.address === this.contract.address
   //   ) {
   //     return '50';
@@ -173,8 +173,8 @@ export function TxConfirmPopup({
   // ethConnection.getAutoGasPriceGwei(ethConnection.getAutoGasPrices(), autoGasPriceSetting);
 
   const wrapGasFee = () => {
-    if (method === 'initializePlayer' || method === 'getSpaceShips')
-      return Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('40'))
+    if (method === 'initializePlayer' || method === 'giveSpaceShips')
+      return Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('5'))
         .toFixed(FIXED_DIGIT_NUMBER)
         .toString();
 

@@ -41,11 +41,10 @@ export const Terminal = React.forwardRef<TerminalHandle | undefined, TerminalPro
 
 let terminalLineKey = 0;
 
-function TerminalImpl({
-  promptCharacter,
-  visible,
-  useCaretElement
-}: TerminalProps, ref: React.Ref<TerminalHandle>) {
+function TerminalImpl(
+  { promptCharacter, visible, useCaretElement }: TerminalProps,
+  ref: React.Ref<TerminalHandle>
+) {
   const containerRef = useRef(document.createElement('div'));
   const inputRef = useRef(document.createElement('textarea'));
   const heightMeasureRef = useRef(document.createElement('textarea'));
@@ -241,13 +240,11 @@ function TerminalImpl({
     [onInputEmitter, promptCharacter, newline, print, append, removeLast, setFragments]
   );
 
-  const containerStyle = visible
-    ? undefined
-    : { display: 'none'} as React.CSSProperties;
+  const containerStyle = visible ? undefined : ({ display: 'none' } as React.CSSProperties);
 
-  const inputRefStyles =  !useCaretElement
+  const inputRefStyles = !useCaretElement
     ? undefined
-    : { 'caret-color': 'transparent'} as React.CSSProperties;
+    : ({ 'caret-color': 'transparent' } as React.CSSProperties);
 
   return (
     <TerminalContainer ref={containerRef} style={containerStyle}>
@@ -278,14 +275,12 @@ function TerminalImpl({
           <InputTextArea height={0} ref={heightMeasureRef} onChange={() => {}} value={inputText} />
 
           {/* "ghost" input to fake caret block element such as in real terminals */}
-          {
-            useCaretElement
-              ? <CaretElement>
-                  <GhostInput>{inputText}</GhostInput>
-                  <CaretBlock data-caret-block>&nbsp;</CaretBlock>
-                </CaretElement>
-              : undefined
-          }
+          {useCaretElement ? (
+            <CaretElement>
+              <GhostInput>{inputText}</GhostInput>
+              <CaretBlock data-caret-block>&nbsp;</CaretBlock>
+            </CaretElement>
+          ) : undefined}
         </TextAreas>
       </Prompt>
     </TerminalContainer>
@@ -325,12 +320,13 @@ const InputTextArea = styled.textarea`
 `;
 
 const TerminalContainer = styled.div`
-  height: 100%;
+  height: 90%;
   width: 100%;
   margin: 0 auto;
   overflow: scroll;
   white-space: pre-wrap;
   overflow-wrap: break-word;
+  margin-top: 5%;
 
   & span {
     word-break: break-all;

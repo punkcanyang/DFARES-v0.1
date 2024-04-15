@@ -1,3 +1,4 @@
+import { BLOCK_EXPLORER_URL } from '@dfares/constants';
 import { ModalName } from '@dfares/types';
 import React from 'react';
 import styled from 'styled-components';
@@ -123,7 +124,7 @@ export function HelpPane({ visible, onClose }: { visible: boolean; onClose: () =
           </Link>
           . We hope to innovate game mechanics while maintaining the original style of Dark Forest.
           Recently We choose to host Dark Forest Ares v0.1 Round 3: Kardashev on{' '}
-          <Link to='https://redstone.xyz/' color={'rgb(243,66,66)'}>
+          <Link to={BLOCK_EXPLORER_URL} color={'rgb(243,66,66)'}>
             Redstone
           </Link>
           .

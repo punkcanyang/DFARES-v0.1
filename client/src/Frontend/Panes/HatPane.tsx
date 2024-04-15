@@ -1,4 +1,4 @@
-import { MAX_LOGO_TYPE, MIN_LOGO_TYPE, TOKEN_NAME } from '@dfares/constants';
+import { BLOCKCHAIN_BRIDGE, MAX_LOGO_TYPE, MIN_LOGO_TYPE, TOKEN_NAME } from '@dfares/constants';
 import { weiToEth } from '@dfares/network';
 import { getHatSizeName, logoTypeToNum } from '@dfares/procedural';
 import { isUnconfirmedBuyHatTx } from '@dfares/serde';
@@ -118,7 +118,7 @@ export function HatPane({
 
         <div>
           {' '}
-          <Link to={'https://redstone.xyz/deposit'}>Deposit To Redstone</Link>
+          <Link to={BLOCKCHAIN_BRIDGE}>Deposit To Redstone</Link>
         </div>
 
         {/* <Link to={'https://blog.zkga.me/df-04-faq'}>Get More ${TOKEN_NAME}</Link> */}

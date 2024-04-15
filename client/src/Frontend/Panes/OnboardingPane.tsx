@@ -1,4 +1,4 @@
-import { BLOCKCHAIN_NAME, HOST_TEAM_NAME } from '@dfares/constants';
+import { BLOCKCHAIN_NAME, BLOCK_EXPLORER_URL, HOST_TEAM_NAME } from '@dfares/constants';
 import { ModalName } from '@dfares/types';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -50,7 +50,7 @@ function OnboardMoney({ advance }: { advance: () => void }) {
   const uiManager = useUIManager();
   const account = useAccount(uiManager);
 
-  const explorerAddressLink = `https://explorer.holesky.redstone.xyz/address/${account}`;
+  const explorerAddressLink = `${BLOCK_EXPLORER_URL}+'/address/${account}`;
 
   return (
     <StyledOnboardingContent>

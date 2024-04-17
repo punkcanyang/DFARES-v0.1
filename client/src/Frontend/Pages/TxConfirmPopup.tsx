@@ -16,6 +16,7 @@ import { getSetting, setBooleanSetting } from '../Utils/SettingsHooks';
 const StyledTxConfirmPopup = styled.div`
   width: 100%;
   height: 100%;
+
   position: absolute;
   z-index: 2;
 
@@ -338,6 +339,20 @@ export function TxConfirmPopup({
 
   return (
     <StyledTxConfirmPopup>
+      <div className='section'>
+        <h2> NOTICE </h2>
+
+        <div>
+          <b>The estimate here does not include the L1 gas fee.</b>
+        </div>
+        <div>
+          <b>The estimate here does not include paid operations in plugins.</b>
+        </div>
+        <div>
+          {' '}
+          <b>Please check the blockchain explorer to know more.</b>
+        </div>
+      </div>
       <div className='section'>
         <h2>Confirm Transaction</h2>
       </div>

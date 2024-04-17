@@ -48,8 +48,6 @@ contract DFKardashevFacet is WithStorage {
         uint256 targetPlanetId
     );
 
-    // mytodo:
-
     /**
      * Same snark args as DFCoreFacet#revealLocation
      */

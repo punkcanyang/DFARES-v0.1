@@ -35,7 +35,6 @@ import {
   Wrapper,
 } from '../Components/GameLandingPageComponents';
 import { MythicLabelText } from '../Components/Labels/MythicLabel';
-import { TextPreview } from '../Components/TextPreview';
 import { TopLevelDivProvider, UIManagerProvider } from '../Utils/AppHooks';
 import { Incompatibility, unsupportedFeatures } from '../Utils/BrowserChecks';
 import { TerminalTextStyle } from '../Utils/TerminalTypes';
@@ -392,7 +391,10 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
 
         terminal.current?.println(``);
         terminal.current?.print(`Created new burner wallet with address `);
-        terminal.current?.printElement(<TextPreview text={newAddr} unFocusedWidth={'100px'} />);
+        terminal.current?.print(newAddr, TerminalTextStyle.Pink);
+        // terminal.current?.printElement(
+        //   <TextPreview text={newAddr} unFocusedWidth={'100px'} style={{ color: 'pink' }} />
+        // );
         terminal.current?.println(``);
         terminal.current?.println('');
         terminal.current?.println(
@@ -798,7 +800,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       terminal.current?.println('Connected to Dark Forest Ares Contract');
 
       terminal.current?.newline();
-      terminal.current?.println('Welcome to DARK FOREST.');
+      terminal.current?.println('Welcome to DARK FOREST ARES.');
       terminal.current?.newline();
       terminal.current?.println('We collect a minimal set of statistics such as SNARK proving');
       terminal.current?.println('times and average transaction times across browsers, to help ');

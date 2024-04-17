@@ -287,7 +287,6 @@ export function TxConfirmPopup({
   const joinGameCost: number =
     method === 'initializePlayer' && entryFee ? weiToEth(BigNumber.from(entryFee)) : 0;
 
-  //MyTodo: chance to useUIManager
   const getTxCost = () => {
     if (!isNaN(Number(gasFeeGwei))) {
       // console.log('first');
@@ -592,7 +591,7 @@ export function TxConfirmPopup({
       <div className='section'>
         <Row className='network'>
           <div>
-            <ConfirmIcon /> DF connected to Blockchain
+            <ConfirmIcon /> DFAres connected to Blockchain
           </div>
         </Row>
         <Row className='mtop'>

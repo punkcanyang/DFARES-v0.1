@@ -207,7 +207,7 @@ contract DFAdminFacet is WithStorage {
             require(LibGameUtils._locationIdValid(args.location), "Not a valid planet location");
         }
 
-        //mytodo: need pass dist here, get wrong space type if some condition at
+        //NOTE: need pass dist here, get wrong space type if some condition at
         //new map algo, need to be fixed
         //
         //NOTE: admin only add Level 9

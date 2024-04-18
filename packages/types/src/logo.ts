@@ -53,7 +53,7 @@ export const LogoTypeNames = {
   [LogoType.DF]: 'Dark Forest',
   [LogoType.Lattice]: 'Lattice',
   [LogoType.Redstone]: 'Redstone',
-  [LogoType.DFARES]: 'DF ARES',
+  [LogoType.DFARES]: 'DFAres',
   [LogoType.DFArchon]: 'DF Archon',
   [LogoType.AGLDDAO]: 'AGLD DAO',
   [LogoType.Mask]: 'Mask Network',

@@ -306,7 +306,7 @@ class MinimapSpawnPlugin {
 
     // reset click
     this.clickOccurred = false;
-    const onCanvasClick = (/** @type {MouseEvent} */ event) =>{
+    const onCanvasClick = (/** @type {MouseEvent} */ event) => {
       let x = event.offsetX;
       let y = event.offsetY;
       let xWorld = toWorldCoord(x);

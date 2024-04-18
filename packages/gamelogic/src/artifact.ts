@@ -48,11 +48,15 @@ export function hasStatBoost(type: ArtifactType | undefined): boolean {
     !isSpaceShip(type) &&
     type !== ArtifactType.BlackDomain &&
     type !== ArtifactType.BloomFilter &&
-    type !== ArtifactType.Wormhole
+    type !== ArtifactType.Wormhole &&
+    type !== ArtifactType.Avatar &&
+    type !== ArtifactType.Kardashev &&
+    type !== ArtifactType.Bomb &&
+    type !== ArtifactType.StellarShield
   );
 }
 
-const artifactCooldownHoursMap = {
+export const artifactCooldownHoursMap = {
   [ArtifactType.Unknown]: 24,
   [ArtifactType.Monolith]: 0,
   [ArtifactType.Colossus]: 0,

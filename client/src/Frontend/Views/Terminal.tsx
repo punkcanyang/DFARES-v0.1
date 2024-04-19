@@ -246,6 +246,7 @@ function TerminalImpl(
     ? undefined
     : ({ caretColor: 'transparent' } as React.CSSProperties);
 
+
   return (
     <TerminalContainer ref={containerRef} style={containerStyle}>
       {fragments}

@@ -24,7 +24,6 @@ import {
   submitInterestedEmail,
   submitPlayerEmail,
 } from '../../Backend/Network/UtilityServerAPI';
-import MinimapSpawnPlugin from '../../Backend/Plugins/minimapSpawn';
 import { getWhitelistArgs } from '../../Backend/Utils/WhitelistSnarkArgsHelper';
 import { ZKArgIdx } from '../../_types/darkforest/api/ContractsAPITypes';
 import {
@@ -42,6 +41,7 @@ import { TerminalTextStyle } from '../Utils/TerminalTypes';
 import UIEmitter, { UIEmitterEvent } from '../Utils/UIEmitter';
 import { GameWindowLayout } from '../Views/GameWindowLayout';
 import { Terminal, TerminalHandle } from '../Views/Terminal';
+import { MiniMap, MiniMapHandle, SpawnArea } from './components/MiniMap';
 
 const enum TerminalPromptStep {
   NONE,
@@ -65,8 +65,6 @@ const enum TerminalPromptStep {
   ERROR,
   SPECTATING,
 }
-
-const minimapPlugin = new MinimapSpawnPlugin();
 
 type BrowserCompatibleState = 'unknown' | 'unsupported' | 'supported';
 type TerminalStateOptions = {
@@ -117,6 +115,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
   const terminalHandle = useRef<TerminalHandle>();
   const gameUIManagerRef = useRef<GameUIManager | undefined>();
   const topLevelContainer = useRef<HTMLDivElement | null>(null);
+  const miniMapRef = useRef<MiniMapHandle>();
 
   const [gameManager, setGameManager] = useState<GameManager | undefined>();
   const [terminalVisible, setTerminalVisible] = useState(true);
@@ -129,6 +128,8 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
   const [browserIssues, setBrowserIssues] = useState<Incompatibility[]>([]);
   const [isMiniMapOn, setMiniMapOn] = useState(false);
   const [spectate, setSpectate] = useState(false);
+
+  const [spawnArea, setSpawnArea] = useState<SpawnArea | undefined>();
 
   const params = new URLSearchParams(location.search);
   // NOTE: round 2
@@ -968,124 +969,131 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       // Introduce a 100ms (0.1s) delay using a timer
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const selectedCoords = coords ? coords : await minimapPlugin.runAndGetUserCoords();
-      const distFromOrigin = Math.sqrt(selectedCoords.x ** 2 + selectedCoords.y ** 2);
+      let selectedSpawnArea: SpawnArea | undefined = undefined;
 
-      if (selectedCoords.x === 0 || selectedCoords.y === 0) {
-        terminal.current?.println('Invalid selection, please try again.', TerminalTextStyle.Red);
-        terminal.current?.newline();
-        advanceStateFromNoHomePlanet(terminal, { showHelp: false });
-        return;
+      while (true) {
+        await new Promise((resolve) => setTimeout(resolve, 2_500));
+        console.log('selected spawnArea', miniMapRef.current?.getSelectedSpawnArea());
       }
 
-      terminal.current?.println(
-        `Coordinates: (${selectedCoords.x}, ${
-          selectedCoords.y
-        }) were selected, ${distFromOrigin.toFixed(0)} ly away from center.`
-      );
+// '      const selectedCoords = coords ? coords : await minimapPlugin.runAndGetUserCoords();
+//       const distFromOrigin = Math.sqrt(selectedCoords.x ** 2 + selectedCoords.y ** 2);
 
-      setMiniMapOn(false);
+//       if (selectedCoords.x === 0 || selectedCoords.y === 0) {
+//         terminal.current?.println('Invalid selection, please try again.', TerminalTextStyle.Red);
+//         terminal.current?.newline();
+//         advanceStateFromNoHomePlanet(terminal, { showHelp: false });
+//         return;
+//       }
 
-      terminal.current?.println('(f) find home planet.');
-      terminal.current?.println('(s) select new coordinates.');
-      terminal.current?.newline();
-      terminal.current?.println('Select one of the options above [f] or [s], then press [enter]');
+//       terminal.current?.println(
+//         `Coordinates: (${selectedCoords.x}, ${
+//           selectedCoords.y
+//         }) were selected, ${distFromOrigin.toFixed(0)} ly away from center.`
+//       );
 
-      const userInput = (await terminal.current?.getInput())?.trim() ?? '';
-      if (userInput !== 'f') {
-        coords = selectedCoords;
-        switch (true) {
-          // case userInput === 'clear': {
-          //   terminal.current?.clear();
-          //   showHelp = false;
-          //   break;
-          // }
-          case userInput === 'h' || userInput === 'help': {
-            showHelp = true;
-            break;
-          }
-          case userInput === 's': {
-            showHelp = true;
-            coords = undefined;
-            break;
-          }
-          default: {
-            showHelp = false;
-            terminal.current?.println(
-              'Please select [f] or [h], then press [enter].',
-              TerminalTextStyle.Pink
-            );
-            terminal.current?.newline();
-          }
-        }
+//       setMiniMapOn(false);
 
-        advanceStateFromNoHomePlanet(terminal, { showHelp, coords });
-        return;
-      }
+//       terminal.current?.println('(f) find home planet.');
+//       terminal.current?.println('(s) select new coordinates.');
+//       terminal.current?.newline();
+//       terminal.current?.println('Select one of the options above [f] or [s], then press [enter]');
 
-      let start = Date.now();
-      gameUIManager.getGameManager().on(GameManagerEvent.InitializedPlayer, () => {
-        setTimeout(() => {
-          terminal.current?.println('Initializing game...');
-          setStep(TerminalPromptStep.ALL_CHECKS_PASS);
-        });
-      });
+//       const userInput = (await terminal.current?.getInput())?.trim() ?? '';
+//       if (userInput !== 'f') {
+//         coords = selectedCoords;
+//         switch (true) {
+//           // case userInput === 'clear': {
+//           //   terminal.current?.clear();
+//           //   showHelp = false;
+//           //   break;
+//           // }
+//           case userInput === 'h' || userInput === 'help': {
+//             showHelp = true;
+//             break;
+//           }
+//           case userInput === 's': {
+//             showHelp = true;
+//             coords = undefined;
+//             break;
+//           }
+//           default: {
+//             showHelp = false;
+//             terminal.current?.println(
+//               'Please select [f] or [h], then press [enter].',
+//               TerminalTextStyle.Pink
+//             );
+//             terminal.current?.newline();
+//           }
+//         }
 
-      console.log('getGameManager', Date.now() - start);
-      start = Date.now();
+//         advanceStateFromNoHomePlanet(terminal, { showHelp, coords });
+//         return;
+//       }
 
-      // requestFaucet
-      const playerAddress = ethConnection?.getAddress();
-      console.log('getAddress', Date.now() - start);
-      start = Date.now();
+//       let start = Date.now();
+//       gameUIManager.getGameManager().on(GameManagerEvent.InitializedPlayer, () => {
+//         setTimeout(() => {
+//           terminal.current?.println('Initializing game...');
+//           setStep(TerminalPromptStep.ALL_CHECKS_PASS);
+//         });
+//       });
 
-      gameUIManager
-        .joinGame(
-          async (e) => {
-            console.error(e);
+//       console.log('getGameManager', Date.now() - start);
+//       start = Date.now();
 
-            terminal.current?.println('Error Joining Game:');
-            terminal.current?.println(e.message, TerminalTextStyle.Red);
-            terminal.current?.newline();
+//       // requestFaucet
+//       const playerAddress = ethConnection?.getAddress();
+//       console.log('getAddress', Date.now() - start);
+//       start = Date.now();
 
-            terminal.current?.println(
-              "Don't worry :-) you can get more Redstone Holesky ETH this way 😘",
-              TerminalTextStyle.Pink
-            );
-            terminal.current?.print('Step 1: ', TerminalTextStyle.Pink);
-            terminal.current?.printLink(
-              'Get more Holesky ETH here',
-              () => {
-                window.open('https://holesky-faucet.pk910.de/');
-              },
-              TerminalTextStyle.Pink
-            );
-            terminal.current?.newline();
-            terminal.current?.print('Step 2: ', TerminalTextStyle.Pink);
-            terminal.current?.printLink(
-              'Deposit to Redstone',
-              () => {
-                window.open(BLOCKCHAIN_BRIDGE);
-              },
-              TerminalTextStyle.Pink
-            );
-            terminal.current?.newline();
-            terminal.current?.newline();
+//       gameUIManager
+//         .joinGame(
+//           async (e) => {
+//             console.error(e);
 
-            terminal.current?.println('Press Enter to Try Again:');
+//             terminal.current?.println('Error Joining Game:');
+//             terminal.current?.println(e.message, TerminalTextStyle.Red);
+//             terminal.current?.newline();
 
-            await terminal.current?.getInput();
-            return true;
-          },
-          selectedCoords,
-          spectate
-        )
-        .catch((error: Error) => {
-          terminal.current?.println(
-            `[ERROR] An error occurred: ${error.toString().slice(0, 10000)}`,
-            TerminalTextStyle.Red
-          );
-        });
+//             terminal.current?.println(
+//               "Don't worry :-) you can get more Redstone Holesky ETH this way 😘",
+//               TerminalTextStyle.Pink
+//             );
+//             terminal.current?.print('Step 1: ', TerminalTextStyle.Pink);
+//             terminal.current?.printLink(
+//               'Get more Holesky ETH here',
+//               () => {
+//                 window.open('https://holesky-faucet.pk910.de/');
+//               },
+//               TerminalTextStyle.Pink
+//             );
+//             terminal.current?.newline();
+//             terminal.current?.print('Step 2: ', TerminalTextStyle.Pink);
+//             terminal.current?.printLink(
+//               'Deposit to Redstone',
+//               () => {
+//                 window.open(BLOCKCHAIN_BRIDGE);
+//               },
+//               TerminalTextStyle.Pink
+//             );
+//             terminal.current?.newline();
+//             terminal.current?.newline();
+
+//             terminal.current?.println('Press Enter to Try Again:');
+
+//             await terminal.current?.getInput();
+//             return true;
+//           },
+//           selectedCoords,
+//           spectate
+//         )
+//         .catch((error: Error) => {
+//           terminal.current?.println(
+//             `[ERROR] An error occurred: ${error.toString().slice(0, 10000)}`,
+//             TerminalTextStyle.Red
+//           );
+//         });'
     },
     [ethConnection, spectate]
   );
@@ -1312,35 +1320,6 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
     }
   }, [terminalHandle, topLevelContainer, advanceState]);
 
-  interface MinimapPluginWrapperProps {
-    plugin: MinimapSpawnPlugin; // Replace with the actual type of your MinimapSpawnPlugin
-  }
-  const MinimapPluginWrapper: React.FC<MinimapPluginWrapperProps> = ({ plugin }) => {
-    const containerRef = useRef(null);
-
-    useEffect(() => {
-      if (containerRef.current && plugin) {
-        plugin.render(containerRef.current);
-      }
-
-      return () => {
-        // Cleanup the plugin when the component unmounts
-        if (plugin) {
-          plugin.destroy();
-        }
-      };
-    }, [containerRef, plugin]);
-
-    return (
-      <>
-        <div>
-          <p></p>
-        </div>
-        <div ref={containerRef}></div>
-      </>
-    );
-  };
-
   return (
     <Wrapper initRender={initRenderState} terminalEnabled={terminalVisible}>
       <GameWindowWrapper initRender={initRenderState} terminalEnabled={terminalVisible}>
@@ -1378,12 +1357,9 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       <div ref={topLevelContainer}></div>
       <div>
         {isMiniMapOn && (
-          <>
-            <div style={{ position: 'absolute', right: '100px' }}>
-              <div style={{ color: 'red', width: '100px', height: '100px' }}> </div>
-              <MinimapPluginWrapper plugin={minimapPlugin} />
-            </div>
-          </>
+          <div style={{ position: 'absolute', right: '100px' }}>
+            <MiniMap ref={miniMapRef} />
+          </div>
         )}
       </div>
     </Wrapper>

@@ -190,8 +190,7 @@ export enum GameManagerEvent {
   Moved = 'Moved',
 }
 
-const sleep =
-  (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 class GameManager extends EventEmitter {
   /**
@@ -589,8 +588,9 @@ class GameManager extends EventEmitter {
     this.playerInterval = setInterval(() => {
       if (this.account) {
         this.hardRefreshPlayer(this.account);
+        this.hardRefreshPlayerSpaceships(this.account);
       }
-    }, 5000);
+    }, 10_000);
 
     this.hashRate = 0;
 
@@ -1175,25 +1175,33 @@ class GameManager extends EventEmitter {
     this.playersUpdated$.publish();
   }
 
-  private async hardRefreshPlayerSpaceships(address?: EthAddress): Promise<void> {
+  private async hardRefreshPlayerSpaceships(address?: EthAddress, show?: boolean): Promise<void> {
     if (!address) return;
     const spaceships = await this.contractsAPI.getPlayerSpaceships(address);
-    console.log(spaceships.length);
+    if (show) console.log(spaceships.length);
     for (let i = 0; i < spaceships.length; i++) {
-      console.log('--- spaceship ', i, ' ---');
-      console.log('ship id:', spaceships[i].id);
-      this.hardRefreshArtifact(spaceships[i].id);
+      if (show) {
+        console.log('--- spaceship ', i, ' ---');
+        console.log('ship id:', spaceships[i].id);
+        console.log('onPlanet: ', spaceships[i].onPlanetId);
+      }
+
+      await this.hardRefreshArtifact(spaceships[i].id);
       const voyageId = spaceships[i].onVoyageId;
 
       if (voyageId !== undefined) {
         const arrival = await this.contractsAPI.getArrival(Number(voyageId));
-        console.log('voyageId:', voyageId);
-        console.log(arrival);
+        if (show) console.log('voyageId:', voyageId);
+        // console.log(arrival);
         if (arrival) {
           const fromPlanet = arrival.fromPlanet;
           const toPlanet = arrival.toPlanet;
+          if (show) {
+            console.log('Source Planet :', fromPlanet);
+            console.log('Target Planet :', toPlanet);
+          }
           await Promise.all([this.hardRefreshPlanet(fromPlanet), this.hardRefreshPlanet(toPlanet)]);
-          console.log('[OK] finish hard refresh from & to planets');
+          if (show) console.log('[OK] finish hard refresh from & to planets');
         }
       }
     }
@@ -2837,7 +2845,6 @@ class GameManager extends EventEmitter {
       //   throw new Error('someone already burn this planet');
       // }
 
-      //NOTE: planet.transaction updates have some problems
       if (planet.transactions?.hasTransaction(isUnconfirmedPinkTx)) {
         throw new Error("you're already pinking this planet's location 1");
       }
@@ -3258,7 +3265,9 @@ class GameManager extends EventEmitter {
       this.homeLocation = planet.location;
       this.terminal.current?.println('');
       this.terminal.current?.println(
-        `Found Suitable Home Planet: ${getPlanetName(planet)}, coordinates: (${planet.location.coords.x}, ${planet.location.coords.y})`,
+        `Found Suitable Home Planet: ${getPlanetName(planet)}, coordinates: (${
+          planet.location.coords.x
+        }, ${planet.location.coords.y})`,
         TerminalTextStyle.Pink
       );
       this.terminal.current?.newline();

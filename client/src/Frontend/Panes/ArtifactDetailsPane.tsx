@@ -1,5 +1,11 @@
 import { EMPTY_ADDRESS } from '@dfares/constants';
-import { dateMintedAt, hasStatBoost, isActivated, isSpaceShip } from '@dfares/gamelogic';
+import {
+  artifactCooldownHoursMap,
+  dateMintedAt,
+  hasStatBoost,
+  isActivated,
+  isSpaceShip,
+} from '@dfares/gamelogic';
 import { artifactName, getPlanetName, getPlanetNameHash } from '@dfares/procedural';
 import {
   Artifact,
@@ -428,17 +434,11 @@ function ArtifactDescription({
 
   const wormholeShrinkLevels = [0, 2, 4, 8, 16, 32];
 
-  const maxLevelsWormhole = [0, 2, 4, 6, 8, 9];
-  const maxLevelWormhole = maxLevelsWormhole[artifact.rarity];
-
   const maxLevelsPlanetaryShield = [0, 2, 4, 6, 8, 9];
   const maxLevelPlanetaryShield = maxLevelsPlanetaryShield[artifact.rarity];
 
   const maxLevelsBlackDomain = [0, 2, 4, 6, 8, 9];
   const maxLevelBlackDomain = maxLevelsBlackDomain[artifact.rarity];
-
-  const maxLevelsPhotoidCannon = [0, 2, 4, 6, 8, 9];
-  const maxLevelPhotoidCannon = maxLevelsPhotoidCannon[artifact.rarity];
 
   const maxLevelsBloomFilter = [0, 2, 4, 6, 8, 9];
   const maxLevelBloomFilter = maxLevelsBloomFilter[artifact.rarity];
@@ -451,6 +451,7 @@ function ArtifactDescription({
 
   const maxLevelsFireLink = [0, 2, 4, 6, 8, 9];
   const maxLevelFireLink = maxLevelsFireLink[artifact.rarity];
+
   const maxLevelsStellarShield = [0, 2, 4, 6, 8, 9];
   const maxLevelStellarShield = maxLevelsStellarShield[artifact.rarity];
 
@@ -460,19 +461,31 @@ function ArtifactDescription({
     case ArtifactType.Wormhole:
       content = (
         <Text>
-          <Text>
-            When activated, shortens the distance between this planet and another one. All moves
-            between those two planets decay less energy, and complete faster.{' '}
+          <div>
+            <Green>INTRO: </Green>When activated, shortens the distance between this planet and
+            another one. All moves between those two planets decay less energy, and complete faster.
+          </div>
+          <div>
+            <Green>DETIAL: </Green>Because this one is <White>{rarityName}</White>, it shrinks the
+            distance by a factor of <White>{wormholeShrinkLevels[artifact.rarity]}</White>x.
+          </div>
+
+          <div>
+            <Green>ACTIVATION: </Green> The source planet and target planet must be yours.
+          </div>
+
+          <div>
+            <Green>DEACTIVATION: </Green>The artifact does not disappear after deactivation, but you
+            have to wait for <White>{artifactCooldownHoursMap[ArtifactType.Wormhole]}</White> hrs
+            before activating it again.
+          </div>
+
+          <div>
             <Red>
-              Energy sent through your wormhole to a planet you do not control does not arrive.
-            </Red>{' '}
-            Because this one is <White>{rarityName}</White>, it shrinks the distance by a factor of{' '}
-            <White>{wormholeShrinkLevels[artifact.rarity]}</White>x.
-          </Text>
-          <Text2>
-            Because this one is <White>{rarityName}</White>, it can activate on planets up to level{' '}
-            <White>{maxLevelWormhole}</White>.
-          </Text2>
+              NOTE: Energy sent through your wormhole to a planet you do not control does not
+              arrive.
+            </Red>
+          </div>
         </Text>
       );
       break;
@@ -480,11 +493,19 @@ function ArtifactDescription({
     case ArtifactType.PlanetaryShield:
       content = (
         <Text>
-          <Text>
-            Activate the planetary shield to gain a defense bonus on your planet, at the expense of
-            range and speed. When this artifact is deactivated, it is destroyed and your planet's
-            stats are reverted--so use it wisely!{' '}
-          </Text>
+          <div>
+            <Green>INTRO: </Green>Activate the planetary shield to gain a defense bonus on your
+            planet, at the expense of range and speed.
+          </div>
+          <div>
+            <Green>LEVEL: </Green>Because this one is <White>{rarityName}</White>, it can activate
+            on planets up to level <White>{maxLevelPlanetaryShield}</White>.
+          </div>
+          <div>
+            <Green>DEACTIVATION: </Green>When this artifact is deactivated, it will disappear and
+            your planet's stats are reverted--so use it wisely!
+          </div>
+
           {/* <Text2>
             Planet with activated planetary shield can defend against black domain's attack when
             planetary shield's rarity {'>='} block domain rarity.{' '}
@@ -493,28 +514,27 @@ function ArtifactDescription({
             Planet with activated planetary shield can defend against ice link's attack when
             planetary shield's rarity {'>='} ice link's rarity.
           </Text> */}
-
-          <Text2>
-            Because this one is <White>{rarityName}</White>, it can activate on planets up to level{' '}
-            <White>{maxLevelPlanetaryShield}</White>.
-          </Text2>
         </Text>
       );
       break;
     case ArtifactType.BlackDomain:
       content = (
         <Text>
-          <Text>
-            When activated, permanently disables target planet. It'll still be others, but the owner
-            won't be able to do anything with it. It turns completely black too. Just ... gone.
-          </Text>
-          <Text2>
-            Because this one is <White>{rarityName}</White>, it can activate on planets up to level{' '}
-            <White>{maxLevelBlackDomain}</White>.
-          </Text2>
+          <div>
+            <Green>INTRO: </Green>When activated, permanently disables target planet. It'll still be
+            others, but the owner won't be able to do anything with it. It turns completely black
+            too. Just ... gone.
+          </div>
+          <div>
+            <Green>LEVEL: </Green>Because this one is <White>{rarityName}</White>, it can activate
+            on planets up to level <White>{maxLevelBlackDomain}</White>.
+          </div>
+          <div>
+            <Green>ACTIVATION: </Green>This artifact is consumed on activation.
+          </div>
+
           {/* <Text2>The target planet must be owned by others. </Text2> */}
           {/* <Text>The target planet level must {'>='} source planet level. </Text> */}
-          <Text2>This artifact is consumed on activation. </Text2>
           {/* <Text>Block domain can be defended by planerary shield. </Text> */}
         </Text>
       );
@@ -523,22 +543,27 @@ function ArtifactDescription({
     case ArtifactType.PhotoidCannon:
       content = (
         <Text>
-          <Text>
-            Ahh, the Photoid Canon. Activate it, wait four hours. Because this one is{' '}
-            <White>{rarityName}</White>, the next move you send will be able to go{' '}
+          <div>
+            <Green>INTRO: </Green> Ahh, the Photoid Canon. Activate it, wait four hours. Because
+            this one is <White>{rarityName}</White>, the next move you send will be able to go{' '}
             <White>{photoidRanges[artifact.rarity]}</White>x further and{' '}
             <White>{photoidSpeeds[artifact.rarity]}</White>x faster. During the 4 hour waiting
             period, your planet's defense is temporarily decreased. This artifact is consumed once
             the canon is fired.
-          </Text>
-          <Text2>
+          </div>
+
+          <div>
+            <Green>DEACTIVATION: </Green>When this artifact is deactivated, it will disappear and
+            your planet's stats are reverted--so use it wisely!
+          </div>
+          {/* <Text2>
             Because this one is <White>{rarityName}</White>, it can activate on planets up to level{' '}
             <White>{maxLevelPhotoidCannon}</White>.
-          </Text2>
-          <Text2>
-            If target planet with active Stellar Shield, Photoid Canon rarity need {'>='} Stellar
-            Sheild rarity.
-          </Text2>
+          </Text2> */}
+          <div>
+            <Green>NOTE: </Green>If target planet with active Stellar Shield, Photoid Canon rarity
+            need {'>='} Stellar Sheild rarity.
+          </div>
         </Text>
       );
       // content = (
@@ -549,7 +574,6 @@ function ArtifactDescription({
       //       temporarily decreased.
       //     </Text>
       //     <Text2> This artifact is consumed once the canon is fired. </Text2>
-
       //     <Text>The quick move can be defended by stellar Shield. </Text>
       //   </Text>
       // );
@@ -564,13 +588,23 @@ function ArtifactDescription({
       //     consumed on activation.
       //   </Text>
       // );
-
       content = (
         <Text>
-          When activated refills your planet's energy to their respective maximum values. How it
+          <div>
+            <Green>INTRO: </Green> When activated refills your planet's energy to their respective
+            maximum values.
+          </div>
+          <div>
+            <Green>LEVEL: </Green>Because this one is <White>{rarityName}</White>, it works on
+            planets up to level <White>{maxLevelBloomFilter}</White>.
+          </div>
+          <div>
+            <Green>ACTIVATION: </Green>This artifact is consumed on activation.
+          </div>
+          {/* When activated refills your planet's energy to their respective maximum values. How it
           does this, we do not know. Because this one is <White>{rarityName}</White>, it works on
           planets up to level <White>{maxLevelBloomFilter}</White>. This artifact is consumed on
-          activation.
+          activation. */}
         </Text>
       );
       break;
@@ -579,7 +613,6 @@ function ArtifactDescription({
       content = (
         <Text>
           <Text>When activated, source planet & target planet will be frozen.</Text>
-
           <Text>
             Because this one is <White>{rarityName}</White>, it can be activated on planets up to
             level <White>{maxLevelIceLink}</White>.
@@ -617,19 +650,100 @@ function ArtifactDescription({
         </Text>
       );
       break;
+
+    case ArtifactType.Kardashev:
+      content = (
+        <Text>
+          <div>
+            <Green>INTRO: </Green> after activating Kardashev artifact then you can do kardashev
+            operation on this planet to create blue circle.
+          </div>
+
+          <div>
+            <Green>DEACTIVATION: </Green>This artifact will not disappear after deactivation.
+          </div>
+          <div>
+            <Green>NOTE: </Green> When doing kardashev operation on this planet, the Kardashev
+            artifact will disappear.
+          </div>
+        </Text>
+      );
+      break;
+
+    case ArtifactType.Bomb:
+      content = (
+        <Text>
+          <div>
+            <Green>INTRO: </Green> after activating Bomb artifact then you can drop bomb on this
+            planet to create pink circle.
+          </div>
+
+          <div>
+            <Green>DEACTIVATION: </Green>This artifact will not disappear after deactivation.
+          </div>
+
+          <div>
+            <Green>NOTE: </Green> When dropping bomb on this planet, the Bomb artifact will
+            disappear.
+          </div>
+        </Text>
+      );
+      break;
+
     case ArtifactType.StellarShield:
       content = (
         <Text>
-          <Text>
-            If stellar shield is activated on the target planet, it can resist a photoid cannon's
-            quick move attack.
-          </Text>
+          <div>
+            <Green>INTRO-1: </Green> If Stellar Shield is activated on the target planet, it can
+            resist a photoid cannon's quick move attack.
+          </div>
+          <div>
+            <Green>INTRO-2: </Green> When a planet is within the pink circle, activating this
+            artifact on that planet prevents it from being pinked(destroyed).
+          </div>
+          <div>
+            <Green>LEVEL: </Green> Because this one is <White>{rarityName}</White>, it can be
+            activated on planets up to level <White>{maxLevelStellarShield}</White>.
+          </div>
+          <div>
+            <Green>DEACTIVATION: </Green>This artifact will not disappear after deactivation.
+          </div>
 
-          <Text>
-            Because this one is <White>{rarityName}</White>, it can be activated on planets up to
-            level <White>{maxLevelStellarShield}</White>.
-          </Text>
-          <Text> Stellar shield will not disappear after deactivation.</Text>
+          {/* <Text>
+                If stellar shield is activated on the target planet, it can resist a photoid cannon's
+                quick move attack.
+              </Text>
+
+              <Text>
+                Because this one is <White>{rarityName}</White>, it can be activated on planets up to
+                level <White>{maxLevelStellarShield}</White>.
+              </Text>
+              <Text> Stellar Shield will not disappear after deactivation.</Text> */}
+        </Text>
+      );
+      break;
+
+    case ArtifactType.Avatar:
+      content = (
+        <Text>
+          <div>
+            <Green>INTRO: </Green> can choose to show different avatars on planet.
+          </div>
+
+          <div>
+            <Green>DEACTIVATION: </Green>This artifact will not disappear after deactivation.
+          </div>
+
+          {/* <Text>
+                  If stellar shield is activated on the target planet, it can resist a photoid cannon's
+                  quick move attack.
+                </Text>
+
+                <Text>
+                  Because this one is <White>{rarityName}</White>, it can be activated on planets up to
+                  level <White>{maxLevelStellarShield}</White>.
+                </Text>
+                <Text> Stellar Shield will not disappear after deactivation.</Text> */}
         </Text>
       );
       break;

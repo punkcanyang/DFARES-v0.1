@@ -1,10 +1,5 @@
 import { ethers } from 'https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.min.js';
-import {
-  html,
-  render,
-  useEffect,
-  useState,
-} from 'https://esm.sh/htm/preact/standalone';
+import { html, render, useEffect, useState } from 'https://esm.sh/htm/preact/standalone';
 
 const URL = 'https://rpc.holesky.redstone.xyz';
 const AresLootAddress = '0x09684df18c0eee1e90af54e2cc52c121b35cc3a8';

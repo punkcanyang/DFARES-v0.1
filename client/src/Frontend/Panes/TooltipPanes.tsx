@@ -519,7 +519,7 @@ const PinkButton = () => (
 
 const KardahsevDisabled = () => (
   <>
-    You must <Blue>activate Bomb artifact</Blue> on this planet first.
+    You must <Blue>activate Kardashev artifact</Blue> on this planet first.
   </>
 );
 const Kardashev = () => (

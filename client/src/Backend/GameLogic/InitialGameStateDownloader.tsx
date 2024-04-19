@@ -270,13 +270,15 @@ const tips = [
     <Link to='https://discord.com/invite/f3FrFA4T25'>DFArchon Discord</Link>!
     <br />
     <br />
-    Dark Forest Ares is a modified version of Dark Forest v0.6.5.
+    Dark Forest Ares (DFAres) is a modified version of classic{' '}
+    <Link to='https://zkga.me/'>Dark Forest</Link>
+    .
     <br />
-    DFArchon is a dev team focused on fully on-chain games.
+    DFArchon is a dev team focused on fully onchain games.
   </>,
   'There are many different artifact types, each with unique properties... try activating one on a planet!',
-  'The top players get special rewards at the end of each DFARESv0.1 round!',
-  "There are many different ways to enjoy Dark Forest - as long as you're having fun, you're doing it right.",
+  'The top players get special rewards at the end of each DFAres v0.1 round!',
+  "There are many different ways to enjoy Dark Forest Ares - as long as you're having fun, you're doing it right.",
   'Be careful when capturing planets - if you attack a player-owned planet, it may look like an act of war!',
   'A planet can have at most one active artifact.',
   'Withdrawing an artifact (via a Spacetime Rip) gives you full control of that artifact as an ERC 721 token. You can deposit artifacts you have withdrawn back into the universe via Spacetime Rips.',
@@ -302,14 +304,14 @@ const tips = [
   'Photoid Cannon artifacts will debuff your planet on activation, but get a massive stat boost for the first voyage from the planet after that a charging period. Photoid Cannon artifacts are destroyed upon use.',
   "Planetary Shield artifacts will massively boost a planet's defense, but at the cost of energy and energy growth stats. Planetary Shield artifacts are destroyed upon deactivation.",
   "Bloom Filter artifacts instantly set a planet's energy and silver to full, but are destroyed upon activation. Try using them on a Quasar!",
-  'Dark Forest exists on the blockchain, so you can play with an entirely different client if you want.',
+  'Dark Forest Ares exists on the blockchain, so you can play with an entirely different client if you want.',
   <>
     Writing plugins? Check out some documentation{' '}
-    <Link to='https://github.com/darkforest-eth/client/blob/master/docs/classes/Backend_GameLogic_GameManager.default.md'>
+    <Link to='https://github.com/dfarchon/DFARES-v0.1/blob/main/client/docs/classes/Backend_GameLogic_GameManager.default.md'>
       here
     </Link>{' '}
     and{' '}
-    <Link to='https://github.com/darkforest-eth/client/blob/master/docs/classes/Backend_GameLogic_GameUIManager.default.md'>
+    <Link to='https://github.com/dfarchon/DFARES-v0.1/blob/main/client/docs/classes/Backend_GameLogic_GameUIManager.default.md'>
       here
     </Link>
     .

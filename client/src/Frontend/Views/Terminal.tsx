@@ -244,7 +244,8 @@ function TerminalImpl(
 
   const inputRefStyles = !useCaretElement
     ? undefined
-    : ({ 'caret-color': 'transparent' } as React.CSSProperties);
+    : ({ caretColor: 'transparent' } as React.CSSProperties);
+
 
   return (
     <TerminalContainer ref={containerRef} style={containerStyle}>

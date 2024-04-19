@@ -157,7 +157,7 @@ export const LogoType = {
 export const LogoTypeNames = {
   [LogoType.Unknown]: 'Unknown',
   [LogoType.DF]: 'Dark Forest',
-  [LogoType.DFARES]: 'DF ARES',
+  [LogoType.DFARES]: 'DFAres',
   [LogoType.DFArchon]: 'DF Archon',
   [LogoType.AltLayer]: 'AltLayer',
   [LogoType.AGLDDAO]: 'AGLD DAO',

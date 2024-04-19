@@ -67,6 +67,12 @@ const ElevatedContainer = styled.div`
   font-size: 85%;
 `;
 
+const DescContainer = styled.div`
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
 /** Preview basic planet information - used in `PlanetContextPane` and `HoverPlanetPane` */
 export function PlanetCard({
   planetWrapper: p,
@@ -89,10 +95,16 @@ export function PlanetCard({
   if (planet.hatLevel > 0 && isLogo(planet.hatType)) {
     const logoType = numToLogoType(planet.hatType);
     const logo = logoFromType(logoType);
-
+    const website = logo.website;
     const logoColor = logo.color;
 
-    showLogoDesc = <div style={{ color: logoColor }}> {logo.desc} </div>;
+    showLogoDesc = (
+      <div>
+        <div style={{ color: logoColor }} onClick={() => window.open(website)}>
+          <DescContainer>{logo.desc}</DescContainer>
+        </div>
+      </div>
+    );
   }
 
   return (

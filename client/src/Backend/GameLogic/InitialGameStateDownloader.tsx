@@ -46,6 +46,7 @@ export interface InitialGameState {
   arrivals: Map<VoyageId, QueuedArrival>;
   twitters: AddressTwitterMap;
   paused: boolean;
+  halfPrice: boolean;
 }
 
 export class InitialGameStateDownloader {
@@ -233,6 +234,7 @@ export class InitialGameStateDownloader {
 
     const twitters = await tryGetAllTwitters();
     const paused = contractsAPI.getIsPaused();
+    const halfPrice = contractsAPI.getIsHalfPrice();
 
     const initialState: InitialGameState = {
       contractConstants: await contractConstants,
@@ -257,6 +259,7 @@ export class InitialGameStateDownloader {
       arrivals,
       twitters,
       paused: await paused,
+      halfPrice: await halfPrice,
     };
 
     return initialState;

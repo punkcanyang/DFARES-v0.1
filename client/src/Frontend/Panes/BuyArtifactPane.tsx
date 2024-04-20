@@ -7,9 +7,10 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Btn } from '../Components/Btn';
 import { CenterBackgroundSubtext } from '../Components/CoreUI';
+import { MythicLabelText } from '../Components/Labels/MythicLabel';
 import { Blue, Sub, White } from '../Components/Text';
 import { formatDuration, TimeUntil } from '../Components/TimeUntil';
-import { useAccount, usePlanet, useUIManager } from '../Utils/AppHooks';
+import { useAccount, useHalfPrice, usePlanet, useUIManager } from '../Utils/AppHooks';
 import { useEmitterValue } from '../Utils/EmitterHooks';
 import { ModalHandle } from '../Views/ModalPane';
 
@@ -47,6 +48,8 @@ export function BuyArtifactPane({
     useEmitterValue(uiManager.getEthConnection().myBalance$, BigNumber.from('0'))
   );
 
+  const halfPrice = useHalfPrice();
+
   // const currentBlockNumber = useEmitterValue(uiManager.getEthConnection().blockNumber$, undefined);
 
   // //buyartifact
@@ -81,6 +84,7 @@ export function BuyArtifactPane({
   }
 
   function getCost() {
+    if (halfPrice) return 0.0005;
     return 0.001; //0.001 eth
     return 50;
     const rarityVal = parseInt(rarity);
@@ -138,6 +142,7 @@ export function BuyArtifactPane({
         )}
 
         <StyledBuyArtifactPane>
+          {halfPrice && <MythicLabelText text={'Everything is half price !!!'} />}
           {/* <div>block number: {currentBlockNumber}</div>
         <div> buy artifact amount {buyArtifactAmount}</div>
         <div> max artifact amount {maxAmount} </div> */}

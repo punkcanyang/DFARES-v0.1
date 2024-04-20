@@ -242,6 +242,7 @@ export class ContractsAPI extends EventEmitter {
           contract.filters.LocationBlued(null, null, null).topics,
           contract.filters.PlanetBought(null, null).topics,
           contract.filters.SpaceshipBought(null, null, null).topics,
+          contract.filters.HalfPriceChanged(null).topics,
         ].map((topicsOrUndefined) => (topicsOrUndefined || [])[0]),
       ] as Array<string | Array<string>>,
     };
@@ -407,6 +408,10 @@ export class ContractsAPI extends EventEmitter {
       },
       [ContractEvent.PauseStateChanged]: (paused: boolean) => {
         this.emit(ContractsAPIEvent.PauseStateChanged, paused);
+      },
+
+      [ContractEvent.HalfPriceChanged]: (halfPrice: boolean) => {
+        this.emit(ContractsAPIEvent.HalfPriceChanged, halfPrice);
       },
 
       [ContractEvent.LobbyCreated]: (ownerAddr: string, lobbyAddr: string) => {
@@ -1117,6 +1122,10 @@ export class ContractsAPI extends EventEmitter {
 
   public async getIsPaused(): Promise<boolean> {
     return this.makeCall(this.contract.paused);
+  }
+
+  public async getIsHalfPrice(): Promise<boolean> {
+    return this.makeCall(this.contract.halfPrice);
   }
 
   public async getRevealedPlanetsCoords(

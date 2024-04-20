@@ -8,8 +8,15 @@ import React from 'react';
 import styled from 'styled-components';
 import { Btn } from '../Components/Btn';
 import { EmSpacer, Section, SectionHeader } from '../Components/CoreUI';
+import { MythicLabelText } from '../Components/Labels/MythicLabel';
 import { LoadingSpinner } from '../Components/LoadingSpinner';
-import { useAccount, usePlayer, useSelectedPlanet, useUIManager } from '../Utils/AppHooks';
+import {
+  useAccount,
+  useHalfPrice,
+  usePlayer,
+  useSelectedPlanet,
+  useUIManager,
+} from '../Utils/AppHooks';
 import { useEmitterValue } from '../Utils/EmitterHooks';
 import { PlanetLink } from '../Views/PlanetLink';
 import { PlanetThumb } from './PlanetDexPane';
@@ -44,10 +51,14 @@ export function BuyPlanetPane(): React.ReactElement {
   const balanceEth = weiToEth(
     useEmitterValue(uiManager.getEthConnection().myBalance$, BigNumber.from('0'))
   );
+  const halfPrice = useHalfPrice();
+
   if (!account || !player) return <></>;
 
   const getPlanetCostEth = () => {
-    return 0.003 * 2 ** player.buyPlanetAmount;
+    let res = 0.003 * 2 ** player.buyPlanetAmount;
+    if (halfPrice) res *= 0.5;
+    return res;
   };
 
   //level
@@ -128,6 +139,7 @@ export function BuyPlanetPane(): React.ReactElement {
     <BuyPlanetContent>
       <Section>
         <SectionHeader>Buy Planet</SectionHeader>
+        {halfPrice && <MythicLabelText text={'Everything is half price !!!'} />}
 
         <Row>
           <span> Selected Planet</span>

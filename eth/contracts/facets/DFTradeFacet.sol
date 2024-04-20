@@ -99,6 +99,7 @@ contract DFTradeFacet is WithStorage {
         // price
         uint256 fee = 0.003 ether; // 0.003 eth
         fee = fee * (2**player.buyPlanetAmount);
+        if (gs().halfPrice) fee = fee / 2;
 
         require(msg.value == fee, "Wrong value sent");
 
@@ -120,6 +121,7 @@ contract DFTradeFacet is WithStorage {
 
         // price
         uint256 fee = 0.001 ether; // 0.001 eth
+        if (gs().halfPrice) fee = fee / 2;
         require(msg.value == fee, "Wrong value sent");
 
         // about spaceship

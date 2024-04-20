@@ -1670,6 +1670,14 @@ class GameUIManager extends EventEmitter {
     return this.gameManager.getPaused$();
   }
 
+  getHalfPrice(): boolean {
+    return this.gameManager.getHalfPrice();
+  }
+
+  getHalfPrice$(): Monomitter<boolean> {
+    return this.gameManager.getHalfPrice$();
+  }
+
   public getSilverScoreValue(): number {
     return this.contractConstants.SILVER_SCORE_VALUE;
   }

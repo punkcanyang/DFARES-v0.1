@@ -93,6 +93,7 @@ struct GameStorage {
     address firstHat;
     address firstKardashevOperator;
     mapping(uint256 => uint256[]) targetPlanetArrivalIds;
+    bool halfPrice;
 }
 
 // Game config

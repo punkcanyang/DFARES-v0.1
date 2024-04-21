@@ -1,36 +1,14 @@
 // organize-imports-ignore
-import type {
+import {
   EthAddress,
   LocatablePlanet,
   LocationId,
   Planet,
-  //@ts-ignore
-} from 'https://cdn.skypack.dev/@dfares/types';
-import {
-  MAX_ARTIFACT_RARITY,
-  MIN_ARTIFACT_RARITY,
-  // MIN_ARTIFACT_TYPE,
-  // MIN_SPACESHIP_TYPE,
-  // MAX_SPACESHIP_TYPE,
-  MIN_BIOME,
-  MAX_BIOME,
-  //@ts-ignore
-} from 'https://cdn.skypack.dev/@dfares/constants';
-const MIN_ARTIFACT_TYPE = 1;
-const MIN_SPACESHIP_TYPE = 17;
-const MAX_SPACESHIP_TYPE = 22;
-//@ts-ignore
-import { getPlanetNameHash } from 'https://cdn.skypack.dev/@dfares/procedural';
-import {
-  locationIdToDecStr,
-  artifactIdFromHexStr,
-  locationIdFromDecStr,
-  //@ts-ignore
-} from 'https://cdn.skypack.dev/@dfares/serde';
-import {
+  LogoType,
+  LogoTypeNames,
   ArtifactRarityNames,
-  // ArtifactType,
-  // ArtifactTypeNames,
+  ArtifactType,
+  ArtifactTypeNames,
   BiomeNames,
   Player,
   PlanetType,
@@ -38,174 +16,34 @@ import {
   WorldCoords,
   //@ts-ignore
 } from 'https://cdn.skypack.dev/@dfares/types';
-enum ArtifactType {
-  Unknown,
-  Monolith,
-  Colossus,
-  Spaceship,
-  Pyramid,
-  Wormhole,
-  PlanetaryShield,
-  PhotoidCannon,
-  BloomFilter,
-  BlackDomain,
-  IceLink,
-  FireLink,
-  Kardashev,
-  Bomb,
-  StellarShield,
-  BlindBox,
-  Avatar,
-  ShipMothership,
-  ShipCrescent,
-  ShipWhale,
-  ShipGear,
-  ShipTitan,
-  ShipPink,
-  // Don't forget to update MIN_ARTIFACT_TYPE and/or MAX_ARTIFACT_TYPE in the `constants` package
-}
 
-/**
- * Mapping from ArtifactType to pretty-printed names.
- */
-const ArtifactTypeNames = [
-  'Unknown',
-  'Monolith',
-  'Colossus',
-  'Spaceship',
-  'Pyramid',
-  'Wormhole',
-  'Planetary Shield',
-  'Photoid Cannon',
-  'Bloom Filter',
-  'Black Domain',
-  'Ice Link',
-  'Fire Link',
-  'Kardashev',
-  'Bomb',
-  'StellarShield',
-  'Blind Box',
-  'Meme',
-  'Mothership',
-  'Crescent',
-  'Whale',
-  'Gear',
-  'Titan',
-  'Pinkship',
-];
+import {
+  avatarTypeToNum,
+  logoTypeToNum,
+  memeTypeToNum,
+  getPlanetNameHash,
+  //@ts-ignore
+} from 'https://cdn.skypack.dev/@dfares/procedural';
 
-const MIN_LOGO_TYPE = 1;
-const MAX_LOGO_TYPE = 49;
+import {
+  MAX_ARTIFACT_RARITY,
+  MIN_ARTIFACT_RARITY,
+  MIN_SPACESHIP_TYPE,
+  MAX_SPACESHIP_TYPE,
+  MIN_BIOME,
+  MAX_BIOME,
+  MAX_MEME_TYPE,
+  MIN_ARTIFACT_TYPE,
+  MIN_LOGO_TYPE,
+  //@ts-ignore
+} from 'https://cdn.skypack.dev/@dfares/constants';
 
-/**
- * Enumeration of logo types.
- */
-export const LogoType = {
-  Unknown: 0,
-  DF: 1,
-  DFARES: 2,
-  DFArchon: 3,
-  AltLayer: 4,
-  AGLDDAO: 5,
-  Mask: 6,
-  Web3MQ: 7,
-  DeGame: 8,
-  FunBlocks: 9,
-  GamePhylum: 10,
-  MarrowDAO: 11,
-  OrdenGG: 12,
-  DFDAO: 13,
-  Two77DAO: 14,
-  Zero1a1: 15,
-  WeirdaoGhostGang: 16,
-  Briq: 17,
-  SeeDAO: 18,
-  NetherScape: 19,
-  TownStoryGalaxy: 20,
-  BlockBeats: 21,
-  Cointime: 22,
-  ChainCatcher: 23,
-  ForesightNews: 24,
-  DAppChaser: 25,
-  MatrixWorld: 26,
-  AWHouse: 27,
-  PaladinsDAO: 28,
-  UpchainDAO: 29,
-  LXDAO: 30,
-  CryptoChasers: 31,
-  AWResearch: 32,
-  BlockPi: 33,
-  WhalerDAO: 34,
-  Gametaverse: 35,
-  BuidlerDAO: 36,
-  THUBA: 37,
-  NJUBA: 38,
-  RUChain: 39,
-  SIEA: 40,
-  PTADAO: 41,
-  ZJUBCA: 42,
-  Cellula: 43,
-  WTFAcademy: 44,
-  DappLearning: 45,
-  FFGDAO: 46,
-  Rooch: 47,
-  ggQuest: 48,
-  CryptoChasersRobot: 49,
-  // Don't forget to update MIN_LOGO_TYPE and/or MAX_LOGO_TYPE in the `constants` package
-};
-
-export const LogoTypeNames = {
-  [LogoType.Unknown]: 'Unknown',
-  [LogoType.DF]: 'Dark Forest',
-  [LogoType.DFARES]: 'DF ARES',
-  [LogoType.DFArchon]: 'DF Archon',
-  [LogoType.AltLayer]: 'AltLayer',
-  [LogoType.AGLDDAO]: 'AGLD DAO',
-  [LogoType.Mask]: 'Mask Network',
-  [LogoType.Web3MQ]: 'Web3MQ',
-  [LogoType.DeGame]: 'DeGame',
-  [LogoType.FunBlocks]: 'Fun Blocks',
-  [LogoType.GamePhylum]: 'GamePhylum',
-  [LogoType.MarrowDAO]: 'MarrowDAO | Guild W',
-  [LogoType.OrdenGG]: 'Orden GG',
-  [LogoType.DFDAO]: 'DFDAO',
-  [LogoType.Two77DAO]: '277 DAO',
-  [LogoType.Zero1a1]: '01a1',
-  [LogoType.WeirdaoGhostGang]: 'Weirdao Ghost Gang',
-  [LogoType.Briq]: 'Briq',
-  [LogoType.SeeDAO]: 'SeeDAO',
-  [LogoType.NetherScape]: 'NetherScape',
-  [LogoType.TownStoryGalaxy]: 'TownStory Galaxy',
-  [LogoType.BlockBeats]: 'BlockBeats',
-  [LogoType.Cointime]: 'Cointime',
-  [LogoType.ChainCatcher]: 'ChainCatcher',
-  [LogoType.ForesightNews]: 'ForesightNews',
-  [LogoType.DAppChaser]: 'DAppChaser',
-  [LogoType.MatrixWorld]: 'Matrix World',
-  [LogoType.AWHouse]: 'AWHouse',
-  [LogoType.PaladinsDAO]: 'PaladinsDAO',
-  [LogoType.UpchainDAO]: 'UpchainDAO',
-  [LogoType.LXDAO]: 'LXDAO',
-  [LogoType.CryptoChasers]: 'Crypto Chasers',
-  [LogoType.AWResearch]: 'AW Research',
-  [LogoType.BlockPi]: 'BlockPi',
-  [LogoType.WhalerDAO]: 'WhalerDAO',
-  [LogoType.Gametaverse]: 'Gametaverse',
-  [LogoType.BuidlerDAO]: 'BuidlerDAO',
-  [LogoType.THUBA]: 'THUBA',
-  [LogoType.NJUBA]: 'NJUBA',
-  [LogoType.RUChain]: 'RUChain',
-  [LogoType.SIEA]: 'SIEA',
-  [LogoType.PTADAO]: 'PTADAO',
-  [LogoType.ZJUBCA]: 'ZJUBCA',
-  [LogoType.Cellula]: 'Cellula',
-  [LogoType.WTFAcademy]: 'WTF Academy',
-  [LogoType.DappLearning]: 'Dapp Learning',
-  [LogoType.FFGDAO]: 'FFG DAO',
-  [LogoType.Rooch]: 'Rooch',
-  [LogoType.ggQuest]: 'ggQuest',
-  [LogoType.CryptoChasersRobot]: 'CryptoChasers Robot',
-} as const;
+import {
+  locationIdToDecStr,
+  artifactIdFromHexStr,
+  locationIdFromDecStr,
+  //@ts-ignore
+} from 'https://cdn.skypack.dev/@dfares/serde';
 
 import {
   html,
@@ -382,6 +220,24 @@ async function unpauseGame() {
     methodName: 'unpause',
   });
 
+  return tx;
+}
+
+async function setHalfPriceGame() {
+  const tx = await df.submitTransaction({
+    args: Promise.resolve([]),
+    contract: df.getContract(),
+    methodName: 'setHalfPrice',
+  });
+  return tx;
+}
+
+async function setUnHalfPriceGame() {
+  const tx = await df.submitTransaction({
+    args: Promise.resolve([]),
+    contract: df.getContract(),
+    methodName: 'setUnHalfPrice',
+  });
   return tx;
 }
 
@@ -602,8 +458,9 @@ function planetTypeOptions() {
 
 function hatTypeOptions() {
   const options = [] as HTMLOptionElement[];
+
   for (let i = 1; i < Object.values(LogoType).length; i++) {
-    options.push(html`<option value=${i + 14 + 10}>${LogoTypeNames[i]}</option>`);
+    options.push(html`<option value=${logoTypeToNum(Number(i))}>${LogoTypeNames[i]}</option>`);
   }
   return options;
 }
@@ -851,6 +708,12 @@ function App() {
         <span>Change game state:</span>
         <df-button onClick=${() => pauseGame()}> Pause </df-button>
         <df-button onClick=${() => unpauseGame()}> Unpause </df-button>
+      </div>
+
+      <div style=${rowStyle}>
+        <span>Change game tate:</span>
+        <df-button onClick=${() => setHalfPriceGame()}> setHalfPrice </df-button>
+        <df-button onClick=${() => setUnHalfPriceGame()}> setUnHalfPrice </df-button>
       </div>
 
       <${Heading} title="Whitelist players" />

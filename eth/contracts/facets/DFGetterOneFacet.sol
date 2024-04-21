@@ -28,6 +28,10 @@ contract DFGetterOneFacet is WithStorage {
         return gs().paused;
     }
 
+    function halfPrice() public view returns (bool) {
+        return gs().halfPrice;
+    }
+
     function TOKEN_MINT_END_TIMESTAMP() public view returns (uint256) {
         return gameConstants().TOKEN_MINT_END_TIMESTAMP;
     }

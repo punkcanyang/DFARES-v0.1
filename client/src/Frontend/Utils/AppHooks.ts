@@ -282,3 +282,8 @@ export function usePaused() {
   const ui = useUIManager();
   return useEmitterValue(ui.getPaused$(), ui.getPaused());
 }
+
+export function useHalfPrice() {
+  const ui = useUIManager();
+  return useEmitterValue(ui.getHalfPrice$(), ui.getHalfPrice());
+}

@@ -18,6 +18,7 @@ contract DFAdminFacet is WithStorage {
     event AdminPlanetCreated(uint256 loc);
     event AdminGiveSpaceship(uint256 loc, address owner, ArtifactType artifactType);
     event PauseStateChanged(bool paused);
+    event HalfPriceChanged(bool halfPrice);
 
     /////////////////////////////
     /// Administrative Engine ///
@@ -38,6 +39,18 @@ contract DFAdminFacet is WithStorage {
         require(gs().paused, "Game is already unpaused");
         gs().paused = false;
         emit PauseStateChanged(false);
+    }
+
+    function setHalfPrice() public onlyAdmin {
+        require(!gs().halfPrice, "Game is in half-price stage.");
+        gs().halfPrice = true;
+        emit HalfPriceChanged(true);
+    }
+
+    function setUnHalfPrice() public onlyAdmin {
+        require(gs().halfPrice, "Game isn't in half-price stage.");
+        gs().halfPrice = false;
+        emit HalfPriceChanged(false);
     }
 
     /**
@@ -207,7 +220,7 @@ contract DFAdminFacet is WithStorage {
             require(LibGameUtils._locationIdValid(args.location), "Not a valid planet location");
         }
 
-        //mytodo: need pass dist here, get wrong space type if some condition at
+        //NOTE: need pass dist here, get wrong space type if some condition at
         //new map algo, need to be fixed
         //
         //NOTE: admin only add Level 9

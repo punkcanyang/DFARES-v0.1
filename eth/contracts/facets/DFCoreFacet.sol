@@ -186,6 +186,7 @@ contract DFCoreFacet is WithStorage {
 
         // Pay the entry fee
         uint256 entryFee = getEntryFee();
+        if (gs().halfPrice) entryFee /= 2;
         require(msg.value == entryFee, "Wrong value sent");
 
         // whitelist
@@ -287,7 +288,9 @@ contract DFCoreFacet is WithStorage {
 
         if (gs().planets[_location].hatLevel == 0) {
             gs().players[msg.sender].hatCount++;
-            require(msg.value == 0.0001 ether, "Wrong value sent");
+            uint256 fee = 0.002 ether;
+            if (gs().halfPrice) fee /= 2;
+            require(msg.value == fee, "Wrong value sent");
             if (gs().firstHat == address(0)) gs().firstHat = msg.sender;
 
             gs().planets[_location].hatLevel = 1;

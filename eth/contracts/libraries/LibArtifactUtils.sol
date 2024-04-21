@@ -293,14 +293,17 @@ library LibArtifactUtils {
             );
             require(!gs().planets[linkTo].destroyed, "planet destroyed");
             require(!gs().planets[linkTo].frozen, "planet frozen");
-            require(
-                2 * uint256(artifact.rarity) >= planet.planetLevel,
-                "artifact is not powerful enough to apply effect to this planet level"
-            );
-            require(
-                2 * uint256(artifact.rarity) >= gs().planets[linkTo].planetLevel,
-                "artifact is not powerful enough to apply effect to this planet level"
-            );
+
+            //round 3 remove the rarity limit
+            // require(
+            //     2 * uint256(artifact.rarity) >= planet.planetLevel,
+            //     "artifact is not powerful enough to apply effect to this planet level"
+            // );
+            // require(
+            //     2 * uint256(artifact.rarity) >= gs().planets[linkTo].planetLevel,
+            //     "artifact is not powerful enough to apply effect to this planet level"
+            // );
+
             artifact.linkTo = linkTo;
         } else if (artifact.artifactType == ArtifactType.PlanetaryShield) {
             require(
@@ -308,10 +311,11 @@ library LibArtifactUtils {
                 "artifact is not powerful enough to apply effect to this planet level"
             );
         } else if (artifact.artifactType == ArtifactType.PhotoidCannon) {
-            require(
-                2 * uint256(artifact.rarity) >= planet.planetLevel,
-                "artifact is not powerful enough to apply effect to this planet level"
-            );
+            //NOTE: round 3 remove the rarity limit to Photoid Cannon
+            // require(
+            //     2 * uint256(artifact.rarity) >= planet.planetLevel,
+            //     "artifact is not powerful enough to apply effect to this planet level"
+            // );
         } else if (artifact.artifactType == ArtifactType.BloomFilter) {
             require(
                 2 * uint256(artifact.rarity) >= planet.planetLevel,
@@ -368,7 +372,7 @@ library LibArtifactUtils {
                 "you can only create a icelink to a planet other own"
             );
 
-            require(!toPlanet.adminProtect, "planet adminProtect");
+            // require(!toPlanet.adminProtect, "planet adminProtect");
             require(!toPlanet.destroyed, "planet destroyed");
             require(!toPlanet.frozen, "planet frozen");
             require(
@@ -625,7 +629,8 @@ library LibArtifactUtils {
         );
         require(!isSpaceship(artifact.artifactType), "cannot withdraw spaceships");
 
-        require(artifact.artifactType != ArtifactType.Avatar, "cannot withdraw logo artifacts");
+        // NOTE: round 3 can withdraw Avatar artifact
+        // require(artifact.artifactType != ArtifactType.Avatar, "cannot withdraw avatar artifact");
 
         LibGameUtils._takeArtifactOffPlanet(artifactId, locationId);
 

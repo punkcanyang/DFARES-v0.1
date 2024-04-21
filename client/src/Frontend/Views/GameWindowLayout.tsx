@@ -111,7 +111,7 @@ export function GameWindowLayout({
   const selected = useSelectedPlanet(uiManager).value;
   const [selectedPlanetVisible, setSelectedPlanetVisible] = useState<boolean>(!!selected);
 
-  const [userTerminalVisibleSetting, setTerminalVisibleSetting] = useBooleanSetting(
+  const [userTerminalVisibleSetting, setUserTerminalVisibleSetting] = useBooleanSetting(
     uiManager,
     Setting.TerminalVisible
   );
@@ -136,6 +136,7 @@ export function GameWindowLayout({
 
   const account = uiManager.getAccount();
 
+  //Terminal
   useEffect(() => {
     if (uiManager.getAccount()) {
       setTerminalVisible(uiManager.getBooleanSetting(Setting.TerminalVisible));
@@ -144,10 +145,11 @@ export function GameWindowLayout({
 
   useEffect(() => {
     if (userTerminalVisibleSetting !== terminalVisible) {
-      setTerminalVisibleSetting(terminalVisible);
+      setUserTerminalVisibleSetting(terminalVisible);
     }
-  }, [userTerminalVisibleSetting, setTerminalVisibleSetting, terminalVisible]);
+  }, [userTerminalVisibleSetting, setUserTerminalVisibleSetting, terminalVisible]);
 
+  //pane
   useEffect(() => {
     if (uiManager.getAccount()) {
       setPaneVisible(uiManager.getBooleanSetting(Setting.PaneVisible));
@@ -160,6 +162,7 @@ export function GameWindowLayout({
     }
   }, [paneVisible, userPaneVisibleSetting, setUserPaneVisibleSetting]);
 
+  //bottom hotkeys
   useEffect(() => {
     if (uiManager.getAccount()) {
       setBottomHotkeyVisible(uiManager.getBooleanSetting(Setting.BottomHotkeyVisible));
@@ -205,7 +208,6 @@ export function GameWindowLayout({
     TOGGLE_TRADE_PANE,
     useCallback(() => {
       if (paneVisible) return;
-
       setTradeVisible(!tradeVisible);
     }, [paneVisible, tradeVisible, setTradeVisible])
   );
@@ -238,7 +240,6 @@ export function GameWindowLayout({
     TOGGLE_YOUR_ARTIFACTS_PANE,
     useCallback(() => {
       if (paneVisible) return;
-
       setPlayerArtifactsVisible(!playerArtifactsVisible);
     }, [paneVisible, playerArtifactsVisible, setPlayerArtifactsVisible])
   );

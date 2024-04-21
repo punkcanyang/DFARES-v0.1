@@ -543,7 +543,9 @@ export class PlanetRenderManager implements PlanetRenderManagerType {
 
     const imageType = artifactImageTypeToNum(artifact.imageType);
 
-    const hatScale = 0.7;
+    //NOTE: artifact image
+
+    const hatScale = 1;
 
     this.HTMLImages[imageType] &&
       this.renderer.overlay2dRenderer.drawHTMLImage(

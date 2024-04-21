@@ -242,6 +242,7 @@ export class ContractsAPI extends EventEmitter {
           contract.filters.LocationBlued(null, null, null).topics,
           contract.filters.PlanetBought(null, null).topics,
           contract.filters.SpaceshipBought(null, null, null).topics,
+          contract.filters.HalfPriceChanged(null).topics,
         ].map((topicsOrUndefined) => (topicsOrUndefined || [])[0]),
       ] as Array<string | Array<string>>,
     };
@@ -407,6 +408,10 @@ export class ContractsAPI extends EventEmitter {
       },
       [ContractEvent.PauseStateChanged]: (paused: boolean) => {
         this.emit(ContractsAPIEvent.PauseStateChanged, paused);
+      },
+
+      [ContractEvent.HalfPriceChanged]: (halfPrice: boolean) => {
+        this.emit(ContractsAPIEvent.HalfPriceChanged, halfPrice);
       },
 
       [ContractEvent.LobbyCreated]: (ownerAddr: string, lobbyAddr: string) => {
@@ -917,7 +922,7 @@ export class ContractsAPI extends EventEmitter {
       nPlayers,
       5,
       async (start: number, end: number) =>
-        this.contractCaller.makeCall(this.contract.bulkGetLastClaimTimestamp, [start, end])
+        this.makeCall(this.contract.bulkGetLastClaimTimestamp, [start, end])
     );
     const playerLastClaimTimestampMap = lastClaimTimestamps.reduce(
       (acc, pair): Map<string, EthersBN> => {
@@ -931,7 +936,7 @@ export class ContractsAPI extends EventEmitter {
       nPlayers,
       5,
       async (start: number, end: number) =>
-        this.contractCaller.makeCall(this.contract.bulkGetLastBurnTimestamp, [start, end])
+        this.makeCall(this.contract.bulkGetLastBurnTimestamp, [start, end])
     );
 
     const playerLastBurnTimestampMap = lastBurnTimestamps.reduce(
@@ -946,7 +951,7 @@ export class ContractsAPI extends EventEmitter {
       nPlayers,
       5,
       async (start: number, end: number) =>
-        this.contractCaller.makeCall(this.contract.bulkGetLastKardashevTimestamp, [start, end])
+        this.makeCall(this.contract.bulkGetLastKardashevTimestamp, [start, end])
     );
 
     const playerLastKardashevTimestampMap = lastKardashevTimestamps.reduce(
@@ -961,10 +966,7 @@ export class ContractsAPI extends EventEmitter {
       nPlayers,
       5,
       async (start: number, end: number) =>
-        this.contractCaller.makeCall(this.contract.bulkGetLastActivateArtifactTimestamp, [
-          start,
-          end,
-        ])
+        this.makeCall(this.contract.bulkGetLastActivateArtifactTimestamp, [start, end])
     );
     const playerLastActivateArtifactTimestampsMap = lastActivateArtifactTimestamps.reduce(
       (acc, pair): Map<string, EthersBN> => {
@@ -978,7 +980,7 @@ export class ContractsAPI extends EventEmitter {
       nPlayers,
       5,
       async (start: number, end: number) =>
-        this.contractCaller.makeCall(this.contract.bulkGetLastBuyArtifactTimestamp, [start, end])
+        this.makeCall(this.contract.bulkGetLastBuyArtifactTimestamp, [start, end])
     );
     const playerLastBuyArtifactTimestampsMap = lastBuyArtifactTimestamps.reduce(
       (acc, pair): Map<string, EthersBN> => {
@@ -1117,6 +1119,10 @@ export class ContractsAPI extends EventEmitter {
 
   public async getIsPaused(): Promise<boolean> {
     return this.makeCall(this.contract.paused);
+  }
+
+  public async getIsHalfPrice(): Promise<boolean> {
+    return this.makeCall(this.contract.halfPrice);
   }
 
   public async getRevealedPlanetsCoords(

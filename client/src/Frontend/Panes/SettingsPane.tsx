@@ -211,8 +211,10 @@ export function SettingsPane({
           <SectionHeader>Gas Price</SectionHeader>
           Your gas price setting determines the price you pay for each transaction. A higher gas
           price means your transactions will be prioritized by the blockchain, making them confirm
-          faster. We recommend using the auto average setting. All auto settings prices are pulled
-          from an oracle and are capped at 15 gwei.
+          faster. We recommend using low gas fee at first. if transaction can't be submitted
+          successfully, then you can slightly increase the gas fee.
+          {/* We recommend using the auto average setting. All auto settings prices are pulled
+          from an oracle and are capped at 15 gwei. */}
           <Spacer height={16} />
           <MultiSelectSetting
             wide
@@ -221,34 +223,52 @@ export function SettingsPane({
             values={[
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('1'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString(), // '1',
+                .toString(), //'1 gwei (default)',
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('2'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString(), //'2',
+                .toString(), // '2 gwei (faster)',
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('3'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString(), // '3 gwei (faster)',
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('4'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString(), // '4 gwei (faster)',
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('5'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString(), //'5',
+                .toString(), //'5 gwei (turbo)',
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('6'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString(), // '6 gwei (faster)',
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('7'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString(), // '7 gwei (faster)',
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('8'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString(), // '8 gwei (faster)',
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('9'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString(), // '9 gwei (faster)',
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('10'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString(), //'10',
+                .toString(), // '10 gwei (mega turbo)',
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('20'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString(), //'20',
+                .toString(), //'20 gwei (need4speed)',
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('50'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString(), //'40',
+                .toString(), // '50 gwei (gigafast)',
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('100'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString(), //'40',
+                .toString(), // '100 gwei (gigafast)',
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('200'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString(), //'40',
+                .toString(), // '200 gwei (gigafast)',
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('500'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString(), //'40',
+                .toString(), // '500 gwei (gigafast)',
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('1000'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString(), //'40',
+                .toString(), // '1000 gwei (gigafast)',
               // NOTE: round 1 don't have GAS_PRICE_API
               // AutoGasSetting.Slow,
               // AutoGasSetting.Average,
@@ -261,9 +281,27 @@ export function SettingsPane({
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('2'))
                 .toFixed(FIXED_DIGIT_NUMBER)
                 .toString() + ' gwei', // '2 gwei (faster)',
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('3'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString() + ' gwei', // '3 gwei (faster)',
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('4'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString() + ' gwei', // '4 gwei (faster)',
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('5'))
                 .toFixed(FIXED_DIGIT_NUMBER)
                 .toString() + ' gwei', //'5 gwei (turbo)',
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('6'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString() + ' gwei', // '6 gwei (faster)',
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('7'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString() + ' gwei', // '7 gwei (faster)',
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('8'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString() + ' gwei', // '8 gwei (faster)',
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('9'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString() + ' gwei', // '9 gwei (faster)',
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('10'))
                 .toFixed(FIXED_DIGIT_NUMBER)
                 .toString() + ' gwei', // '10 gwei (mega turbo)',
@@ -272,19 +310,19 @@ export function SettingsPane({
                 .toString() + ' gwei', //'20 gwei (need4speed)',
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('50'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString() + ' gwei', // '40 gwei (gigafast)',
+                .toString() + ' gwei', // '50 gwei (gigafast)',
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('100'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString() + ' gwei', // '40 gwei (gigafast)',
+                .toString() + ' gwei', // '100 gwei (gigafast)',
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('200'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString() + ' gwei', // '40 gwei (gigafast)',
+                .toString() + ' gwei', // '200 gwei (gigafast)',
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('500'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString() + ' gwei', // '40 gwei (gigafast)',
+                .toString() + ' gwei', // '500 gwei (gigafast)',
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('1000'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString() + ' gwei', // '40 gwei (gigafast)',
+                .toString() + ' gwei', // '1000 gwei (gigafast)',
               // `slow auto (~${gasPrices.slow} gwei)`,
               // `average auto (~${gasPrices.average} gwei)`,
               // `fast auto (~${gasPrices.fast} gwei)`,

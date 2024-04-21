@@ -8,8 +8,15 @@ import React from 'react';
 import styled from 'styled-components';
 import { Btn } from '../Components/Btn';
 import { EmSpacer, Section, SectionHeader } from '../Components/CoreUI';
+import { MythicLabelText } from '../Components/Labels/MythicLabel';
 import { LoadingSpinner } from '../Components/LoadingSpinner';
-import { useAccount, usePlayer, useSelectedPlanet, useUIManager } from '../Utils/AppHooks';
+import {
+  useAccount,
+  useHalfPrice,
+  usePlayer,
+  useSelectedPlanet,
+  useUIManager,
+} from '../Utils/AppHooks';
 import { useEmitterValue } from '../Utils/EmitterHooks';
 import { PlanetLink } from '../Views/PlanetLink';
 import { PlanetThumb } from './PlanetDexPane';
@@ -44,6 +51,7 @@ export function BuySpaceshipPane(): React.ReactElement {
   const balanceEth = weiToEth(
     useEmitterValue(uiManager.getEthConnection().myBalance$, BigNumber.from('0'))
   );
+  const halfPrice = useHalfPrice();
   if (!account || !player) return <></>;
 
   //planet
@@ -55,9 +63,10 @@ export function BuySpaceshipPane(): React.ReactElement {
   //player
   const currentBuySpaceshipAmount = player.buySpaceshipAmount;
   const amountCheckPassed = currentBuySpaceshipAmount < 3;
+  const buySpaceshipFee = halfPrice ? 0.0005 : 0.001;
 
   // balance
-  const balanceCheckPassed = balanceEth >= 0.001;
+  const balanceCheckPassed = balanceEth >= buySpaceshipFee;
 
   //state
   const isBuyingThisPlanetNow = !!selectedPlanet?.transactions?.hasTransaction(
@@ -76,7 +85,7 @@ export function BuySpaceshipPane(): React.ReactElement {
     !balanceCheckPassed ||
     isBuyingNow;
 
-  const buyPlanet = async () => {
+  const buySpaceship = async () => {
     if (!planet) return;
     if (!uiManager) return;
     if (disableBuyButton) return;
@@ -104,6 +113,7 @@ export function BuySpaceshipPane(): React.ReactElement {
     <BuySpaceshipContent>
       <Section>
         <SectionHeader>Buy Whale Spaceship</SectionHeader>
+        {halfPrice && <MythicLabelText text={'Everything is half price !!!'} />}
 
         <Row>
           <span> Selected Planet</span>
@@ -128,7 +138,7 @@ export function BuySpaceshipPane(): React.ReactElement {
         <Row>
           <span>Cost / My Balance </span>
           <span>
-            {'0.001 '} ${TOKEN_NAME} / {balanceEth} ${TOKEN_NAME}
+            {buySpaceshipFee} ${TOKEN_NAME} / {balanceEth} ${TOKEN_NAME}
           </span>
         </Row>
 
@@ -138,7 +148,7 @@ export function BuySpaceshipPane(): React.ReactElement {
         </Row>
       </Section>
 
-      <Btn disabled={disableBuyButton} onClick={buyPlanet}>
+      <Btn disabled={disableBuyButton} onClick={buySpaceship}>
         {buttonContent}
       </Btn>
       <EmSpacer height={1} />

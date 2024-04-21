@@ -7,6 +7,7 @@ export type Logo = {
   bottomLayer: Array<string>;
   color: string;
   desc: string;
+  website: string;
   // image?: () => Promise<HTMLImageElement>;
 };
 
@@ -26,8 +27,8 @@ const DF = {
   name: 'Dark Forest',
   desc: 'Dark Forest is an MMO strategy game built with zkSNARKs on Gnosis Chain (formerly xDai). \
   Players explore an infinite, procedurally-generated universe, conquering planets and growing a space empire.',
-
   color: '#06fc1a',
+  website: 'https://twitter.com/darkforest_eth',
 };
 //2
 const Lattice = {
@@ -38,6 +39,7 @@ const Lattice = {
   desc: 'Lattice is an engineering and product focused company pushing the limits of Ethereum applications and infrastructure. \
   They are building MUD, Redstone, and Sky Strife.',
   color: '#5c9af6',
+  website: 'https://lattice.xyz/',
 };
 
 //3
@@ -49,6 +51,7 @@ const Redstone = {
   desc: 'Redstone runs applications on an OP Stack chain optimized for games,\
    autonomous worlds, and other ambitious onchain applications.',
   color: '#f34242',
+  website: 'https://redstone.xyz/',
 };
 
 //4
@@ -56,10 +59,11 @@ const DFARES = {
   legacy: false,
   topLayer: [URL + '/img/logo/DFARES.png'],
   bottomLayer: [],
-  name: 'Dark Forest ARES',
-  desc: 'Dark Forest ARES are Dark Forest\
-   Community Rounds with novel game mechanics hosted by DF Archon.',
+  name: 'Dark Forest Ares',
+  desc: 'Dark Forest Ares is a series of Dark Forest community rounds hosted by the DF Archon team. \
+   We hope to develop and explore new game mechanics whilst maintaining the original style and excitement of Dark Forest. ',
   color: 'pink',
+  website: 'https://dfares.xyz/',
 };
 
 //5
@@ -76,6 +80,7 @@ const DFArchon = {
    We also pay close attention to other on-chain game projects or teams, \
     prepare to work on top of those projects as well.",
   color: 'pink',
+  website: 'https://twitter.com/DFArchon',
 };
 
 //6
@@ -87,8 +92,8 @@ const AGLDDAO = {
   desc: 'AGLD DAO is committed to building Autonomous Worlds that embody the principles of decentralization, \
   transparency, fairness, and most importantly community sovereignty. The Loot Chain is designed to be a home for\
    builders in the Lootverse. It will become the go-to place for building new games, tools, and worlds within the Lootverse.',
-
   color: '#fff',
+  website: 'https://twitter.com/GoldAdventure',
 };
 
 //7
@@ -99,6 +104,7 @@ const Mask = {
   name: 'Mask Network',
   desc: 'Mask Network brings privacy and benefits from Web3 to social media like Facebook & Twitter - with an open-sourced browser extension.',
   color: '#1FB3FB',
+  website: 'https://twitter.com/realMaskNetwork',
 };
 
 //8
@@ -116,6 +122,7 @@ const Web3MQ = {
      for fully on-chain gaming communication. ',
 
   color: '#9A26F9',
+  website: 'https://twitter.com/Web3MQ',
 };
 
 //9
@@ -136,6 +143,7 @@ const AltLayer = {
   @twobitidiot',
 
   color: '#787ab4',
+  website: 'https://altlayer.io/',
 };
 
 //10
@@ -148,6 +156,7 @@ const FunBlocks = {
   We believe that the ultimate goal of blockchain gaming is to bring joy and fun to players!',
 
   color: '#d8f2ff',
+  website: 'https://twitter.com/0xFunBlocks',
 };
 
 //11
@@ -160,6 +169,7 @@ const GamePhylum = {
    with a vision to create an immersive Web3 game player community.',
   logo: '/images/logo/GamePhylum.png',
   color: '#06beca',
+  website: 'https://twitter.com/GamePhylum',
 };
 
 //12
@@ -171,6 +181,7 @@ const OrdenGG = {
 
   color: '#fff201',
   bottomLayer: [],
+  website: 'https://twitter.com/orden_gg',
 };
 
 //13
@@ -185,6 +196,7 @@ const MarrowDAO = {
  We are building a professional e-sports team with both software developers and game players.',
   color: '#fff',
   bottomLayer: [],
+  website: 'https://twitter.com/marrowdao',
 };
 
 //14
@@ -196,6 +208,7 @@ const DFDAO = {
 
   color: '#03ce95',
   bottomLayer: [],
+  website: 'https://twitter.com/d_fdao',
 };
 
 //15
@@ -209,6 +222,7 @@ const Two77DAO = {
 
   color: '#c3c8d0',
   bottomLayer: [],
+  website: 'https://twitter.com/277dao_',
 };
 
 //16
@@ -226,6 +240,7 @@ const WeirdaoGhostGang = {
   name: 'Weirdao Ghost Gang',
   color: '#fff',
   bottomLayer: [],
+  website: 'https://twitter.com/WeirdoGhostGang',
 };
 
 //17
@@ -236,6 +251,7 @@ const OVERLORDS = {
   desc: 'Our overall mission is to be a central hub for on-chain games players to coordinate games with each other and to collect game winning resources and strategies.',
   color: '#fff',
   bottomLayer: [],
+  website: '',
 };
 
 //18
@@ -249,6 +265,7 @@ const WASD = {
    and compete in several onchain games through WASD Guild, our gaming clan.',
   color: '#fff',
   bottomLayer: [],
+  website: 'https://twitter.com/WASD_0x',
 };
 
 19;
@@ -259,6 +276,7 @@ const WorldExplorers = {
   desc: "Player community and guild focused on exploring fully onchain games and Autonomous Worlds. We're currently the reigning world champions for SkyStrife. ",
   color: '#fff',
   bottomLayer: [],
+  website: 'https://twitter.com/awexplorers',
 };
 
 //20
@@ -269,6 +287,7 @@ const AWHouse = {
   desc: 'AW House is an Ecosystem for Autonomous World builders.',
   color: '#fff',
   bottomLayer: [],
+  website: 'https://twitter.com/AW_house',
 };
 
 //21
@@ -282,6 +301,7 @@ const GGQuest = {
    This can help build reputation & unlock personalized gaming experiences.',
   color: '#fff',
   bottomLayer: [],
+  website: '',
 };
 
 //22
@@ -293,6 +313,7 @@ const ComposableLabs = {
   providing tools and services that empower both creatives and gamers 💪',
   color: '#fff',
   bottomLayer: [],
+  website: '',
 };
 
 //23
@@ -306,6 +327,7 @@ const AWResearch = {
 
   color: '#0a9053',
   bottomLayer: [],
+  website: '',
 };
 
 //24
@@ -319,6 +341,7 @@ const LXDAO = {
 
   color: '#36AFF9',
   bottomLayer: [],
+  website: '',
 };
 
 //25
@@ -333,6 +356,7 @@ const CryptoChasers = {
 
   color: '#f7931a',
   bottomLayer: [],
+  website: '',
 };
 
 //26
@@ -343,6 +367,7 @@ const MetaCat = {
   desc: 'AW Adventurer & Metaverse Data Analytics & Content Navigation.',
   color: '#f7931a',
   bottomLayer: [],
+  website: '',
 };
 
 //27
@@ -356,6 +381,7 @@ const BlockPI = {
   unified platform with a suite of tools designed for Account Abstraction infrastructures.',
   color: '#22DEBB',
   bottomLayer: [],
+  website: '',
 };
 
 //28
@@ -366,6 +392,7 @@ const BlockBeats = {
   desc: 'News and one of the sharpest Chinese observers on Crypto, Web3.0 industry.',
   color: '#457cee',
   bottomLayer: [],
+  website: '',
 };
 
 //29
@@ -379,6 +406,7 @@ const ChainCatcher = {
    in this field and has reached cooperation with industry leaders such as Flow, Binance, Mina, and Filecoin.',
   color: '#e9edfc',
   bottomLayer: [],
+  website: '',
 };
 
 //30
@@ -388,6 +416,7 @@ const NetherScape = {
   desc: 'on-chain game using MUD engine to build a permissionless, composable, and autonomous RPG world.',
   color: '#fff',
   bottomLayer: [],
+  website: '',
 };
 
 //31
@@ -402,6 +431,7 @@ const SeeDAO = {
 
   color: '#fff',
   bottomLayer: [],
+  website: '',
 };
 
 //32
@@ -414,6 +444,7 @@ const Gametaverse = {
 
   color: '#31a8ff',
   bottomLayer: [],
+  website: '',
 };
 
 //33
@@ -424,6 +455,7 @@ const GWGDAO = {
   desc: 'Girls Who Game (GWG) Blockchain Gaming Community. Share new information and tutorials.',
   color: '#FFF',
   bottomLayer: [],
+  website: '',
 };
 
 //34
@@ -435,6 +467,7 @@ const Web3Games = {
   desc: "🌐 Accelerate the world's transition to Fully On-Chain Gaming (FOCG) with http://Web3Games.com \
   Platform & W3Gamez Network. $W3G Public Sale starts from 23 January. 🔥",
   color: '#FFF',
+  website: '',
 };
 
 export const logoFromType = (type: LogoType): Logo => logos[type];

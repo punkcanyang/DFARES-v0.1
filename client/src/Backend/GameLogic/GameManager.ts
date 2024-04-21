@@ -190,8 +190,7 @@ export enum GameManagerEvent {
   Moved = 'Moved',
 }
 
-const sleep =
-  (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 class GameManager extends EventEmitter {
   /**
@@ -269,6 +268,8 @@ class GameManager extends EventEmitter {
   private readonly contractConstants: ContractConstants;
 
   private paused: boolean;
+
+  private halfPrice: boolean;
 
   /**
    * @todo change this to the correct timestamp each round.
@@ -376,6 +377,8 @@ class GameManager extends EventEmitter {
 
   public paused$: Monomitter<boolean>;
 
+  public halfPrice$: Monomitter<boolean>;
+
   /**
    * Diagnostic information about the game.
    */
@@ -423,7 +426,8 @@ class GameManager extends EventEmitter {
     useMockHash: boolean,
     artifacts: Map<ArtifactId, Artifact>,
     ethConnection: EthConnection,
-    paused: boolean
+    paused: boolean,
+    halfPrice: boolean
   ) {
     super();
 
@@ -448,6 +452,7 @@ class GameManager extends EventEmitter {
     this.worldRadius = worldRadius;
     this.networkHealth$ = monomitter(true);
     this.paused$ = monomitter(true);
+    this.halfPrice$ = monomitter(true);
     this.playersUpdated$ = monomitter();
 
     if (contractConstants.CAPTURE_ZONES_ENABLED) {
@@ -576,6 +581,7 @@ class GameManager extends EventEmitter {
     this.snarkHelper = snarkHelper;
     this.useMockHash = useMockHash;
     this.paused = paused;
+    this.halfPrice = halfPrice;
 
     this.ethConnection = ethConnection;
     // NOTE: event
@@ -589,8 +595,9 @@ class GameManager extends EventEmitter {
     this.playerInterval = setInterval(() => {
       if (this.account) {
         this.hardRefreshPlayer(this.account);
+        this.hardRefreshPlayerSpaceships(this.account);
       }
-    }, 5000);
+    }, 10_000);
 
     this.hashRate = 0;
 
@@ -863,7 +870,8 @@ class GameManager extends EventEmitter {
       useMockHash,
       knownArtifacts,
       connection,
-      initialState.paused
+      initialState.paused,
+      initialState.halfPrice
     );
 
     gameManager.setPlayerTwitters(initialState.twitters);
@@ -910,6 +918,10 @@ class GameManager extends EventEmitter {
       .on(ContractsAPIEvent.PauseStateChanged, async (paused: boolean) => {
         gameManager.paused = paused;
         gameManager.paused$.publish(paused);
+      })
+      .on(ContractsAPIEvent.HalfPriceChanged, async (halfPrice: boolean) => {
+        gameManager.halfPrice = halfPrice;
+        gameManager.halfPrice$.publish(halfPrice);
       })
       .on(ContractsAPIEvent.PlanetUpdate, async (planetId: LocationId) => {
         // don't reload planets that you don't have in your map. once a planet
@@ -1175,25 +1187,33 @@ class GameManager extends EventEmitter {
     this.playersUpdated$.publish();
   }
 
-  private async hardRefreshPlayerSpaceships(address?: EthAddress): Promise<void> {
+  private async hardRefreshPlayerSpaceships(address?: EthAddress, show?: boolean): Promise<void> {
     if (!address) return;
     const spaceships = await this.contractsAPI.getPlayerSpaceships(address);
-    console.log(spaceships.length);
+    if (show) console.log(spaceships.length);
     for (let i = 0; i < spaceships.length; i++) {
-      console.log('--- spaceship ', i, ' ---');
-      console.log('ship id:', spaceships[i].id);
-      this.hardRefreshArtifact(spaceships[i].id);
+      if (show) {
+        console.log('--- spaceship ', i, ' ---');
+        console.log('ship id:', spaceships[i].id);
+        console.log('onPlanet: ', spaceships[i].onPlanetId);
+      }
+
+      await this.hardRefreshArtifact(spaceships[i].id);
       const voyageId = spaceships[i].onVoyageId;
 
       if (voyageId !== undefined) {
         const arrival = await this.contractsAPI.getArrival(Number(voyageId));
-        console.log('voyageId:', voyageId);
-        console.log(arrival);
+        if (show) console.log('voyageId:', voyageId);
+        // console.log(arrival);
         if (arrival) {
           const fromPlanet = arrival.fromPlanet;
           const toPlanet = arrival.toPlanet;
+          if (show) {
+            console.log('Source Planet :', fromPlanet);
+            console.log('Target Planet :', toPlanet);
+          }
           await Promise.all([this.hardRefreshPlanet(fromPlanet), this.hardRefreshPlanet(toPlanet)]);
-          console.log('[OK] finish hard refresh from & to planets');
+          if (show) console.log('[OK] finish hard refresh from & to planets');
         }
       }
     }
@@ -2837,7 +2857,6 @@ class GameManager extends EventEmitter {
       //   throw new Error('someone already burn this planet');
       // }
 
-      //NOTE: planet.transaction updates have some problems
       if (planet.transactions?.hasTransaction(isUnconfirmedPinkTx)) {
         throw new Error("you're already pinking this planet's location 1");
       }
@@ -3258,7 +3277,9 @@ class GameManager extends EventEmitter {
       this.homeLocation = planet.location;
       this.terminal.current?.println('');
       this.terminal.current?.println(
-        `Found Suitable Home Planet: ${getPlanetName(planet)}, coordinates: (${planet.location.coords.x}, ${planet.location.coords.y})`,
+        `Found Suitable Home Planet: ${getPlanetName(planet)}, coordinates: (${
+          planet.location.coords.x
+        }, ${planet.location.coords.y})`,
         TerminalTextStyle.Pink
       );
       this.terminal.current?.newline();
@@ -3957,6 +3978,8 @@ class GameManager extends EventEmitter {
         }
       }
 
+      const halfPrice = this.getHalfPrice();
+
       localStorage.setItem(`${this.getAccount()?.toLowerCase()}-buyArtifactOnPlanet`, locationId);
 
       localStorage.setItem(
@@ -3968,6 +3991,8 @@ class GameManager extends EventEmitter {
         `${this.getAccount()?.toLowerCase()}-buyArtifactRarity`,
         Number(rarity).toString()
       );
+
+      localStorage.setItem(`${this.getAccount()?.toLowerCase()}-halfPrice`, halfPrice.toString());
 
       // localStorage.setItem(`${this.getAccount()?.toLowerCase()}-buyArtifact`, artifactId);
 
@@ -4044,7 +4069,9 @@ class GameManager extends EventEmitter {
       const tx = await this.contractsAPI.submitTransaction(txIntent, {
         // NOTE: when change gasLimit, need change the value in TxConfirmPopup.tsx
         gasLimit: 2000000,
-        value: bigInt(1_000_000_000_000_000).toString(), //0.001eth
+        value: halfPrice
+          ? bigInt(500_000_000_000_000).toString()
+          : bigInt(1_000_000_000_000_000).toString(), //0.001eth
       });
 
       return tx;
@@ -4480,6 +4507,7 @@ class GameManager extends EventEmitter {
   ): Promise<Transaction<UnconfirmedBuyHat>> {
     const planetLoc = this.entityStore.getLocationOfPlanet(planetId);
     const planet = this.entityStore.getPlanetWithLocation(planetLoc);
+    const halfPrice = this.getHalfPrice();
 
     try {
       if (!planetLoc) {
@@ -4498,7 +4526,9 @@ class GameManager extends EventEmitter {
 
       // price requirements
       const balanceEth = this.getMyBalanceEth();
-      const hatCostEth = planet.hatLevel === 0 ? 0.0001 : 0;
+      let hatCostEth = planet.hatLevel === 0 ? 0.002 : 0;
+      if (halfPrice) hatCostEth *= 0.5;
+
       if (balanceEth < hatCostEth) {
         throw new Error("you don't have enough ETH");
       }
@@ -4514,6 +4544,10 @@ class GameManager extends EventEmitter {
         planet.hatType.toString()
       );
 
+      localStorage.setItem(`${this.getAccount()?.toLowerCase()}-halfPrice`, halfPrice.toString());
+
+      localStorage.setItem(`${this.getAccount()?.toLowerCase()}-hatCostEth`, hatCostEth.toString());
+
       const txIntent: UnconfirmedBuyHat = {
         methodName: 'buyHat',
         contract: this.contractsAPI.contract,
@@ -4527,7 +4561,12 @@ class GameManager extends EventEmitter {
       const tx = await this.contractsAPI.submitTransaction(txIntent, {
         // NOTE: when change gasLimit, need change the value in TxConfirmPopup.tsx
         gasLimit: 500000,
-        value: planet.hatLevel === 0 ? bigInt(100_000_000_000_000).toString() : '0', //0.0001eth
+        value:
+          planet.hatLevel === 0
+            ? halfPrice
+              ? bigInt(1_000_000_000_000_000).toString()
+              : bigInt(2_000_000_000_000_000).toString()
+            : '0', //0.001eth
       });
 
       return tx;
@@ -4607,7 +4646,10 @@ class GameManager extends EventEmitter {
 
       // price requirements
       const balanceEth = this.getMyBalanceEth();
-      const planetCostEth = 0.003 * 2 ** player.buyPlanetAmount;
+      const halfPrice = this.getHalfPrice();
+      const planetCostEth = halfPrice
+        ? 0.5 * 0.003 * 2 ** player.buyPlanetAmount
+        : 0.003 * 2 ** player.buyPlanetAmount;
       if (balanceEth < planetCostEth) {
         throw new Error("you don't have enough ETH");
       }
@@ -4639,18 +4681,27 @@ class GameManager extends EventEmitter {
       };
 
       localStorage.setItem(`${this.getAccount()?.toLowerCase()}-buyPlanet`, planetId);
+
+      // localStorage.setItem(
+      //   `${this.getAccount()?.toLowerCase()}-buyPlanetAmountBefore`,
+      //   player.buyPlanetAmount.toString()
+      // );
+
+      localStorage.setItem(`${this.getAccount()?.toLowerCase()}-halfPrice`, halfPrice.toString());
+
       localStorage.setItem(
-        `${this.getAccount()?.toLowerCase()}-buyPlanetAmountBefore`,
-        player.buyPlanetAmount.toString()
+        `${this.getAccount()?.toLocaleLowerCase()}-planetCostEth`,
+        planetCostEth.toString()
       );
 
       const fee_delete = 2 ** player.buyPlanetAmount;
 
       // 0.003 *(2**(num-1)) eth
-      const fee = bigInt(3_000_000_000_000_000).multiply(fee_delete).toString();
+      let fee = bigInt(3_000_000_000_000_000).multiply(fee_delete);
+      if (halfPrice) fee = bigInt(1_500_000_000_000_000).multiply(fee_delete);
 
       const tx = await this.contractsAPI.submitTransaction(txIntent, {
-        value: fee,
+        value: fee.toString(),
       });
 
       return tx;
@@ -4690,9 +4741,10 @@ class GameManager extends EventEmitter {
         throw new Error('no player');
       }
 
+      const halfPrice = this.getHalfPrice();
       // price requirements
       const balanceEth = this.getMyBalanceEth();
-      const spaceshipCostEth = 0.001;
+      const spaceshipCostEth = halfPrice ? 0.0005 : 0.001;
       if (balanceEth < spaceshipCostEth) {
         throw new Error("you don't have enough ETH");
       }
@@ -4719,9 +4771,11 @@ class GameManager extends EventEmitter {
         args: Promise.resolve([locationIdToDecStr(planetId), spaceshipType]),
       };
 
-      const fee = bigInt(1_000_000_000_000_000).toString(); //0.001 eth
+      let fee = bigInt(1_000_000_000_000_000).toString(); //0.001 eth
+      if (halfPrice) fee = bigInt(500_000_000_000_000).toString();
 
       localStorage.setItem(`${this.getAccount()?.toLowerCase()}-buySpaceshipOnPlanetId`, planetId);
+      localStorage.setItem(`${this.getAccount()?.toLowerCase()}-halfPrice`, halfPrice.toString());
 
       const tx = await this.contractsAPI.submitTransaction(txIntent, {
         value: fee, //0.001 eth
@@ -5436,6 +5490,14 @@ class GameManager extends EventEmitter {
 
   public getPaused$(): Monomitter<boolean> {
     return this.paused$;
+  }
+
+  public getHalfPrice(): boolean {
+    return this.halfPrice;
+  }
+
+  public getHalfPrice$(): Monomitter<boolean> {
+    return this.halfPrice$;
   }
 }
 

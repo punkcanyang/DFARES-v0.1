@@ -16,6 +16,7 @@ import { getSetting, setBooleanSetting } from '../Utils/SettingsHooks';
 const StyledTxConfirmPopup = styled.div`
   width: 100%;
   height: 100%;
+
   position: absolute;
   z-index: 2;
 
@@ -188,12 +189,14 @@ export function TxConfirmPopup({
 
   const fromPlanet = localStorage.getItem(`${account}-fromPlanet`);
   const toPlanet = localStorage.getItem(`${account}-toPlanet`);
+  const halfPrice = localStorage.getItem(`${account}-halfPrice`);
 
   const hatPlanet = localStorage.getItem(`${account}-hatPlanet`);
   const hatLevel = localStorage.getItem(`${account}-hatLevel`);
+  const hatCostEth = localStorage.getItem(`${account}-hatCostEth`);
+  const hatCost: number = method === 'buyHat' && hatLevel && hatCostEth ? Number(hatCostEth) : 0;
   // const hatCost: number = method === 'buyHat' && hatLevel ? 2 **
   // parseInt(hatLevel) : 0;
-  const hatCost: number = method === 'buyHat' && hatLevel && Number(hatLevel) === 0 ? 0.0001 : 0;
 
   const upPlanet = localStorage.getItem(`${account}-upPlanet`);
   const branch = localStorage.getItem(`${account}-branch`);
@@ -224,12 +227,13 @@ export function TxConfirmPopup({
 
   //buyPlanet
   const buyPlanet = localStorage.getItem(`${account}-buyPlanet`);
-  const buyPlanetAmountBefore = localStorage.getItem(`${account}-buyPlanetAmountBefore`);
-  const buyPlanetCost = method === 'buyPlanet' ? 0.003 * 2 ** Number(buyPlanetAmountBefore) : 0; //0.001 eth
+  const planetCostEth = localStorage.getItem(`${account}-planetCostEth`);
+  const buyPlanetCost = method === 'buyPlanet' && planetCostEth ? Number(planetCostEth) : 0; //0.001 eth
 
   //buySpaceship
   const buySpaceshipOnPlanetId = localStorage.getItem(`${account}-buySpaceshipOnPlanetId`);
-  const buySpaceshipCost = method === 'buySpaceship' ? 0.001 : 0; // 0.001 eth
+  const buySpaceshipCost =
+    method === 'buySpaceship' ? (halfPrice && halfPrice === 'true' ? 0.0005 : 0.001) : 0; // 0.001 eth
 
   //donate
   const rawDonateAmount = localStorage.getItem(`${account}-donateAmount`);
@@ -250,6 +254,7 @@ export function TxConfirmPopup({
   }
 
   function price() {
+    if (halfPrice) return 0.0005;
     return 0.001; // 0.001 eth
     return 50;
     // console.warn('this is price');
@@ -287,7 +292,6 @@ export function TxConfirmPopup({
   const joinGameCost: number =
     method === 'initializePlayer' && entryFee ? weiToEth(BigNumber.from(entryFee)) : 0;
 
-  //MyTodo: chance to useUIManager
   const getTxCost = () => {
     if (!isNaN(Number(gasFeeGwei))) {
       // console.log('first');
@@ -340,6 +344,20 @@ export function TxConfirmPopup({
   return (
     <StyledTxConfirmPopup>
       <div className='section'>
+        <h2> NOTICE </h2>
+
+        <div>
+          <b>The estimate here does not include the L1 gas fee.</b>
+        </div>
+        <div>
+          <b>The estimate here does not include paid operations in plugins.</b>
+        </div>
+        <div>
+          {' '}
+          <b>Please check the blockchain explorer to know more.</b>
+        </div>
+      </div>
+      <div className='section'>
         <h2>Confirm Transaction</h2>
       </div>
 
@@ -367,6 +385,11 @@ export function TxConfirmPopup({
             </Row>
 
             <Row>
+              <b>Half Price</b>
+              <span>{halfPrice}</span>
+            </Row>
+
+            <Row>
               <b>Hat Fee </b>
               <span>
                 {hatCost} ${TOKEN_NAME}
@@ -383,6 +406,11 @@ export function TxConfirmPopup({
             </Row>
 
             <Row>
+              <b>Half Price</b>
+              <span>{halfPrice}</span>
+            </Row>
+
+            <Row>
               <b>Buy Planet Fee </b>
               <span>
                 {buyPlanetCost} ${TOKEN_NAME}
@@ -396,6 +424,11 @@ export function TxConfirmPopup({
             <Row>
               <b>On</b>
               <span className='mono'>{buySpaceshipOnPlanetId}</span>
+            </Row>
+
+            <Row>
+              <b>Half Price</b>
+              <span>{halfPrice}</span>
             </Row>
 
             <Row>
@@ -516,6 +549,10 @@ export function TxConfirmPopup({
               <span className='mono'>{buyArtifactOnPlanet}</span>
             </Row>
             <Row>
+              <b>Half Price</b>
+              <span>{halfPrice}</span>
+            </Row>
+            <Row>
               <b>Artifact Price </b>
               <span>
                 ({buyArtifactCost} ${TOKEN_NAME})
@@ -532,6 +569,11 @@ export function TxConfirmPopup({
 
         {method === 'initializePlayer' && (
           <>
+            <Row>
+              <b>Half Price</b>
+              <span>{halfPrice}</span>
+            </Row>
+
             <Row>
               <b>Entry Fee </b>
               <span>
@@ -592,7 +634,7 @@ export function TxConfirmPopup({
       <div className='section'>
         <Row className='network'>
           <div>
-            <ConfirmIcon /> DF connected to Blockchain
+            <ConfirmIcon /> DFAres connected to Blockchain
           </div>
         </Row>
         <Row className='mtop'>

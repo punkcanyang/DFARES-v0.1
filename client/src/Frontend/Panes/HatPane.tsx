@@ -8,8 +8,9 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Btn } from '../Components/Btn';
 import { CenterBackgroundSubtext, EmSpacer, Link, SelectFrom } from '../Components/CoreUI';
+import { MythicLabelText } from '../Components/Labels/MythicLabel';
 import { Sub } from '../Components/Text';
-import { useAccount, usePlanet, useUIManager } from '../Utils/AppHooks';
+import { useAccount, useHalfPrice, usePlanet, useUIManager } from '../Utils/AppHooks';
 import { useEmitterValue } from '../Utils/EmitterHooks';
 import { ModalHandle } from '../Views/ModalPane';
 
@@ -46,10 +47,15 @@ export function HatPane({
   const balanceEth = weiToEth(
     useEmitterValue(uiManager.getEthConnection().myBalance$, BigNumber.from('0'))
   );
+  const halfPrice = useHalfPrice();
 
   const getHatCostEth = (planet: Planet) => {
-    if (planet.hatLevel === 0) return 0.0001;
-    else return 0;
+    let fee = 0.002;
+    if (planet.hatLevel === 0) {
+      fee = 0.002;
+      if (halfPrice) fee *= 0.5;
+    } else fee = 0;
+    return fee;
     // return 2 ** planet.hatLevel;
   };
   const enabled = (planet: Planet): boolean =>
@@ -88,6 +94,7 @@ export function HatPane({
   if (planet && planet.owner === account) {
     return (
       <StyledHatPane>
+        {halfPrice && <MythicLabelText text={'Everything is half price !!!'} />}
         <div>
           <Sub>HAT Type</Sub>
           {/* <span>{getPlanetCosmetic(planet).hatType}</span> */}

@@ -58,6 +58,7 @@ export const enum ContractEvent {
   AdminOwnershipChanged = 'AdminOwnershipChanged',
   AdminGiveSpaceship = 'AdminGiveSpaceship',
   PauseStateChanged = 'PauseStateChanged',
+  HalfPriceChanged = 'HalfPriceChanged',
   LobbyCreated = 'LobbyCreated',
   LocationBurned = 'LocationBurned',
   Kardashev = 'Kardashev',
@@ -111,6 +112,7 @@ export const enum ContractsAPIEvent {
   PlanetTransferred = 'PlanetTransferred',
   LocationClaimed = 'LocationClaimed',
   LobbyCreated = 'LobbyCreated',
+  HalfPriceChanged = 'HalfPriceChanged',
 }
 
 // planet locationID(BigInt), branch number

@@ -148,8 +148,10 @@ contract DFKardashevFacet is WithStorage {
             kardashevAt: block.timestamp
         });
 
-        if (gs().firstKardashevOperator == address(0)) gs().firstKardashevOperator = msg.sender;
+        if (ls().firstKardashevOperator == address(0)) ls().firstKardashevOperator = msg.sender;
         emit Kardashev(msg.sender, _input[0], _input[2], _input[3]);
+        ls().kardashevCnt++;
+        ls().playerLog[msg.sender].kardashevCnt++;
     }
 
     function blueLocation(
@@ -244,6 +246,8 @@ contract DFKardashevFacet is WithStorage {
             emit LocationRevealed(msg.sender, planetId, x, y);
         }
         emit LocationBlued(msg.sender, planet.locationId, x, y, centerPlanet.locationId);
+        ls().blueLocationCnt++;
+        ls().playerLog[msg.sender].blueLocationCnt++;
     }
 
     function getCenterPlanetId(uint256 x, uint256 y) public returns (uint256) {

@@ -9,6 +9,7 @@ import {
   deployDebugFacet,
   deployGetterOneFacet,
   deployGetterTwoFacet,
+  deployInitialzeExtentFacet,
   deployKardashevFacet,
   deployLibraries,
   deployLobbyFacet,
@@ -41,6 +42,8 @@ async function upgrade({}, hre: HardhatRuntimeEnvironment) {
   const libraries = await deployLibraries({}, hre);
 
   // Dark Forest facets
+  console.log('initlizeExtendFacet');
+  const initlizeExtendFacet = await deployInitialzeExtentFacet({}, libraries, hre);
   console.log('coreFacets');
   const coreFacet = await deployCoreFacet({}, libraries, hre);
   console.log('moveFacets');
@@ -91,6 +94,7 @@ async function upgrade({}, hre: HardhatRuntimeEnvironment) {
   // The `cuts` to perform for Dark Forest facets
 
   const darkForestCuts = [
+    ...changes.getFacetCuts('DFInitlializeExtendFacet', initlizeExtendFacet),
     ...changes.getFacetCuts('DFCoreFacet', coreFacet),
     ...changes.getFacetCuts('DFMoveFacet', moveFacet),
     ...changes.getFacetCuts('DFCaptureFacet', captureFacet),

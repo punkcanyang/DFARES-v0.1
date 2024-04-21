@@ -11,7 +11,7 @@ import {LibGameUtils} from "../libraries/LibGameUtils.sol";
 import {WithStorage, GameConstants} from "../libraries/LibStorage.sol";
 
 // Type imports
-import {Artifact, ArtifactWithMetadata, RevealedCoords, ClaimedCoords, BurnedCoords, LastClaimedStruct, LastBurnedStruct, LastActivateArtifactStruct, LastBuyArtifactStruct, KardashevCoords, LastKardashevStruct, ArrivalData} from "../DFTypes.sol";
+import {Artifact, ArtifactWithMetadata, RevealedCoords, ClaimedCoords, BurnedCoords, LastClaimedStruct, LastBurnedStruct, LastActivateArtifactStruct, LastBuyArtifactStruct, KardashevCoords, LastKardashevStruct, ArrivalData, PlayerLog} from "../DFTypes.sol";
 
 contract DFGetterTwoFacet is WithStorage {
     /**
@@ -301,22 +301,6 @@ contract DFGetterTwoFacet is WithStorage {
         return gs().lastBuyArtifactTimestamp[player];
     }
 
-    function getFirstMythicArtifactOwner() public view returns (address) {
-        return gs().firstMythicArtifactOwner;
-    }
-
-    function getFirstBurnLocationOperator() public view returns (address) {
-        return gs().firstBurnLocationOperator;
-    }
-
-    function getFirstKardashevOperator() public view returns (address) {
-        return gs().firstKardashevOperator;
-    }
-
-    function getFirstHat() public view returns (address) {
-        return gs().firstHat;
-    }
-
     function getNTargetPlanetArrivalIds(uint256 planetId) public view returns (uint256) {
         return gs().targetPlanetArrivalIds[planetId].length;
     }
@@ -394,5 +378,69 @@ contract DFGetterTwoFacet is WithStorage {
             ret[i - left] = gs().targetPlanetArrivalIds[planetId][i];
         }
         return ret;
+    }
+
+    function getFirstMythicArtifactOwner() public view returns (address) {
+        return ls().firstMythicArtifactOwner;
+    }
+
+    function getFirstBurnLocationOperator() public view returns (address) {
+        return ls().firstBurnLocationOperator;
+    }
+
+    function getFirstKardashevOperator() public view returns (address) {
+        return ls().firstKardashevOperator;
+    }
+
+    function getFirstHat() public view returns (address) {
+        return ls().firstHat;
+    }
+
+    function getPlayerLog(address addr) public view returns (PlayerLog memory) {
+        return ls().playerLog[addr];
+    }
+
+    function getHatEarn(uint256 hatType) public view returns (uint256) {
+        return ls().hatEarn[hatType];
+    }
+
+    function bulkGetHatEarn(uint256[] memory hatTypes) public view returns (uint256[] memory ret) {
+        ret = new uint256[](hatTypes.length);
+        for (uint256 i = 0; i < hatTypes.length; i++) {
+            ret[i] = ls().hatEarn[hatTypes[i]];
+        }
+    }
+
+    function getLog() public view returns (uint256[] memory ret) {
+        ret = new uint256[](29);
+        ret[0] = ls().initializePlayerCnt;
+        ret[1] = ls().entryEarn;
+        ret[2] = ls().transferPlanetCnt;
+        ret[3] = ls().hatEarnSum;
+        ret[4] = ls().buyHatCnt;
+        ret[5] = ls().takeOffHatCnt;
+        ret[6] = ls().setHatCnt;
+        ret[7] = ls().setPlanetCanShowCnt;
+        ret[8] = ls().withdrawSilverCnt;
+        ret[9] = ls().claimLocationCnt;
+        ret[10] = ls().changeArtifactImageTypeCnt;
+        ret[11] = ls().deactivateArtifactCnt;
+        ret[12] = ls().prospectPlanetCnt;
+        ret[13] = ls().findArtifactCnt;
+        ret[14] = ls().depositArtifactCnt;
+        ret[15] = ls().withdrawArtifactCnt;
+        ret[16] = ls().giveSpaceShipsCnt;
+        ret[17] = ls().kardashevCnt;
+        ret[18] = ls().blueLocationCnt;
+        ret[19] = ls().createLobbyCnt;
+        ret[20] = ls().moveCnt;
+        ret[21] = ls().burnLocationCnt;
+        ret[22] = ls().pinkLocationCnt;
+        ret[23] = ls().buyPlanetCnt;
+        ret[24] = ls().buyPlanetEarn;
+        ret[25] = ls().buySpaceshipCnt;
+        ret[26] = ls().buySpaceshipEarn;
+        ret[27] = ls().donateCnt;
+        ret[28] = ls().donateSum;
     }
 }

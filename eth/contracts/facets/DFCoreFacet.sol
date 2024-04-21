@@ -24,22 +24,16 @@ contract DFCoreFacet is WithStorage {
 
     event PlayerInitialized(address player, uint256 loc);
     event PlanetUpgraded(address player, uint256 loc, uint256 branch, uint256 toBranchLevel); // emitted in LibPlanet
-    event PlanetHatBought(address player, uint256 loc, uint256 tohatLevel, uint256 tohatType);
-
     event PlanetTransferred(address sender, uint256 loc, address receiver);
     event LocationRevealed(address revealer, uint256 loc, uint256 x, uint256 y);
-
     event PlanetSilverWithdrawn(address player, uint256 loc, uint256 amount);
-
     event LocationClaimed(address revealer, address previousClaimer, uint256 loc);
-
     event ArtifactChangeImageType(
         address player,
         uint256 artifactId,
         uint256 loc,
         uint256 imageType
     );
-
     event PlanetProspected(address player, uint256 loc);
     event ArtifactFound(address player, uint256 artifactId, uint256 loc);
     event ArtifactDeposited(address player, uint256 artifactId, uint256 loc);
@@ -189,6 +183,9 @@ contract DFCoreFacet is WithStorage {
         if (gs().halfPrice) entryFee /= 2;
         require(msg.value == entryFee, "Wrong value sent");
 
+        ls().initializePlayerCnt++;
+        ls().entryEarn += entryFee;
+
         // whitelist
         if (!ws().enabled) {
             require(!ws().allowedAccounts[msg.sender], "player is already allowed");
@@ -267,80 +264,26 @@ contract DFCoreFacet is WithStorage {
         require(!gs().planets[_location].frozen, "can't transfer a frozen planet");
 
         gs().planets[_location].owner = _player;
+        ls().transferPlanetCnt++;
 
         emit PlanetTransferred(msg.sender, _location, _player);
-    }
-
-    function buyHat(uint256 _location, uint256 hatType) public payable notPaused {
-        require(gs().planets[_location].isInitialized == true, "Planet is not initialized");
-        refreshPlanet(_location);
-
-        require(
-            gs().planets[_location].owner == msg.sender,
-            "Only owner account can perform that operation on planet."
-        );
-
-        Artifact memory activeArtifact = LibGameUtils.getActiveArtifact(_location);
-
-        require(activeArtifact.artifactType != ArtifactType.Avatar, "need no active Avatar");
-
-        // uint256 cost = (1 << gs().planets[_location].hatLevel) * 1 ether;
-
-        if (gs().planets[_location].hatLevel == 0) {
-            gs().players[msg.sender].hatCount++;
-            uint256 fee = 0.002 ether;
-            if (gs().halfPrice) fee /= 2;
-            require(msg.value == fee, "Wrong value sent");
-            if (gs().firstHat == address(0)) gs().firstHat = msg.sender;
-
-            gs().planets[_location].hatLevel = 1;
-            gs().planets[_location].hatType = hatType;
-        } else {
-            gs().planets[_location].hatLevel = 0;
-            gs().planets[_location].hatType = 0;
-        }
-
-        emit PlanetHatBought(
-            msg.sender,
-            _location,
-            gs().planets[_location].hatLevel,
-            gs().planets[_location].hatType
-        );
-    }
-
-    function setHat(
-        uint256 _location,
-        uint256 hatLevel,
-        uint256 hatType
-    ) public onlyAdmin {
-        require(gs().planets[_location].isInitialized == true, "Planet is not initialized");
-        refreshPlanet(_location);
-
-        gs().planets[_location].hatLevel = hatLevel;
-        gs().planets[_location].hatType = hatType;
-        if (hatLevel >= 1) {
-            gs().planets[_location].adminProtect = true;
-        } else gs().planets[_location].adminProtect = false;
-
-        emit PlanetHatBought(
-            msg.sender,
-            _location,
-            gs().planets[_location].hatLevel,
-            gs().planets[_location].hatType
-        );
     }
 
     function setPlanetCanShow(uint256 _location, bool _canShow) public onlyAdmin {
         require(gs().planets[_location].isInitialized == true, "Planet is not initialized");
         refreshPlanet(_location);
         gs().planets[_location].canShow = _canShow;
+        ls().setPlanetCanShowCnt++;
     }
 
     // withdraw silver
     function withdrawSilver(uint256 locationId, uint256 amount) public notPaused {
         refreshPlanet(locationId);
         LibPlanet.withdrawSilver(locationId, amount);
+
         emit PlanetSilverWithdrawn(msg.sender, locationId, amount);
+        ls().withdrawSilverCnt++;
+        ls().playerLog[msg.sender].withdrawSilverCnt++;
     }
 
     /**
@@ -490,7 +433,10 @@ contract DFCoreFacet is WithStorage {
             x,
             y
         );
+
         emit LocationClaimed(msg.sender, previousClaimer, _input[0]);
+        ls().claimLocationCnt++;
+        ls().playerLog[msg.sender].claimLocationCnt++;
     }
 
     // DFArtifactFacet
@@ -523,6 +469,8 @@ contract DFCoreFacet is WithStorage {
         artifact.imageType = newImageType;
 
         emit ArtifactChangeImageType(msg.sender, artifactId, locationId, newImageType);
+        ls().changeArtifactImageTypeCnt++;
+        ls().playerLog[msg.sender].changeArtifactImageTypeCnt++;
     }
 
     // if there's an activated artifact on this planet, deactivates it. otherwise reverts.
@@ -533,6 +481,8 @@ contract DFCoreFacet is WithStorage {
 
         LibArtifactUtils.deactivateArtifact(locationId);
         // event is emitted in the above library function
+        ls().deactivateArtifactCnt++;
+        ls().playerLog[msg.sender].deactivateArtifactCnt++;
     }
 
     // in order to be able to find an artifact on a planet, the planet
@@ -543,6 +493,8 @@ contract DFCoreFacet is WithStorage {
         LibPlanet.refreshPlanet(locationId);
         LibArtifactUtils.prospectPlanet(locationId);
         emit PlanetProspected(msg.sender, locationId);
+        ls().prospectPlanetCnt++;
+        ls().playerLog[msg.sender].prospectPlanetCnt++;
     }
 
     function findArtifact(
@@ -573,6 +525,8 @@ contract DFCoreFacet is WithStorage {
         );
 
         emit ArtifactFound(msg.sender, foundArtifactId, planetId);
+        ls().findArtifactCnt++;
+        ls().playerLog[msg.sender].findArtifactCnt++;
     }
 
     function depositArtifact(uint256 locationId, uint256 artifactId) public notPaused {
@@ -584,6 +538,8 @@ contract DFCoreFacet is WithStorage {
         LibArtifactUtils.depositArtifact(locationId, artifactId, address(this));
 
         emit ArtifactDeposited(msg.sender, artifactId, locationId);
+        ls().depositArtifactCnt++;
+        ls().playerLog[msg.sender].depositArtifactCnt++;
     }
 
     // withdraws the given artifact from the given planet. you must own the planet,
@@ -594,6 +550,8 @@ contract DFCoreFacet is WithStorage {
         LibArtifactUtils.withdrawArtifact(locationId, artifactId);
 
         emit ArtifactWithdrawn(msg.sender, artifactId, locationId);
+        ls().withdrawArtifactCnt++;
+        ls().playerLog[msg.sender].withdrawArtifactCnt++;
     }
 
     /**
@@ -672,5 +630,6 @@ contract DFCoreFacet is WithStorage {
         }
 
         gs().players[msg.sender].claimedShips = true;
+        ls().giveSpaceShipsCnt++;
     }
 }

@@ -102,9 +102,15 @@ async function deploy(
   const whitelistBalance = await hre.ethers.provider.getBalance(diamond.address);
   console.log(`Whitelist balance ${whitelistBalance}`);
 
+  const contract = await hre.ethers.getContractAt('DarkForest', hre.contracts.CONTRACT_ADDRESS);
+
+  const initExtendTx = await contract.initExtend(hre.initializers);
+  console.log('------ tx:', initExtendTx.hash, ' ------');
+  await initExtendTx.wait();
+  console.log('contract initExtend successful');
+
   const value = 0; // drip value in ether
   if (value) {
-    const contract = await hre.ethers.getContractAt('DarkForest', hre.contracts.CONTRACT_ADDRESS);
     const txReceipt = await contract.changeDrip(
       hre.ethers.utils.parseEther(Number(value).toString())
     );
@@ -260,6 +266,7 @@ export async function deployAndCut(
   const diamondInit = await deployDiamondInit({}, libraries, hre);
 
   // Dark Forest facets
+  const initlizeExtendFacet = await deployInitialzeExtentFacet({}, libraries, hre);
   const coreFacet = await deployCoreFacet({}, libraries, hre);
   const moveFacet = await deployMoveFacet({}, libraries, hre);
   const captureFacet = await deployCaptureFacet({}, libraries, hre);
@@ -286,6 +293,7 @@ export async function deployAndCut(
 
   // The `cuts` to perform for Dark Forest facets
   const darkForestFacetCuts = [
+    ...changes.getFacetCuts('DFInitlializeExtendFacet', initlizeExtendFacet),
     ...changes.getFacetCuts('DFCoreFacet', coreFacet),
     ...changes.getFacetCuts('DFMoveFacet', moveFacet),
     ...changes.getFacetCuts('DFCaptureFacet', captureFacet),
@@ -516,6 +524,23 @@ export async function deployLibraries({}, hre: HardhatRuntimeEnvironment) {
   };
 }
 
+export async function deployInitialzeExtentFacet(
+  {},
+  { LibGameUtils }: Libraries,
+  hre: HardhatRuntimeEnvironment
+) {
+  const factory = await hre.ethers.getContractFactory('DFInitializeExtendFacet', {
+    libraries: {
+      LibGameUtils,
+    },
+  });
+  const contract = await factory.deploy();
+  console.log('------ tx:', contract.address, ' ------');
+  await contract.deployTransaction.wait();
+  console.log(`DFInitializeExtendFacet deployed to: ${contract.address}`);
+  return contract;
+}
+
 export async function deployCoreFacet(
   {},
   { LibGameUtils, LibPlanet, LibArtifactUtils }: Libraries,
@@ -656,11 +681,12 @@ async function deployDiamond(
   return contract;
 }
 
-async function deployDiamondInit({}, { LibGameUtils }: Libraries, hre: HardhatRuntimeEnvironment) {
+async function deployDiamondInit({}, {}: Libraries, hre: HardhatRuntimeEnvironment) {
   // DFInitialize provides a function that is called when the diamond is upgraded to initialize state variables
   // Read about how the diamondCut function works here: https://eips.ethereum.org/EIPS/eip-2535#addingreplacingremoving-functions
   const factory = await hre.ethers.getContractFactory('DFInitialize', {
-    libraries: { LibGameUtils },
+    libraries: {},
+    // libraries: { LibGameUtils },
   });
   const contract = await factory.deploy();
   console.log('------ tx:', contract.address, ' ------');

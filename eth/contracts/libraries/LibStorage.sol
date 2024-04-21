@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 // Type imports
-import {Planet, PlanetEventMetadata, PlanetDefaultStats, Upgrade, RevealedCoords, Player, ArrivalData, Artifact, ClaimedCoords, BurnedCoords, KardashevCoords} from "../DFTypes.sol";
+import {Planet, PlanetEventMetadata, PlanetDefaultStats, Upgrade, RevealedCoords, Player, ArrivalData, Artifact, ClaimedCoords, BurnedCoords, KardashevCoords, PlayerLog, SpaceshipConstants} from "../DFTypes.sol";
 
 struct WhitelistStorage {
     bool enabled;
@@ -88,12 +88,46 @@ struct GameStorage {
      * Map from player address to the list of spaceships they have
      */
     mapping(address => uint256[]) mySpaceshipIds;
+    mapping(uint256 => uint256[]) targetPlanetArrivalIds;
+    bool halfPrice;
+}
+
+struct LogStorage {
     address firstMythicArtifactOwner;
     address firstBurnLocationOperator;
     address firstHat;
     address firstKardashevOperator;
-    mapping(uint256 => uint256[]) targetPlanetArrivalIds;
-    bool halfPrice;
+    mapping(address => PlayerLog) playerLog;
+    uint256 initializePlayerCnt;
+    uint256 entryEarn;
+    uint256 transferPlanetCnt;
+    uint256 hatEarnSum;
+    mapping(uint256 => uint256) hatEarn;
+    uint256 buyHatCnt;
+    uint256 takeOffHatCnt;
+    uint256 setHatCnt;
+    uint256 setPlanetCanShowCnt;
+    uint256 withdrawSilverCnt;
+    uint256 claimLocationCnt;
+    uint256 changeArtifactImageTypeCnt;
+    uint256 deactivateArtifactCnt;
+    uint256 prospectPlanetCnt;
+    uint256 findArtifactCnt;
+    uint256 depositArtifactCnt;
+    uint256 withdrawArtifactCnt;
+    uint256 giveSpaceShipsCnt;
+    uint256 kardashevCnt;
+    uint256 blueLocationCnt;
+    uint256 createLobbyCnt;
+    uint256 moveCnt;
+    uint256 burnLocationCnt;
+    uint256 pinkLocationCnt;
+    uint256 buyPlanetCnt;
+    uint256 buyPlanetEarn;
+    uint256 buySpaceshipCnt;
+    uint256 buySpaceshipEarn;
+    uint256 donateCnt;
+    uint256 donateSum;
 }
 
 // Game config
@@ -180,15 +214,6 @@ struct GameConstants {
     uint256[10] BLUE_PANET_REQUIRE_SILVER_AMOUNTS;
 }
 
-struct SpaceshipConstants {
-    bool GEAR;
-    bool MOTHERSHIP;
-    bool TITAN;
-    bool CRESCENT;
-    bool WHALE;
-    bool PINKSHIP;
-}
-
 // SNARK keys and perlin params
 struct SnarkConstants {
     bool DISABLE_ZK_CHECKS;
@@ -246,6 +271,7 @@ struct SnarkConstants {
 library LibStorage {
     // Storage are structs where the data gets updated throughout the lifespan of the game
     bytes32 constant GAME_STORAGE_POSITION = keccak256("darkforest.storage.game");
+    bytes32 constant ANALYSIS_STORAGE_POSITION = keccak256("darkforest.storage.analysis");
     bytes32 constant WHITELIST_STORAGE_POSITION = keccak256("darkforest.storage.whitelist");
     // Constants are structs where the data gets configured on game initialization
     bytes32 constant GAME_CONSTANTS_POSITION = keccak256("darkforest.constants.game");
@@ -258,6 +284,13 @@ library LibStorage {
         bytes32 position = GAME_STORAGE_POSITION;
         assembly {
             gs.slot := position
+        }
+    }
+
+    function analysisStorage() internal pure returns (LogStorage storage ls) {
+        bytes32 position = ANALYSIS_STORAGE_POSITION;
+        assembly {
+            ls.slot := position
         }
     }
 
@@ -309,6 +342,10 @@ library LibStorage {
 contract WithStorage {
     function gs() internal pure returns (GameStorage storage) {
         return LibStorage.gameStorage();
+    }
+
+    function ls() internal pure returns (LogStorage storage) {
+        return LibStorage.analysisStorage();
     }
 
     function ws() internal pure returns (WhitelistStorage storage) {

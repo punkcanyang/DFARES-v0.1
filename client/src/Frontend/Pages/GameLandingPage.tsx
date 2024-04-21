@@ -972,130 +972,121 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       let selectedSpawnArea: SpawnArea | undefined = undefined;
-
-      while (true) {
-        await new Promise((resolve) => setTimeout(resolve, 2_500));
-        console.log('selected spawnArea', miniMapRef.current?.getSelectedSpawnArea());
+      while (!selectedSpawnArea) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        selectedSpawnArea = miniMapRef.current?.getSelectedSpawnArea();
       }
 
-// '      const selectedCoords = coords ? coords : await minimapPlugin.runAndGetUserCoords();
-//       const distFromOrigin = Math.sqrt(selectedCoords.x ** 2 + selectedCoords.y ** 2);
+      const selectedCoords = selectedSpawnArea.worldPoint;
+      const distFromOrigin = Math.sqrt(selectedCoords.x ** 2 + selectedCoords.y ** 2);
+      terminal.current?.println(
+        `Coordinates: (${selectedCoords.x}, ${
+          selectedCoords.y
+        }) were selected, ${distFromOrigin.toFixed(0)} ly away from center.`
+      );
 
-//       if (selectedCoords.x === 0 || selectedCoords.y === 0) {
-//         terminal.current?.println('Invalid selection, please try again.', TerminalTextStyle.Red);
-//         terminal.current?.newline();
-//         advanceStateFromNoHomePlanet(terminal, { showHelp: false });
-//         return;
-//       }
+      setMiniMapOn(false);
 
-//       terminal.current?.println(
-//         `Coordinates: (${selectedCoords.x}, ${
-//           selectedCoords.y
-//         }) were selected, ${distFromOrigin.toFixed(0)} ly away from center.`
-//       );
+      terminal.current?.println('(f) find home planet.');
+      terminal.current?.println('(s) select new coordinates.');
+      terminal.current?.newline();
+      terminal.current?.println('Select one of the options above [f] or [s], then press [enter]');
 
-//       setMiniMapOn(false);
+      const userInput = (await terminal.current?.getInput())?.trim() ?? '';
+      if (userInput !== 'f') {
+        coords = selectedCoords;
+        switch (true) {
+          // case userInput === 'clear': {
+          //   terminal.current?.clear();
+          //   showHelp = false;
+          //   break;
+          // }
+          case userInput === 'h' || userInput === 'help': {
+            showHelp = true;
+            break;
+          }
+          case userInput === 's': {
+            showHelp = true;
+            coords = undefined;
+            break;
+          }
+          default: {
+            showHelp = false;
+            terminal.current?.println(
+              'Please select [f] or [h], then press [enter].',
+              TerminalTextStyle.Pink
+            );
+            terminal.current?.newline();
+          }
+        }
 
-//       terminal.current?.println('(f) find home planet.');
-//       terminal.current?.println('(s) select new coordinates.');
-//       terminal.current?.newline();
-//       terminal.current?.println('Select one of the options above [f] or [s], then press [enter]');
+        advanceStateFromNoHomePlanet(terminal, { showHelp, coords });
+        return;
+      }
 
-//       const userInput = (await terminal.current?.getInput())?.trim() ?? '';
-//       if (userInput !== 'f') {
-//         coords = selectedCoords;
-//         switch (true) {
-//           // case userInput === 'clear': {
-//           //   terminal.current?.clear();
-//           //   showHelp = false;
-//           //   break;
-//           // }
-//           case userInput === 'h' || userInput === 'help': {
-//             showHelp = true;
-//             break;
-//           }
-//           case userInput === 's': {
-//             showHelp = true;
-//             coords = undefined;
-//             break;
-//           }
-//           default: {
-//             showHelp = false;
-//             terminal.current?.println(
-//               'Please select [f] or [h], then press [enter].',
-//               TerminalTextStyle.Pink
-//             );
-//             terminal.current?.newline();
-//           }
-//         }
+      let start = Date.now();
+      gameUIManager.getGameManager().on(GameManagerEvent.InitializedPlayer, () => {
+        setTimeout(() => {
+          terminal.current?.println('Initializing game...');
+          setStep(TerminalPromptStep.ALL_CHECKS_PASS);
+        });
+      });
 
-//         advanceStateFromNoHomePlanet(terminal, { showHelp, coords });
-//         return;
-//       }
+      console.log('getGameManager', Date.now() - start);
+      start = Date.now();
 
-//       let start = Date.now();
-//       gameUIManager.getGameManager().on(GameManagerEvent.InitializedPlayer, () => {
-//         setTimeout(() => {
-//           terminal.current?.println('Initializing game...');
-//           setStep(TerminalPromptStep.ALL_CHECKS_PASS);
-//         });
-//       });
+      // requestFaucet
+      const playerAddress = ethConnection?.getAddress();
+      console.log('getAddress', Date.now() - start);
+      start = Date.now();
 
-//       console.log('getGameManager', Date.now() - start);
-//       start = Date.now();
+      gameUIManager
+        .joinGame(
+          async (e) => {
+            console.error(e);
 
-//       // requestFaucet
-//       const playerAddress = ethConnection?.getAddress();
-//       console.log('getAddress', Date.now() - start);
-//       start = Date.now();
+            terminal.current?.println('Error Joining Game:');
+            terminal.current?.println(e.message, TerminalTextStyle.Red);
+            terminal.current?.newline();
 
-//       gameUIManager
-//         .joinGame(
-//           async (e) => {
-//             console.error(e);
+            terminal.current?.println(
+              "Don't worry :-) you can get more Redstone Holesky ETH this way 😘",
+              TerminalTextStyle.Pink
+            );
+            terminal.current?.print('Step 1: ', TerminalTextStyle.Pink);
+            terminal.current?.printLink(
+              'Get more Holesky ETH here',
+              () => {
+                window.open('https://holesky-faucet.pk910.de/');
+              },
+              TerminalTextStyle.Pink
+            );
+            terminal.current?.newline();
+            terminal.current?.print('Step 2: ', TerminalTextStyle.Pink);
+            terminal.current?.printLink(
+              'Deposit to Redstone',
+              () => {
+                window.open(BLOCKCHAIN_BRIDGE);
+              },
+              TerminalTextStyle.Pink
+            );
+            terminal.current?.newline();
+            terminal.current?.newline();
 
-//             terminal.current?.println('Error Joining Game:');
-//             terminal.current?.println(e.message, TerminalTextStyle.Red);
-//             terminal.current?.newline();
+            terminal.current?.println('Press Enter to Try Again:');
 
-//             terminal.current?.println(
-//               "Don't worry :-) you can get more Redstone Holesky ETH this way 😘",
-//               TerminalTextStyle.Pink
-//             );
-//             terminal.current?.print('Step 1: ', TerminalTextStyle.Pink);
-//             terminal.current?.printLink(
-//               'Get more Holesky ETH here',
-//               () => {
-//                 window.open('https://holesky-faucet.pk910.de/');
-//               },
-//               TerminalTextStyle.Pink
-//             );
-//             terminal.current?.newline();
-//             terminal.current?.print('Step 2: ', TerminalTextStyle.Pink);
-//             terminal.current?.printLink(
-//               'Deposit to Redstone',
-//               () => {
-//                 window.open(BLOCKCHAIN_BRIDGE);
-//               },
-//               TerminalTextStyle.Pink
-//             );
-//             terminal.current?.newline();
-//             terminal.current?.newline();
-
-//             terminal.current?.println('Press Enter to Try Again:');
-
-//             await terminal.current?.getInput();
-//             return true;
-//           },
-//           selectedCoords,
-//           spectate
-//         )
-//         .catch((error: Error) => {
-//           terminal.current?.println(
-//             `[ERROR] An error occurred: ${error.toString().slice(0, 10000)}`,
-//             TerminalTextStyle.Red
-//           );
-//         });'
+            await terminal.current?.getInput();
+            return true;
+          },
+          selectedCoords,
+          spectate
+        )
+        .catch((error: Error) => {
+          terminal.current?.println(
+            `[ERROR] An error occurred: ${error.toString().slice(0, 10000)}`,
+            TerminalTextStyle.Red
+          );
+        });
     },
     [ethConnection, spectate]
   );
@@ -1359,7 +1350,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       <div ref={topLevelContainer}></div>
       <div>
         {isMiniMapOn && (
-          <div style={{ position: 'absolute', right: '100px' }}>
+          <div style={{ position: 'absolute', right: '100px', top: '100px' }}>
             <MiniMap ref={miniMapRef} />
           </div>
         )}

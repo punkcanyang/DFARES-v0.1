@@ -1,26 +1,39 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.0;
 
+// External contract imports
+import {DFArtifactFacet} from "../facets/DFArtifactFacet.sol";
+
 // Library imports
-import {WithStorage, SpaceshipConstants} from "../libraries/LibStorage.sol";
-import {LibGameUtils} from "../libraries/LibGameUtils.sol";
-import {LibDiamond} from "../vendor/libraries/LibDiamond.sol";
+import {ABDKMath64x64} from "../vendor/libraries/ABDKMath64x64.sol";
 
-// Type imports
-import {PlanetDefaultStats, Upgrade, UpgradeBranch, InitArgs} from "../DFTypes.sol";
+// Storage imports
+import {LibStorage, GameStorage, GameConstants, SnarkConstants} from "./LibStorage.sol";
 
-contract DFInitializeExtendFacet is WithStorage {
-    modifier onlyAdmin() {
-        LibDiamond.enforceIsContractOwner();
-        _;
+import {Upgrade, UpgradeBranch, PlanetDefaultStats, InitArgs} from "../DFTypes.sol";
+
+library LibInitializeUtils {
+    function gs() internal pure returns (GameStorage storage) {
+        return LibStorage.gameStorage();
     }
 
-    //NOTE: admin only call this function once
-    function initExtend(
-        // bool whitelistEnabled,
-        // string memory artifactBaseURI,
-        InitArgs memory initArgs
-    ) public onlyAdmin {
+    function gameConstants() internal pure returns (GameConstants storage) {
+        return LibStorage.gameConstants();
+    }
+
+    function snarkConstants() internal pure returns (SnarkConstants storage) {
+        return LibStorage.snarkConstants();
+    }
+
+    function planetDefaultStats() internal pure returns (PlanetDefaultStats[] storage) {
+        return LibStorage.planetDefaultStats();
+    }
+
+    function upgrades() internal pure returns (Upgrade[4][3] storage) {
+        return LibStorage.upgrades();
+    }
+
+    function init(InitArgs memory initArgs) public {
         snarkConstants().DISABLE_ZK_CHECKS = initArgs.DISABLE_ZK_CHECKS;
         snarkConstants().PLANETHASH_KEY = initArgs.PLANETHASH_KEY;
         snarkConstants().SPACETYPE_KEY = initArgs.SPACETYPE_KEY;
@@ -28,6 +41,7 @@ contract DFInitializeExtendFacet is WithStorage {
         snarkConstants().PERLIN_MIRROR_X = initArgs.PERLIN_MIRROR_X;
         snarkConstants().PERLIN_MIRROR_Y = initArgs.PERLIN_MIRROR_Y;
         snarkConstants().PERLIN_LENGTH_SCALE = initArgs.PERLIN_LENGTH_SCALE;
+
         gameConstants().ADMIN_CAN_ADD_PLANETS = initArgs.ADMIN_CAN_ADD_PLANETS;
         gameConstants().WORLD_RADIUS_LOCKED = initArgs.WORLD_RADIUS_LOCKED;
         gameConstants().WORLD_RADIUS_MIN = initArgs.WORLD_RADIUS_MIN;
@@ -69,6 +83,7 @@ contract DFInitializeExtendFacet is WithStorage {
         gameConstants().CAPTURE_ZONES_PER_5000_WORLD_RADIUS = initArgs
             .CAPTURE_ZONES_PER_5000_WORLD_RADIUS;
         gameConstants().SPACESHIPS = initArgs.SPACESHIPS;
+
         //todo: add to initargs
         gameConstants().MAX_ARTIFACT_PER_PLANET = initArgs.MAX_ARTIFACT_PER_PLANET;
         gameConstants().MAX_SENDING_PLANET = initArgs.MAX_SENDING_PLANET;
@@ -93,6 +108,7 @@ contract DFInitializeExtendFacet is WithStorage {
         gameConstants().MAX_LEVEL_LIMIT = initArgs.MAX_LEVEL_LIMIT;
         gameConstants().MIN_LEVEL_BIAS = initArgs.MIN_LEVEL_BIAS;
         gameConstants().ENTRY_FEE = initArgs.ENTRY_FEE;
+
         gameConstants().KARDASHEV_END_TIMESTAMP = initArgs.KARDASHEV_END_TIMESTAMP;
         gameConstants().KARDASHEV_PLANET_COOLDOWN = initArgs.KARDASHEV_PLANET_COOLDOWN;
         gameConstants().BLUE_PLANET_COOLDOWN = initArgs.BLUE_PLANET_COOLDOWN;
@@ -101,18 +117,19 @@ contract DFInitializeExtendFacet is WithStorage {
             .KARDASHEV_REQUIRE_SILVER_AMOUNTS;
         gameConstants().BLUE_PANET_REQUIRE_SILVER_AMOUNTS = initArgs
             .BLUE_PANET_REQUIRE_SILVER_AMOUNTS;
+
         initializeDefaults();
         initializeUpgrades();
+
         gs().initializedPlanetCountByLevel = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         for (uint256 i = 0; i < gameConstants().PLANET_LEVEL_THRESHOLDS.length; i += 1) {
             gs().cumulativeRarities.push(
                 (2**24 / gameConstants().PLANET_LEVEL_THRESHOLDS[i]) * initArgs.PLANET_RARITY
             );
         }
-        LibGameUtils.updateWorldRadius();
     }
 
-    function initializeDefaults() private {
+    function initializeDefaults() public {
         PlanetDefaultStats[] storage planetDefaultStats = planetDefaultStats();
 
         planetDefaultStats.push(
@@ -256,7 +273,7 @@ contract DFInitializeExtendFacet is WithStorage {
         );
     }
 
-    function initializeUpgrades() private {
+    function initializeUpgrades() public {
         Upgrade[4][3] storage upgrades = upgrades();
         Upgrade memory defenseUpgrade = Upgrade({
             popCapMultiplier: 120,

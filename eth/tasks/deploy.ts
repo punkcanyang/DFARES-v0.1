@@ -102,15 +102,9 @@ async function deploy(
   const whitelistBalance = await hre.ethers.provider.getBalance(diamond.address);
   console.log(`Whitelist balance ${whitelistBalance}`);
 
-  const contract = await hre.ethers.getContractAt('DarkForest', hre.contracts.CONTRACT_ADDRESS);
-
-  const initExtendTx = await contract.initExtend(hre.initializers);
-  console.log('------ tx:', initExtendTx.hash, ' ------');
-  await initExtendTx.wait();
-  console.log('contract initExtend successful');
-
   const value = 0; // drip value in ether
   if (value) {
+    const contract = await hre.ethers.getContractAt('DarkForest', hre.contracts.CONTRACT_ADDRESS);
     const txReceipt = await contract.changeDrip(
       hre.ethers.utils.parseEther(Number(value).toString())
     );
@@ -266,7 +260,6 @@ export async function deployAndCut(
   const diamondInit = await deployDiamondInit({}, libraries, hre);
 
   // Dark Forest facets
-  const initlizeExtendFacet = await deployInitialzeExtentFacet({}, libraries, hre);
   const coreFacet = await deployCoreFacet({}, libraries, hre);
   const moveFacet = await deployMoveFacet({}, libraries, hre);
   const captureFacet = await deployCaptureFacet({}, libraries, hre);
@@ -293,7 +286,6 @@ export async function deployAndCut(
 
   // The `cuts` to perform for Dark Forest facets
   const darkForestFacetCuts = [
-    ...changes.getFacetCuts('DFInitlializeExtendFacet', initlizeExtendFacet),
     ...changes.getFacetCuts('DFCoreFacet', coreFacet),
     ...changes.getFacetCuts('DFMoveFacet', moveFacet),
     ...changes.getFacetCuts('DFCaptureFacet', captureFacet),
@@ -468,6 +460,12 @@ export async function deployArtifactFacet(
 }
 
 export async function deployLibraries({}, hre: HardhatRuntimeEnvironment) {
+  const LibInitializeUtilsFactory = await hre.ethers.getContractFactory('LibInitializeUtils');
+  const LibInitializeUtils = await LibInitializeUtilsFactory.deploy();
+  console.log('------ tx:', LibInitializeUtils.address, ' ------');
+  await LibInitializeUtils.deployTransaction.wait();
+  console.log(`LibInitializeUtils deployed to: ${LibInitializeUtils.address}`);
+
   const LibGameUtilsFactory = await hre.ethers.getContractFactory('LibGameUtils');
   const LibGameUtils = await LibGameUtilsFactory.deploy();
   console.log('------ tx:', LibGameUtils.address, ' ------');
@@ -517,28 +515,12 @@ export async function deployLibraries({}, hre: HardhatRuntimeEnvironment) {
   console.log(`LibPlanet deployed to: ${LibPlanet.address}`);
 
   return {
+    LibInitializeUtils: LibInitializeUtils.address,
     LibGameUtils: LibGameUtils.address,
     LibPlanet: LibPlanet.address,
     LibArtifactUtils: LibArtifactUtils.address,
     LibArtifactExtendUtils: LibArtifactExtendUtils.address,
   };
-}
-
-export async function deployInitialzeExtentFacet(
-  {},
-  { LibGameUtils }: Libraries,
-  hre: HardhatRuntimeEnvironment
-) {
-  const factory = await hre.ethers.getContractFactory('DFInitializeExtendFacet', {
-    libraries: {
-      LibGameUtils,
-    },
-  });
-  const contract = await factory.deploy();
-  console.log('------ tx:', contract.address, ' ------');
-  await contract.deployTransaction.wait();
-  console.log(`DFInitializeExtendFacet deployed to: ${contract.address}`);
-  return contract;
 }
 
 export async function deployCoreFacet(
@@ -681,12 +663,15 @@ async function deployDiamond(
   return contract;
 }
 
-async function deployDiamondInit({}, {}: Libraries, hre: HardhatRuntimeEnvironment) {
+async function deployDiamondInit(
+  {},
+  { LibInitializeUtils, LibGameUtils }: Libraries,
+  hre: HardhatRuntimeEnvironment
+) {
   // DFInitialize provides a function that is called when the diamond is upgraded to initialize state variables
   // Read about how the diamondCut function works here: https://eips.ethereum.org/EIPS/eip-2535#addingreplacingremoving-functions
   const factory = await hre.ethers.getContractFactory('DFInitialize', {
-    libraries: {},
-    // libraries: { LibGameUtils },
+    libraries: { LibInitializeUtils, LibGameUtils },
   });
   const contract = await factory.deploy();
   console.log('------ tx:', contract.address, ' ------');

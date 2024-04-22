@@ -184,7 +184,7 @@ contract DFCoreFacet is WithStorage {
         require(msg.value == entryFee, "Wrong value sent");
 
         ls().initializePlayerCnt++;
-        ls().entryEarn += entryFee;
+        ls().entryCost += entryFee;
 
         // whitelist
         if (!ws().enabled) {

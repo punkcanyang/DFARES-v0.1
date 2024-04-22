@@ -51,6 +51,7 @@ struct Player {
 
 struct PlayerLog {
     uint256 buyHatCnt;
+    uint256 buyHatCost;
     uint256 takeOffHatCnt;
     uint256 withdrawSilverCnt;
     uint256 claimLocationCnt;
@@ -67,9 +68,9 @@ struct PlayerLog {
     uint256 burnLocationCnt;
     uint256 pinkLocationCnt;
     uint256 buyPlanetCnt;
-    uint256 buyPlanetEarn;
+    uint256 buyPlanetCost;
     uint256 buySpaceshipCnt;
-    uint256 buySpaceshipEarn;
+    uint256 buySpaceshipCost;
     uint256 donateCnt;
     uint256 donateSum;
 }

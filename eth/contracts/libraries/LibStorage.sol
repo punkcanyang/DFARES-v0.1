@@ -99,7 +99,7 @@ struct LogStorage {
     address firstKardashevOperator;
     mapping(address => PlayerLog) playerLog;
     uint256 initializePlayerCnt;
-    uint256 entryEarn;
+    uint256 entryCost;
     uint256 transferPlanetCnt;
     uint256 hatEarnSum;
     mapping(uint256 => uint256) hatEarn;
@@ -125,7 +125,7 @@ struct LogStorage {
     uint256 buyPlanetCnt;
     uint256 buyPlanetEarn;
     uint256 buySpaceshipCnt;
-    uint256 buySpaceshipEarn;
+    uint256 buySpaceshipCost;
     uint256 donateCnt;
     uint256 donateSum;
 }

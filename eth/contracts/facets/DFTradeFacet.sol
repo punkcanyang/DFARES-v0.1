@@ -117,7 +117,7 @@ contract DFTradeFacet is WithStorage {
         ls().buyPlanetCnt++;
         ls().playerLog[msg.sender].buyPlanetCnt++;
         ls().buyPlanetEarn += fee;
-        ls().playerLog[msg.sender].buyPlanetEarn += fee;
+        ls().playerLog[msg.sender].buyPlanetCost += fee;
     }
 
     function buySpaceship(uint256 locationId, ArtifactType artifactType) public payable notPaused {
@@ -155,8 +155,8 @@ contract DFTradeFacet is WithStorage {
         emit SpaceshipBought(locationId, msg.sender, artifactType);
         ls().buySpaceshipCnt++;
         ls().playerLog[msg.sender].buySpaceshipCnt++;
-        ls().buySpaceshipEarn += fee;
-        ls().playerLog[msg.sender].buySpaceshipEarn += fee;
+        ls().buySpaceshipCost += fee;
+        ls().playerLog[msg.sender].buySpaceshipCost += fee;
     }
 
     function donate(uint256 amount) public payable {
@@ -223,6 +223,7 @@ contract DFTradeFacet is WithStorage {
             ls().hatEarn[hatType] += fee;
             ls().buyHatCnt++;
             ls().playerLog[msg.sender].buyHatCnt++;
+            ls().playerLog[msg.sender].buyHatCost += fee;
         } else {
             gs().planets[_location].hatLevel = 0;
             gs().planets[_location].hatType = 0;

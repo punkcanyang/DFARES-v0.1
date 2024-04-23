@@ -270,14 +270,14 @@ library LibPlanet {
         //         "Player can only spawn at the universe rim"
         //     );
         // }
-        // require(
-        //     _perlin >= gameConstants().INIT_PERLIN_MIN,
-        //     "Init not allowed in perlin value less than INIT_PERLIN_MIN"
-        // );
-        // require(
-        //     _perlin < gameConstants().INIT_PERLIN_MAX,
-        //     "Init not allowed in perlin value greater than or equal to the INIT_PERLIN_MAX"
-        // );
+        require(
+            _perlin >= gameConstants().INIT_PERLIN_MIN,
+            "Init not allowed in perlin value less than INIT_PERLIN_MIN"
+        );
+        require(
+            _perlin < gameConstants().INIT_PERLIN_MAX,
+            "Init not allowed in perlin value greater than or equal to the INIT_PERLIN_MAX"
+        );
         return true;
     }
 

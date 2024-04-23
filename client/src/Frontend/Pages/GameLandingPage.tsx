@@ -24,7 +24,6 @@ import {
   submitInterestedEmail,
   submitPlayerEmail,
 } from '../../Backend/Network/UtilityServerAPI';
-import MinimapSpawnPlugin from '../../Backend/Plugins/minimapSpawn';
 import { getWhitelistArgs } from '../../Backend/Utils/WhitelistSnarkArgsHelper';
 import { ZKArgIdx } from '../../_types/darkforest/api/ContractsAPITypes';
 import {
@@ -41,6 +40,7 @@ import { TerminalTextStyle } from '../Utils/TerminalTypes';
 import UIEmitter, { UIEmitterEvent } from '../Utils/UIEmitter';
 import { GameWindowLayout } from '../Views/GameWindowLayout';
 import { Terminal, TerminalHandle } from '../Views/Terminal';
+import { MiniMap, MiniMapHandle, SpawnArea } from './components/MiniMap';
 
 const enum TerminalPromptStep {
   NONE,
@@ -64,8 +64,6 @@ const enum TerminalPromptStep {
   ERROR,
   SPECTATING,
 }
-
-const minimapPlugin = new MinimapSpawnPlugin();
 
 type BrowserCompatibleState = 'unknown' | 'unsupported' | 'supported';
 type TerminalStateOptions = {
@@ -116,6 +114,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
   const terminalHandle = useRef<TerminalHandle>();
   const gameUIManagerRef = useRef<GameUIManager | undefined>();
   const topLevelContainer = useRef<HTMLDivElement | null>(null);
+  const miniMapRef = useRef<MiniMapHandle>();
 
   const [gameManager, setGameManager] = useState<GameManager | undefined>();
   const [terminalVisible, setTerminalVisible] = useState(true);
@@ -128,6 +127,8 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
   const [browserIssues, setBrowserIssues] = useState<Incompatibility[]>([]);
   const [isMiniMapOn, setMiniMapOn] = useState(false);
   const [spectate, setSpectate] = useState(false);
+
+  const [spawnArea, setSpawnArea] = useState<SpawnArea | undefined>();
 
   const params = new URLSearchParams(location.search);
   // NOTE: round 2
@@ -970,16 +971,14 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       // Introduce a 100ms (0.1s) delay using a timer
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const selectedCoords = coords ? coords : await minimapPlugin.runAndGetUserCoords();
-      const distFromOrigin = Math.sqrt(selectedCoords.x ** 2 + selectedCoords.y ** 2);
-
-      if (selectedCoords.x === 0 || selectedCoords.y === 0) {
-        terminal.current?.println('Invalid selection, please try again.', TerminalTextStyle.Red);
-        terminal.current?.newline();
-        advanceStateFromNoHomePlanet(terminal, { showHelp: false });
-        return;
+      let selectedSpawnArea: SpawnArea | undefined = undefined;
+      while (!selectedSpawnArea) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        selectedSpawnArea = miniMapRef.current?.getSelectedSpawnArea();
       }
 
+      const selectedCoords = selectedSpawnArea.worldPoint;
+      const distFromOrigin = Math.sqrt(selectedCoords.x ** 2 + selectedCoords.y ** 2);
       terminal.current?.println(
         `Coordinates: (${selectedCoords.x}, ${
           selectedCoords.y
@@ -1314,35 +1313,6 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
     }
   }, [terminalHandle, topLevelContainer, advanceState]);
 
-  interface MinimapPluginWrapperProps {
-    plugin: MinimapSpawnPlugin; // Replace with the actual type of your MinimapSpawnPlugin
-  }
-  const MinimapPluginWrapper: React.FC<MinimapPluginWrapperProps> = ({ plugin }) => {
-    const containerRef = useRef(null);
-
-    useEffect(() => {
-      if (containerRef.current && plugin) {
-        plugin.render(containerRef.current);
-      }
-
-      return () => {
-        // Cleanup the plugin when the component unmounts
-        if (plugin) {
-          plugin.destroy();
-        }
-      };
-    }, [containerRef, plugin]);
-
-    return (
-      <>
-        <div>
-          <p></p>
-        </div>
-        <div ref={containerRef}></div>
-      </>
-    );
-  };
-
   return (
     <Wrapper initRender={initRenderState} terminalEnabled={terminalVisible}>
       <GameWindowWrapper initRender={initRenderState} terminalEnabled={terminalVisible}>
@@ -1380,12 +1350,9 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       <div ref={topLevelContainer}></div>
       <div>
         {isMiniMapOn && (
-          <>
-            <div style={{ position: 'absolute', right: '100px' }}>
-              <div style={{ color: 'red', width: '100px', height: '100px' }}> </div>
-              <MinimapPluginWrapper plugin={minimapPlugin} />
-            </div>
-          </>
+          <div style={{ position: 'absolute', right: '100px', top: '100px' }}>
+            <MiniMap ref={miniMapRef} />
+          </div>
         )}
       </div>
     </Wrapper>

@@ -3526,7 +3526,7 @@ class GameManager extends EventEmitter {
           );
         }
         for (const homePlanetLocation of chunk.planetLocations) {
-          // const planetPerlin = homePlanetLocation.perlin;
+          const planetPerlin = homePlanetLocation.perlin;
           const planetX = homePlanetLocation.coords.x;
           const planetY = homePlanetLocation.coords.y;
           const distFromOrigin = Math.sqrt(planetX ** 2 + planetY ** 2);
@@ -3547,8 +3547,8 @@ class GameManager extends EventEmitter {
           const planet = this.getPlanetWithId(homePlanetLocation.hash);
 
           if (
-            // planetPerlin < initPerlinMax &&
-            // planetPerlin >= initPerlinMin &&
+            planetPerlin < initPerlinMax &&
+            planetPerlin >= initPerlinMin &&
             // distFromOrigin < this.worldRadius &&
             // distFromOrigin >= spawnInnerRadius &&
             distFromOrigin >= requireRadiusMin &&

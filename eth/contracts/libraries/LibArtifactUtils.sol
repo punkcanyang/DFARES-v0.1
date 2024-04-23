@@ -8,7 +8,7 @@ import {DFArtifactFacet} from "../facets/DFArtifactFacet.sol";
 import {LibGameUtils} from "./LibGameUtils.sol";
 
 // Storage imports
-import {LibStorage, GameStorage, GameConstants} from "./LibStorage.sol";
+import {LibStorage, GameStorage, LogStorage, GameConstants} from "./LibStorage.sol";
 
 // Type imports
 import {Biome, Planet, PlanetType, Artifact, ArtifactType, ArtifactRarity, DFPFindArtifactArgs, DFTCreateArtifactArgs} from "../DFTypes.sol";
@@ -16,6 +16,10 @@ import {Biome, Planet, PlanetType, Artifact, ArtifactType, ArtifactRarity, DFPFi
 library LibArtifactUtils {
     function gs() internal pure returns (GameStorage storage) {
         return LibStorage.gameStorage();
+    }
+
+    function ls() internal pure returns (LogStorage storage) {
+        return LibStorage.analysisStorage();
     }
 
     function gameConstants() internal pure returns (GameConstants storage) {
@@ -129,8 +133,8 @@ library LibArtifactUtils {
         );
 
         if (foundArtifact.rarity == ArtifactRarity.Mythic) {
-            if (gs().firstMythicArtifactOwner == address(0))
-                gs().firstMythicArtifactOwner = msg.sender;
+            if (ls().firstMythicArtifactOwner == address(0))
+                ls().firstMythicArtifactOwner = msg.sender;
         }
         LibGameUtils._putArtifactOnPlanet(foundArtifact.id, args.planetId);
 

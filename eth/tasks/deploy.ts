@@ -460,6 +460,12 @@ export async function deployArtifactFacet(
 }
 
 export async function deployLibraries({}, hre: HardhatRuntimeEnvironment) {
+  const LibInitializeUtilsFactory = await hre.ethers.getContractFactory('LibInitializeUtils');
+  const LibInitializeUtils = await LibInitializeUtilsFactory.deploy();
+  console.log('------ tx:', LibInitializeUtils.address, ' ------');
+  await LibInitializeUtils.deployTransaction.wait();
+  console.log(`LibInitializeUtils deployed to: ${LibInitializeUtils.address}`);
+
   const LibGameUtilsFactory = await hre.ethers.getContractFactory('LibGameUtils');
   const LibGameUtils = await LibGameUtilsFactory.deploy();
   console.log('------ tx:', LibGameUtils.address, ' ------');
@@ -509,6 +515,7 @@ export async function deployLibraries({}, hre: HardhatRuntimeEnvironment) {
   console.log(`LibPlanet deployed to: ${LibPlanet.address}`);
 
   return {
+    LibInitializeUtils: LibInitializeUtils.address,
     LibGameUtils: LibGameUtils.address,
     LibPlanet: LibPlanet.address,
     LibArtifactUtils: LibArtifactUtils.address,
@@ -656,11 +663,15 @@ async function deployDiamond(
   return contract;
 }
 
-async function deployDiamondInit({}, { LibGameUtils }: Libraries, hre: HardhatRuntimeEnvironment) {
+async function deployDiamondInit(
+  {},
+  { LibInitializeUtils, LibGameUtils }: Libraries,
+  hre: HardhatRuntimeEnvironment
+) {
   // DFInitialize provides a function that is called when the diamond is upgraded to initialize state variables
   // Read about how the diamondCut function works here: https://eips.ethereum.org/EIPS/eip-2535#addingreplacingremoving-functions
   const factory = await hre.ethers.getContractFactory('DFInitialize', {
-    libraries: { LibGameUtils },
+    libraries: { LibInitializeUtils, LibGameUtils },
   });
   const contract = await factory.deploy();
   console.log('------ tx:', contract.address, ' ------');

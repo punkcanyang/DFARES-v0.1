@@ -49,6 +49,32 @@ struct Player {
     uint256 donationAmount; // amount (ether) * CONTRACT_PERCISION
 }
 
+struct PlayerLog {
+    uint256 buyHatCnt;
+    uint256 buyHatCost;
+    uint256 takeOffHatCnt;
+    uint256 withdrawSilverCnt;
+    uint256 claimLocationCnt;
+    uint256 changeArtifactImageTypeCnt;
+    uint256 deactivateArtifactCnt;
+    uint256 prospectPlanetCnt;
+    uint256 findArtifactCnt;
+    uint256 depositArtifactCnt;
+    uint256 withdrawArtifactCnt;
+    uint256 kardashevCnt;
+    uint256 blueLocationCnt;
+    uint256 createLobbyCnt;
+    uint256 moveCnt;
+    uint256 burnLocationCnt;
+    uint256 pinkLocationCnt;
+    uint256 buyPlanetCnt;
+    uint256 buyPlanetCost;
+    uint256 buySpaceshipCnt;
+    uint256 buySpaceshipCost;
+    uint256 donateCnt;
+    uint256 donateSum;
+}
+
 struct Planet {
     address owner;
     uint256 range;
@@ -348,4 +374,105 @@ struct LastActivateArtifactStruct {
 struct LastBuyArtifactStruct {
     address player;
     uint256 lastBuyArtifactTimestamp;
+}
+
+struct SpaceshipConstants {
+    bool GEAR;
+    bool MOTHERSHIP;
+    bool TITAN;
+    bool CRESCENT;
+    bool WHALE;
+    bool PINKSHIP;
+}
+
+struct InitArgs {
+    bool START_PAUSED;
+    bool ADMIN_CAN_ADD_PLANETS;
+    uint256 LOCATION_REVEAL_COOLDOWN;
+    uint256 CLAIM_PLANET_COOLDOWN;
+    uint256 TOKEN_MINT_END_TIMESTAMP;
+    uint256 CLAIM_END_TIMESTAMP;
+    bool WORLD_RADIUS_LOCKED;
+    uint256 WORLD_RADIUS_MIN;
+    // SNARK keys and perlin params
+    bool DISABLE_ZK_CHECKS;
+    uint256 PLANETHASH_KEY;
+    uint256 SPACETYPE_KEY;
+    uint256 BIOMEBASE_KEY;
+    bool PERLIN_MIRROR_X;
+    bool PERLIN_MIRROR_Y;
+    uint256 PERLIN_LENGTH_SCALE; // must be a power of two up to 8192
+    // Game config
+    uint256 MAX_NATURAL_PLANET_LEVEL;
+    uint256 MAX_ARTIFACT_PER_PLANET;
+    uint256 MAX_SENDING_PLANET;
+    uint256 MAX_RECEIVING_PLANET;
+    uint256 TIME_FACTOR_HUNDREDTHS; // speedup/slowdown game
+    uint256 PERLIN_THRESHOLD_1;
+    uint256 PERLIN_THRESHOLD_2;
+    uint256 PERLIN_THRESHOLD_3;
+    uint256 INIT_PERLIN_MIN;
+    uint256 INIT_PERLIN_MAX;
+    uint256 SPAWN_RIM_AREA;
+    uint256 BIOME_THRESHOLD_1;
+    uint256 BIOME_THRESHOLD_2;
+    uint256[10] PLANET_LEVEL_THRESHOLDS;
+    uint256 PLANET_RARITY;
+    bool PLANET_TRANSFER_ENABLED;
+    uint8[5][10][4] PLANET_TYPE_WEIGHTS; // spaceType (enum 0-3) -> planetLevel (0-7) -> planetType (enum 0-4)
+    uint256 SILVER_SCORE_VALUE;
+    uint256[6] ARTIFACT_POINT_VALUES;
+    uint256 PHOTOID_ACTIVATION_DELAY;
+    uint256 STELLAR_ACTIVATION_DELAY;
+    // Space Junk
+    bool SPACE_JUNK_ENABLED;
+    /**
+        Total amount of space junk a player can take on.
+        This can be overridden at runtime by updating
+        this value for a specific player in storage.
+    */
+    uint256 SPACE_JUNK_LIMIT;
+    /**
+        The amount of junk that each level of planet
+        gives the player when moving to it for the
+        first time.
+    */
+    uint256[10] PLANET_LEVEL_JUNK;
+    /**
+        The speed boost a movement receives when abandoning
+        a planet.
+    */
+    uint256 ABANDON_SPEED_CHANGE_PERCENT;
+    /**
+        The range boost a movement receives when abandoning
+        a planet.
+    */
+    uint256 ABANDON_RANGE_CHANGE_PERCENT;
+    // Capture Zones
+    bool CAPTURE_ZONES_ENABLED;
+    uint256 CAPTURE_ZONE_CHANGE_BLOCK_INTERVAL;
+    uint256 CAPTURE_ZONE_RADIUS;
+    uint256[10] CAPTURE_ZONE_PLANET_LEVEL_SCORE;
+    uint256 CAPTURE_ZONE_HOLD_BLOCKS_REQUIRED;
+    uint256 CAPTURE_ZONES_PER_5000_WORLD_RADIUS;
+    SpaceshipConstants SPACESHIPS;
+    uint256[64] ROUND_END_REWARDS_BY_RANK;
+    uint256 BURN_END_TIMESTAMP;
+    uint256 BURN_PLANET_COOLDOWN;
+    uint256 PINK_PLANET_COOLDOWN;
+    uint256 ACTIVATE_ARTIFACT_COOLDOWN;
+    uint256 BUY_ARTIFACT_COOLDOWN;
+    uint256[10] BURN_PLANET_LEVEL_EFFECT_RADIUS;
+    uint256[10] BURN_PLANET_REQUIRE_SILVER_AMOUNTS;
+    // planet adjust
+    uint256[5] MAX_LEVEL_DIST;
+    uint256[6] MAX_LEVEL_LIMIT;
+    uint256[6] MIN_LEVEL_BIAS;
+    uint256 ENTRY_FEE;
+    uint256 KARDASHEV_END_TIMESTAMP;
+    uint256 KARDASHEV_PLANET_COOLDOWN;
+    uint256 BLUE_PLANET_COOLDOWN;
+    uint256[10] KARDASHEV_EFFECT_RADIUS;
+    uint256[10] KARDASHEV_REQUIRE_SILVER_AMOUNTS;
+    uint256[10] BLUE_PANET_REQUIRE_SILVER_AMOUNTS;
 }

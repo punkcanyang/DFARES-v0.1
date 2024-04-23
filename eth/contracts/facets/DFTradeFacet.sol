@@ -15,12 +15,17 @@ import {DFWhitelistFacet} from "./DFWhitelistFacet.sol";
 import {Planet, Player, SpaceType, ArtifactType, Artifact} from "../DFTypes.sol";
 
 contract DFTradeFacet is WithStorage {
+    event PlanetHatBought(address player, uint256 loc, uint256 tohatLevel, uint256 tohatType);
     event PlayerDonate(address player, uint256 amount);
     event PlanetBought(address player, uint256 loc);
     event SpaceshipBought(uint256 locationId, address owner, ArtifactType artifactType);
 
     modifier notPaused() {
         require(!gs().paused, "Game is paused");
+        _;
+    }
+    modifier onlyAdmin() {
+        LibDiamond.enforceIsContractOwner();
         _;
     }
 
@@ -109,6 +114,10 @@ contract DFTradeFacet is WithStorage {
         planet.population = planet.populationCap;
         LibGameUtils.updateWorldRadius();
         emit PlanetBought(msg.sender, planetId);
+        ls().buyPlanetCnt++;
+        ls().playerLog[msg.sender].buyPlanetCnt++;
+        ls().buyPlanetEarn += fee;
+        ls().playerLog[msg.sender].buyPlanetCost += fee;
     }
 
     function buySpaceship(uint256 locationId, ArtifactType artifactType) public payable notPaused {
@@ -144,6 +153,10 @@ contract DFTradeFacet is WithStorage {
         gs().mySpaceshipIds[msg.sender].push(shipId);
 
         emit SpaceshipBought(locationId, msg.sender, artifactType);
+        ls().buySpaceshipCnt++;
+        ls().playerLog[msg.sender].buySpaceshipCnt++;
+        ls().buySpaceshipCost += fee;
+        ls().playerLog[msg.sender].buySpaceshipCost += fee;
     }
 
     function donate(uint256 amount) public payable {
@@ -151,5 +164,79 @@ contract DFTradeFacet is WithStorage {
         require(amount * 0.001 ether == msg.value, "Wrong value sent");
         gs().players[msg.sender].donationAmount += amount;
         emit PlayerDonate(msg.sender, amount);
+        ls().donateCnt++;
+        ls().donateSum += msg.value;
+        ls().playerLog[msg.sender].donateCnt++;
+        ls().playerLog[msg.sender].donateSum += msg.value;
+    }
+
+    function setHat(
+        uint256 _location,
+        uint256 hatLevel,
+        uint256 hatType
+    ) public onlyAdmin {
+        require(gs().planets[_location].isInitialized == true, "Planet is not initialized");
+        LibPlanet.refreshPlanet(_location);
+
+        gs().planets[_location].hatLevel = hatLevel;
+        gs().planets[_location].hatType = hatType;
+        if (hatLevel >= 1) {
+            gs().planets[_location].adminProtect = true;
+        } else gs().planets[_location].adminProtect = false;
+
+        emit PlanetHatBought(
+            msg.sender,
+            _location,
+            gs().planets[_location].hatLevel,
+            gs().planets[_location].hatType
+        );
+        ls().setHatCnt++;
+    }
+
+    function buyHat(uint256 _location, uint256 hatType) public payable notPaused {
+        require(gs().planets[_location].isInitialized == true, "Planet is not initialized");
+        LibPlanet.refreshPlanet(_location);
+
+        require(
+            gs().planets[_location].owner == msg.sender,
+            "Only owner account can perform that operation on planet."
+        );
+
+        Artifact memory activeArtifact = LibGameUtils.getActiveArtifact(_location);
+
+        require(activeArtifact.artifactType != ArtifactType.Avatar, "need no active Avatar");
+
+        // uint256 cost = (1 << gs().planets[_location].hatLevel) * 1 ether;
+
+        if (gs().planets[_location].hatLevel == 0) {
+            gs().players[msg.sender].hatCount++;
+            uint256 fee = 0.002 ether;
+            if (gs().halfPrice) fee /= 2;
+            require(msg.value == fee, "Wrong value sent");
+
+            if (ls().firstHat == address(0)) ls().firstHat = msg.sender;
+
+            gs().planets[_location].hatLevel = 1;
+            gs().planets[_location].hatType = hatType;
+
+            ls().hatEarnSum += fee;
+            ls().hatEarn[hatType] += fee;
+            ls().buyHatCnt++;
+            ls().playerLog[msg.sender].buyHatCnt++;
+            ls().playerLog[msg.sender].buyHatCost += fee;
+        } else {
+            gs().planets[_location].hatLevel = 0;
+            gs().planets[_location].hatType = 0;
+
+            ls().takeOffHatCnt++;
+            ls().playerLog[msg.sender].takeOffHatCnt++;
+        }
+
+        emit PlanetHatBought(
+            msg.sender,
+            _location,
+            gs().planets[_location].hatLevel,
+            gs().planets[_location].hatType
+        );
     }
 }

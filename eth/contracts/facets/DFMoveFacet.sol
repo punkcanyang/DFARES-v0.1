@@ -110,6 +110,8 @@ contract DFMoveFacet is WithStorage {
             args.movedArtifactId,
             args.abandoning
         );
+        ls().moveCnt++;
+        ls().playerLog[msg.sender].moveCnt++;
         return (gs().planetEventsCount);
     }
 

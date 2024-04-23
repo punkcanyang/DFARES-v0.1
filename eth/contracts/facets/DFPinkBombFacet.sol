@@ -144,9 +144,11 @@ contract DFPinkBombFacet is WithStorage {
             burnedAt: block.timestamp
         });
 
-        if (gs().firstBurnLocationOperator == address(0))
-            gs().firstBurnLocationOperator = msg.sender;
+        if (ls().firstBurnLocationOperator == address(0))
+            ls().firstBurnLocationOperator = msg.sender;
         emit LocationBurned(msg.sender, _input[0], _input[2], _input[3]);
+        ls().burnLocationCnt++;
+        ls().playerLog[msg.sender].burnLocationCnt++;
     }
 
     function containsPinkShip(uint256 locationId) public view returns (bool) {
@@ -236,6 +238,9 @@ contract DFPinkBombFacet is WithStorage {
             // gs().players[msg.sender].lastRevealTimestamp = block.timestamp;
             emit LocationRevealed(msg.sender, _input[0], _input[2], _input[3]);
         }
+
+        ls().pinkLocationCnt++;
+        ls().playerLog[msg.sender].pinkLocationCnt++;
     }
 
     function planetInPinkZone(uint256 x, uint256 y) public returns (bool) {

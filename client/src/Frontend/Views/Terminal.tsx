@@ -246,7 +246,6 @@ function TerminalImpl(
     ? undefined
     : ({ caretColor: 'transparent' } as React.CSSProperties);
 
-
   return (
     <TerminalContainer ref={containerRef} style={containerStyle}>
       {fragments}
@@ -321,13 +320,12 @@ const InputTextArea = styled.textarea`
 `;
 
 const TerminalContainer = styled.div`
-  height: 90%;
+  height: 100%;
   width: 100%;
   margin: 0 auto;
   overflow: scroll;
   white-space: pre-wrap;
   overflow-wrap: break-word;
-  margin-top: 5%;
 
   & span {
     word-break: break-all;

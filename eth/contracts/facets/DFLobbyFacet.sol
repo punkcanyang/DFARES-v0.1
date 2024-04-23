@@ -42,5 +42,7 @@ contract DFLobbyFacet is WithStorage {
         IERC173(address(lobby)).transferOwnership(msg.sender);
 
         emit LobbyCreated(msg.sender, address(lobby));
+        ls().createLobbyCnt++;
+        ls().playerLog[msg.sender].createLobbyCnt++;
     }
 }

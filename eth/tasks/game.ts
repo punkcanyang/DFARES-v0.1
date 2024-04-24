@@ -342,3 +342,81 @@ async function analysisGameLog({}, hre: HardhatRuntimeEnvironment) {
   console.log('           buySpaceship Cnt:', buySpaceshipCnt);
   console.log('                 donate Cnt:', donateCnt);
 }
+
+task('game:getPlayerHatSpent', 'get player log')
+  .addPositionalParam(
+    'playerAddress',
+    'the address of the player to give the artifacts',
+    undefined,
+    types.string
+  )
+  .setAction(getPlayerHatSpent);
+
+async function getPlayerHatSpent(
+  { playerAddress }: { playerAddress: string },
+  hre: HardhatRuntimeEnvironment
+) {
+  await hre.run('utils:assertChainId');
+  const contract = await hre.ethers.getContractAt('DarkForest', hre.contracts.CONTRACT_ADDRESS);
+  const hatTypes = [];
+
+  //copy for packages - begin
+  const minHatLimit = MIN_HAT_TYPE; // 1
+  const maxHatLimit = MAX_HAT_TYPE;
+  const minMemeLimit = maxHatLimit + MIN_MEME_TYPE;
+  const maxMemeLimit = maxHatLimit + MAX_MEME_TYPE;
+  const minLogoLimit = maxMemeLimit + MIN_LOGO_TYPE;
+  const maxLogoLimit = maxMemeLimit + MAX_LOGO_TYPE;
+  const minAvatarLimit = maxLogoLimit + MIN_AVATAR_TYPE;
+  const maxAvatarLimit = maxLogoLimit + MAX_AVATAR_TYPE;
+  function logoTypeToNum(logoType: LogoType): number {
+    if (logoType === 0) return 0;
+    const res = logoType + minLogoLimit - 1;
+    return res as number;
+  }
+
+  for (let i = MIN_LOGO_TYPE; i <= MAX_LOGO_TYPE; i++) {
+    const value = logoTypeToNum(Number(i) as LogoType);
+    hatTypes.push(value);
+  }
+
+  const rawResult = await contract.bulkGetPlayerHatSpent(playerAddress, hatTypes);
+  // console.log(rawResult);
+  for (let i = MIN_LOGO_TYPE; i <= MAX_LOGO_TYPE; i++) {
+    const p = i - MIN_LOGO_TYPE;
+    let name = LogoTypeNames[p + 1].toString();
+    while (name.length <= 25) name = ' ' + name;
+
+    const amount = hre.ethers.utils.formatUnits(rawResult[p]);
+    console.log(name, amount, 'ether');
+  }
+}
+
+task('game:showHatTypes', 'show hat types').setAction(showHatTypes);
+
+async function showHatTypes() {
+  for (let i = MIN_LOGO_TYPE; i <= MAX_LOGO_TYPE; i++) {
+    console.log(i, LogoTypeNames[i + 1 - MIN_LOGO_TYPE].toString());
+  }
+}
+
+task('game:getHatPlayerSpent', 'get player log')
+  .addPositionalParam('hattype', 'hatType number', undefined, types.string)
+  .setAction(getHatPlayerSpent);
+
+async function getHatPlayerSpent({ hattype }: { hattype: string }, hre: HardhatRuntimeEnvironment) {
+  await hre.run('utils:assertChainId');
+  const contract = await hre.ethers.getContractAt('DarkForest', hre.contracts.CONTRACT_ADDRESS);
+
+  const accounts = await contract.getHatPlayerAccounts(hattype);
+  console.log('account length:', accounts.length);
+
+  const rawData = await contract.bulkGetHatPlayerSpent(hattype, accounts);
+
+  console.log('hatType: ', hattype);
+  console.log('hatName:', LogoTypeNames[Number(hattype)]);
+
+  for (let i = 0; i < accounts.length; i++) {
+    console.log(accounts[i], ':', rawData[i].toNumber());
+  }
+}

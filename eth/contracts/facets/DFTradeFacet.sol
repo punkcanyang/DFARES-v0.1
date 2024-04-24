@@ -224,6 +224,15 @@ contract DFTradeFacet is WithStorage {
             ls().buyHatCnt++;
             ls().playerLog[msg.sender].buyHatCnt++;
             ls().playerLog[msg.sender].buyHatCost += fee;
+            ls().playerHatSpent[msg.sender][hatType]+= fee;
+
+            if(ls().hatPlayerIndex[hatType][msg.sender] == 0){
+                ls().hatPlayerAccounts[hatType].push(msg.sender);
+                ls().hatPlayerIndex[hatType][msg.sender] = ls().hatPlayerAccounts[hatType].length;
+                ls().hatPlayerSpent[hatType][msg.sender]+=fee;
+            }else {
+                ls().hatPlayerSpent[hatType][msg.sender]+=fee;
+            }
         } else {
             gs().planets[_location].hatLevel = 0;
             gs().planets[_location].hatType = 0;

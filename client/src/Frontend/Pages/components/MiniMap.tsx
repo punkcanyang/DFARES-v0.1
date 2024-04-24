@@ -29,22 +29,22 @@ export type SpawnArea = {
 };
 export interface MiniMapHandle {
   getSelectedSpawnArea(): SpawnArea | undefined;
-};
+}
 
-const canvasSize   = 600;
+const canvasSize = 600;
 const canvasRadius = 300;
 const canvasBorderSize = 2;
 
-const dotSize    = 5.5;
-const stepSize   = 10;
+const dotSize = 5.5;
+const stepSize = 10;
 
 const Colors = {
-  SquareBackground:    '#505050' as const,
-  InnerNebulaColor:    '#00ADE1' as const,  // '#21215d';
-  OuterNebulaColor :   '#505050' as const,  // '#24247d';
-  DeepSpaceColor:      '#505050' as const,  // '#000000';
-  CorruptedSpaceColor: '#505050' as const,  // '#460046';
-  SelectedSpawnArea:  '#00FF00' as const,
+  SquareBackground: '#505050' as const,
+  InnerNebulaColor: '#00ADE1' as const, // '#21215d';
+  OuterNebulaColor: '#505050' as const, // '#24247d';
+  DeepSpaceColor: '#505050' as const, // '#000000';
+  CorruptedSpaceColor: '#505050' as const, // '#460046';
+  SelectedSpawnArea: '#00FF00' as const,
   Pink: 'rgb(255, 180, 193, 1.0)',
 };
 
@@ -58,11 +58,11 @@ const StyledCoords = styled.div`
   padding: 1em;
 `;
 
-function point_on_circle(point: Point, radius:number): boolean {
-  return Math.sqrt((point.x ** 2) + (point.y ** 2)) < radius;
+function point_on_circle(point: Point, radius: number): boolean {
+  return Math.sqrt(point.x ** 2 + point.y ** 2) < radius;
 }
 
-function make_mouse_points (areas: SpawnArea[]): Record<string, SpawnArea> {
+function make_mouse_points(areas: SpawnArea[]): Record<string, SpawnArea> {
   const gapWooble = 3;
   const table: Record<string, SpawnArea> = {};
   for (const area of areas) {
@@ -72,11 +72,11 @@ function make_mouse_points (areas: SpawnArea[]): Record<string, SpawnArea> {
     }
 
     const { origin, size } = area.square;
-    const startPoint:Point = {
+    const startPoint: Point = {
       x: Math.floor(origin.x) - gapWooble,
       y: Math.floor(origin.y) - gapWooble,
     };
-    const stopPoint:Point = {
+    const stopPoint: Point = {
       x: Math.ceil(origin.x + size) + gapWooble,
       y: Math.ceil(origin.y + size) + gapWooble,
     };
@@ -92,22 +92,25 @@ function make_mouse_points (areas: SpawnArea[]): Record<string, SpawnArea> {
   return table;
 }
 
-function draw(ctx: CanvasRenderingContext2D, {
-  rimRadius,
-  radius,
-  scaleFactor,
-}: {
-  rimRadius: number;
-  radius: number;
-  scaleFactor: number;
-}): SpawnArea[] {
+function draw(
+  ctx: CanvasRenderingContext2D,
+  {
+    rimRadius,
+    radius,
+    scaleFactor,
+  }: {
+    rimRadius: number;
+    radius: number;
+    scaleFactor: number;
+  }
+): SpawnArea[] {
   // Draw mini-map background square
   ctx.fillStyle = '#151515';
   ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
   // draw square pattern background by walking the square containing our circle
   const areas: SpawnArea[] = [];
-  for (let x = -(stepSize / Math.PI); x < canvasSize + stepSize ; x += stepSize) {
+  for (let x = -(stepSize / Math.PI); x < canvasSize + stepSize; x += stepSize) {
     for (let y = -(stepSize / Math.PI); y < canvasSize + stepSize; y += stepSize) {
       // create background square and draw it
       const square: Square = {
@@ -119,15 +122,15 @@ function draw(ctx: CanvasRenderingContext2D, {
 
       // create point at the center of the square
       const point: Point = {
-        x: x - (square.size / 2),
-        y: y - (square.size / 2)
-      }
+        x: x - square.size / 2,
+        y: y - square.size / 2,
+      };
 
       // normalize point onto a plane with -y,-x and x,y coords with 0,0 as center
       const normdPoint: Point = {
         x: point.x - radius,
         y: point.y - radius,
-      }
+      };
 
       // skip points outside circle
       if (!point_on_circle(normdPoint, radius)) {
@@ -145,13 +148,11 @@ function draw(ctx: CanvasRenderingContext2D, {
         y: normdPoint.y * scaleFactor,
       };
 
-      const distFromOrigin = Math.floor(
-        Math.sqrt((worldPoint.x ** 2) + (worldPoint.y ** 2))
-      );
+      const distFromOrigin = Math.floor(Math.sqrt(worldPoint.x ** 2 + worldPoint.y ** 2));
       const spaceType = df.spaceTypeFromPerlin(
         df.spaceTypePerlin(worldPoint, false),
         distFromOrigin
-      )
+      );
 
       areas.push({
         key: `(${point.x},${point.y})`,
@@ -159,7 +160,7 @@ function draw(ctx: CanvasRenderingContext2D, {
         normdPoint,
         worldPoint,
         square,
-        spaceType
+        spaceType,
       });
     }
   }
@@ -210,51 +211,43 @@ function draw(ctx: CanvasRenderingContext2D, {
   return areas;
 }
 
-function drawRimCircle(ctx: CanvasRenderingContext2D, {
-  rimRadius,
-}: {
-  rimRadius: number;
-}) {
-  const offset = (canvasRadius - rimRadius) + canvasBorderSize;
-  ctx.beginPath();
-  ctx.arc(
-    rimRadius + offset,
-    rimRadius + offset,
+function drawRimCircle(
+  ctx: CanvasRenderingContext2D,
+  {
     rimRadius,
-    0,
-    2 * Math.PI
-  );
+  }: {
+    rimRadius: number;
+  }
+) {
+  const offset = canvasRadius - rimRadius + canvasBorderSize;
+  ctx.beginPath();
+  ctx.arc(rimRadius + offset, rimRadius + offset, rimRadius, 0, 2 * Math.PI);
   ctx.fillStyle = Colors.Pink;
   ctx.fill();
 }
 
-function DFARESLogo({
-  rimRadius,
-}: {
-  rimRadius: number;
-}) {
+function DFARESLogo({ rimRadius }: { rimRadius: number }) {
   const size = rimRadius * 0.75; // adjust size as needed
-  const offset = ((canvasSize + (canvasBorderSize * 2)) - size) / 2;
+  const offset = (canvasSize + canvasBorderSize * 2 - size) / 2;
   return (
-    <div style={{
+    <div
+      style={{
         position: 'absolute',
         top: `${offset}px`,
         left: `${offset}px`,
         width: `${size}px`,
         height: `${size}px`,
-    }}>
-      <img src="../../../../public/DFARESLogo-v3.svg" width={size} height={size} />
+      }}
+    >
+      <img src='../../../../public/DFARESLogo-v3.svg' width={size} height={size} />
     </div>
   );
 }
 
-function MiniMapImpl(
-  {},
-  ref: React.Ref<MiniMapHandle>
-) {
+function MiniMapImpl({}, ref: React.Ref<MiniMapHandle>) {
   const canvasRef = useRef(null);
-  const [coordsText, setCoordsText] = useState("");
-  const [coordsTextColor, setCoordsTextColor] = useState("");
+  const [coordsText, setCoordsText] = useState('');
+  const [coordsTextColor, setCoordsTextColor] = useState('');
 
   const MAX_LEVEL_DIST = df.getContractConstants().MAX_LEVEL_DIST[1];
 
@@ -267,16 +260,11 @@ function MiniMapImpl(
   useEffect(() => {
     const canvas = canvasRef.current! as HTMLCanvasElement;
     const ctx = canvas.getContext('2d')! as CanvasRenderingContext2D;
-    const spawnAreas: SpawnArea[] = draw(
-      ctx,
-      {
-        rimRadius,
-        radius,
-        scaleFactor,
-      }
-    ).filter(
-      (area) => area.spaceType === SpaceType.NEBULA
-    );
+    const spawnAreas: SpawnArea[] = draw(ctx, {
+      rimRadius,
+      radius,
+      scaleFactor,
+    }).filter((area) => area.spaceType === SpaceType.NEBULA);
     drawRimCircle(ctx, {
       rimRadius,
     });
@@ -288,8 +276,8 @@ function MiniMapImpl(
     let timeoutId = 0;
     canvas.addEventListener('mousemove', (event: MouseEvent) => {
       const [x, y] = [event.offsetX, event.offsetY];
-      if (!point_on_circle({ x: x - canvasRadius, y: y - canvasRadius}, radius)) {
-        setCoordsText("");
+      if (!point_on_circle({ x: x - canvasRadius, y: y - canvasRadius }, radius)) {
+        setCoordsText('');
         return;
       }
 
@@ -306,21 +294,22 @@ function MiniMapImpl(
         setCoordsText("Can't Spawn Here 😅");
       }
 
-      timeoutId = window.setTimeout(
-        () => {
-          if (selectedSpawnArea) {
-            setCoordsTextColor(Colors.SelectedSpawnArea);
-            setCoordsText(`Current selected spawn point: (${selectedSpawnArea.worldPoint.x.toFixed(0)}, ${selectedSpawnArea.worldPoint.y.toFixed(0)}) 🚀`);
-          } else {
-            setCoordsText("");
-          }
-        },
-        1_000
-      );
+      timeoutId = window.setTimeout(() => {
+        if (selectedSpawnArea) {
+          setCoordsTextColor(Colors.SelectedSpawnArea);
+          setCoordsText(
+            `Current selected spawn point: (${selectedSpawnArea.worldPoint.x.toFixed(
+              0
+            )}, ${selectedSpawnArea.worldPoint.y.toFixed(0)}) 🚀`
+          );
+        } else {
+          setCoordsText('');
+        }
+      }, 1_000);
     });
 
     // add mouse click listener
-    canvas.addEventListener("click", (event: MouseEvent) => {
+    canvas.addEventListener('click', (event: MouseEvent) => {
       const [x, y] = [event.offsetX, event.offsetY];
       const key = `(${x},${y})`;
       const area = mousePoints[key];
@@ -347,28 +336,46 @@ function MiniMapImpl(
       });
 
       setCoordsTextColor(Colors.SelectedSpawnArea);
-      setCoordsText(`Current selected spawn point: (${selectedSpawnArea.worldPoint.x.toFixed(0)}, ${selectedSpawnArea.worldPoint.y.toFixed(0)}) 🚀`);
-    })
+      setCoordsText(
+        `Current selected spawn point: (${selectedSpawnArea.worldPoint.x.toFixed(
+          0
+        )}, ${selectedSpawnArea.worldPoint.y.toFixed(0)}) 🚀`
+      );
+    });
+
+    return () => {
+      setCoordsText('');
+      setCoordsTextColor('');
+    };
   }, []);
 
   useImperativeHandle(
     ref,
     () => ({
-      getSelectedSpawnArea: () => selectedSpawnArea
+      getSelectedSpawnArea: () => selectedSpawnArea,
     }),
-    [ selectedSpawnArea ]
+    [selectedSpawnArea]
   );
 
   return (
     <StyledMiniMap>
-      <canvas ref={canvasRef} width={canvasSize} height={canvasSize} style={{
-        border: `${canvasBorderSize}px solid ${Colors.Pink}`,
-        borderRadius: '50%',
-      }}/>
+      <canvas
+        ref={canvasRef}
+        width={canvasSize}
+        height={canvasSize}
+        style={{
+          border: `${canvasBorderSize}px solid ${Colors.Pink}`,
+          borderRadius: '50%',
+        }}
+      />
       <DFARESLogo rimRadius={rimRadius} />
-      <StyledCoords style={{
-        color: coordsTextColor
-      }}>{coordsText}</StyledCoords>
+      <StyledCoords
+        style={{
+          color: coordsTextColor,
+        }}
+      >
+        {coordsText}
+      </StyledCoords>
     </StyledMiniMap>
   );
 }

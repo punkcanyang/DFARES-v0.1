@@ -46,7 +46,7 @@ export async function openConfirmationWindowForTransaction({
     const popup = window.open(
       `/wallet/${contractAddress}/${from}/${id}/${balanceEth}/${method}`,
       'confirmationwindow',
-      'width=600,height=500'
+      'width=600,height=530'
     );
     if (popup) {
       const opened = Date.now();

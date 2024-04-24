@@ -4559,8 +4559,6 @@ class GameManager extends EventEmitter {
       // Always await the submitTransaction so we can catch rejections
 
       const tx = await this.contractsAPI.submitTransaction(txIntent, {
-        // NOTE: when change gasLimit, need change the value in TxConfirmPopup.tsx
-        gasLimit: 500000,
         value:
           planet.hatLevel === 0
             ? halfPrice

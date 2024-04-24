@@ -396,27 +396,54 @@ task('game:showHatTypes', 'show hat types').setAction(showHatTypes);
 
 async function showHatTypes() {
   for (let i = MIN_LOGO_TYPE; i <= MAX_LOGO_TYPE; i++) {
-    console.log(i, LogoTypeNames[i + 1 - MIN_LOGO_TYPE].toString());
+    console.log(
+      i,
+      LogoTypeNames[i + 1 - MIN_LOGO_TYPE].toString(),
+      i + MAX_MEME_TYPE + MAX_HAT_TYPE
+    );
   }
 }
 
-task('game:getHatPlayerSpent', 'get player log')
-  .addPositionalParam('hattype', 'hatType number', undefined, types.string)
+task('game:getHatPlayerSpent', 'getHatPlayerSpent')
+  .addPositionalParam('hatType', 'hatType number', undefined, types.string)
+  .addPositionalParam('address', 'address ', undefined, types.string)
   .setAction(getHatPlayerSpent);
 
-async function getHatPlayerSpent({ hattype }: { hattype: string }, hre: HardhatRuntimeEnvironment) {
+async function getHatPlayerSpent(
+  { hatType, address }: { hatType: string; address: string },
+  hre: HardhatRuntimeEnvironment
+) {
   await hre.run('utils:assertChainId');
   const contract = await hre.ethers.getContractAt('DarkForest', hre.contracts.CONTRACT_ADDRESS);
 
-  const accounts = await contract.getHatPlayerAccounts(hattype);
+  const logoType = Number(hatType) - MAX_MEME_TYPE - MAX_HAT_TYPE;
+  console.log('logoType: ', logoType);
+  console.log('logoName: ', LogoTypeNames[logoType]);
+
+  const amount = await contract.getHatPlayerSpent(hatType, address);
+  console.log('amount: ', hre.ethers.utils.formatUnits(amount), 'ether');
+}
+
+task('game:bulkGetHatPlayerSpent', 'bulkGetHatPlayerSpent')
+  .addPositionalParam('hatType', 'hatType number', undefined, types.string)
+  .setAction(bulkGetHatPlayerSpent);
+
+async function bulkGetHatPlayerSpent(
+  { hatType }: { hatType: string },
+  hre: HardhatRuntimeEnvironment
+) {
+  await hre.run('utils:assertChainId');
+  const contract = await hre.ethers.getContractAt('DarkForest', hre.contracts.CONTRACT_ADDRESS);
+  const accounts = await contract.getHatPlayerAccounts(Number(hatType));
   console.log('account length:', accounts.length);
 
-  const rawData = await contract.bulkGetHatPlayerSpent(hattype, accounts);
+  const rawData = await contract.bulkGetHatPlayerSpent(hatType, accounts);
 
-  console.log('hatType: ', hattype);
-  console.log('hatName:', LogoTypeNames[Number(hattype)]);
+  const logoType = Number(hatType) - MAX_MEME_TYPE - MAX_HAT_TYPE;
+  console.log('logoType: ', logoType);
+  console.log('logoName: ', LogoTypeNames[logoType]);
 
   for (let i = 0; i < accounts.length; i++) {
-    console.log(accounts[i], ':', rawData[i].toNumber());
+    console.log(accounts[i], ':', hre.ethers.utils.formatUnits(rawData[i].toNumber()), 'ether');
   }
 }

@@ -128,14 +128,10 @@ struct LogStorage {
     uint256 buySpaceshipCost;
     uint256 donateCnt;
     uint256 donateSum;
-    mapping(address=>mapping(uint=>uint)) playerHatSpent; // address => hatType => ETH amount
-
-    mapping(uint=>mapping(address=>uint)) hatPlayerIndex; // hatType => address => index
-    mapping(uint=> address[]) hatPlayerAccounts; // hatType => address []
-    mapping(uint=> mapping(address=>uint)) hatPlayerSpent; // hatType => address => ETH amount;
-
-
-
+    mapping(address => mapping(uint256 => uint256)) playerHatSpent; // address => hatType => ETH amount
+    mapping(uint256 => mapping(address => bool)) hatPlayerInList; // hatType => address => bool
+    mapping(uint256 => address[]) hatPlayerAccounts; // hatType => address []
+    mapping(uint256 => mapping(address => uint256)) hatPlayerSpent; // hatType => address => ETH amount;
 }
 
 // Game config

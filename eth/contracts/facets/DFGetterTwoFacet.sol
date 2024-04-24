@@ -444,35 +444,38 @@ contract DFGetterTwoFacet is WithStorage {
         ret[28] = ls().donateSum;
     }
 
-
-    function getPlayerHatSpent(address player,uint256 hatType) public view returns (uint256) {
+    function getPlayerHatSpent(address player, uint256 hatType) public view returns (uint256) {
         return ls().playerHatSpent[player][hatType];
     }
 
-    function bulkGetPlayerHatSpent(address player,uint256[] memory hatTypes) public view returns(uint256[] memory ret){
+    function bulkGetPlayerHatSpent(address player, uint256[] memory hatTypes)
+        public
+        view
+        returns (uint256[] memory ret)
+    {
         ret = new uint256[](hatTypes.length);
-        for(uint i = 0;i<hatTypes.length;i++){
+        for (uint256 i = 0; i < hatTypes.length; i++) {
             ret[i] = ls().playerHatSpent[player][hatTypes[i]];
         }
     }
 
-    function getHatPlayerAccounts(uint hatType) public view returns(address[] memory){
+    function getHatPlayerAccounts(uint256 hatType) public view returns (address[] memory) {
         // ret = new address[](ls().hatPlayerAccounts[hatType].length);
         return ls().hatPlayerAccounts[hatType];
     }
 
-    function getHatPlayerSpent(uint hatType, address player) public view returns (uint256){
+    function getHatPlayerSpent(uint256 hatType, address player) public view returns (uint256) {
         return ls().hatPlayerSpent[hatType][player];
     }
 
-    function bulkGetHatPlayerSpent(uint hatType, address[] memory players) public view returns(uint256[] memory ret){
+    function bulkGetHatPlayerSpent(uint256 hatType, address[] memory players)
+        public
+        view
+        returns (uint256[] memory ret)
+    {
         ret = new uint256[](players.length);
-        for(uint i = 0;i<players.length;i++){
+        for (uint256 i = 0; i < players.length; i++) {
             ret[i] = ls().hatPlayerSpent[hatType][players[i]];
         }
     }
-
-
-
-
 }

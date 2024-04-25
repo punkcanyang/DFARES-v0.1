@@ -14,9 +14,9 @@ type Square = Readonly<{
 
 export type SpawnArea = {
   readonly key: string;
-  // local point where top left of the map container is (0, 0), and located at the center of drawn square
+  // local point where top left of the map container is (0, 0), and the point is located at the center of drawn square
   readonly point: Point;
-  // normalized point where the center of the square container is (0, 0).
+  // normalized point where the center of the square container is (0, 0), and point is located at (+-x, +-y).
   readonly normdPoint: Point;
   // scaled up normalized point onto the DF world map
   readonly worldPoint: Point;
@@ -126,10 +126,10 @@ function draw(
         y: y - square.size / 2,
       };
 
-      // normalize point onto a plane with -y,-x and x,y coords with 0,0 as center
+      // normalize point onto a plane with with 0,0 as center and point can have coords (+-x, +-y)
       const normdPoint: Point = {
         x: point.x - radius,
-        y: point.y - radius,
+        y: radius - point.y,
       };
 
       // skip points outside circle

@@ -128,8 +128,6 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
   const [isMiniMapOn, setMiniMapOn] = useState(false);
   const [spectate, setSpectate] = useState(false);
 
-  const [spawnArea, setSpawnArea] = useState<SpawnArea | undefined>();
-
   const params = new URLSearchParams(location.search);
   // NOTE: round 2
   const useZkWhitelist = true;
@@ -282,11 +280,10 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       switch (true) {
         case userInput === 'clear': {
           terminal.current?.clear();
-
           showHelp = false;
           break;
         }
-        case userInput === 'h' || userInput === 'help' || userInput === 'ls': {
+        case userInput === 'h' || userInput === 'help': {
           showHelp = true;
           break;
         }
@@ -916,9 +913,8 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
   const advanceStateFromNoHomePlanet = useCallback(
     async (
       terminal: React.MutableRefObject<TerminalHandle | undefined>,
-      { showHelp, coords }: TerminalStateOptions & { coords?: { x: number; y: number } } = {
+      { showHelp }: TerminalStateOptions = {
         showHelp: true,
-        coords: undefined,
       }
     ) => {
       const gameUIManager = gameUIManagerRef.current;
@@ -942,107 +938,77 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
 
       if (showHelp) {
         terminal.current?.println('Select home planet.', TerminalTextStyle.Green);
-      }
-
-      // terminal.current?.println('Press ENTER to find a home planet. This may take up to 120s.');
-      // terminal.current?.println('This will consume a lot of CPU.');
-      // ##############
-      // NEW
-      // ##############
-      // Run the Minimap and get the selected coordinates
-
-      if (!coords) {
-        setMiniMapOn(true);
-      }
-
-      // const worldRadius = df.getContractConstants().WORLD_RADIUS_MIN;
-      // const rimRadius = df.getContractConstants().SPAWN_RIM_AREA;
-
-      if (showHelp) {
         terminal.current?.println(
-          'Please left-click on the right map to select your birth area.',
+          'Please left-click on the right map to select your spawn area.',
           TerminalTextStyle.Pink
         );
 
         terminal.current?.println('You can choose "Inner Nebula" only. ', TerminalTextStyle.Blue);
         terminal.current?.newline();
+        terminal.current?.println('After selecting your spawn area, then press [enter]')
       }
 
-      // Introduce a 100ms (0.1s) delay using a timer
+      setMiniMapOn(true);
+      // let the miniMap component mount
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      let selectedSpawnArea: SpawnArea | undefined = undefined;
-      while (!selectedSpawnArea) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        selectedSpawnArea = miniMapRef.current?.getSelectedSpawnArea();
+      const userInput = (await terminal.current?.getInput() ?? '').trim();
+      const selectedSpawnArea = miniMapRef.current?.getSelectedSpawnArea();
+      switch(true) {
+        case userInput === 'clear': {
+          terminal.current?.clear();
+          advanceStateFromNoHomePlanet(terminal, { showHelp: false });
+          return;
+        }
+        case userInput === 'h' || userInput === 'help': {
+          advanceStateFromNoHomePlanet(terminal, { showHelp: true });
+          return;
+        }
+        case userInput !== '': {
+          terminal.current?.println(
+            'Invalid option, please try press [help]',
+            TerminalTextStyle.Red
+          );
+          advanceStateFromNoHomePlanet(terminal, { showHelp: false });
+          return;
+        }
       }
 
-      const selectedCoords = selectedSpawnArea.worldPoint;
-      const distFromOrigin = Math.sqrt(selectedCoords.x ** 2 + selectedCoords.y ** 2);
-      terminal.current?.println(
-        `Coordinates: (${selectedCoords.x}, ${
-          selectedCoords.y
-        }) were selected, ${distFromOrigin.toFixed(0)} ly away from center.`
-      );
-
-      setMiniMapOn(false);
-
-      terminal.current?.println('(f) find home planet.');
-      terminal.current?.println('(s) select new coordinates.');
-      terminal.current?.newline();
-      terminal.current?.println('Select one of the options above [f] or [s], then press [enter]');
-
-      const userInput = (await terminal.current?.getInput())?.trim() ?? '';
-      if (userInput !== 'f') {
-        coords = selectedCoords;
-        switch (true) {
-          // case userInput === 'clear': {
-          //   terminal.current?.clear();
-          //   showHelp = false;
-          //   break;
-          // }
-          case userInput === 'h' || userInput === 'help': {
-            showHelp = true;
-            break;
-          }
-          case userInput === 's': {
-            showHelp = true;
-            coords = undefined;
-            break;
-          }
-          default: {
-            showHelp = false;
-            terminal.current?.println(
-              'Please select [f] or [h], then press [enter].',
-              TerminalTextStyle.Pink
-            );
-            terminal.current?.newline();
-          }
-        }
-
-        advanceStateFromNoHomePlanet(terminal, { showHelp, coords });
+      if (!selectedSpawnArea) {
+        terminal.current?.println(
+          'Please select a spawn area, then press [enter]',
+          TerminalTextStyle.Red
+        );
+        advanceStateFromNoHomePlanet(terminal, { showHelp: false });
         return;
       }
 
-      let start = Date.now();
+      // disable reselect of spawn posistion when we start searching
+      miniMapRef.current?.setSelectable(false);
+
+      const coords = selectedSpawnArea.worldPoint;
+      const distFromOrigin = Math.sqrt(coords.x ** 2 + coords.y ** 2);
+      terminal.current?.println(
+        `Spawn coordinates: (${coords.x.toFixed(0)}, ${
+          coords.y.toFixed(0)
+        }) were selected, ${distFromOrigin.toFixed(0)} ly away from center.`
+      );
+
       gameUIManager.getGameManager().on(GameManagerEvent.InitializedPlayer, () => {
         setTimeout(() => {
+          setMiniMapOn(false);
+
           terminal.current?.println('Initializing game...');
           setStep(TerminalPromptStep.ALL_CHECKS_PASS);
         });
       });
 
-      console.log('getGameManager', Date.now() - start);
-      start = Date.now();
-
-      // requestFaucet
-      const playerAddress = ethConnection?.getAddress();
-      console.log('getAddress', Date.now() - start);
-      start = Date.now();
-
       gameUIManager
         .joinGame(
           async (e) => {
+            // TODO: Handle 2min timeout error
+            setMiniMapOn(false);
+
             console.error(e);
 
             terminal.current?.println('Error Joining Game:');
@@ -1073,12 +1039,12 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
             terminal.current?.newline();
             terminal.current?.newline();
 
-            terminal.current?.println('Press Enter to Try Again:');
+            terminal.current?.println('Press [enter] to Try Again:');
 
             await terminal.current?.getInput();
             return true;
           },
-          selectedCoords,
+          coords,
           spectate
         )
         .catch((error: Error) => {

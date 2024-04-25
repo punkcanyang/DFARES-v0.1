@@ -1,4 +1,11 @@
-import { MAX_AVATAR_TYPE, MAX_MEME_TYPE, MIN_AVATAR_TYPE, MIN_MEME_TYPE } from '@dfares/constants';
+import {
+  MAX_AVATAR_TYPE,
+  MAX_LOGO_TYPE,
+  MAX_MEME_TYPE,
+  MIN_AVATAR_TYPE,
+  MIN_LOGO_TYPE,
+  MIN_MEME_TYPE,
+} from '@dfares/constants';
 import { avatarTypeToNum, logoTypeToNum, memeTypeToNum } from '@dfares/procedural';
 import { isUnconfirmedChangeArtifactImageTypeTx } from '@dfares/serde';
 import {
@@ -9,6 +16,7 @@ import {
   AvatarTypeNames,
   LocationId,
   LogoType,
+  LogoTypeNames,
   MemeType,
   MemeTypeNames,
   Planet,
@@ -84,10 +92,10 @@ export function ArtifactChangeImageType({
     labels.push(MemeTypeNames[i]);
   }
 
-  // for (let i = MIN_LOGO_TYPE; i <= MAX_LOGO_TYPE; i++) {
-  //   values.push(logoTypeToNum(Number(i) as LogoType).toString());
-  //   labels.push(LogoTypeNames[i]);
-  // }
+  for (let i = MIN_LOGO_TYPE; i <= MAX_LOGO_TYPE; i++) {
+    values.push(logoTypeToNum(Number(i) as LogoType).toString());
+    labels.push(LogoTypeNames[i]);
+  }
 
   for (let i = MIN_AVATAR_TYPE; i <= MAX_AVATAR_TYPE; i++) {
     values.push(avatarTypeToNum(Number(i) as AvatarType).toString());

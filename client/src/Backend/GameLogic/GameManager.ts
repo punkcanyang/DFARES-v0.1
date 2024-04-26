@@ -3516,14 +3516,43 @@ class GameManager extends EventEmitter {
         `Hashing first ${MIN_CHUNK_SIZE ** 2 * printProgress} potential home planets...`
       );
 
+      let done = false;
+      let index = 1;
+      const values = ['.', '..', '...', '....', '.....', '......'];
+      let lastChunkSize: number | undefined;
+      let chunkSize: number | undefined;
+      const printProgressFn = () => {
+        if (done) {
+          return;
+        }
+
+        if (chunkSize) {
+          if (lastChunkSize) {
+            this.terminal.current?.removeLast(2);
+          }
+          if (lastChunkSize && lastChunkSize !== chunkSize) {
+            this.terminal.current?.println(
+              `Hashed ${lastChunkSize * MIN_CHUNK_SIZE ** 2} potential home planets${values[index - 1]}`
+            );
+            index = 1;
+          }
+
+          this.terminal.current?.println(
+            `Hashed ${chunkSize * MIN_CHUNK_SIZE ** 2} potential home planets${values[index - 1]}`
+          );
+          index = (index % 6) + 1;
+          lastChunkSize = chunkSize;
+        }
+        setTimeout(printProgressFn, 180);
+      };
+      printProgressFn();
+
       homePlanetFinder.on(MinerManagerEvent.DiscoveredNewChunk, (chunk: Chunk) => {
         chunkStore.addChunk(chunk);
         minedChunksCount++;
 
         if (minedChunksCount % printProgress === 0) {
-          this.terminal.current?.println(
-            `Hashed ${minedChunksCount * MIN_CHUNK_SIZE ** 2} potential home planets...`
-          );
+          chunkSize = minedChunksCount;
         }
         for (const homePlanetLocation of chunk.planetLocations) {
           const planetPerlin = homePlanetLocation.perlin;
@@ -3566,6 +3595,8 @@ class GameManager extends EventEmitter {
             if (!homePlanet) {
               reject(new Error("Unable to create default planet for your home planet's location."));
             } else {
+              // tell the printProgressFn to stop
+              done = true;
               // can cast to `LocatablePlanet` because we know its location, as we just mined it.
               resolve(homePlanet as LocatablePlanet);
             }

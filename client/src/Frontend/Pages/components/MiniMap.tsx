@@ -29,6 +29,7 @@ export type SpawnArea = {
 };
 export interface MiniMapHandle {
   getSelectedSpawnArea(): SpawnArea | undefined;
+  setSelectable(value: boolean): void;
 }
 
 const canvasSize = 600;
@@ -244,10 +245,56 @@ function DFARESLogo({ rimRadius }: { rimRadius: number }) {
   );
 }
 
+type InfoOptions = {
+  type: 'none' | 'no-drop' | 'coords' | 'selected';
+  point?: Point;
+};
+
+function Info({
+  type,
+  point,
+} : InfoOptions) {
+  switch(type) {
+    case 'no-drop': {
+      return (
+        <StyledCoords style={{
+            color: Colors.Pink,
+        }}>
+          Can't spawn here 😅
+        </StyledCoords>
+      )
+    }
+    case 'coords': {
+      return (
+        <StyledCoords style={{
+            color: Colors.InnerNebulaColor,
+        }}>
+          ({point!.x.toFixed(0)}, {point!.y.toFixed(0)})
+        </StyledCoords>
+      )
+    }
+
+    case 'selected': {
+      return (
+        <StyledCoords style={{
+            color: Colors.SelectedSpawnArea,
+        }}>
+          Selected spawn point: ({point!.x.toFixed(0)}, {point!.y.toFixed(0)}) 🚀
+        </StyledCoords>
+      )
+    }
+    default: {
+      return (<StyledCoords></StyledCoords>);
+    }
+  }
+}
+
 function MiniMapImpl({}, ref: React.Ref<MiniMapHandle>) {
   const canvasRef = useRef(null);
-  const [coordsText, setCoordsText] = useState('');
-  const [coordsTextColor, setCoordsTextColor] = useState('');
+  const [infoOptions, setInfoOptions] = useState<InfoOptions>({
+    type: 'none',
+  });
+  const [selectable, setSelectable] = useState<boolean>(true);
 
   const MAX_LEVEL_DIST = df.getContractConstants().MAX_LEVEL_DIST[1];
 
@@ -277,7 +324,10 @@ function MiniMapImpl({}, ref: React.Ref<MiniMapHandle>) {
     canvas.addEventListener('mousemove', (event: MouseEvent) => {
       const [x, y] = [event.offsetX, event.offsetY];
       if (!point_on_circle({ x: x - canvasRadius, y: y - canvasRadius }, radius)) {
-        setCoordsText('');
+        setInfoOptions({
+          type: 'none',
+          point: undefined,
+        });
         return;
       }
 
@@ -286,26 +336,29 @@ function MiniMapImpl({}, ref: React.Ref<MiniMapHandle>) {
       const area = mousePoints[key];
       if (area) {
         canvas.style.cursor = 'pointer';
-        setCoordsTextColor(Colors.InnerNebulaColor);
-        setCoordsText(`(${area.worldPoint.x.toFixed(0)}, ${area.worldPoint.y.toFixed(0)})`);
+        setInfoOptions({
+          type: 'coords',
+          point: area.worldPoint,
+        });
       } else {
         canvas.style.cursor = 'no-drop';
-        setCoordsTextColor(Colors.Pink);
-        setCoordsText("Can't Spawn Here 😅");
+        setInfoOptions({
+          type: 'no-drop',
+        });
       }
 
       timeoutId = window.setTimeout(() => {
         if (selectedSpawnArea) {
-          setCoordsTextColor(Colors.SelectedSpawnArea);
-          setCoordsText(
-            `Current selected spawn point: (${selectedSpawnArea.worldPoint.x.toFixed(
-              0
-            )}, ${selectedSpawnArea.worldPoint.y.toFixed(0)}) 🚀`
-          );
+          setInfoOptions({
+            type: 'selected',
+            point: selectedSpawnArea.worldPoint,
+          });
         } else {
-          setCoordsText('');
+          setInfoOptions({
+            type: 'none',
+          });
         }
-      }, 1_000);
+      }, 500);
     });
 
     // add mouse click listener
@@ -335,24 +388,21 @@ function MiniMapImpl({}, ref: React.Ref<MiniMapHandle>) {
         rimRadius,
       });
 
-      setCoordsTextColor(Colors.SelectedSpawnArea);
-      setCoordsText(
-        `Current selected spawn point: (${selectedSpawnArea.worldPoint.x.toFixed(
-          0
-        )}, ${selectedSpawnArea.worldPoint.y.toFixed(0)}) 🚀`
-      );
+      setInfoOptions({
+        type: 'selected',
+        point: selectedSpawnArea.worldPoint,
+      })
     });
 
-    return () => {
-      setCoordsText('');
-      setCoordsTextColor('');
-    };
-  }, []);
+    // unmount the component
+    return () => {};
+  }, [setInfoOptions]);
 
   useImperativeHandle(
     ref,
     () => ({
       getSelectedSpawnArea: () => selectedSpawnArea,
+      setSelectable,
     }),
     [selectedSpawnArea]
   );
@@ -369,13 +419,23 @@ function MiniMapImpl({}, ref: React.Ref<MiniMapHandle>) {
         }}
       />
       <DFARESLogo rimRadius={rimRadius} />
-      <StyledCoords
-        style={{
-          color: coordsTextColor,
-        }}
-      >
-        {coordsText}
-      </StyledCoords>
+      <Info type={infoOptions.type} point={infoOptions.point} />
+      <div style={
+        selectable
+          ?
+            // allow selecting
+            undefined
+          :
+            // overlay if unselectable
+            {
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: `${canvasSize}px`,
+              height: `${canvasSize}px`,
+              backgroundColor: 'rgb(0, 0, 0, 0)',
+            }
+      } />
     </StyledMiniMap>
   );
 }

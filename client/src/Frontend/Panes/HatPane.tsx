@@ -1,8 +1,26 @@
-import { BLOCKCHAIN_BRIDGE, MAX_LOGO_TYPE, MIN_LOGO_TYPE, TOKEN_NAME } from '@dfares/constants';
+import {
+  BLOCKCHAIN_BRIDGE,
+  MAX_AVATAR_TYPE,
+  MAX_LOGO_TYPE,
+  MAX_MEME_TYPE,
+  MIN_AVATAR_TYPE,
+  MIN_LOGO_TYPE,
+  MIN_MEME_TYPE,
+  TOKEN_NAME,
+} from '@dfares/constants';
 import { weiToEth } from '@dfares/network';
-import { getHatSizeName, logoTypeToNum } from '@dfares/procedural';
+import { avatarTypeToNum, getHatSizeName, logoTypeToNum, memeTypeToNum } from '@dfares/procedural';
 import { isUnconfirmedBuyHatTx } from '@dfares/serde';
-import { LocationId, LogoType, LogoTypeNames, Planet } from '@dfares/types';
+import {
+  AvatarType,
+  AvatarTypeNames,
+  LocationId,
+  LogoType,
+  LogoTypeNames,
+  MemeType,
+  MemeTypeNames,
+  Planet,
+} from '@dfares/types';
 import { BigNumber } from 'ethers';
 import React, { useState } from 'react';
 import styled from 'styled-components';
@@ -76,20 +94,20 @@ export function HatPane({
   //   labels.push(HatTypeNames[i]);
   // }
 
-  // for (let i = MIN_MEME_TYPE; i <= MAX_MEME_TYPE; i++) {
-  //   values.push(memeTypeToNum(Number(i) as MemeType).toString());
-  //   labels.push(MemeTypeNames[i]);
-  // }
+  for (let i = MIN_MEME_TYPE; i <= MAX_MEME_TYPE; i++) {
+    values.push(memeTypeToNum(Number(i) as MemeType).toString());
+    labels.push(MemeTypeNames[i]);
+  }
 
   for (let i = MIN_LOGO_TYPE; i <= MAX_LOGO_TYPE; i++) {
     values.push(logoTypeToNum(Number(i) as LogoType).toString());
     labels.push(LogoTypeNames[i]);
   }
 
-  // for (let i = MIN_AVATAR_TYPE; i <= MAX_AVATAR_TYPE; i++) {
-  //   values.push(avatarTypeToNum(Number(i) as AvatarType).toString());
-  //   labels.push(AvatarTypeNames[i]);
-  // }
+  for (let i = MIN_AVATAR_TYPE; i <= MAX_AVATAR_TYPE; i++) {
+    values.push(avatarTypeToNum(Number(i) as AvatarType).toString());
+    labels.push(AvatarTypeNames[i]);
+  }
 
   if (planet && planet.owner === account) {
     return (

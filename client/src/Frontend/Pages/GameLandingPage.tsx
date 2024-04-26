@@ -40,7 +40,7 @@ import { TerminalTextStyle } from '../Utils/TerminalTypes';
 import UIEmitter, { UIEmitterEvent } from '../Utils/UIEmitter';
 import { GameWindowLayout } from '../Views/GameWindowLayout';
 import { Terminal, TerminalHandle } from '../Views/Terminal';
-import { MiniMap, MiniMapHandle, SpawnArea } from './components/MiniMap';
+import { MiniMap, MiniMapHandle } from './components/MiniMap';
 
 const enum TerminalPromptStep {
   NONE,
@@ -945,16 +945,16 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
 
         terminal.current?.println('You can choose "Inner Nebula" only. ', TerminalTextStyle.Blue);
         terminal.current?.newline();
-        terminal.current?.println('After selecting your spawn area, then press [enter]')
+        terminal.current?.println('After selecting your spawn area, then press [enter]');
       }
 
       setMiniMapOn(true);
       // let the miniMap component mount
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const userInput = (await terminal.current?.getInput() ?? '').trim();
+      const userInput = ((await terminal.current?.getInput()) ?? '').trim();
       const selectedSpawnArea = miniMapRef.current?.getSelectedSpawnArea();
-      switch(true) {
+      switch (true) {
         case userInput === 'clear': {
           terminal.current?.clear();
           advanceStateFromNoHomePlanet(terminal, { showHelp: false });
@@ -989,9 +989,9 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       const coords = selectedSpawnArea.worldPoint;
       const distFromOrigin = Math.sqrt(coords.x ** 2 + coords.y ** 2);
       terminal.current?.println(
-        `Spawn coordinates: (${coords.x.toFixed(0)}, ${
-          coords.y.toFixed(0)
-        }) were selected, ${distFromOrigin.toFixed(0)} ly away from center.`
+        `Spawn coordinates: (${coords.x.toFixed(0)}, ${coords.y.toFixed(
+          0
+        )}) were selected, distance from center: ${distFromOrigin.toFixed(0)}.`
       );
 
       gameUIManager.getGameManager().on(GameManagerEvent.InitializedPlayer, () => {

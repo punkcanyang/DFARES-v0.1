@@ -3575,12 +3575,16 @@ class GameManager extends EventEmitter {
             homePlanetLocation.perlin,
             distFromOrigin
           );
+
+          const spaceType = this.spaceTypeFromPerlin(planetPerlin, Math.floor(distFromOrigin));
+
           const planet = this.getPlanetWithId(homePlanetLocation.hash);
 
           if (
+            spaceType === SpaceType.NEBULA && //only NEBULA
             planetPerlin < initPerlinMax &&
             planetPerlin >= initPerlinMin &&
-            // distFromOrigin < this.worldRadius &&
+            distFromOrigin < this.worldRadius &&
             // distFromOrigin >= spawnInnerRadius &&
             distFromOrigin >= requireRadiusMin &&
             // distFromOrigin < requireRadiusMax &&

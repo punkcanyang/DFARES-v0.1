@@ -1,4 +1,4 @@
-import { FIXED_DIGIT_NUMBER, GAS_ADJUST_DELTA, TOKEN_NAME } from '@dfares/constants';
+import { FIXED_DIGIT_NUMBER, TOKEN_NAME } from '@dfares/constants';
 import { gweiToWei, weiToEth } from '@dfares/network';
 import { address } from '@dfares/serde';
 import { ArtifactType, Setting } from '@dfares/types';
@@ -174,10 +174,12 @@ export function TxConfirmPopup({
   // ethConnection.getAutoGasPriceGwei(ethConnection.getAutoGasPrices(), autoGasPriceSetting);
 
   const wrapGasFee = () => {
-    if (method === 'initializePlayer' || method === 'giveSpaceShips')
-      return Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('5'))
+    if (method === 'initializePlayer' || method === 'giveSpaceShips') {
+      const settingValue = getSetting(config, Setting.GasFeeGwei);
+      return Number(parseFloat(settingValue) * parseInt('10'))
         .toFixed(FIXED_DIGIT_NUMBER)
         .toString();
+    }
 
     const res = getSetting(config, Setting.GasFeeGwei);
 
@@ -386,7 +388,7 @@ export function TxConfirmPopup({
 
             <Row>
               <b>Half Price</b>
-              <span>{halfPrice}</span>
+              <span>{halfPrice ? halfPrice : 'false'}</span>
             </Row>
 
             <Row>
@@ -407,7 +409,7 @@ export function TxConfirmPopup({
 
             <Row>
               <b>Half Price</b>
-              <span>{halfPrice}</span>
+              <span>{halfPrice ? halfPrice : 'false'}</span>
             </Row>
 
             <Row>
@@ -428,7 +430,7 @@ export function TxConfirmPopup({
 
             <Row>
               <b>Half Price</b>
-              <span>{halfPrice}</span>
+              <span>{halfPrice ? halfPrice : 'false'}</span>
             </Row>
 
             <Row>
@@ -550,7 +552,7 @@ export function TxConfirmPopup({
             </Row>
             <Row>
               <b>Half Price</b>
-              <span>{halfPrice}</span>
+              <span>{halfPrice ? halfPrice : 'false'}</span>
             </Row>
             <Row>
               <b>Artifact Price </b>
@@ -571,7 +573,7 @@ export function TxConfirmPopup({
           <>
             <Row>
               <b>Half Price</b>
-              <span>{halfPrice}</span>
+              <span>{halfPrice ? halfPrice : 'false'}</span>
             </Row>
 
             <Row>

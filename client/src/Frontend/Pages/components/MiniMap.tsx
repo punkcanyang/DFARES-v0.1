@@ -1,5 +1,5 @@
 import { SpaceType } from '@dfares/types';
-import React, { useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { useEffect, useImperativeHandle, useRef } from 'react';
 import styled from 'styled-components';
 
 type Point = Readonly<{
@@ -131,8 +131,8 @@ function getSpawnAreas({
   radius,
   rimRadius,
   scaleFactor,
-} : {
-  squares: Square[],
+}: {
+  squares: Square[];
   radius: number;
   rimRadius: number;
   scaleFactor: number;
@@ -168,10 +168,7 @@ function getSpawnAreas({
     };
 
     const distFromOrigin = Math.floor(Math.sqrt(worldPoint.x ** 2 + worldPoint.y ** 2));
-    const spaceType = df.spaceTypeFromPerlin(
-      df.spaceTypePerlin(worldPoint, false),
-      distFromOrigin
-    );
+    const spaceType = df.spaceTypeFromPerlin(df.spaceTypePerlin(worldPoint, false), distFromOrigin);
 
     areas.push({
       key: `(${point.x},${point.y})`,
@@ -188,31 +185,25 @@ function getSpawnAreas({
 }
 
 function mapZone(
-  zone: { coords: Point, radius: number},
-  options: { scaleFactor: number; radius: number; }
+  zone: { coords: Point; radius: number },
+  options: { scaleFactor: number; radius: number }
 ): Zone {
   return {
     worldPoint: zone.coords,
     worldRadius: zone.radius,
     point: {
-      x: (zone.coords.x / options.scaleFactor) + options.radius,
+      x: zone.coords.x / options.scaleFactor + options.radius,
       y: (zone.coords.y / options.scaleFactor) * -1 + options.radius,
     },
     radius: zone.radius / options.scaleFactor,
   };
 }
 
-function getBlueZones(options: {
-  scaleFactor: number;
-  radius: number;
-}): Zone[] {
+function getBlueZones(options: { scaleFactor: number; radius: number }): Zone[] {
   return Array.from(df.getBlueZones()).map((zone) => mapZone(zone, options));
 }
 
-function getPinkZones(options: {
-  scaleFactor: number;
-  radius: number;
-}): Zone[] {
+function getPinkZones(options: { scaleFactor: number; radius: number }): Zone[] {
   return Array.from(df.getPinkZones()).map((zone) => mapZone(zone, options));
 }
 
@@ -231,13 +222,17 @@ function updateSpawnAreas({
       continue;
     }
 
-    const inBlueZone = Boolean(blueZones.find((zone) => point_on_circle2(area.worldPoint, zone.worldPoint, zone.worldRadius)));
+    const inBlueZone = Boolean(
+      blueZones.find((zone) => point_on_circle2(area.worldPoint, zone.worldPoint, zone.worldRadius))
+    );
     if (inBlueZone) {
       (area as WritableSpawnAreaState).state = 'in-blue-zone';
       continue;
     }
 
-    const inPinkZone = Boolean(pinkZones.find((zone) => point_on_circle2(area.worldPoint, zone.worldPoint, zone.worldRadius)));
+    const inPinkZone = Boolean(
+      pinkZones.find((zone) => point_on_circle2(area.worldPoint, zone.worldPoint, zone.worldRadius))
+    );
     if (inPinkZone) {
       (area as WritableSpawnAreaState).state = 'in-pink-zone';
       continue;
@@ -368,7 +363,7 @@ function MiniMapImpl({}, ref: React.Ref<MiniMapHandle>) {
     squares,
     radius,
     rimRadius,
-    scaleFactor
+    scaleFactor,
   });
   const blueZones = getBlueZones({
     scaleFactor,
@@ -410,7 +405,7 @@ function MiniMapImpl({}, ref: React.Ref<MiniMapHandle>) {
 
     return () => {
       window.cancelAnimationFrame(animationFrameId);
-    }
+    };
   }, []);
 
   // handle canvas mouse events
@@ -420,7 +415,7 @@ function MiniMapImpl({}, ref: React.Ref<MiniMapHandle>) {
 
     const updateInfoOptions = ({ type, point }: InfoOptions) => {
       const element = infoOptionsRef.current! as HTMLDivElement;
-      switch(type) {
+      switch (type) {
         case 'no-drop': {
           element.style.color = Colors.Pink;
           element.innerText = "Can't spawn here 😅";
@@ -428,12 +423,14 @@ function MiniMapImpl({}, ref: React.Ref<MiniMapHandle>) {
         }
         case 'coords': {
           element.style.color = Colors.InnerNebulaColor;
-          element.innerText = `(${point!.x.toFixed(0)}, ${point!.y.toFixed(0)})`
+          element.innerText = `(${point!.x.toFixed(0)}, ${point!.y.toFixed(0)})`;
           break;
         }
         case 'selected': {
           element.style.color = Colors.SelectedSpawnArea;
-          element.innerText = `Selected spawn point: (${point!.x.toFixed(0)}, ${point!.y.toFixed(0)}) 🚀`
+          element.innerText = `Selected spawn point: (${point!.x.toFixed(0)}, ${point!.y.toFixed(
+            0
+          )}) 🚀`;
           break;
         }
         default: {
@@ -454,19 +451,19 @@ function MiniMapImpl({}, ref: React.Ref<MiniMapHandle>) {
       let cursorStyle = 'pointer';
       switch (true) {
         case !point_on_circle({ x: x - canvasRadius, y: y - canvasRadius }, radius): {
-          infoOptions = { type:  'none' };
+          infoOptions = { type: 'none' };
           break;
         }
         case Boolean(area): {
           infoOptions = {
-            type:  'coords',
+            type: 'coords',
             point: area.worldPoint,
           };
           break;
         }
         default: {
           cursorStyle = 'no-drop';
-          infoOptions = { type:  'no-drop' };
+          infoOptions = { type: 'no-drop' };
           break;
         }
       }
@@ -477,7 +474,7 @@ function MiniMapImpl({}, ref: React.Ref<MiniMapHandle>) {
       timeoutId = window.setTimeout(() => {
         updateInfoOptions(
           selectedSpawnArea
-            ? { type: 'selected', point: selectedSpawnArea.worldPoint,}
+            ? { type: 'selected', point: selectedSpawnArea.worldPoint }
             : { type: 'none' }
         );
       }, 500);
@@ -506,7 +503,7 @@ function MiniMapImpl({}, ref: React.Ref<MiniMapHandle>) {
       updateInfoOptions({
         type: 'selected',
         point: area.worldPoint,
-      })
+      });
 
       selectedSpawnArea = area;
     };
@@ -526,15 +523,11 @@ function MiniMapImpl({}, ref: React.Ref<MiniMapHandle>) {
     const updateZones = () => {
       // empty and update the blue zones
       blueZones.splice(0, blueZones.length);
-      blueZones.push(
-        ...getBlueZones({ scaleFactor, radius, }),
-      );
+      blueZones.push(...getBlueZones({ scaleFactor, radius }));
 
       // empty and update the pink zones
       pinkZones.splice(0, pinkZones.length);
-      pinkZones.push(
-        ...getPinkZones({ scaleFactor, radius, }),
-      );
+      pinkZones.push(...getPinkZones({ scaleFactor, radius }));
 
       updateSpawnAreas({
         spawnAreas,
@@ -545,14 +538,13 @@ function MiniMapImpl({}, ref: React.Ref<MiniMapHandle>) {
       // update mouse points
       mousePoints = makeMousePoints(spawnAreas);
 
-
       timeoutId = window.setTimeout(updateZones, oneMinuteInMs);
     };
 
     let timeoutId = window.setTimeout(updateZones, oneMinuteInMs);
     return () => {
       window.clearTimeout(timeoutId);
-    }
+    };
   }, []);
 
   // implement api
@@ -562,9 +554,7 @@ function MiniMapImpl({}, ref: React.Ref<MiniMapHandle>) {
       getSelectedSpawnArea: () => selectedSpawnArea,
       setSelectable: (value: boolean) => {
         selectable = value;
-        (overlayRef.current! as HTMLDivElement).style.display = selectable
-          ? 'none'
-          : 'block';
+        (overlayRef.current! as HTMLDivElement).style.display = selectable ? 'none' : 'block';
       },
     }),
     []
@@ -584,7 +574,9 @@ function MiniMapImpl({}, ref: React.Ref<MiniMapHandle>) {
       <DFARESLogo rimRadius={rimRadius} />
 
       <StyledCoords ref={infoOptionsRef}></StyledCoords>
-      <div ref={overlayRef} style={{
+      <div
+        ref={overlayRef}
+        style={{
           display: 'none',
           position: 'absolute',
           top: 0,
@@ -593,7 +585,6 @@ function MiniMapImpl({}, ref: React.Ref<MiniMapHandle>) {
           height: `${canvasSize}px`,
           backgroundColor: 'rgb(0, 0, 0, 0)',
         }}
-
       />
     </StyledMiniMap>
   );

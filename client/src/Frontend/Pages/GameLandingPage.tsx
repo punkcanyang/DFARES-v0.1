@@ -183,25 +183,6 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
           terminal.current?.newline();
           if (depth === 0) {
             terminal.current?.newline();
-
-            terminal.current?.printLink(
-              'Announcement',
-              () => {
-                window.open(
-                  'https://mirror.xyz/dfarchon.eth/VkfBZcWWsdVqwPKctPX6GGzrpf_TY__hRUTQ13Ohd4c'
-                );
-              },
-              TerminalTextStyle.Pink
-            );
-            terminal.current?.newline();
-
-            terminal.current?.printLink(
-              'Pre-registration Form',
-              () => {
-                window.open('https://forms.gle/GB9kb1pHduiNuXi68');
-              },
-              TerminalTextStyle.Pink
-            );
             terminal.current?.newline();
             terminal.current?.newline();
           }
@@ -325,7 +306,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
 
         let accountsMessage = 'Select account option [1], then press [enter].';
         if (totalAccounts > 1) {
-          let args = [...Array(totalAccounts - 1)].map((_, i) => `[${i + 1}]`);
+          const args = [...Array(totalAccounts - 1)].map((_, i) => `[${i + 1}]`);
           accountsMessage = `Select one of the account options ${args.join(
             ', '
           )} or [${totalAccounts}], then press [enter].`;
@@ -800,10 +781,11 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       terminal.current?.newline();
       terminal.current?.println('Welcome to DARK FOREST ARES.');
       terminal.current?.newline();
-      terminal.current?.println('We collect a minimal set of statistics such as SNARK proving');
-      terminal.current?.println('times and average transaction times across browsers, to help ');
-      terminal.current?.println('us optimize performance and fix bugs. You can opt out of this');
-      terminal.current?.println('in the Settings pane.');
+      //NOTE: round 3 don't collect those information
+      // terminal.current?.println('We collect a minimal set of statistics such as SNARK proving');
+      // terminal.current?.println('times and average transaction times across browsers, to help ');
+      // terminal.current?.println('us optimize performance and fix bugs. You can opt out of this');
+      // terminal.current?.println('in the Settings pane.');
       terminal.current?.newline();
 
       gameUIManagerRef.current = newGameUIManager;
@@ -1016,21 +998,13 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
             terminal.current?.newline();
 
             terminal.current?.println(
-              "Don't worry :-) you can get more Redstone Holesky ETH this way 😘",
+              "Don't worry :-) you can get more ETH on Redstone this way 😘",
               TerminalTextStyle.Pink
             );
-            terminal.current?.print('Step 1: ', TerminalTextStyle.Pink);
-            terminal.current?.printLink(
-              'Get more Holesky ETH here',
-              () => {
-                window.open('https://holesky-faucet.pk910.de/');
-              },
-              TerminalTextStyle.Pink
-            );
+
             terminal.current?.newline();
-            terminal.current?.print('Step 2: ', TerminalTextStyle.Pink);
             terminal.current?.printLink(
-              'Deposit to Redstone',
+              'Deposit ETH to Redstone',
               () => {
                 window.open(BLOCKCHAIN_BRIDGE);
               },

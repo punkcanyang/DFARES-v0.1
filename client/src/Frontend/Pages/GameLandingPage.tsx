@@ -1,4 +1,4 @@
-import { BLOCKCHAIN_BRIDGE, BLOCK_EXPLORER_URL } from '@dfares/constants';
+import { BLOCKCHAIN_BRIDGE, BLOCK_EXPLORER_URL, TOKEN_NAME } from '@dfares/constants';
 import { CONTRACT_ADDRESS } from '@dfares/contracts';
 import { DarkForest } from '@dfares/contracts/typechain';
 import { EthConnection, neverResolves, weiToEth } from '@dfares/network';
@@ -34,6 +34,7 @@ import {
   Wrapper,
 } from '../Components/GameLandingPageComponents';
 import { MythicLabelText } from '../Components/Labels/MythicLabel';
+import { TextMask } from '../Components/TextMask';
 import { TopLevelDivProvider, UIManagerProvider } from '../Utils/AppHooks';
 import { Incompatibility, unsupportedFeatures } from '../Utils/BrowserChecks';
 import { TerminalTextStyle } from '../Utils/TerminalTypes';
@@ -68,7 +69,6 @@ const enum TerminalPromptStep {
 type BrowserCompatibleState = 'unknown' | 'unsupported' | 'supported';
 type TerminalStateOptions = {
   showHelp: boolean;
-  depth?: number;
 };
 
 const BrowserIssue = styled.p`
@@ -163,9 +163,8 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
   const advanceStateFromCompatibilityPassed = useCallback(
     async (
       terminal: React.MutableRefObject<TerminalHandle | undefined>,
-      { showHelp, depth }: TerminalStateOptions = {
+      { showHelp }: TerminalStateOptions = {
         showHelp: true,
-        depth: 0,
       }
     ) => {
       const accounts = getAccounts();
@@ -181,11 +180,6 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
           terminal.current?.newline();
         } else {
           terminal.current?.newline();
-          if (depth === 0) {
-            terminal.current?.newline();
-            terminal.current?.newline();
-            terminal.current?.newline();
-          }
           terminal.current?.println('Login or create an account.', TerminalTextStyle.Green);
           terminal.current?.println('Choose an option, type its symbol and press ENTER.');
           terminal.current?.newline();
@@ -232,7 +226,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
         } catch (e) {
           // unwanted state, client will need to reload browser here
           terminal.current?.println(
-            'An unknown error occurred. please try again.',
+            'An unknown error occurred. please refresh the client',
             TerminalTextStyle.Red
           );
         }
@@ -262,25 +256,29 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
         case userInput === 'clear': {
           terminal.current?.clear();
           showHelp = false;
+          advanceStateFromCompatibilityPassed(terminal, {
+            showHelp,
+          });
           break;
         }
         case userInput === 'h' || userInput === 'help': {
           showHelp = true;
+          advanceStateFromCompatibilityPassed(terminal, {
+            showHelp,
+          });
           break;
         }
         default: {
           terminal.current?.println(
             'Invalid option, please try press [help]',
-            TerminalTextStyle.Red
+            TerminalTextStyle.Pink
           );
           showHelp = false;
+          advanceStateFromCompatibilityPassed(terminal, {
+            showHelp,
+          });
         }
       }
-
-      advanceStateFromCompatibilityPassed(terminal, {
-        showHelp,
-        depth: depth! + 1,
-      });
     },
     [isLobby, ethConnection, selectedAddress]
   );
@@ -300,7 +298,19 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
         terminal.current?.println('');
 
         for (let i = 0; i < accounts.length; i += 1) {
-          terminal.current?.println(`(${i + 1}): ${accounts[i].address}`, TerminalTextStyle.Sub);
+          const rawResult = await ethConnection?.loadBalance(accounts[i].address);
+          const balance = rawResult ? weiToEth(rawResult) : 0;
+
+          terminal.current?.print(`(${i + 1}): ${accounts[i].address}  `, TerminalTextStyle.Sub);
+          if (balance < 0.0002) {
+            terminal.current?.print(balance.toFixed(9) + ' ' + TOKEN_NAME, TerminalTextStyle.Red);
+            terminal.current?.println(' => select this account to know how to get enough ETH');
+          } else {
+            terminal.current?.println(
+              balance.toFixed(9) + ' ' + TOKEN_NAME,
+              TerminalTextStyle.Green
+            );
+          }
         }
         terminal.current?.println('');
 
@@ -326,7 +336,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
           setStep(TerminalPromptStep.ACCOUNT_SET);
         } catch (e) {
           terminal.current?.println(
-            'An unknown error occurred. please try again.',
+            'An unknown error occurred. please refresh the client.',
             TerminalTextStyle.Red
           );
           advanceStateFromDisplayAccounts(terminal, {
@@ -348,7 +358,10 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
           break;
         }
         default: {
-          terminal.current?.println('Invalid option, please try again.', TerminalTextStyle.Red);
+          terminal.current?.println(
+            'Invalid option, please try press [help].',
+            TerminalTextStyle.Pink
+          );
           showHelp = false;
         }
       }
@@ -369,15 +382,13 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
         ethConnection?.setAccount(newSKey);
 
         terminal.current?.println(``);
-        terminal.current?.print(`Created new burner wallet with address `);
+        terminal.current?.print(`Created new burner wallet account `);
         terminal.current?.print(newAddr, TerminalTextStyle.Pink);
-        // terminal.current?.printElement(
-        //   <TextPreview text={newAddr} unFocusedWidth={'100px'} style={{ color: 'pink' }} />
-        // );
+
         terminal.current?.println(``);
         terminal.current?.println('');
         terminal.current?.println(
-          'Note: Burner wallets are stored in local storage.',
+          'NOTE: Burner wallets are stored in local storage.',
           TerminalTextStyle.Pink
         );
         terminal.current?.println('They are relatively insecure and you should avoid ');
@@ -388,14 +399,14 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
           'burner wallets inaccessible, unless you export your private keys.'
         );
         terminal.current?.println('');
-        terminal.current?.println('Press [enter] to continue:', TerminalTextStyle.Pink);
+        terminal.current?.println('Press [enter] to continue.');
 
         await terminal.current?.getInput();
         setStep(TerminalPromptStep.ACCOUNT_SET);
       } catch (e) {
         // unwanted state, user will need to reload browser here
         terminal.current?.println(
-          'An unknown error occurred. please try again.',
+          'An unknown error occurred. please refresh the client.',
           TerminalTextStyle.Red
         );
       }
@@ -440,7 +451,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
           return;
         } catch (e) {
           terminal.current?.println(
-            'An unknown error occurred. please try again.',
+            'An unknown error occurred. please refresh the page.',
             TerminalTextStyle.Red
           );
           advanceStateFromImportAccount(terminal, { showHelp: false });
@@ -475,6 +486,106 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       try {
         const playerAddress = ethConnection?.getAddress();
         if (!playerAddress || !ethConnection) throw new Error('not logged in');
+
+        terminal.current?.println('Checking account balance... ');
+
+        const balance = weiToEth(await ethConnection.loadBalance(playerAddress));
+
+        if (balance < 0.0001) {
+          terminal.current?.print(`   Your account: `);
+          terminal.current?.println(`${playerAddress}`, TerminalTextStyle.Green);
+
+          terminal.current?.print('    Private Key: ');
+          terminal.current?.printElement(
+            <TextMask
+              maskText='Click here to get private key'
+              text={ethConnection.getPrivateKey()}
+              noticeText='<= click here to copy private key'
+              unFocusedWidth={'150px'}
+              focusedWidth={'150px'}
+              style={{ color: '#00DC82' }}
+            />
+          );
+
+          terminal.current?.println('');
+
+          terminal.current?.print(`   Your balance: `);
+          terminal.current?.print(`${balance.toFixed(9)} ${TOKEN_NAME}`, TerminalTextStyle.Red);
+
+          terminal.current?.println(' <= at least 0.0002 ETH');
+
+          terminal.current?.print('   L2-L2 bridge: ');
+
+          terminal.current?.printLink(
+            BLOCKCHAIN_BRIDGE,
+            () => {
+              window.open(BLOCKCHAIN_BRIDGE);
+            },
+            TerminalTextStyle.Green
+          );
+
+          terminal.current?.println(' <= transfer ETH from L2 (e.g. optimism) to Redstone Mainnet');
+
+          terminal.current?.print('   Player guide: ');
+
+          terminal.current?.printLink(
+            'How to get ETH on the Redstone mainnet for your account',
+            () => {
+              window.open(
+                'https://dfares.notion.site/How-to-transfer-ETH-from-L2-to-Redstone-Mainnet-89198e3016a444779c121efa2590bddd?pvs=74'
+              );
+            },
+            TerminalTextStyle.Green
+          );
+          terminal.current?.println(
+            ' <= New player please check this guide !!!',
+            TerminalTextStyle.Pink
+          );
+
+          terminal.current?.println('');
+
+          terminal.current?.println(
+            'After your account get ETH on Redstone Mainet, press [enter] to continue.',
+            TerminalTextStyle.Pink
+          );
+
+          const userInput = (await terminal.current?.getInput())?.trim() ?? '';
+          let showHelp = true;
+
+          // continue waiting for user input
+          switch (true) {
+            case userInput === '': {
+              advanceStateFromAccountSet(terminal);
+              return;
+            }
+            case userInput === 'clear': {
+              terminal.current?.clear();
+              showHelp = false;
+              advanceStateFromCompatibilityPassed(terminal, {
+                showHelp,
+              });
+              break;
+            }
+            case userInput === 'h' || userInput === 'help': {
+              showHelp = true;
+              advanceStateFromCompatibilityPassed(terminal, {
+                showHelp,
+              });
+              break;
+            }
+            default: {
+              terminal.current?.println(
+                'Invalid option, please try press [help].',
+                TerminalTextStyle.Pink
+              );
+              showHelp = false;
+              advanceStateFromCompatibilityPassed(terminal, {
+                showHelp,
+              });
+            }
+          }
+          return;
+        }
 
         const whitelist = await ethConnection.loadContract<DarkForest>(
           contractAddress,
@@ -786,7 +897,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       // terminal.current?.println('times and average transaction times across browsers, to help ');
       // terminal.current?.println('us optimize performance and fix bugs. You can opt out of this');
       // terminal.current?.println('in the Settings pane.');
-      terminal.current?.newline();
+      // terminal.current?.newline();
 
       gameUIManagerRef.current = newGameUIManager;
 
@@ -920,14 +1031,15 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
 
       if (showHelp) {
         terminal.current?.println('Select home planet.', TerminalTextStyle.Green);
-        terminal.current?.println(
-          'Please left-click on the right map to select your spawn area.',
-          TerminalTextStyle.Pink
-        );
-
-        terminal.current?.println('You can choose "Inner Nebula" only. ', TerminalTextStyle.Blue);
+        terminal.current?.print('Please ');
+        terminal.current?.print('left-click', TerminalTextStyle.Pink);
+        terminal.current?.print(' on ');
+        terminal.current?.print('blue squares on the map', TerminalTextStyle.Blue);
+        terminal.current?.println(' to select your spawn area.');
         terminal.current?.newline();
-        terminal.current?.println('After selecting your spawn area, then press [enter]');
+        terminal.current?.print('After selecting your spawn area, ');
+        terminal.current?.print('left-click the below line', TerminalTextStyle.Pink);
+        terminal.current?.println(', then press [enter].');
       }
 
       setMiniMapOn(true);
@@ -949,7 +1061,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
         case userInput !== '': {
           terminal.current?.println(
             'Invalid option, please try press [help]',
-            TerminalTextStyle.Red
+            TerminalTextStyle.Pink
           );
           advanceStateFromNoHomePlanet(terminal, { showHelp: false });
           return;
@@ -997,21 +1109,42 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
             terminal.current?.println(e.message, TerminalTextStyle.Red);
             terminal.current?.newline();
 
-            terminal.current?.println(
-              "Don't worry :-) you can get more ETH on Redstone this way 😘",
-              TerminalTextStyle.Pink
-            );
+            console.log(e.message.slice(0, 20));
+            if (e.message.slice(0, 20) === 'Please enable popups') {
+              terminal.current?.print('Player guide: ', TerminalTextStyle.Pink);
 
-            terminal.current?.newline();
-            terminal.current?.printLink(
-              'Deposit ETH to Redstone',
-              () => {
-                window.open(BLOCKCHAIN_BRIDGE);
-              },
-              TerminalTextStyle.Pink
-            );
-            terminal.current?.newline();
-            terminal.current?.newline();
+              terminal.current?.printLink(
+                'How to enable popups',
+                () => {
+                  window.open(
+                    'https://dfares.notion.site/How-to-enable-popups-f01552bd77984ad582e1d7cc33b9523d'
+                  );
+                },
+                TerminalTextStyle.Green
+              );
+              terminal.current?.println(
+                ' <= New player please check this guide!!!',
+                TerminalTextStyle.Pink
+              );
+
+              terminal.current?.println('');
+            }
+
+            // terminal.current?.println(
+            //   "Don't worry :-) you can get more ETH on Redstone this way 😘",
+            //   TerminalTextStyle.Pink
+            // );
+
+            // terminal.current?.newline();
+            // terminal.current?.printLink(
+            //   'Deposit ETH to Redstone',
+            //   () => {
+            //     window.open(BLOCKCHAIN_BRIDGE);
+            //   },
+            //   TerminalTextStyle.Pink
+            // );
+            // terminal.current?.newline();
+            // terminal.current?.newline();
 
             terminal.current?.println('Press [enter] to Try Again:');
 
@@ -1032,21 +1165,12 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
   );
 
   const advanceStateFromAllChecksPass = useCallback(
-    async (
-      terminal: React.MutableRefObject<TerminalHandle | undefined>,
-      showHelp: boolean = true,
-      depth = 0
-    ) => {
+    async (terminal: React.MutableRefObject<TerminalHandle | undefined>, showHelp = true) => {
       if (showHelp) {
-        if (depth === 0) {
-          terminal.current?.println('');
-        }
-
         terminal.current?.println('Enter game.', TerminalTextStyle.Green);
-        terminal.current?.println('Press [enter] to begin', TerminalTextStyle.Pink);
+        terminal.current?.println('Press [enter] to begin');
         terminal.current?.println(
-          'Press [s] then [enter] to begin in SAFE MODE - plugins disabled',
-          TerminalTextStyle.Pink
+          'Press [s] then [enter] to begin in SAFE MODE - plugins disabled'
         );
       }
 
@@ -1061,17 +1185,17 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
 
         // recursive advance
         case input === 'h' || input === 'help': {
-          advanceStateFromAllChecksPass(terminal, true, depth + 1);
+          advanceStateFromAllChecksPass(terminal, true);
           return;
         }
         case input === 'clear': {
           terminal.current?.clear();
-          advanceStateFromAllChecksPass(terminal, false, depth + 1);
+          advanceStateFromAllChecksPass(terminal, false);
           return;
         }
         case input !== '': {
           terminal.current?.println('Invalid option, please try again...', TerminalTextStyle.Red);
-          advanceStateFromAllChecksPass(terminal, false, depth + 1);
+          advanceStateFromAllChecksPass(terminal, false);
           return;
         }
       }

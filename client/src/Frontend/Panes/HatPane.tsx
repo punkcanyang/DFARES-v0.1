@@ -1,5 +1,4 @@
 import {
-  BLOCKCHAIN_BRIDGE,
   MAX_AVATAR_TYPE,
   MAX_LOGO_TYPE,
   MAX_MEME_TYPE,
@@ -161,7 +160,13 @@ export function HatPane({
         <EmSpacer height={1} />
 
         <div>
-          <Link to={BLOCKCHAIN_BRIDGE}>Deposit ETH To Redstone</Link>
+          <Link
+            to={
+              'https://dfares.notion.site/How-to-transfer-ETH-from-L2-to-Redstone-Mainnet-89198e3016a444779c121efa2590bddd?pvs=74'
+            }
+          >
+            Guide: How to Get More ETH on Redstone
+          </Link>
         </div>
 
         {/* <Link to={'https://blog.zkga.me/df-04-faq'}>Get More ${TOKEN_NAME}</Link> */}

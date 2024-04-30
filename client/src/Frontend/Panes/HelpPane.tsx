@@ -166,7 +166,7 @@ export function HelpPane({ visible, onClose }: { visible: boolean; onClose: () =
           buffing their stats. */}
           Please read{' '}
           <Link
-            to='https://dfares.notion.site/DFAres-Guide-for-New-Players-4399ba1303db43ebb66bef6f986f3e1e?pvs=74'
+            to='https://dfares.notion.site/DFAres-Round-3-Guide-for-New-Players-3980998d8f65440085c116ba0df0d99a?pvs=74'
             color='pink'
           >
             {' '}
@@ -179,7 +179,7 @@ export function HelpPane({ visible, onClose }: { visible: boolean; onClose: () =
           <SectionHeader>Prizes and Scoring</SectionHeader>
           Please read{' '}
           <Link
-            to='https://dfares.notion.site/6-Win-Conditions-Prizes-b87460a6c0454de6822b5da19e5c5774?pvs=74'
+            to='https://dfares.notion.site/Win-Conditions-Prizes-49e5518f136647559394201ffd329df5?pvs=74'
             color='pink'
           >
             Win Conditions/Prizes

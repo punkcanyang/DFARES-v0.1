@@ -144,6 +144,7 @@ function OnboardKeys({ advance }: { advance: () => void }) {
       <p>
         Your private key is: <br />
         <TextPreview text={sKey} focusedWidth={'150px'} unFocusedWidth={'150px'} />
+        <span style={{ color: 'pink' }}> {' <= click here to copy the private key'}</span>
       </p>
       <p>
         Your home coordinates are: <br />

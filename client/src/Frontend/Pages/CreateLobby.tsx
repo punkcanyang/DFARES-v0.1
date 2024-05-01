@@ -220,7 +220,8 @@ export function CreateLobby({ match }: RouteComponentProps<{ contract: string }>
 
     const tx = await contract.submitTransaction(txIntent, {
       // The createLobby function costs somewhere around 12mil gas
-      gasLimit: '16777215',
+      // costs somewhere around 17,574,726
+      gasLimit: '20000000', // Redstone Mainnet block limit is 100,000,000
     });
     await tx.confirmedPromise;
   }

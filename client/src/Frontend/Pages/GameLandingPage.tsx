@@ -1110,6 +1110,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
             terminal.current?.newline();
 
             console.log(e.message.slice(0, 20));
+
             if (e.message.slice(0, 20) === 'Please enable popups') {
               terminal.current?.print('Player guide: ', TerminalTextStyle.Pink);
 
@@ -1124,6 +1125,13 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
               );
               terminal.current?.println(
                 ' <= New player please check this guide!!!',
+                TerminalTextStyle.Pink
+              );
+
+              terminal.current?.println('');
+            } else if (e.message === 'transaction reverted') {
+              terminal.current?.println(
+                'Please refresh the client, choose another area and try again.',
                 TerminalTextStyle.Pink
               );
 
@@ -1159,6 +1167,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
             `[ERROR] An error occurred: ${error.toString().slice(0, 10000)}`,
             TerminalTextStyle.Red
           );
+          terminal.current?.println('please refresh client to try again.', TerminalTextStyle.Pink);
         });
     },
     [ethConnection, spectate]

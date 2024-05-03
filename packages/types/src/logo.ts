@@ -33,6 +33,9 @@ export const LogoType = {
   AWResearch: 24 as LogoType,
   ComposableLabs: 25 as LogoType,
   MetaCat: 26 as LogoType,
+  YeomenAI: 27 as LogoType,
+  Redswap: 28 as LogoType,
+  RedstoneMarket: 29 as LogoType,
   // Don't forget to update MIN_LOGO_TYPE and/or MAX_LOGO_TYPE in the `constants` package
 };
 
@@ -67,4 +70,7 @@ export const LogoTypeNames = {
   [LogoType.AWResearch]: 'AWResearch',
   [LogoType.ComposableLabs]: 'Composablelabs',
   [LogoType.MetaCat]: 'MetaCat',
+  [LogoType.YeomenAI]: 'Yeomen AI',
+  [LogoType.Redswap]: 'Redswap',
+  [LogoType.RedstoneMarket]: 'RedstoneMarket',
 } as const;

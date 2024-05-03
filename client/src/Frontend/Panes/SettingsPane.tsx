@@ -376,8 +376,8 @@ export function SettingsPane({
         <Section>
           <SectionHeader>Burner Wallet Info (Private)</SectionHeader>
           Your secret key, together with your home planet's coordinates, grant you access to your
-          Dark Forest account on different browsers. You should save this info somewhere on your
-          computer.
+          Dark Forest Ares account on different browsers. You should save this info somewhere on
+          your computer.
           <Spacer height={16} />
           <Red>WARNING:</Red> Never ever send this to anyone!
           <Spacer height={8} />

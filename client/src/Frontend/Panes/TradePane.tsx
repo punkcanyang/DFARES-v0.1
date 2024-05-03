@@ -1,7 +1,7 @@
 import { ModalName } from '@dfares/types';
 import React from 'react';
 import styled from 'styled-components';
-import { Spacer } from '../Components/CoreUI';
+import { Link, Spacer } from '../Components/CoreUI';
 import { useAccount, usePlayer, useUIManager } from '../Utils/AppHooks';
 import { ModalPane } from '../Views/ModalPane';
 import { BuyPlanetPane } from './BuyPlanetPane';
@@ -57,6 +57,13 @@ export function TradePane({ visible, onClose }: { visible: boolean; onClose: () 
       helpContent={HelpContent}
     >
       <TradeContent>
+        <Link
+          to={
+            'https://dfares.notion.site/How-to-transfer-ETH-from-L2-to-Redstone-Mainnet-89198e3016a444779c121efa2590bddd?pvs=74'
+          }
+        >
+          Guide: How to Get More ETH on Redstone
+        </Link>
         <DonationPane />
         <BuyPlanetPane />
         <BuySpaceshipPane />

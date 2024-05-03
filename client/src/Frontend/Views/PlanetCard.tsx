@@ -1,6 +1,13 @@
 import { isLocatable } from '@dfares/gamelogic';
-import { getPlanetName, isAvatar, isLogo, isMeme, numToLogoType } from '@dfares/procedural';
-import { logoFromType } from '@dfares/renderer';
+import {
+  getPlanetName,
+  isAvatar,
+  isLogo,
+  isMeme,
+  numToAvatarType,
+  numToLogoType,
+} from '@dfares/procedural';
+import { avatarFromType, logoFromType } from '@dfares/renderer';
 import { Planet, TooltipName } from '@dfares/types';
 import React from 'react';
 import styled from 'styled-components';
@@ -126,6 +133,12 @@ export function PlanetCard({
   }
 
   if (planet.hatLevel > 0 && isAvatar(planet.hatType)) {
+    const avatarType = numToAvatarType(planet.hatType);
+    const avatar = avatarFromType(avatarType);
+    const desc = avatar.desc;
+    if (desc !== '') {
+      showDesc = <div style={{ color: 'pink', fontSize: '20px' }}>{desc}</div>;
+    }
   }
 
   return (

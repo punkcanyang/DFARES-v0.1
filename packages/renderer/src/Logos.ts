@@ -304,7 +304,7 @@ const AWResearch = {
 
   color: '#0a9053',
   bottomLayer: [],
-  website: '',
+  website: 'https://twitter.com/AW_Research',
 };
 
 //25
@@ -316,7 +316,7 @@ const ComposableLabs = {
   providing tools and services that empower both creatives and gamers 💪',
   color: '#fff',
   bottomLayer: [],
-  website: '',
+  website: 'https://twitter.com/composablehub',
 };
 
 //26
@@ -328,6 +328,39 @@ const MetaCat = {
   color: '#f7931a',
   bottomLayer: [],
   website: '',
+};
+
+//27
+const YeomenAI = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/YeomenAI.png'],
+  name: 'Yeomen AI',
+  desc: 'Web3 Data & Analytics',
+  color: 'white',
+  bottomLayer: [],
+  website: 'https://yeomen.ai/',
+};
+
+//28
+const Redswap = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/Redswap.png'],
+  name: 'Redswap ',
+  desc: 'Public Good DEX on @redstonexyz',
+  color: '#f34242',
+  bottomLayer: [],
+  website: 'https://twitter.com/0xRedswap',
+};
+
+//29
+const RedstoneMarket = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/RedstoneMarket.png'],
+  name: 'Redstone Market',
+  desc: 'The Redstone NFT Marketplace by @reservoir0x',
+  color: '#f34242',
+  bottomLayer: [],
+  website: 'https://twitter.com/redstonemarket',
 };
 
 export const logoFromType = (type: LogoType): Logo => logos[type];
@@ -359,6 +392,9 @@ export const logos: Record<LogoType, Logo> = {
   [LogoType.AWResearch]: AWResearch,
   [LogoType.ComposableLabs]: ComposableLabs,
   [LogoType.MetaCat]: MetaCat,
+  [LogoType.YeomenAI]: YeomenAI,
+  [LogoType.Redswap]: Redswap,
+  [LogoType.RedstoneMarket]: RedstoneMarket,
 };
 
 // export const avatarFromArtifactIdAndImageType = (

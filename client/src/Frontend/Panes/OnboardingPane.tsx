@@ -104,7 +104,7 @@ function OnboardStorage({ advance }: { advance: () => void }) {
       </p>
       <p>
         Your <White>private key and home coordinates</White> act as your password. You can use them
-        to access your Dark Forest account on other browsers, or to continue playing if you
+        to access your Dark Forest Ares account on other browsers, or to continue playing if you
         accidentally clear local storage. But this also means{' '}
         <Red>they should never be viewed by anyone else!</Red>
       </p>
@@ -144,6 +144,7 @@ function OnboardKeys({ advance }: { advance: () => void }) {
       <p>
         Your private key is: <br />
         <TextPreview text={sKey} focusedWidth={'150px'} unFocusedWidth={'150px'} />
+        <span style={{ color: 'pink' }}> {' <= click here to copy the private key'}</span>
       </p>
       <p>
         Your home coordinates are: <br />

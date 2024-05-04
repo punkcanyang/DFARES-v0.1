@@ -117,7 +117,7 @@ contract DFPinkBombFacet is WithStorage {
         // silver amount
         uint256 silverAmount = gameConstants().BURN_PLANET_REQUIRE_SILVER_AMOUNTS[
             planet.planetLevel
-        ] * (10**(player.dropBombAmount + 1));
+        ] * (10**player.dropBombAmount);
         require(player.silver >= silverAmount * 1000, "silver is not enough");
 
         // burn cooldown

@@ -32,6 +32,7 @@ const DFArchonLinks = {
   github: 'https://github.com/dfarchon',
   wiki: 'https://dfwiki.net/wiki/Main_Page',
   plugins: 'https://dfares-plugins.netlify.app/',
+  guide: 'https://dfares.notion.site/DFAres-Round-3-Guide-3980998d8f65440085c116ba0df0d99a?pvs=25',
 };
 
 const defaultAddress = address(CONTRACT_ADDRESS);
@@ -105,12 +106,21 @@ export default function LandingPage() {
             {/* <Spacer height={6} /> */}
 
             <PreTitle>
-              <div style={{ fontSize: '50px', color: '#ffb4c1' }}>
-                <Round3Title>DFAres v0.1</Round3Title>
-              </div>
-              <div style={{ fontSize: '40px', color: '#ffb4c1' }}>
-                <Round3Title>Round 3 : Kardashev</Round3Title>
-              </div>
+              <LinkContainer>
+                <a className={'link'} href={DFArchonLinks.guide} target='_blank' rel='noreferrer'>
+                  <div>
+                    <span style={{ fontSize: '50px' }}>
+                      <Round3Title>DFAres v0.1</Round3Title>
+                    </span>
+                    <br />
+                    <span style={{ fontSize: '40px' }}>
+                      <Round3Title>Round 3 : Kardashev</Round3Title>
+                    </span>
+                  </div>
+
+                  <div style={{ fontSize: '40px' }}></div>
+                </a>
+              </LinkContainer>
             </PreTitle>
 
             {/* <div style={{ fontSize: '30px' }}>
@@ -141,8 +151,8 @@ export default function LandingPage() {
                   Discord
                 </a>
                 <Spacer width={6} />
-                <a className={'link'} href={DFArchonLinks.github} target='_blank' rel='noreferrer'>
-                  Github
+                <a className={'link'} href={DFArchonLinks.guide} target='_blank' rel='noreferrer'>
+                  Guide
                 </a>
               </LinkContainer>
             </SubTitle>

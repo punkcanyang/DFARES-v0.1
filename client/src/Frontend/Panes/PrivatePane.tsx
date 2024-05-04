@@ -36,12 +36,14 @@ export function PrivatePane({ visible, onClose }: { visible: boolean; onClose: (
       <StyledPrivatePane>
         <p>
           <Sub>
-            <u>secret key</u>
+            <u>private key</u>
           </Sub>
         </p>
         <p>
           <TextPreview text={sKey} focusedWidth={'150px'} unFocusedWidth={'150px'} />
+          <span style={{ color: 'pink' }}> {' <= click here to copy the private key'}</span>
         </p>
+
         <br />
         <p>
           <Sub>

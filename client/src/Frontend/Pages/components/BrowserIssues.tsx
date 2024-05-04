@@ -1,7 +1,6 @@
-import styled from "styled-components";
 import React from 'react';
-
-import { Incompatibility } from "../../Utils/BrowserChecks";
+import styled from 'styled-components';
+import { Incompatibility } from '../../Utils/BrowserChecks';
 
 const BrowserIssue = styled.p`
   color: red;

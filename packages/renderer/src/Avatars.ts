@@ -162,6 +162,20 @@ const Snow = {
   desc: '',
 };
 
+const Gubsheep = {
+  legacy: false,
+  topLayer: [URL + '/img/avatar/gubsheep.png'],
+  bottomLayer: [],
+  desc: '',
+};
+
+const Ivan = {
+  legacy: false,
+  topLayer: [URL + '/img/avatar/ivan.png'],
+  bottomLayer: [],
+  desc: '',
+};
+
 export const avatarFromType = (type: AvatarType): Avatar => avatars[type];
 
 export const avatars: Record<AvatarType, Avatar> = {
@@ -185,4 +199,6 @@ export const avatars: Record<AvatarType, Avatar> = {
   [AvatarType.Xiaoyifu]: Xiaoyifu,
   [AvatarType.Yuppie]: Yuppie,
   [AvatarType.Snow]: Snow,
+  [AvatarType.Gubsheep]: Gubsheep,
+  [AvatarType.Ivan]: Ivan,
 };

@@ -9,11 +9,11 @@ import { getEthConnection } from '../../Backend/Network/Blockchain';
 import { InitRenderState, TerminalWrapper } from '../Components/GameLandingPageComponents';
 import { MythicLabelText } from '../Components/Labels/MythicLabel';
 import { TextPreview } from '../Components/TextPreview';
+import { Incompatibility, unsupportedFeatures } from '../Utils/BrowserChecks';
 import { TerminalTextStyle } from '../Utils/TerminalTypes';
 import { DarkForestTips } from '../Views/DarkForestTips';
 import { Terminal, TerminalHandle } from '../Views/Terminal';
 import { BrowserCompatibleState, BrowserIssues } from './components/BrowserIssues';
-import { Incompatibility, unsupportedFeatures } from '../Utils/BrowserChecks';
 
 class LobbyPageTerminal {
   private ethConnection: EthConnection;

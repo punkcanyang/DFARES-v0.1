@@ -263,11 +263,11 @@ export function GameWindowLayout({
   return (
     <WindowWrapper>
       <TopBarPaneContainer>
-        <BorderlessPane>
-          {paneVisible && (
+        {paneVisible && (
+          <BorderlessPane>
             <TopBar twitterVerifyHook={[twitterVerifyVisible, setTwitterVerifyVisible]} />
-          )}
-        </BorderlessPane>
+          </BorderlessPane>
+        )}
       </TopBarPaneContainer>
 
       {/* all modals rendered into here */}

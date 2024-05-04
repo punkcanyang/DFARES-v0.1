@@ -14,6 +14,18 @@ export type Logo = {
 const URL = PICTURE_URL;
 
 //1
+const ZEROxparc = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/0xparc.png'],
+  bottomLayer: [],
+  name: '0xPARC',
+  desc: 'Program for Applied Research in Cryptography: \
+    supporting application-level R&D on Ethereum and decentralized platforms.',
+  color: 'white',
+  website: 'https://0xparc.org/',
+};
+
+//2
 const DF = {
   legacy: false,
   topLayer: [URL + '/img/logo/DF.png'],
@@ -30,7 +42,8 @@ const DF = {
   color: '#06fc1a',
   website: 'https://twitter.com/darkforest_eth',
 };
-//2
+
+//3
 const Lattice = {
   legacy: false,
   topLayer: [URL + '/img/logo/Lattice.png'],
@@ -42,7 +55,7 @@ const Lattice = {
   website: 'https://lattice.xyz/',
 };
 
-//3
+//4
 const Redstone = {
   legacy: false,
   topLayer: [URL + '/img/logo/Redstone.png'],
@@ -54,7 +67,7 @@ const Redstone = {
   website: 'https://redstone.xyz/',
 };
 
-//4
+//5
 const Mud = {
   legacy: false,
   topLayer: [URL + '/img/logo/Mud.png'],
@@ -65,7 +78,7 @@ const Mud = {
   website: 'https://mud.dev/',
 };
 
-//5
+//6
 const Biomes = {
   legacy: false,
   topLayer: [URL + '/img/logo/Biomes.png'],
@@ -76,7 +89,7 @@ const Biomes = {
   website: 'https://twitter.com/biomesAW',
 };
 
-//6
+//7
 const ThisCursedMachine = {
   legacy: false,
   topLayer: [URL + '/img/logo/MovingCastles.png'],
@@ -87,7 +100,7 @@ const ThisCursedMachine = {
   website: 'https://twitter.com/movingcastles_/',
 };
 
-//7
+//8
 const SkyStrife = {
   legacy: false,
   topLayer: [URL + '/img/logo/SkyStrife.png'],
@@ -98,7 +111,7 @@ const SkyStrife = {
   website: 'https://www.skystrife.xyz/',
 };
 
-// 8
+// 9
 const SmallBrainGames = {
   legacy: false,
   topLayer: [URL + '/img/logo/SmallBrain.png'],
@@ -109,7 +122,7 @@ const SmallBrainGames = {
   website: 'https://twitter.com/0xsmallbrain',
 };
 
-//9
+//10
 const DownStream = {
   legacy: false,
   topLayer: [URL + '/img/logo/DownStream.png'],
@@ -120,7 +133,7 @@ const DownStream = {
   website: 'https://downstream.game/',
 };
 
-//10
+//11
 const Dear = {
   legacy: false,
   topLayer: [URL + '/img/logo/Dear.png'],
@@ -131,7 +144,7 @@ const Dear = {
   website: 'https://twitter.com/dear_dyr',
 };
 
-//11
+//12
 const DFARES = {
   legacy: false,
   topLayer: [URL + '/img/logo/DFARES.png'],
@@ -143,32 +156,7 @@ const DFARES = {
   website: 'https://dfares.xyz/',
 };
 
-//12
-const PixeLAW = {
-  legacy: false,
-  topLayer: [URL + '/img/logo/PixeLAW.png'],
-  bottomLayer: [],
-  name: 'PixeLAW',
-  desc: 'A pixel-based Autonomous World.',
-  color: 'white',
-  website: 'https://pixelaw.xyz/',
-};
-
 //13
-const GGQuest = {
-  legacy: false,
-  topLayer: [URL + '/img/logo/ggQuest.png'],
-  name: 'GGQuest',
-  desc: 'GGQuest is the ultimate on-chain progression system for gamers. \
-  We track & aggregate all gaming-related data across various platforms & \
-  ecosystems and showcase them under one unified dashboard- Quest ID.\
-   This can help build reputation & unlock personalized gaming experiences.',
-  color: '#fff',
-  bottomLayer: [],
-  website: 'https://twitter.com/gg_quest_gg',
-};
-
-//14
 const DFArchon = {
   legacy: false,
   topLayer: [URL + '/img/logo/DFArchon.png'],
@@ -185,7 +173,65 @@ const DFArchon = {
   website: 'https://twitter.com/DFArchon',
 };
 
+//14
+const GGQuest = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/ggQuest.png'],
+  name: 'GGQuest',
+  desc: 'GGQuest is the ultimate on-chain progression system for gamers. \
+  We track & aggregate all gaming-related data across various platforms & \
+  ecosystems and showcase them under one unified dashboard- Quest ID.\
+   This can help build reputation & unlock personalized gaming experiences.',
+  color: '#fff',
+  bottomLayer: [],
+  website: 'https://twitter.com/gg_quest_gg',
+};
+
 //15
+const YeomenAI = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/YeomenAI.png'],
+  name: 'Yeomen AI',
+  desc: 'Web3 Data & Analytics',
+  color: 'white',
+  bottomLayer: [],
+  website: 'https://yeomen.ai/',
+};
+
+//16
+const Redswap = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/Redswap.png'],
+  name: 'Redswap ',
+  desc: 'Public Good DEX on @redstonexyz',
+  color: '#f34242',
+  bottomLayer: [],
+  website: 'https://twitter.com/0xRedswap',
+};
+
+//17
+const RedstoneMarket = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/RedstoneMarket.png'],
+  name: 'Redstone Market',
+  desc: 'The Redstone NFT Marketplace by @reservoir0x',
+  color: '#f34242',
+  bottomLayer: [],
+  website: 'https://twitter.com/redstonemarket',
+};
+
+//18
+const PixeLAW = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/PixeLAW.png'],
+  bottomLayer: [],
+  name: 'PixeLAW',
+  desc: 'A pixel-based Autonomous World.',
+  color: 'white',
+  website: 'https://pixelaw.xyz/',
+};
+
+//19
 const Mask = {
   legacy: false,
   topLayer: [URL + '/img/logo/Mask.svg'],
@@ -196,7 +242,7 @@ const Mask = {
   website: 'https://twitter.com/realMaskNetwork',
 };
 
-//16
+//20
 const AGLDDAO = {
   legacy: false,
   topLayer: [URL + '/img/logo/AGLDDAO.png'],
@@ -209,7 +255,7 @@ const AGLDDAO = {
   website: 'https://twitter.com/GoldAdventure',
 };
 
-//17
+//21
 const AWHouse = {
   legacy: false,
   topLayer: [URL + '/img/logo/AWHouse.png'],
@@ -220,7 +266,7 @@ const AWHouse = {
   website: 'https://twitter.com/AW_house',
 };
 
-//18
+//22
 const OrdenGG = {
   legacy: false,
   topLayer: [URL + '/img/logo/OrdenGG.png'],
@@ -232,7 +278,7 @@ const OrdenGG = {
   website: 'https://twitter.com/orden_gg',
 };
 
-//19
+//23
 const DFDAO = {
   legacy: false,
   topLayer: [URL + '/img/logo/DFDAO.png'],
@@ -244,7 +290,7 @@ const DFDAO = {
   website: 'https://twitter.com/d_fdao',
 };
 
-//20
+//24
 const FunBlocks = {
   legacy: false,
   topLayer: [URL + '/img/logo/FunBlocks.png'],
@@ -257,7 +303,7 @@ const FunBlocks = {
   website: 'https://twitter.com/0xFunBlocks',
 };
 
-//21
+//25
 const WASD = {
   legacy: false,
   topLayer: [URL + '/img/logo/WASD.png'],
@@ -271,7 +317,7 @@ const WASD = {
   website: 'https://twitter.com/WASD_0x',
 };
 
-//22
+//26
 const FunCraft = {
   legacy: false,
   topLayer: [URL + '/img/logo/FunCraft.png'],
@@ -282,7 +328,7 @@ const FunCraft = {
   website: 'https://twitter.com/Funcraftguild',
 };
 
-//23
+//27
 const WorldExplorers = {
   legacy: false,
   topLayer: [URL + '/img/logo/WorldExplorers.png'],
@@ -293,7 +339,7 @@ const WorldExplorers = {
   website: 'https://twitter.com/awexplorers',
 };
 
-//24
+//28
 const AWResearch = {
   legacy: false,
   topLayer: [URL + '/img/logo/AWResearch.png'],
@@ -307,7 +353,7 @@ const AWResearch = {
   website: 'https://twitter.com/AW_Research',
 };
 
-//25
+//29
 const ComposableLabs = {
   legacy: false,
   topLayer: [URL + '/img/logo/ComposableLabs.png'],
@@ -319,7 +365,7 @@ const ComposableLabs = {
   website: 'https://twitter.com/composablehub',
 };
 
-//26
+//30
 const MetaCat = {
   legacy: false,
   topLayer: [URL + '/img/logo/MetaCat.png'],
@@ -330,42 +376,10 @@ const MetaCat = {
   website: '',
 };
 
-//27
-const YeomenAI = {
-  legacy: false,
-  topLayer: [URL + '/img/logo/YeomenAI.png'],
-  name: 'Yeomen AI',
-  desc: 'Web3 Data & Analytics',
-  color: 'white',
-  bottomLayer: [],
-  website: 'https://yeomen.ai/',
-};
-
-//28
-const Redswap = {
-  legacy: false,
-  topLayer: [URL + '/img/logo/Redswap.png'],
-  name: 'Redswap ',
-  desc: 'Public Good DEX on @redstonexyz',
-  color: '#f34242',
-  bottomLayer: [],
-  website: 'https://twitter.com/0xRedswap',
-};
-
-//29
-const RedstoneMarket = {
-  legacy: false,
-  topLayer: [URL + '/img/logo/RedstoneMarket.png'],
-  name: 'Redstone Market',
-  desc: 'The Redstone NFT Marketplace by @reservoir0x',
-  color: '#f34242',
-  bottomLayer: [],
-  website: 'https://twitter.com/redstonemarket',
-};
-
 export const logoFromType = (type: LogoType): Logo => logos[type];
 
 export const logos: Record<LogoType, Logo> = {
+  [LogoType.Zeroxparc]: ZEROxparc,
   [LogoType.DarkForest]: DF,
   [LogoType.Lattice]: Lattice,
   [LogoType.Redstone]: Redstone,
@@ -377,9 +391,12 @@ export const logos: Record<LogoType, Logo> = {
   [LogoType.DownStream]: DownStream,
   [LogoType.Dear]: Dear,
   [LogoType.DFARES]: DFARES,
-  [LogoType.PixeLAW]: PixeLAW,
-  [LogoType.GGQuest]: GGQuest,
   [LogoType.DFArchon]: DFArchon,
+  [LogoType.GGQuest]: GGQuest,
+  [LogoType.YeomenAI]: YeomenAI,
+  [LogoType.Redswap]: Redswap,
+  [LogoType.RedstoneMarket]: RedstoneMarket,
+  [LogoType.PixeLAW]: PixeLAW,
   [LogoType.Mask]: Mask,
   [LogoType.AGLDDAO]: AGLDDAO,
   [LogoType.AWHouse]: AWHouse,
@@ -392,9 +409,6 @@ export const logos: Record<LogoType, Logo> = {
   [LogoType.AWResearch]: AWResearch,
   [LogoType.ComposableLabs]: ComposableLabs,
   [LogoType.MetaCat]: MetaCat,
-  [LogoType.YeomenAI]: YeomenAI,
-  [LogoType.Redswap]: Redswap,
-  [LogoType.RedstoneMarket]: RedstoneMarket,
 };
 
 // export const avatarFromArtifactIdAndImageType = (

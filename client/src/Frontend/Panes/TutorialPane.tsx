@@ -220,7 +220,7 @@ function TutorialPaneContent({ tutorialState }: { tutorialState: TutorialState }
         This is the end of the tutorial. Go out and explore the universe! More information will pop
         up in the <White>upper-right</White> as you discover more about the game.
         <br />
-        We hope you enjoy Dark Forest!
+        We hope you enjoy Dark Forest Ares!
         <div>
           <Btn className='btn' onClick={() => tutorialManager.complete()}>
             Finish

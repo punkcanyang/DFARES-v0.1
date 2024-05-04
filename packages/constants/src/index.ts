@@ -155,13 +155,13 @@ export const MAX_AUTO_GAS_PRICE_GWEI = 15 as const;
  * The URL to the block explorer for the chain being used. Prepended to transaction links, etc
  */
 // Careful, don't add a slash to the end of this.
-export const BLOCK_EXPLORER_URL = 'https://explorer.holesky.redstone.xyz' as const;
+export const BLOCK_EXPLORER_URL = 'https://explorer.redstone.xyz' as const;
 
 /**
  * The URL to the bridge for the chain being used. Prepended to transaction links, etc
  */
 
-export const BLOCKCHAIN_BRIDGE = 'https://redstone.xyz/deposit' as const;
+export const BLOCKCHAIN_BRIDGE = 'https://relay.link/bridge/redstone/' as const;
 /**
  * The amount of time between gas price refreshes when fetching prices from the oracle.
  */
@@ -220,10 +220,10 @@ export const MIN_MEME_TYPE = 1;
 export const MAX_MEME_TYPE = 10;
 
 export const MIN_LOGO_TYPE = 1;
-export const MAX_LOGO_TYPE = 29;
+export const MAX_LOGO_TYPE = 30;
 
 export const MIN_AVATAR_TYPE = 1;
-export const MAX_AVATAR_TYPE = 20;
+export const MAX_AVATAR_TYPE = 22;
 
 /**
  * This should be updated every round.

@@ -1553,7 +1553,7 @@ class GameUIManager extends EventEmitter {
     if (!player) return undefined;
     const silverAmount =
       this.contractConstants.BURN_PLANET_REQUIRE_SILVER_AMOUNTS[planetLevel] *
-      10 ** (player.dropBombAmount + 1);
+      10 ** player.dropBombAmount;
 
     return silverAmount;
   }

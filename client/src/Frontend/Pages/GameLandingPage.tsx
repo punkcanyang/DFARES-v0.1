@@ -40,8 +40,8 @@ import { TerminalTextStyle } from '../Utils/TerminalTypes';
 import UIEmitter, { UIEmitterEvent } from '../Utils/UIEmitter';
 import { GameWindowLayout } from '../Views/GameWindowLayout';
 import { Terminal, TerminalHandle } from '../Views/Terminal';
-import { MiniMap, MiniMapHandle } from './components/MiniMap';
 import { BrowserCompatibleState, BrowserIssues } from './components/BrowserIssues';
+import { MiniMap, MiniMapHandle } from './components/MiniMap';
 
 const enum TerminalPromptStep {
   NONE,
@@ -132,6 +132,28 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       const totalAccounts = accounts.length;
 
       if (showHelp) {
+        terminal.current?.newline();
+        terminal.current?.newline();
+
+        terminal.current?.print('Player guide: ', TerminalTextStyle.Pink);
+
+        terminal.current?.printLink(
+          'Please Click Here',
+          () => {
+            window.open(
+              'https://dfares.notion.site/DFAres-Round-3-Guide-3980998d8f65440085c116ba0df0d99a'
+            );
+          },
+          TerminalTextStyle.Blue
+        );
+
+        terminal.current?.println(
+          ' <= New player please check this guide !!!',
+          TerminalTextStyle.Pink
+        );
+
+        terminal.current?.newline();
+
         if (isLobby) {
           terminal.current?.newline();
           terminal.current?.printElement(
@@ -474,6 +496,13 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
           terminal.current?.print(`${balance.toFixed(9)} ${TOKEN_NAME}`, TerminalTextStyle.Red);
 
           terminal.current?.println(' <= at least 0.0002 ETH');
+
+          terminal.current?.print(`           NOTE: `, TerminalTextStyle.Pink);
+
+          terminal.current?.println(
+            'You can use bridge to transfer ETH to Redstone Mainnet',
+            TerminalTextStyle.Pink
+          );
 
           terminal.current?.print('   L2-L2 bridge: ');
 

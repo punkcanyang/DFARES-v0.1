@@ -28,7 +28,7 @@ library LibArtifactExtendUtils {
         else if (artifactType == ArtifactType.ShipGear) return "Gear";
         else if (artifactType == ArtifactType.ShipTitan) return "Titan";
         else if (artifactType == ArtifactType.ShipPink) return "Pinkship";
-        else return "Unknown";
+        else return string(abi.encodePacked(unicode"🔷"));
     }
 
     function getArtifactRarityNames(ArtifactRarity rarity) public pure returns (string memory) {
@@ -37,7 +37,7 @@ library LibArtifactExtendUtils {
         else if (rarity == ArtifactRarity.Epic) return "Epic";
         else if (rarity == ArtifactRarity.Legendary) return "Lengendary";
         else if (rarity == ArtifactRarity.Mythic) return "Mythic";
-        else return "Unknown";
+        else return string(abi.encodePacked(unicode"🔷"));
     }
 
     function getBiomeNames(Biome biome) public pure returns (string memory) {
@@ -51,7 +51,7 @@ library LibArtifactExtendUtils {
         else if (biome == Biome.Wasteland) return "Wasteland";
         else if (biome == Biome.Lava) return "Lava";
         else if (biome == Biome.Corrupted) return "Corrupted";
-        else return "Unknown";
+        else return string(abi.encodePacked(unicode"🔷"));
     }
 
     // [MIT License]

@@ -76,7 +76,7 @@ function timestampSection(value) {
 class Plugin {
   constructor() {
     // this.begin_time = new Date('2023-07-19 19:00:00.000 GMT+0800');
-    this.end_time = new Date('2024-01-28T12:00:00.000Z');
+    this.end_time = new Date('2024-05-12T15:00:00.000Z');
     this.timer = document.createElement('div');
     this.timer.style.width = '100%';
     this.timer.style.textAlign = 'center';
@@ -150,26 +150,32 @@ class Plugin {
     }
 
     if (players.length >= 1) {
-      this.table.children[1].style.color = 'gold';
+      this.table.children[1].style.color = '#ff44b7';
     }
 
-    if (players.length >= 2) {
-      this.table.children[2].style.color = 'rgb(255, 68, 183)';
+    const lvl_2 = Math.min(players.length, 3);
+    for (let i = 2; i <= lvl_2; i++) {
+      this.table.children[i].style.color = '#f8b73e';
     }
 
-    if (players.length >= 3) {
-      this.table.children[3].style.color = 'rgb(248, 183, 62)';
+    const lvl_3 = Math.min(players.length, 7);
+    for (let i = 4; i <= lvl_3; i++) {
+      this.table.children[i].style.color = '#c13cff';
     }
 
-    const lvl_1 = Math.min(players.length, 10);
-    for (let i = 4; i <= lvl_1; i++) {
-      this.table.children[i].style.color = 'rgb(193, 60, 255)';
+    const lvl_4 = Math.min(players.length, 15);
+    for (let i = 8; i <= lvl_4; i++) {
+      this.table.children[i].style.color = '#6b68ff';
     }
 
-    const lvl_2 = Math.min(players.length, 50);
+    const lvl_5 = Math.min(players.length, 31);
+    for (let i = 16; i <= lvl_5; i++) {
+      this.table.children[i].style.color = 'green';
+    }
 
-    for (let i = 11; i <= lvl_2; i++) {
-      this.table.children[i].style.color = 'rgb(107, 104, 255)';
+    const lvl_6 = Math.min(players.length, 64);
+    for (let i = 32; i <= lvl_6; i++) {
+      this.table.children[i].style.color = 'white';
     }
   };
   update_score = (players) => {

@@ -75,7 +75,7 @@ function getCurrentTime() {
   var second = zeroFill(date.getSeconds());
 
   var curTime =
-    date.getFullYear() + '-' + month + '-' + day + '_' + hour + '-' + minute + '-' + second;
+    date.getFullYear() + '-' + month + '-' + day + '-' + hour + '-' + minute + '-' + second;
 
   return curTime;
 }
@@ -270,7 +270,11 @@ function mapFilterExport() {
       var blob = new Blob([map], { type: 'application/json' }),
         anchor = document.createElement('a');
       let currentTime = getCurrentTime();
-      anchor.download = df.getContractAddress().substring(0, 6) + '_' + currentTime + '_map.json';
+      anchor.download =
+        df.getContractAddress().substring(0, 6) +
+        '_' +
+        currentTime +
+        '_map_without_background.json';
       anchor.href = (window.webkitURL || window.URL).createObjectURL(blob);
       anchor.dataset.downloadurl = ['application/json', anchor.download, anchor.href].join(':');
       anchor.click();

@@ -3,6 +3,7 @@ import { ModalName } from '@dfares/types';
 import React from 'react';
 import styled from 'styled-components';
 import { Link, Section, SectionHeader } from '../Components/CoreUI';
+import { Pink } from '../Components/Text';
 import dfstyles from '../Styles/dfstyles';
 import { useUIManager } from '../Utils/AppHooks';
 import { ModalPane } from '../Views/ModalPane';
@@ -108,49 +109,12 @@ export function HelpPane({ visible, onClose }: { visible: boolean; onClose: () =
           </Section>
         )}
         <Section>
-          <SectionHeader>HotKey Intro</SectionHeader>
+          <SectionHeader>Hotkeys Intro</SectionHeader>
           <Table data={data} />
         </Section>
 
         <Section>
-          <SectionHeader>Dark Forest Ares</SectionHeader>
-          Dark Forest Ares is a series of{' '}
-          <Link to='https://zkga.me' color={dfstyles.colors.dfgreen}>
-            Dark Forest
-          </Link>{' '}
-          community rounds hosted by{' '}
-          <Link to='https://twitter.com/DFArchon' color={dfstyles.colors.dfpink}>
-            DFArchon team
-          </Link>
-          . We hope to innovate game mechanics while maintaining the original style of Dark Forest.
-          Recently We choose to host Dark Forest Ares v0.1 Round 3: Kardashev on{' '}
-          <Link to={BLOCK_EXPLORER_URL} color={'rgb(243,66,66)'}>
-            Redstone
-          </Link>
-          .
-        </Section>
-
-        <Section>
-          <SectionHeader>Some Links:</SectionHeader>
-          {/* <Link to='https://blog.zkga.me'>Official Info and Announcements</Link>
-          <br />
-          <Link to='https://twitter.com/darkforest_eth'>Official Twitter</Link>
-          <br />
-          <Link to='https://discord.gg/2u2TN6v8r6'>Official Discord Server</Link>
-          <br /> */}
-          {/* <Link to='https://dfwiki.net/'>Community-Run Wiki</Link> */}
-          {/* <br /> */}
-          <Link to={DFArchonLinks.blog}>DFArchon's Info and Announcements</Link>
-          <br />
-          <Link to={DFArchonLinks.twitter}>DFArchon's Twitter</Link>
-          <br />
-          <Link to={DFArchonLinks.discord}>DFArchon's Discord Server</Link>
-          <br />
-          <br />
-        </Section>
-
-        <Section>
-          <SectionHeader>Dark Forest Ares v0.1 Round 3: Kardashev</SectionHeader>
+          <SectionHeader>Dark Forest Ares v0.1 Round 3: Kardashev🔷</SectionHeader>
           {/* The game is a vast universe, obfuscated by zero-knowledge cryptography. Your{' '}
           <White>explorer</White> (bottom left) explores the universe, searching for{' '}
           <White>Planets</White> and other players.
@@ -164,15 +128,34 @@ export function HelpPane({ visible, onClose }: { visible: boolean; onClose: () =
           <EmSpacer height={1} /> Some planets contain <White>Artifacts</White> - ERC721 tokens that
           can be traded with other players. Artifacts can be harvested and deposited onto planets,
           buffing their stats. */}
-          Please read{' '}
-          <Link
-            to='https://dfares.notion.site/DFAres-Round-3-Guide-for-New-Players-3980998d8f65440085c116ba0df0d99a?pvs=74'
-            color='pink'
-          >
-            {' '}
-            DFAres Guide for New Players
-          </Link>{' '}
-          to know how to play.
+          <div>
+            Please read{' '}
+            <Link
+              to='https://dfares.notion.site/DFAres-Round-3-Guide-for-New-Players-3980998d8f65440085c116ba0df0d99a?pvs=74'
+              color='pink'
+            >
+              DFAres Round 3 Guide
+            </Link>{' '}
+            to know how to play.
+          </div>
+
+          <div>
+            <Link to='https://twitter.com/DFArchon' color={dfstyles.colors.dfpink}>
+              DFArchon team
+            </Link>{' '}
+            host <Pink>Dark Forest Ares</Pink> Round 3 on{' '}
+            <Link to={BLOCK_EXPLORER_URL} color={'rgb(243,66,66)'}>
+              Redstone
+            </Link>
+            .
+          </div>
+          <div>
+            <Pink>Dark Forest Ares</Pink> is a community-run deployment of{' '}
+            <Link to='https://zkga.me' color={dfstyles.colors.dfgreen}>
+              Dark Forest
+            </Link>
+            .
+          </div>
         </Section>
 
         <Section>
@@ -185,6 +168,18 @@ export function HelpPane({ visible, onClose }: { visible: boolean; onClose: () =
             Win Conditions/Prizes
           </Link>{' '}
           to know the prizes.
+        </Section>
+
+        <Section>
+          <SectionHeader>More Useful Links</SectionHeader>
+
+          <Link to={DFArchonLinks.blog}>DFArchon's Blog</Link>
+          <br />
+          <Link to={DFArchonLinks.twitter}>DFArchon's Twitter</Link>
+          <br />
+          <Link to={DFArchonLinks.discord}>DFArchon's Discord Server</Link>
+          <br />
+          <br />
         </Section>
 
         {/* <Section>

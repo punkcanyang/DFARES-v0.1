@@ -213,9 +213,9 @@ export const HAT_SIZES = [
 export const MIN_HAT_TYPE = 1;
 export const MAX_HAT_TYPE = 10;
 
-export const PICTURE_URL = 'http://localhost:8081';
-// export const PICTURE_URL = 'https://dfares.xyz/public';
-// export const PICTURE_URL = 'https://dfares.xyz/public';
+// export const PICTURE_URL = 'http://localhost:8081';
+export const PICTURE_URL = 'https://dfares.xyz/public';
+
 export const MIN_MEME_TYPE = 1;
 export const MAX_MEME_TYPE = 10;
 
@@ -223,7 +223,7 @@ export const MIN_LOGO_TYPE = 1;
 export const MAX_LOGO_TYPE = 30;
 
 export const MIN_AVATAR_TYPE = 1;
-export const MAX_AVATAR_TYPE = 22;
+export const MAX_AVATAR_TYPE = 23;
 
 /**
  * This should be updated every round.

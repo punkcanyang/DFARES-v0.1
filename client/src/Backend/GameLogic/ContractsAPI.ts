@@ -76,7 +76,7 @@ export class ContractsAPI extends EventEmitter {
    * Don't allow users to submit txs if balance falls below this amount/
    */
   //todo: this should be change for round 3
-  private static readonly MIN_BALANCE = ethToWei(0.0001);
+  private static readonly MIN_BALANCE = ethToWei(0.00001);
 
   /**
    * Instrumented {@link ThrottledConcurrentQueue} for blockchain reads.

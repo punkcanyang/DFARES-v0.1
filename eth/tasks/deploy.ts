@@ -463,6 +463,7 @@ export async function deployLibraries({}, hre: HardhatRuntimeEnvironment) {
   const LibGameUtilsFactory = await hre.ethers.getContractFactory('LibGameUtils');
   const LibGameUtils = await LibGameUtilsFactory.deploy();
   console.log('------ tx:', LibGameUtils.address, ' ------');
+  console.log(LibGameUtils.deployTransaction);
   await LibGameUtils.deployTransaction.wait();
   console.log(`LibGameUtils deployed to: ${LibGameUtils.address}`);
 

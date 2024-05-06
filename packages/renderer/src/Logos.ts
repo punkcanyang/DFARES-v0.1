@@ -373,7 +373,25 @@ const MetaCat = {
   desc: 'AW Adventurer & Metaverse Data Analytics & Content Navigation.',
   color: '#f7931a',
   bottomLayer: [],
-  website: '',
+  website: 'https://twitter.com/Metacat007',
+};
+
+//31
+const Web3MQ = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/web3mq.png'],
+  bottomLayer: [],
+  name: 'Web3MQ',
+  desc: 'Message relay network for Web3 based on current test results,\
+  offering a trustless and seamless interactive experience. \
+  With its interoperability, permissionless composability, and other features,\
+   Web3MQ lowers integration barriers and provides developers with\
+    convenient customization options. Web3MQ offers solutions for games, \
+    social applications, and wallets, making it the next-generation provider\
+     for fully on-chain gaming communication. ',
+
+  color: '#9A26F9',
+  website: 'https://twitter.com/Web3MQ',
 };
 
 export const logoFromType = (type: LogoType): Logo => logos[type];
@@ -409,6 +427,7 @@ export const logos: Record<LogoType, Logo> = {
   [LogoType.AWResearch]: AWResearch,
   [LogoType.ComposableLabs]: ComposableLabs,
   [LogoType.MetaCat]: MetaCat,
+  [LogoType.Web3MQ]: Web3MQ,
 };
 
 // export const avatarFromArtifactIdAndImageType = (

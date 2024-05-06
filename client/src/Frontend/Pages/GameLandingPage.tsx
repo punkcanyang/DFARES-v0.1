@@ -285,7 +285,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
           const balance = rawResult ? weiToEth(rawResult) : 0;
 
           terminal.current?.print(`(${i + 1}): ${accounts[i].address}  `, TerminalTextStyle.Sub);
-          if (balance < 0.0002) {
+          if (balance < 0.0001) {
             terminal.current?.print(balance.toFixed(9) + ' ' + TOKEN_NAME, TerminalTextStyle.Red);
             terminal.current?.println(' => select this account to know how to get enough ETH');
           } else {
@@ -495,7 +495,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
           terminal.current?.print(`   Your balance: `);
           terminal.current?.print(`${balance.toFixed(9)} ${TOKEN_NAME}`, TerminalTextStyle.Red);
 
-          terminal.current?.println(' <= at least 0.0002 ETH');
+          terminal.current?.println(' <= recommend depositing 0.003 ETH');
 
           terminal.current?.print(`           NOTE: `, TerminalTextStyle.Pink);
 
@@ -1019,146 +1019,257 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
         return;
       }
 
-      if (showHelp) {
-        terminal.current?.println('Select home planet.', TerminalTextStyle.Green);
-        terminal.current?.print('Please ');
-        terminal.current?.print('left-click', TerminalTextStyle.Pink);
-        terminal.current?.print(' on ');
-        terminal.current?.print('blue squares on the map', TerminalTextStyle.Blue);
-        terminal.current?.println(' to select your spawn area.');
-        terminal.current?.newline();
-        terminal.current?.print('After selecting your spawn area, ');
-        terminal.current?.print('left-click the below line', TerminalTextStyle.Pink);
-        terminal.current?.println(', then press [enter].');
-      }
+      let setX = undefined;
+      let setY = undefined;
 
-      setMiniMapOn(true);
-      // let the miniMap component mount
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('searchCenter')) {
+        const parts = params.get('searchCenter')?.split(',');
 
-      const userInput = ((await terminal.current?.getInput()) ?? '').trim();
-      const selectedSpawnArea = miniMapRef.current?.getSelectedSpawnArea();
-      switch (true) {
-        case userInput === 'clear': {
-          terminal.current?.clear();
-          advanceStateFromNoHomePlanet(terminal, { showHelp: false });
-          return;
-        }
-        case userInput === 'h' || userInput === 'help': {
-          advanceStateFromNoHomePlanet(terminal, { showHelp: true });
-          return;
-        }
-        case userInput !== '': {
-          terminal.current?.println(
-            'Invalid option, please try press [help]',
-            TerminalTextStyle.Pink
-          );
-          advanceStateFromNoHomePlanet(terminal, { showHelp: false });
-          return;
+        if (parts) {
+          setX = parseInt(parts[0], 10);
+          setY = parseInt(parts[1], 10);
         }
       }
 
-      if (!selectedSpawnArea) {
+      if (setX && setY) {
+        const coords = { x: setX, y: setY };
+        const distFromOrigin = Math.sqrt(coords.x ** 2 + coords.y ** 2);
         terminal.current?.println(
-          'Please select a spawn area, then press [enter]',
-          TerminalTextStyle.Red
+          `Spawn coordinates: (${coords.x.toFixed(0)}, ${coords.y.toFixed(
+            0
+          )}) were selected, distance from center: ${distFromOrigin.toFixed(0)}.`
         );
-        advanceStateFromNoHomePlanet(terminal, { showHelp: false });
-        return;
-      }
 
-      // disable reselect of spawn posistion when we start searching
-      miniMapRef.current?.setSelectable(false);
-
-      const coords = selectedSpawnArea.worldPoint;
-      const distFromOrigin = Math.sqrt(coords.x ** 2 + coords.y ** 2);
-      terminal.current?.println(
-        `Spawn coordinates: (${coords.x.toFixed(0)}, ${coords.y.toFixed(
-          0
-        )}) were selected, distance from center: ${distFromOrigin.toFixed(0)}.`
-      );
-
-      gameUIManager.getGameManager().on(GameManagerEvent.InitializedPlayer, () => {
-        setTimeout(() => {
-          setMiniMapOn(false);
-
-          terminal.current?.println('Initializing game...');
-          setStep(TerminalPromptStep.ALL_CHECKS_PASS);
-        });
-      });
-
-      gameUIManager
-        .joinGame(
-          async (e) => {
-            // TODO: Handle 2min timeout error
+        gameUIManager.getGameManager().on(GameManagerEvent.InitializedPlayer, () => {
+          setTimeout(() => {
             setMiniMapOn(false);
 
-            console.error(e);
+            terminal.current?.println('Initializing game...');
+            setStep(TerminalPromptStep.ALL_CHECKS_PASS);
+          });
+        });
 
-            terminal.current?.println('Error Joining Game:');
-            terminal.current?.println(e.message, TerminalTextStyle.Red);
-            terminal.current?.newline();
+        gameUIManager
+          .joinGame(
+            async (e) => {
+              // TODO: Handle 2min timeout error
+              setMiniMapOn(false);
 
-            console.log(e.message.slice(0, 20));
+              console.error(e);
 
-            if (e.message.slice(0, 20) === 'Please enable popups') {
-              terminal.current?.print('Player guide: ', TerminalTextStyle.Pink);
+              terminal.current?.println('Error Joining Game:');
+              terminal.current?.println(e.message, TerminalTextStyle.Red);
+              terminal.current?.newline();
 
-              terminal.current?.printLink(
-                'How to enable popups',
-                () => {
-                  window.open(
-                    'https://dfares.notion.site/How-to-enable-popups-f01552bd77984ad582e1d7cc33b9523d'
-                  );
-                },
-                TerminalTextStyle.Green
-              );
-              terminal.current?.println(
-                ' <= New player please check this guide!!!',
-                TerminalTextStyle.Pink
-              );
+              console.log(e.message.slice(0, 20));
 
-              terminal.current?.println('');
-            } else if (e.message === 'transaction reverted') {
-              terminal.current?.println(
-                'Please refresh the client, choose another area and try again.',
-                TerminalTextStyle.Pink
-              );
+              if (e.message.slice(0, 20) === 'Please enable popups') {
+                terminal.current?.print('Player guide: ', TerminalTextStyle.Pink);
 
-              terminal.current?.println('');
-            }
+                terminal.current?.printLink(
+                  'How to enable popups',
+                  () => {
+                    window.open(
+                      'https://dfares.notion.site/How-to-enable-popups-f01552bd77984ad582e1d7cc33b9523d'
+                    );
+                  },
+                  TerminalTextStyle.Green
+                );
+                terminal.current?.println(
+                  ' <= New player please check this guide!!!',
+                  TerminalTextStyle.Pink
+                );
 
-            // terminal.current?.println(
-            //   "Don't worry :-) you can get more ETH on Redstone this way 😘",
-            //   TerminalTextStyle.Pink
-            // );
+                terminal.current?.println('');
+              } else if (e.message === 'transaction reverted') {
+                terminal.current?.println(
+                  'Please refresh the client, choose another area and try again.',
+                  TerminalTextStyle.Pink
+                );
 
-            // terminal.current?.newline();
-            // terminal.current?.printLink(
-            //   'Deposit ETH to Redstone',
-            //   () => {
-            //     window.open(BLOCKCHAIN_BRIDGE);
-            //   },
-            //   TerminalTextStyle.Pink
-            // );
-            // terminal.current?.newline();
-            // terminal.current?.newline();
+                terminal.current?.println('');
+              }
 
-            terminal.current?.println('Press [enter] to Try Again:');
+              // terminal.current?.println(
+              //   "Don't worry :-) you can get more ETH on Redstone this way 😘",
+              //   TerminalTextStyle.Pink
+              // );
 
-            await terminal.current?.getInput();
-            return true;
-          },
-          coords,
-          spectate
-        )
-        .catch((error: Error) => {
+              // terminal.current?.newline();
+              // terminal.current?.printLink(
+              //   'Deposit ETH to Redstone',
+              //   () => {
+              //     window.open(BLOCKCHAIN_BRIDGE);
+              //   },
+              //   TerminalTextStyle.Pink
+              // );
+              // terminal.current?.newline();
+              // terminal.current?.newline();
+
+              terminal.current?.println('Press [enter] to Try Again:');
+
+              await terminal.current?.getInput();
+              return true;
+            },
+            coords,
+            spectate
+          )
+          .catch((error: Error) => {
+            terminal.current?.println(
+              `[ERROR] An error occurred: ${error.toString().slice(0, 10000)}`,
+              TerminalTextStyle.Red
+            );
+            terminal.current?.println(
+              'please refresh client to try again.',
+              TerminalTextStyle.Pink
+            );
+          });
+      } else {
+        if (showHelp) {
+          terminal.current?.println('Select home planet.', TerminalTextStyle.Green);
+          terminal.current?.print('Please ');
+          terminal.current?.print('left-click', TerminalTextStyle.Pink);
+          terminal.current?.print(' on ');
+          terminal.current?.print('blue squares on the map', TerminalTextStyle.Blue);
+          terminal.current?.println(' to select your spawn area.');
+          terminal.current?.newline();
+          terminal.current?.print('After selecting your spawn area, ');
+          terminal.current?.print('left-click the below line', TerminalTextStyle.Pink);
+          terminal.current?.println(', then press [enter].');
+        }
+
+        setMiniMapOn(true);
+        // let the miniMap component mount
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        const userInput = ((await terminal.current?.getInput()) ?? '').trim();
+        const selectedSpawnArea = miniMapRef.current?.getSelectedSpawnArea();
+        switch (true) {
+          case userInput === 'clear': {
+            terminal.current?.clear();
+            advanceStateFromNoHomePlanet(terminal, { showHelp: false });
+            return;
+          }
+          case userInput === 'h' || userInput === 'help': {
+            advanceStateFromNoHomePlanet(terminal, { showHelp: true });
+            return;
+          }
+          case userInput !== '': {
+            terminal.current?.println(
+              'Invalid option, please try press [help]',
+              TerminalTextStyle.Pink
+            );
+            advanceStateFromNoHomePlanet(terminal, { showHelp: false });
+            return;
+          }
+        }
+
+        if (!selectedSpawnArea) {
           terminal.current?.println(
-            `[ERROR] An error occurred: ${error.toString().slice(0, 10000)}`,
+            'Please select a spawn area, then press [enter]',
             TerminalTextStyle.Red
           );
-          terminal.current?.println('please refresh client to try again.', TerminalTextStyle.Pink);
+          advanceStateFromNoHomePlanet(terminal, { showHelp: false });
+          return;
+        }
+
+        // disable reselect of spawn posistion when we start searching
+        miniMapRef.current?.setSelectable(false);
+
+        const coords = selectedSpawnArea.worldPoint;
+        const distFromOrigin = Math.sqrt(coords.x ** 2 + coords.y ** 2);
+        terminal.current?.println(
+          `Spawn coordinates: (${coords.x.toFixed(0)}, ${coords.y.toFixed(
+            0
+          )}) were selected, distance from center: ${distFromOrigin.toFixed(0)}.`
+        );
+
+        gameUIManager.getGameManager().on(GameManagerEvent.InitializedPlayer, () => {
+          setTimeout(() => {
+            setMiniMapOn(false);
+
+            terminal.current?.println('Initializing game...');
+            setStep(TerminalPromptStep.ALL_CHECKS_PASS);
+          });
         });
+
+        gameUIManager
+          .joinGame(
+            async (e) => {
+              // TODO: Handle 2min timeout error
+              setMiniMapOn(false);
+
+              console.error(e);
+
+              terminal.current?.println('Error Joining Game:');
+              terminal.current?.println(e.message, TerminalTextStyle.Red);
+              terminal.current?.newline();
+
+              console.log(e.message.slice(0, 20));
+
+              if (e.message.slice(0, 20) === 'Please enable popups') {
+                terminal.current?.print('Player guide: ', TerminalTextStyle.Pink);
+
+                terminal.current?.printLink(
+                  'How to enable popups',
+                  () => {
+                    window.open(
+                      'https://dfares.notion.site/How-to-enable-popups-f01552bd77984ad582e1d7cc33b9523d'
+                    );
+                  },
+                  TerminalTextStyle.Green
+                );
+                terminal.current?.println(
+                  ' <= New player please check this guide!!!',
+                  TerminalTextStyle.Pink
+                );
+
+                terminal.current?.println('');
+              } else if (e.message === 'transaction reverted') {
+                terminal.current?.println(
+                  'Please refresh the client, choose another area and try again.',
+                  TerminalTextStyle.Pink
+                );
+
+                terminal.current?.println('');
+              }
+
+              // terminal.current?.println(
+              //   "Don't worry :-) you can get more ETH on Redstone this way 😘",
+              //   TerminalTextStyle.Pink
+              // );
+
+              // terminal.current?.newline();
+              // terminal.current?.printLink(
+              //   'Deposit ETH to Redstone',
+              //   () => {
+              //     window.open(BLOCKCHAIN_BRIDGE);
+              //   },
+              //   TerminalTextStyle.Pink
+              // );
+              // terminal.current?.newline();
+              // terminal.current?.newline();
+
+              terminal.current?.println('Press [enter] to Try Again:');
+
+              await terminal.current?.getInput();
+              return true;
+            },
+            coords,
+            spectate
+          )
+          .catch((error: Error) => {
+            terminal.current?.println(
+              `[ERROR] An error occurred: ${error.toString().slice(0, 10000)}`,
+              TerminalTextStyle.Red
+            );
+            terminal.current?.println(
+              'please refresh client to try again.',
+              TerminalTextStyle.Pink
+            );
+          });
+      }
     },
     [ethConnection, spectate]
   );

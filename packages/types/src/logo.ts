@@ -37,6 +37,7 @@ export const LogoType = {
   AWResearch: 28 as LogoType,
   ComposableLabs: 29 as LogoType,
   MetaCat: 30 as LogoType,
+  Web3MQ: 31 as LogoType,
   // Don't forget to update MIN_LOGO_TYPE and/or MAX_LOGO_TYPE in the `constants` package
 };
 
@@ -75,4 +76,5 @@ export const LogoTypeNames = {
   [LogoType.AWResearch]: 'AWResearch',
   [LogoType.ComposableLabs]: 'Composablelabs',
   [LogoType.MetaCat]: 'MetaCat',
+  [LogoType.Web3MQ]: 'Web3MQ',
 } as const;

@@ -3469,17 +3469,9 @@ class GameManager extends EventEmitter {
       //
       // ?searchCenter=2866,5627
       //
-      // const params = new URLSearchParams(window.location.search);
-      // if (params.has('searchCenter')) {
-      //   const parts = params.get('searchCenter')?.split(',');
-
-      //   if (parts) {
-      //     x = parseInt(parts[0], 10);
-      //     y = parseInt(parts[1], 10);
-      //   }
-      // }
 
       const pattern: MiningPattern = new SpiralPattern({ x, y }, MIN_CHUNK_SIZE);
+
       const chunkStore = new HomePlanetMinerChunkStore(
         initPerlinMin,
         initPerlinMax,

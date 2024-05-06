@@ -110,6 +110,8 @@ const redstone = {
     mnemonic: process.env.DEPLOYER_MNEMONIC,
   },
   chainId: Number(process.env.REDSTONE_CHAINID),
+  gasMultiplier: 5,
+  gasPrice: 100,
 };
 
 const config: HardhatUserConfig = {

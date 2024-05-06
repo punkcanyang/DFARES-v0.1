@@ -230,6 +230,9 @@ export function SettingsPane({
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('4'))
                 .toFixed(FIXED_DIGIT_NUMBER)
                 .toString(),
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('6'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString(),
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('8'))
                 .toFixed(FIXED_DIGIT_NUMBER)
                 .toString(),
@@ -290,6 +293,9 @@ export function SettingsPane({
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('4'))
                 .toFixed(FIXED_DIGIT_NUMBER)
                 .toString() + ' gwei',
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('6'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString() + 'gwei',
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('8'))
                 .toFixed(FIXED_DIGIT_NUMBER)
                 .toString() + ' gwei',

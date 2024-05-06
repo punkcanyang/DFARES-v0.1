@@ -30,6 +30,7 @@ export const AvatarType = {
   Gubsheep: 21 as AvatarType,
   Ivan: 22 as AvatarType,
   Biscaryn: 23 as AvatarType,
+  One470: 24 as AvatarType,
   // Don't forget to update MIN_AVATAR_TYPE and/or MAX_AVATAR_TYPE in the `constants` package
 };
 
@@ -61,4 +62,5 @@ export const AvatarTypeNames = {
   [AvatarType.Gubsheep]: 'gubsheep',
   [AvatarType.Ivan]: 'ivan',
   [AvatarType.Biscaryn]: 'biscaryn',
+  [AvatarType.One470]: '1470',
 } as const;

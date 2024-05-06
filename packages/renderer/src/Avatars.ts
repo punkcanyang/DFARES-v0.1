@@ -183,6 +183,13 @@ const biscaryn = {
   desc: '',
 };
 
+const One470 = {
+  legacy: false,
+  topLayer: [URL + '/img/avatar/1470.png'],
+  bottomLayer: [],
+  desc: '',
+};
+
 export const avatarFromType = (type: AvatarType): Avatar => avatars[type];
 
 export const avatars: Record<AvatarType, Avatar> = {
@@ -209,4 +216,5 @@ export const avatars: Record<AvatarType, Avatar> = {
   [AvatarType.Gubsheep]: Gubsheep,
   [AvatarType.Ivan]: Ivan,
   [AvatarType.Biscaryn]: biscaryn,
+  [AvatarType.One470]: One470,
 };

@@ -3359,26 +3359,57 @@ class GameManager extends EventEmitter {
       throw e;
     }
   }
-
+  // mytodo: some player can't get spaceships, the homeLocation.hash is not right
   private async getSpaceships() {
-    if (!this.account || !this.homeLocation?.hash) return;
+    if (!this.account) return;
     if (!Object.values(this.contractConstants.SPACESHIPS).some((a) => a === true)) {
       console.log('all spaceships disabled, not calling the tx');
       return;
     }
 
     const player = await this.contractsAPI.getPlayerById(this.account);
+    if (!player) return;
     if (player?.claimedShips) return;
 
     if (this.getGameObjects().isGettingSpaceships()) return;
+
+    const homePlanetLocationId = '0x' + player.homePlanetId;
+
+    console.log('fix: getSpaceships');
+    console.log('  homeLocation.hash :', '0x' + this.homeLocation?.hash);
+    console.log('player.homePlanetId :', homePlanetLocationId);
+
     const tx = await this.contractsAPI.submitTransaction({
       methodName: 'giveSpaceShips',
       contract: this.contractsAPI.contract,
-      args: Promise.resolve(['0x' + this.homeLocation?.hash]),
+      args: Promise.resolve([homePlanetLocationId]),
     });
     await tx.confirmedPromise;
-    this.hardRefreshPlanet(this.homeLocation?.hash);
+    this.hardRefreshPlanet(player.homePlanetId);
   }
+  // private async getSpaceships() {
+  //   if (!this.account || !this.homeLocation?.hash) return;
+  //   if (!Object.values(this.contractConstants.SPACESHIPS).some((a) => a === true)) {
+  //     console.log('all spaceships disabled, not calling the tx');
+  //     return;
+  //   }
+
+  //   const player = await this.contractsAPI.getPlayerById(this.account);
+  //   if (player?.claimedShips) return;
+
+  //   if (this.getGameObjects().isGettingSpaceships()) return;
+
+  //   console.log('function: getSpaceships');
+  //   console.log('0x' + this.homeLocation?.hash);
+
+  //   const tx = await this.contractsAPI.submitTransaction({
+  //     methodName: 'giveSpaceShips',
+  //     contract: this.contractsAPI.contract,
+  //     args: Promise.resolve(['0x' + this.homeLocation?.hash]),
+  //   });
+  //   await tx.confirmedPromise;
+  //   this.hardRefreshPlanet(this.homeLocation?.hash);
+  // }
 
   // this is slow, do not call in i.e. render/draw loop
   /**

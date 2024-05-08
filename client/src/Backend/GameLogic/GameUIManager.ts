@@ -1563,7 +1563,7 @@ class GameUIManager extends EventEmitter {
   }
 
   public getBlueRequireSilverAmount(planetLevel: number): number {
-    return this.contractConstants.BURN_PLANET_REQUIRE_SILVER_AMOUNTS[planetLevel];
+    return this.contractConstants.BLUE_PANET_REQUIRE_SILVER_AMOUNTS[planetLevel];
   }
 
   public getDefaultSpaceJunkForPlanetLevel(level: number): number {

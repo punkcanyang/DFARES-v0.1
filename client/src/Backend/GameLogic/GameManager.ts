@@ -4254,10 +4254,11 @@ class GameManager extends EventEmitter {
    * call from the webserver, and by verifying that the request to add (or remove) an emoji from a
    * planet was signed by the owner.
    */
-  public setPlanetEmoji(locationId: LocationId, emojiStr: string) {
-    return this.submitPlanetMessage(locationId, PlanetMessageType.EmojiFlag, {
+  public async setPlanetEmoji(locationId: LocationId, emojiStr: string) {
+    const res = await this.submitPlanetMessage(locationId, PlanetMessageType.EmojiFlag, {
       emoji: emojiStr,
     });
+    return res;
   }
 
   /**

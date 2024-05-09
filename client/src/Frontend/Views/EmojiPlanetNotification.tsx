@@ -66,9 +66,9 @@ export function EmojiPlanetNotification({ wrapper }: { wrapper: Wrapper<Planet |
         >
           <Btn
             disabled={disabled}
-            onClick={() => {
+            onClick={async () => {
               if (wrapper.value?.locationId && chosenEmoji) {
-                gameManager.setPlanetEmoji(wrapper.value?.locationId, chosenEmoji);
+                await gameManager.setPlanetEmoji(wrapper.value?.locationId, chosenEmoji);
               }
             }}
           >

@@ -22,6 +22,11 @@ export async function getMessagesOnPlanets(
       method: 'POST',
     });
     const responseBody = (await response.json()) as PlanetMessageResponse;
+
+    console.log('responseBody');
+    console.log(responseBody);
+    console.log(response);
+
     if (response.status === 500) {
       throw new Error('failed to load messages');
     }

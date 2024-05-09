@@ -173,7 +173,7 @@ class Plugin {
       this.table.children[i].style.color = 'green';
     }
 
-    const lvl_6 = Math.min(players.length, 64);
+    const lvl_6 = Math.min(players.length, 63);
     for (let i = 32; i <= lvl_6; i++) {
       this.table.children[i].style.color = 'white';
     }

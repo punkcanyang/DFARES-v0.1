@@ -122,6 +122,60 @@ async function getFirstHat({}, hre: HardhatRuntimeEnvironment) {
   console.log('first hat owner: ', amount.toString());
 }
 
+task('game:rank', 'get the final rank').setAction(getRank);
+
+async function getRank({}, hre: HardhatRuntimeEnvironment) {
+  const contract = await hre.ethers.getContractAt('DarkForest', hre.contracts.CONTRACT_ADDRESS);
+
+  const rawPlayerAmount = await contract.getNPlayers();
+  const playerAmount = rawPlayerAmount.toNumber();
+  console.log('total player amount:', playerAmount);
+
+  const rawPlayers = await contract.bulkGetPlayers(0, playerAmount);
+
+  console.log('players amount:', rawPlayers.length);
+
+  const playerRecords = [];
+
+  for (let i = 0; i < playerAmount; i++) {
+    const rawPlayer = rawPlayers[i];
+    const address = rawPlayer.player;
+    const score = await contract.getScore(address);
+    const scoreStr = score.toString();
+
+    let scoreResult = undefined;
+
+    if (
+      scoreStr === '115792089237316195423570985008687907853269984665640564039457584007913129639935'
+    ) {
+      scoreResult = undefined;
+    } else scoreResult = score.toNumber();
+
+    const item = {
+      address: address,
+      score: scoreResult,
+    };
+    playerRecords.push(item);
+
+    console.log(i, address, scoreResult);
+  }
+
+  const haveScorePlayers = playerRecords
+    .filter((p) => p.score !== undefined)
+    .sort((a, b) => {
+      if (a.score === undefined) return -1;
+      else if (b.score === undefined) return -1;
+      return a.score - b.score;
+    });
+
+  console.log('have score player amount:', haveScorePlayers.length);
+
+  for (let i = 0; i < haveScorePlayers.length; i++) {
+    const player = haveScorePlayers[i];
+    console.log(i + 1, player.address, player.score);
+  }
+}
+
 // NOTE: after install dfares/serde
 
 // task('game:rank', 'get the final rank').setAction(getRank);

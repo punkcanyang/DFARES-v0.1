@@ -705,10 +705,15 @@ class GameManager extends EventEmitter {
           // console.log(player.address, ' ', this.account, ' ', planet.score);
           if (player.address !== this.account) {
             const score = planet.score;
-            if (player.score === 0 && player.lastClaimTimestamp) player.score = score;
-            else if (player.score === undefined) player.score = score;
+
+            if (player.score === undefined) player.score = score;
             else if (cnt <= 1) player.score = score;
             else player.score = Math.min(player.score, score);
+
+            // if (player.score === 0 && player.lastClaimTimestamp) player.score = score;
+            // else if (player.score === undefined) player.score = score;
+            // else if (cnt <= 1) player.score = score;
+            // else player.score = Math.min(player.score, score);
           }
         }
 

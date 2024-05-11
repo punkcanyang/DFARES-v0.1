@@ -688,8 +688,11 @@ class GameManager extends EventEmitter {
           });
         }
 
+        // console.log('knownScoringPlanets');
         // console.log(knownScoringPlanets);
+
         const cntMap = new Map<string, number>();
+        const haveScorePlayersMap = new Map<string, boolean>();
 
         for (const planet of knownScoringPlanets) {
           const claimer = planet.claimer;
@@ -697,33 +700,35 @@ class GameManager extends EventEmitter {
           const player = this.players.get(claimer);
           if (player === undefined) continue;
 
-          let cnt = cntMap.get(claimer);
-          if (cnt === undefined) cnt = 0;
-          cnt = cnt + 1;
-          cntMap.set(claimer, cnt);
+          const cnt = cntMap.get(claimer);
+          let cntNextValue = undefined;
 
-          // console.log(player.address, ' ', this.account, ' ', planet.score);
-          if (player.address !== this.account) {
-            const score = planet.score;
+          if (cnt === undefined || cnt === 0) {
+            cntNextValue = 1;
+          } else {
+            cntNextValue = cnt + 1;
+          }
+          cntMap.set(claimer, cntNextValue);
 
-            if (player.score === undefined) player.score = score;
-            else if (cnt <= 1) player.score = score;
-            else player.score = Math.min(player.score, score);
+          if (player.score === undefined || cntNextValue === 1) {
+            player.score = planet.score;
+            haveScorePlayersMap.set(claimer, true);
+          } else {
+            player.score = Math.min(player.score, planet.score);
+            haveScorePlayersMap.set(claimer, true);
+          }
+        }
+        for (const playerItem of df.getAllPlayers()) {
+          const result = haveScorePlayersMap.get(playerItem.address);
 
-            // if (player.score === 0 && player.lastClaimTimestamp) player.score = score;
-            // else if (player.score === undefined) player.score = score;
-            // else if (cnt <= 1) player.score = score;
-            // else player.score = Math.min(player.score, score);
+          const player = this.players.get(playerItem.address);
+          if (player === undefined) continue;
+
+          if (result === false || result === undefined) {
+            player.score = undefined;
           }
         }
 
-        // for (const player of df.getAllPlayers()) {
-        //   console.log(
-        //     player.address,
-        //     ' ',
-        //     player.lastClaimTimestamp === 0 ? undefined : player.score
-        //   );
-        // }
         this.playersUpdated$.publish();
       } catch (e) {
         // @todo - what do we do if we can't connect to the webserver? in general this should be a

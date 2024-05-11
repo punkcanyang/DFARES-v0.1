@@ -219,6 +219,35 @@ async function getRank({}, hre: HardhatRuntimeEnvironment) {
 //   }
 // }
 
+task('game:getScore', 'get player score')
+  .addPositionalParam(
+    'playerAddress',
+    'the address of the player to give the artifacts',
+    undefined,
+    types.string
+  )
+  .setAction(getScore);
+
+async function getScore(
+  { playerAddress }: { playerAddress: string },
+  hre: HardhatRuntimeEnvironment
+) {
+  await hre.run('utils:assertChainId');
+  const contract = await hre.ethers.getContractAt('DarkForest', hre.contracts.CONTRACT_ADDRESS);
+  const address = playerAddress;
+  const score = await contract.getScore(address);
+  const scoreStr = score.toString();
+
+  let scoreResult = undefined;
+
+  if (
+    scoreStr === '115792089237316195423570985008687907853269984665640564039457584007913129639935'
+  ) {
+    scoreResult = undefined;
+  } else scoreResult = score.toNumber();
+  console.log(scoreResult);
+}
+
 task('game:getPlayerLog', 'get player log')
   .addPositionalParam(
     'playerAddress',

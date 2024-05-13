@@ -8,7 +8,6 @@ import TutorialManager, {
 } from '../../Backend/GameLogic/TutorialManager';
 import { Hook } from '../../_types/global/GlobalTypes';
 import { Btn } from '../Components/Btn';
-import { Underline } from '../Components/CoreUI';
 import { Icon, IconType } from '../Components/Icons';
 import { White } from '../Components/Text';
 import dfstyles from '../Styles/dfstyles';
@@ -22,7 +21,8 @@ function TutorialPaneContent({ tutorialState }: { tutorialState: TutorialState }
   if (tutorialState === TutorialState.None) {
     return (
       <div className='tutintro'>
-        Welcome to the universe of <White>DARK FOREST</White>. Would you like to play the tutorial?
+        Welcome to the universe of <White>DARK FOREST ARES</White>. Would you like to play the
+        tutorial?
         <div>
           <Btn className='btn' onClick={() => tutorialManager.acceptInput(TutorialState.None)}>
             Yes
@@ -140,6 +140,29 @@ function TutorialPaneContent({ tutorialState }: { tutorialState: TutorialState }
   } else if (tutorialState === TutorialState.HowToGetScore) {
     return (
       <div className='tutzoom'>
+        <White>Race to Center</White>
+        <br />
+        <div>
+          Players can claim one planet and their score will update to reflect how far away it is
+          from the center of the universe.
+        </div>
+        <div>
+          Be careful though, as if the planet is destroyed, then its score wont count, and your
+          score will update to your next closest claimed planet.
+        </div>
+
+        <div>
+          <Btn
+            className='btn'
+            onClick={() => tutorialManager.acceptInput(TutorialState.HowToGetScore)}
+          >
+            Next
+          </Btn>
+        </div>
+      </div>
+    );
+    return (
+      <div className='tutzoom'>
         <White>It's a Junk War!</White> <br />
         <br />
         Have the highest score at the end of the round to win!
@@ -157,10 +180,14 @@ function TutorialPaneContent({ tutorialState }: { tutorialState: TutorialState }
   } else if (tutorialState === TutorialState.ScoringDetails) {
     return (
       <div className='tutzoom'>
-        You can increase your score by withdrawing silver via space time rips, and by finding
+        {/* You can increase your score by withdrawing silver via space time rips, and by finding
         artifacts. The rarer the artifact, the more points it gives you! You can also increase your
         score via Capture Zones. Hover over the 'Capture Zone' section in the top bar for more info
-        about capture zones.
+        about capture zones. */}
+        <div>
+          Please note, that only planets of level 3+ can be claimed for score. You will need to
+          fight for the closest planets, or maybe considering destroying your enemies planets!
+        </div>
         <div>
           <Btn
             className='btn'
@@ -174,8 +201,9 @@ function TutorialPaneContent({ tutorialState }: { tutorialState: TutorialState }
   } else if (tutorialState === TutorialState.Valhalla) {
     return (
       <div className='tutalmost'>
-        Winners of each round of Dark Forest v0.6.x will receive a prize, and be added to the{' '}
-        <Underline>Valhalla</Underline> universe.
+        {/* Winners of each round of Dark Forest v0.6.x will receive a prize, and be added to the{' '}
+        <Underline>Valhalla</Underline> universe. */}
+        Winners of each round of Dark Forest Ares v0.1 will get mysterious prizes 🎩
         <br />
         <br />
         To win, have the highest score (^:
@@ -192,7 +220,7 @@ function TutorialPaneContent({ tutorialState }: { tutorialState: TutorialState }
         This is the end of the tutorial. Go out and explore the universe! More information will pop
         up in the <White>upper-right</White> as you discover more about the game.
         <br />
-        We hope you enjoy Dark Forest!
+        We hope you enjoy Dark Forest Ares!
         <div>
           <Btn className='btn' onClick={() => tutorialManager.complete()}>
             Finish

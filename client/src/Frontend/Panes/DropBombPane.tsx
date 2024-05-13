@@ -1,14 +1,21 @@
-import { isUnconfirmedBurnTx } from '@dfares/serde';
-import { ArtifactType, EthAddress, LocationId } from '@dfares/types';
-import React, { useEffect, useMemo, useState } from 'react';
+import { EMPTY_ADDRESS } from '@dfares/constants';
+import { isLocatable } from '@dfares/gamelogic';
+import { ArtifactType, LocationId } from '@dfares/types';
+import React from 'react';
 import styled from 'styled-components';
 import { Btn } from '../Components/Btn';
 import { CenterBackgroundSubtext, Spacer } from '../Components/CoreUI';
 import { LoadingSpinner } from '../Components/LoadingSpinner';
-import { Blue, White } from '../Components/Text';
+import { Blue, Green, White } from '../Components/Text';
 import { formatDuration, TimeUntil } from '../Components/TimeUntil';
 import dfstyles from '../Styles/dfstyles';
-import { usePlanet, useUIManager } from '../Utils/AppHooks';
+import {
+  useAccount,
+  useActiveArtifact,
+  usePlanet,
+  usePlayer,
+  useUIManager,
+} from '../Utils/AppHooks';
 import { useEmitterValue } from '../Utils/EmitterHooks';
 import { ModalHandle } from '../Views/ModalPane';
 
@@ -56,8 +63,37 @@ export function DropBombPane({
   initialPlanetId: LocationId | undefined;
 }) {
   const uiManager = useUIManager();
+  const gameManager = uiManager.getGameManager();
+
   const planetId = useEmitterValue(uiManager.selectedPlanetId$, initialPlanetId);
-  const planet = usePlanet(uiManager, planetId).value;
+  const account = useAccount(uiManager);
+  const player = usePlayer(uiManager).value;
+  const planetWrapper = usePlanet(uiManager, planetId);
+  const planet = planetWrapper.value;
+  const activeArtifact = useActiveArtifact(planetWrapper, uiManager);
+
+  const notice = (
+    <CenterBackgroundSubtext width='100%' height='75px'>
+      You can't <br /> drop bomb to this planet.
+    </CenterBackgroundSubtext>
+  );
+  if (!account || !player || !planet) return notice;
+
+  const planetIsLocatable = isLocatable(planet);
+  const notDestoryedOrFrozen = !planet.destroyed && !planet.frozen;
+  const levelCheckPassed = planet.planetLevel >= 3;
+  const ownerCheckPassed = planet.owner === account;
+  const burnOperatorCheckPassed =
+    planet.burnOperator === undefined || planet.burnOperator === EMPTY_ADDRESS;
+
+  if (
+    !planetIsLocatable ||
+    !notDestoryedOrFrozen ||
+    !levelCheckPassed ||
+    !ownerCheckPassed ||
+    !burnOperatorCheckPassed
+  )
+    return notice;
 
   const getLoc = () => {
     if (!planet || !uiManager) return { x: 0, y: 0 };
@@ -74,12 +110,10 @@ export function DropBombPane({
     uiManager.burnLocation(loc.hash);
   };
 
-  const [account, setAccount] = useState<EthAddress | undefined>(undefined); // consider moving this one to parent
-  const isDestoryedOrFrozen = planet?.destroyed || planet?.frozen;
+  const notBurningAnyPlanet = uiManager.isCurrentlyBurning() === false;
   const burnLocationCooldownPassed = uiManager.getNextBurnAvailableTimestamp() <= Date.now();
-  const currentlyBurningAnyPlanet = uiManager.isCurrentlyBurning();
 
-  const getDropBombTime = () => {
+  const getDropBombAmount = () => {
     const player = uiManager.getPlayer(account);
     if (!player) return 0;
     return player.dropBombAmount;
@@ -92,7 +126,6 @@ export function DropBombPane({
     if (playerSilver === undefined) return false;
     const requireSilver = uiManager.getSilverOfBurnPlanet(account, planet.planetLevel);
     if (!requireSilver) return false;
-
     return Math.floor(playerSilver) >= Math.ceil(requireSilver);
   };
 
@@ -100,90 +133,59 @@ export function DropBombPane({
     if (!planet) return 'n/a';
     if (!account) return 'n/a';
     const res = uiManager.getSilverOfBurnPlanet(account, planet.planetLevel);
-    // console.log(res);
     if (res === undefined) return 'n/a';
     else return res.toLocaleString();
   };
+
   const formatSilverAmount = getFormatSilverAmount();
-
   const silverPassed = getSilverPassed();
-  const hasOwnedShipPink = useMemo(
-    () =>
-      planet?.heldArtifactIds
-        .map((id) => uiManager.getArtifactWithId(id))
-        .find(
-          (artifact) =>
-            artifact?.artifactType === ArtifactType.ShipPink && artifact.controller === account
-        ),
-    [account, planet, uiManager]
-  );
 
-  const levelPassed = planet ? planet.planetLevel >= 1 : false;
+  const activeArtifactCheckPassed =
+    activeArtifact && activeArtifact.artifactType === ArtifactType.Bomb;
+  const artifactCooldownPassed =
+    activeArtifactCheckPassed &&
+    Date.now() >=
+      1000 *
+        (activeArtifact.lastActivated + gameManager.getContractConstants().BURN_PLANET_COOLDOWN);
 
-  useEffect(() => {
-    if (!uiManager) return;
-    setAccount(uiManager.getAccount());
-  }, [uiManager]);
-
-  let burnBtn = undefined;
-
-  if (isDestoryedOrFrozen) {
-    burnBtn = <Btn disabled={true}>Drop Bomb</Btn>;
-  } else if (planet?.transactions?.hasTransaction(isUnconfirmedBurnTx)) {
-    burnBtn = (
-      <Btn disabled={true}>
-        <LoadingSpinner initialText={'Dropping Bomb...'} />
-      </Btn>
+  const getTimestamp = () => {
+    if (!activeArtifactCheckPassed) return 0;
+    return (
+      1000 *
+      (activeArtifact.lastActivated + gameManager.getContractConstants().BURN_PLANET_COOLDOWN)
     );
+  };
+
+  const disabled =
+    !notBurningAnyPlanet ||
+    !burnLocationCooldownPassed ||
+    !silverPassed ||
+    !activeArtifactCheckPassed ||
+    !artifactCooldownPassed;
+
+  let content = <></>;
+
+  if (!notBurningAnyPlanet) {
+    content = <LoadingSpinner initialText={'Dropping Bomb...'} />;
   } else if (!burnLocationCooldownPassed) {
-    burnBtn = <Btn disabled={true}>Drop Bomb</Btn>;
-  } else if (!hasOwnedShipPink) {
-    burnBtn = <Btn disabled={true}>Drop Bomb</Btn>;
+    content = <> Wait For Drop Bomb Cooldown</>;
   } else if (!silverPassed) {
-    burnBtn = <Btn disabled={true}>Drop Bomb</Btn>;
-  } else if (!levelPassed) {
-    burnBtn = <Btn disabled={true}>Drop Bomb</Btn>;
+    content = <> Not Enough Silver</>;
+  } else if (!activeArtifactCheckPassed) {
+    content = <>Require Active Bomb Artifact</>;
+  } else if (!artifactCooldownPassed) {
+    content = <>Wait For Artifact Cooldown</>;
   } else {
-    burnBtn = (
-      <Btn disabled={currentlyBurningAnyPlanet} onClick={dropBomb}>
-        Drop Bomb
-      </Btn>
-    );
+    content = <>Drop Bomb</>;
   }
 
   const warningsSection = (
     <div>
-      {currentlyBurningAnyPlanet && (
-        <p>
-          <Blue>INFO:</Blue> Dropping Bomb...
-        </p>
-      )}
-      {/* {planet?.owner === account && (
-        <p>
-          <Blue>INFO:</Blue> You own this planet! Dropping Bomb to this planet is not a good choice.
-        </p>
-      )} */}
-      {/* {planet?.owner !== account && (
-        <p>
-          <Blue>INFO:</Blue> You can only drop bomb to your own planet.
-        </p>
-      )} */}
-
-      {isDestoryedOrFrozen && (
-        <p>
-          <Blue>INFO:</Blue> You can't drop bomb to a destoryed/frozen planet.
-        </p>
-      )}
       {!burnLocationCooldownPassed && (
         <p>
-          <Blue>INFO:</Blue> You must wait{' '}
+          <Blue>INFO:</Blue> [DROP BOMB COOLDOWN] You must wait{' '}
           <TimeUntil timestamp={uiManager.getNextBurnAvailableTimestamp()} ifPassed={'now!'} /> to
           burn another planet.
-        </p>
-      )}
-      {!hasOwnedShipPink && (
-        <p>
-          <Blue>INFO:</Blue> Your pink Ship needs to be above this planet.
         </p>
       )}
 
@@ -193,9 +195,16 @@ export function DropBombPane({
         </p>
       )}
 
-      {!levelPassed && (
+      {!activeArtifactCheckPassed && (
         <p>
-          <Blue>INFO: </Blue> Planet level can't be 0.
+          <Blue>INFO:</Blue> Please activate Bomb artifact on this planet.
+        </p>
+      )}
+
+      {activeArtifactCheckPassed && !artifactCooldownPassed && (
+        <p>
+          <Blue>INFO:</Blue> {' [ARTIFACT COOLDOWN] You must wait '}
+          <TimeUntil timestamp={getTimestamp()} ifPassed={'now!'} />{' '}
         </p>
       )}
     </div>
@@ -205,18 +214,30 @@ export function DropBombPane({
     return (
       <DropBombWrapper>
         <div>
+          <Green>Tip:</Green>
           You can only drop bomb to a planet once every{' '}
           <White>{formatDuration(uiManager.contractConstants.BURN_PLANET_COOLDOWN * 1000)}</White>.
         </div>
 
+        <div>
+          <Green>Tip:</Green> After activating the Bomb artifact, you need to wait for{' '}
+          <White>{formatDuration(uiManager.contractConstants.BURN_PLANET_COOLDOWN * 1000)}</White>.
+        </div>
+
+        <div>
+          <Green>Tip:</Green>
+          After dropping bomb, the next required silver amount will be multiplied by 10.
+        </div>
+        <Spacer height={8} />
+
         <div className='row'>
           <span>Your dropped bomb amount:</span>
-          <span>{getDropBombTime()}</span>
+          <span>{getDropBombAmount()}</span>
         </div>
 
         <div className='row'>
           <span>Require silver amount: </span>
-          <span>{formatSilverAmount}</span>
+          <span> {formatSilverAmount} </span>
         </div>
         <div className='message'>{warningsSection}</div>
         <div className='row'>
@@ -224,7 +245,9 @@ export function DropBombPane({
           <span>{`(${getLoc().x}, ${getLoc().y})`}</span>
         </div>
         <Spacer height={8} />
-        <p style={{ textAlign: 'right' }}>{burnBtn}</p>
+        <Btn disabled={disabled} onClick={dropBomb}>
+          {content}
+        </Btn>
       </DropBombWrapper>
     );
   } else {

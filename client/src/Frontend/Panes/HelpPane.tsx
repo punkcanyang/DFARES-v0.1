@@ -1,20 +1,49 @@
+import { BLOCK_EXPLORER_URL } from '@dfares/constants';
 import { ModalName } from '@dfares/types';
 import React from 'react';
 import styled from 'styled-components';
 import { Link, Section, SectionHeader } from '../Components/CoreUI';
+import { Pink } from '../Components/Text';
 import dfstyles from '../Styles/dfstyles';
 import { useUIManager } from '../Utils/AppHooks';
 import { ModalPane } from '../Views/ModalPane';
 
 const HelpContent = styled.div`
   width: 500px;
-  height: 500px;
-  max-height: 500px;
+  height: 700px;
+  max-height: 700px;
   max-width: 500px;
   overflow-y: scroll;
   text-align: justify;
   color: ${dfstyles.colors.text};
 `;
+
+const StyledTable = styled.table`
+  border-collapse: collapse;
+  width: 100%;
+`;
+
+const StyledTh = styled.th`
+  border: 1px solid #dddddd;
+  padding: 8px;
+  text-align: center;
+  /* background-color: #f2f2f2; */
+`;
+
+const StyledTd = styled.td`
+  border: 1px solid #dddddd;
+  padding: 8px;
+  text-align: center;
+`;
+
+interface RowData {
+  hotkey: string;
+  intro: string;
+}
+
+interface TableProps {
+  data: RowData[];
+}
 
 export function HelpPane({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const uiManager = useUIManager();
@@ -33,60 +62,59 @@ export function HelpPane({ visible, onClose }: { visible: boolean; onClose: () =
     plugins: 'https://dfares-plugins.netlify.app/',
   };
 
+  const data = [
+    { hotkey: 'n', intro: 'toggle terminal' },
+    { hotkey: 'm', intro: 'toggle around-screen panes' },
+    { hotkey: ',', intro: 'toggle bottom hotkey pane' },
+    { hotkey: 'g', intro: 'you can buy planet & spaceship here' },
+    { hotkey: 'h', intro: 'help pane' },
+    { hotkey: 'j', intro: 'settings pane' },
+    { hotkey: 'k', intro: 'plugins pane' },
+    { hotkey: 'l', intro: 'your artifacts pane' },
+    { hotkey: ';', intro: 'your planets pane' },
+    { hotkey: "'", intro: 'transactions pane' },
+    { hotkey: 'i', intro: 'diagnostics pane' },
+  ];
+
+  const Table: React.FC<TableProps> = ({ data }) => {
+    return (
+      <StyledTable>
+        <thead>
+          <tr>
+            <StyledTh>Hotkey</StyledTh>
+            <StyledTh>Intro</StyledTh>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((row, index) => (
+            <tr key={index}>
+              <StyledTd>{row.hotkey}</StyledTd>
+              <StyledTd>{row.intro}</StyledTd>
+            </tr>
+          ))}
+        </tbody>
+      </StyledTable>
+    );
+  };
+
   return (
     <ModalPane id={ModalName.Help} title='Help' visible={visible} onClose={onClose}>
       <HelpContent>
         {uiManager.isRoundOver() && (
-          // <Section>
-          //   <SectionHeader>Round 5 Complete</SectionHeader>
-          //   Dark Forest v0.6 Round 5 is now complete! Scores are being compiled and winners will be
-          //   announced shortly. Also, Artifacts will no longer be mintable. Thanks for playing!
-          // </Section>
-
           <Section>
-            <SectionHeader>Round 2: Pinkship Complete</SectionHeader>
-            Dark Forest Ares v0.1 Round 2 is now complete! Scores are being compiled and winners
+            <SectionHeader>Round 3: Kardashev Complete</SectionHeader>
+            Dark Forest Ares v0.1 Round 3 is now complete! Scores are being compiled and winners
             will be announced shortly. Also, Artifacts will no longer be mintable. Thanks for
             playing!
           </Section>
         )}
-
         <Section>
-          <SectionHeader>Dark Forest Ares</SectionHeader>
-          Dark Forest Ares is a series of{' '}
-          <Link to='https://zkga.me' color='green'>
-            Dark Forest
-          </Link>{' '}
-          community rounds hosted by DFArchon team. We hope to innovate game mechanics while
-          maintaining the original style of Dark Forest. Recently We choose to host Dark Forest Ares
-          v0.1 Round 2: PinkShip on{' '}
-          <Link to='https://redstone.xyz/' color='red'>
-            Redstone
-          </Link>
-          .
+          <SectionHeader>Hotkeys Intro</SectionHeader>
+          <Table data={data} />
         </Section>
 
         <Section>
-          <SectionHeader>Some Links:</SectionHeader>
-          {/* <Link to='https://blog.zkga.me'>Official Info and Announcements</Link>
-          <br />
-          <Link to='https://twitter.com/darkforest_eth'>Official Twitter</Link>
-          <br />
-          <Link to='https://discord.gg/2u2TN6v8r6'>Official Discord Server</Link>
-          <br /> */}
-          {/* <Link to='https://dfwiki.net/'>Community-Run Wiki</Link> */}
-          {/* <br /> */}
-          <Link to={DFArchonLinks.blog}>DFArchon's Info and Announcements</Link>
-          <br />
-          <Link to={DFArchonLinks.twitter}>DFArchon's Twitter</Link>
-          <br />
-          <Link to={DFArchonLinks.discord}>DFArchon's Discord Server</Link>
-          <br />
-          <br />
-        </Section>
-
-        <Section>
-          <SectionHeader>Dark Forest Ares v0.1 Round 2: PinkShip</SectionHeader>
+          <SectionHeader>Dark Forest Ares v0.1 Round 3: Kardashev🔷</SectionHeader>
           {/* The game is a vast universe, obfuscated by zero-knowledge cryptography. Your{' '}
           <White>explorer</White> (bottom left) explores the universe, searching for{' '}
           <White>Planets</White> and other players.
@@ -100,27 +128,58 @@ export function HelpPane({ visible, onClose }: { visible: boolean; onClose: () =
           <EmSpacer height={1} /> Some planets contain <White>Artifacts</White> - ERC721 tokens that
           can be traded with other players. Artifacts can be harvested and deposited onto planets,
           buffing their stats. */}
-          Please read{' '}
-          <Link
-            to='https://dfares.notion.site/DFAres-Guide-for-New-Players-4399ba1303db43ebb66bef6f986f3e1e?pvs=74'
-            color='pink'
-          >
-            {' '}
-            DFAres Guide for New Players
-          </Link>{' '}
-          to know how to play.
+          <div>
+            Please read{' '}
+            <Link
+              to='https://dfares.notion.site/DFAres-Round-3-Guide-for-New-Players-3980998d8f65440085c116ba0df0d99a?pvs=74'
+              color='pink'
+            >
+              DFAres Round 3 Guide
+            </Link>{' '}
+            to know how to play.
+          </div>
+
+          <div>
+            <Link to='https://twitter.com/DFArchon' color={dfstyles.colors.dfpink}>
+              DFArchon team
+            </Link>{' '}
+            host <Pink>Dark Forest Ares</Pink> Round 3 on{' '}
+            <Link to={BLOCK_EXPLORER_URL} color={'rgb(243,66,66)'}>
+              Redstone
+            </Link>
+            .
+          </div>
+          <div>
+            <Pink>Dark Forest Ares</Pink> is a community-run deployment of{' '}
+            <Link to='https://zkga.me' color={dfstyles.colors.dfgreen}>
+              Dark Forest
+            </Link>
+            .
+          </div>
         </Section>
 
         <Section>
           <SectionHeader>Prizes and Scoring</SectionHeader>
           Please read{' '}
           <Link
-            to='https://dfares.notion.site/6-Win-Conditions-Prizes-b87460a6c0454de6822b5da19e5c5774?pvs=74'
+            to='https://dfares.notion.site/Win-Conditions-Prizes-49e5518f136647559394201ffd329df5?pvs=74'
             color='pink'
           >
             Win Conditions/Prizes
           </Link>{' '}
           to know the prizes.
+        </Section>
+
+        <Section>
+          <SectionHeader>More Useful Links</SectionHeader>
+
+          <Link to={DFArchonLinks.blog}>DFArchon's Blog</Link>
+          <br />
+          <Link to={DFArchonLinks.twitter}>DFArchon's Twitter</Link>
+          <br />
+          <Link to={DFArchonLinks.discord}>DFArchon's Discord Server</Link>
+          <br />
+          <br />
         </Section>
 
         {/* <Section>

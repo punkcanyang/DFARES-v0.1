@@ -3,7 +3,7 @@ import { PlanetType, TooltipName } from '@dfares/types';
 import React from 'react';
 import { getPlanetRank, isFullRank } from '../../Backend/Utils/Utils';
 import { ScoreLabel, SilverLabel } from '../Components/Labels/KeywordLabels';
-import { Green, Red, Text, White } from '../Components/Text';
+import { Blue, Green, Pink, Red, Text, White } from '../Components/Text';
 import { useAccount, useSelectedPlanet, useUIManager } from '../Utils/AppHooks';
 
 export function NetworkHealthPane() {
@@ -484,7 +484,7 @@ function CapturablePane() {
 
 const ModalWithdrawSilverTooltipPane = () => <>Withdraw silver to earn score.</>;
 
-const Hats = () => <>Buy hats for the selected planet.</>;
+const Hats = () => <>Buy skins for the selected planet.</>;
 
 const FindArtifact = () => (
   <>
@@ -495,6 +495,55 @@ const FindArtifact = () => (
 const ArtifactStored = () => <>This planet has a powerful artifact on it!</>;
 
 const HashesPerSec = () => <>hashes / sec</>;
+
+const DropBombDisabled = () => (
+  <>
+    You must <Pink>activate Bomb artifact</Pink> on this planet first.
+  </>
+);
+const DropBomb = () => (
+  <>
+    <Pink>Dropping bomb will form a pink circle, you can destory every planet in pink circle.</Pink>
+  </>
+);
+const PinkDisabled = () => (
+  <>
+    This planet should be in <Pink>your pink circle</Pink>.
+  </>
+);
+const PinkButton = () => (
+  <>
+    <Pink> pink = destroy this planet</Pink>
+  </>
+);
+
+const KardahsevDisabled = () => (
+  <>
+    You must <Blue>activate Kardashev artifact</Blue> on this planet first.
+  </>
+);
+const Kardashev = () => (
+  <>
+    <Blue>
+      Create blue circle that allows to teleport energy from other planets to the center planet
+    </Blue>
+  </>
+);
+const BlueDisabled = () => (
+  <>
+    This planet should be in <Blue>your pink circle</Blue>.
+  </>
+);
+const BlueButton = () => (
+  <>
+    <Blue>transfer energy from this planet to the planet in the center of the blue circle.</Blue>
+  </>
+);
+const BuyHat = () => (
+  <>
+    Buy skin for this planet, <Green>circular picture will be displayed on this planet.</Green>
+  </>
+);
 
 export function TooltipContent({ name }: { name: TooltipName | undefined }) {
   if (name === TooltipName.SilverGrowth) return <SilverGrowthTooltipPane />;
@@ -564,5 +613,15 @@ export function TooltipContent({ name }: { name: TooltipName | undefined }) {
   if (name === TooltipName.PrioritizeTransaction) return <PrioritizeTransactionPane />;
   if (name === TooltipName.Invadable) return <InvadablePane />;
   if (name === TooltipName.Capturable) return <CapturablePane />;
+  if (name === TooltipName.DropBombDisabled) return <DropBombDisabled />;
+  if (name === TooltipName.DropBomb) return <DropBomb />;
+  if (name === TooltipName.PinkDisabled) return <PinkDisabled />;
+  if (name === TooltipName.Pink) return <PinkButton />;
+  if (name === TooltipName.KardashevDisabled) return <KardahsevDisabled />;
+  if (name === TooltipName.Kardashev) return <Kardashev />;
+  if (name === TooltipName.BlueDisabled) return <BlueDisabled />;
+  if (name === TooltipName.Blue) return <BlueButton />;
+  if (name === TooltipName.BuyHat) return <BuyHat />;
+
   return <></>;
 }

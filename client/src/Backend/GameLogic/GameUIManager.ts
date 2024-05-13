@@ -31,6 +31,7 @@ import {
   Transaction,
   UnconfirmedActivateArtifact,
   UnconfirmedMove,
+  UnconfirmedRefreshPlanet,
   UnconfirmedUpgrade,
   Upgrade,
   UpgradeBranchName,
@@ -49,8 +50,10 @@ import { getObjectWithIdFromMap } from '../../Frontend/Utils/EmitterUtils';
 import { listenForKeyboardEvents, unlinkKeyboardEvents } from '../../Frontend/Utils/KeyEmitters';
 import {
   getBooleanSetting,
+  getNumberSetting,
   getSetting,
   setBooleanSetting,
+  settingChanged$,
 } from '../../Frontend/Utils/SettingsHooks';
 import UIEmitter, { UIEmitterEvent } from '../../Frontend/Utils/UIEmitter';
 import { TerminalHandle } from '../../Frontend/Views/Terminal';
@@ -179,6 +182,18 @@ class GameUIManager extends EventEmitter {
 
     this.isSending$ = monomitter(true);
     this.isAbandoning$ = monomitter(true);
+
+    settingChanged$.subscribe((setting) => {
+      // If user selects to always use the default energy level, we need to clear existing energy send level values set.
+      if (
+        setting === Setting.PlanetDefaultEnergyLevelToSendReset &&
+        this.getBooleanSetting(Setting.PlanetDefaultEnergyLevelToSendReset)
+      ) {
+        for (const id of Object.keys(this.forcesSending)) {
+          delete this.forcesSending[id];
+        }
+      }
+    });
 
     autoBind(this);
   }
@@ -486,6 +501,18 @@ class GameUIManager extends EventEmitter {
     this.gameManager.pinkLocation(locationId);
   }
 
+  public kardashev(locationId: LocationId) {
+    this.gameManager.kardashev(locationId);
+  }
+
+  public checkPlanetCanBlue(planetId: LocationId): boolean {
+    return this.gameManager.checkPlanetCanBlue(planetId);
+  }
+
+  public blueLocation(locationId: LocationId) {
+    this.gameManager.blueLocation(locationId);
+  }
+
   public getNextBroadcastAvailableTimestamp() {
     return this.gameManager.getNextBroadcastAvailableTimestamp();
   }
@@ -512,6 +539,18 @@ class GameUIManager extends EventEmitter {
 
   public getNextPinkAvailableTimestamp(planetId: LocationId) {
     return this.gameManager.getNextPinkAvailableTimestamp(planetId);
+  }
+
+  public getBlueZoneCenterPlanetId(planetId: LocationId) {
+    return this.gameManager.getBlueZoneCenterPlanetId(planetId);
+  }
+
+  public getNextKardashevAvailableTimestamp() {
+    return this.gameManager.getNextKardashevAvailableTimestamp();
+  }
+
+  public getNextBlueAvailableTimestamp(planetId: LocationId) {
+    return this.gameManager.getNextBlueAvailableTimestamp(planetId);
   }
 
   public getNextActivateArtifactAvailableTimestamp() {
@@ -667,6 +706,10 @@ class GameUIManager extends EventEmitter {
           tutorialManager.acceptInput(TutorialState.SendFleet);
         }
 
+        if (this.getBooleanSetting(Setting.PlanetDefaultEnergyLevelToSendReset)) {
+          delete this.forcesSending[from.locationId];
+        }
+
         uiEmitter.emit(UIEmitterEvent.SendCompleted, from.locationId);
       }
 
@@ -807,7 +850,7 @@ class GameUIManager extends EventEmitter {
   }
 
   private getBiomeKey(biome: Biome) {
-    return `${this.getAccount()}-${this.gameManager.getContractAddress()}-biome-${biome}`;
+    return `${this.gameManager.getContractAddress()}-${this.getAccount()?.toLowerCase()}-biome-${biome}`;
   }
 
   public getDiscoverBiomeName(biome: Biome): string {
@@ -1121,7 +1164,8 @@ class GameUIManager extends EventEmitter {
    * Percent from 0 to 100.
    */
   public getForcesSending(planetId?: LocationId): number {
-    const defaultSending = 50;
+    const config = { contractAddress: this.getContractAddress(), account: this.getAccount() };
+    const defaultSending = getNumberSetting(config, Setting.PlanetDefaultEnergyLevelToSend);
     if (!planetId) return defaultSending;
 
     if (this.isAbandoning()) return 100;
@@ -1256,6 +1300,10 @@ class GameUIManager extends EventEmitter {
     return this.gameManager.getUnconfirmedUpgrades();
   }
 
+  public getUnconfirmedRefreshPlanets(): Transaction<UnconfirmedRefreshPlanet>[] {
+    return this.gameManager.getUnconfirmedRefreshPlanets();
+  }
+
   public isCurrentlyRevealing(): boolean {
     return this.gameManager.getNextRevealCountdownInfo().currentlyRevealing;
   }
@@ -1266,6 +1314,18 @@ class GameUIManager extends EventEmitter {
 
   public isCurrentlyBurning(): boolean {
     return this.gameManager.getNextBurnCountdownInfo().currentlyBurning;
+  }
+
+  public isCurrentlyKardasheving(): boolean {
+    return this.gameManager.getNextKardashevCountdownInfo().currentlyKardasheving;
+  }
+
+  public isCurrentlyPinking(): boolean {
+    return this.gameManager.isCurrentlyPinking();
+  }
+
+  public isCurrentlyBlueing(): boolean {
+    return this.gameManager.isCurrentlyBlueing();
   }
 
   public getUnconfirmedLinkActivations(): Transaction<UnconfirmedActivateArtifact>[] {
@@ -1302,6 +1362,14 @@ class GameUIManager extends EventEmitter {
 
   public getMyPinkZones() {
     return this.gameManager.getMyPinkZones();
+  }
+
+  public getBlueZones() {
+    return this.gameManager.getBlueZones();
+  }
+
+  public getMyBlueZones() {
+    return this.gameManager.getMyBlueZones();
   }
 
   public getCaptureZoneGenerator() {
@@ -1365,10 +1433,31 @@ class GameUIManager extends EventEmitter {
     this.gameManager.upgrade(planet.locationId, branch);
   }
 
-  public buyHat(planet: Planet, hatType: number): void {
+  public refreshPlanet(planet: Planet): void {
     // TODO: do something like JSON.stringify(args) so we know formatting is correct
-    this.terminal.current?.printShellLn(`df.buyHat('${planet.locationId}','${hatType}')`);
-    this.gameManager.buyHat(planet.locationId, hatType);
+    this.terminal.current?.printShellLn(`df.refreshPlanet('${planet.locationId})`);
+    this.gameManager.refreshPlanet(planet.locationId);
+  }
+
+  public buySkin(planet: Planet, hatType: number): void {
+    // TODO: do something like JSON.stringify(args) so we know formatting is correct
+    this.terminal.current?.printShellLn(`df.buySkin('${planet.locationId}','${hatType}')`);
+    this.gameManager.buySkin(planet.locationId, hatType);
+  }
+
+  public buyPlanet(planet: Planet): void {
+    this.terminal.current?.printShellLn(`df.buyPlanet('${planet.locationId}')`);
+    this.gameManager.buyPlanet(planet.locationId);
+  }
+
+  public buySpaceship(planet: Planet): void {
+    this.terminal.current?.printShellLn(`df.buySpaceship('${planet.locationId}')`);
+    this.gameManager.buySpaceship(planet.locationId);
+  }
+
+  public donate(amount: number): void {
+    // this.terminal.current?.printShellLn(`df.donate('${amount}')`);
+    this.gameManager.donate(amount);
   }
 
   // non-nullable
@@ -1464,9 +1553,17 @@ class GameUIManager extends EventEmitter {
     if (!player) return undefined;
     const silverAmount =
       this.contractConstants.BURN_PLANET_REQUIRE_SILVER_AMOUNTS[planetLevel] *
-      10 ** (player.dropBombAmount + 1);
+      10 ** player.dropBombAmount;
 
     return silverAmount;
+  }
+
+  public getKardashevRequireSilverAmount(planetLevel: number): number {
+    return this.contractConstants.KARDASHEV_REQUIRE_SILVER_AMOUNTS[planetLevel];
+  }
+
+  public getBlueRequireSilverAmount(planetLevel: number): number {
+    return this.contractConstants.BLUE_PANET_REQUIRE_SILVER_AMOUNTS[planetLevel];
   }
 
   public getDefaultSpaceJunkForPlanetLevel(level: number): number {
@@ -1571,6 +1668,14 @@ class GameUIManager extends EventEmitter {
 
   getPaused$(): Monomitter<boolean> {
     return this.gameManager.getPaused$();
+  }
+
+  getHalfPrice(): boolean {
+    return this.gameManager.getHalfPrice();
+  }
+
+  getHalfPrice$(): Monomitter<boolean> {
+    return this.gameManager.getHalfPrice$();
   }
 
   public getSilverScoreValue(): number {

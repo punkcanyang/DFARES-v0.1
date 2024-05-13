@@ -92,7 +92,7 @@ export class ViewportEntities {
       }
     }
 
-    this.gameManager.refreshServerPlanetStates(planetIds);
+    await this.gameManager.refreshServerPlanetStates(planetIds);
   }
 
   private recalculateViewportPlanets(viewport: Viewport) {

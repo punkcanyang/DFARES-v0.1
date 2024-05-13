@@ -9,7 +9,7 @@ export type ContractMethodName =
   | 'initializePlayer'
   | 'move'
   | 'upgradePlanet'
-  | 'buyHat'
+  | 'buySkin'
   | 'transferPlanet'
   | 'findArtifact'
   | 'prospectPlanet'
@@ -29,7 +29,13 @@ export type ContractMethodName =
   | 'capturePlanet'
   | 'claimReward'
   | 'burnLocation'
-  | 'pinkLocation';
+  | 'pinkLocation'
+  | 'kardashev'
+  | 'blueLocation'
+  | 'refreshPlanet'
+  | 'buyPlanet'
+  | 'buySpaceship'
+  | 'donate';
 
 export type EthTxStatus =
   | 'Init'
@@ -119,8 +125,16 @@ export type UnconfirmedUpgrade = TxIntent & {
 /**
  * @hidden
  */
+export type UnconfirmedRefreshPlanet = TxIntent & {
+  methodName: 'refreshPlanet';
+  locationId: LocationId;
+};
+
+/**
+ * @hidden
+ */
 export type UnconfirmedBuyHat = TxIntent & {
-  methodName: 'buyHat';
+  methodName: 'buySkin';
   locationId: LocationId;
   hatType: number;
 };
@@ -277,4 +291,48 @@ export type UnconfirmedPink = TxIntent & {
   methodName: 'pinkLocation';
   locationId: LocationId;
   location: WorldLocation;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedKardashev = TxIntent & {
+  methodName: 'kardashev';
+  locationId: LocationId;
+  location: WorldLocation;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedBlue = TxIntent & {
+  methodName: 'blueLocation';
+  locationId: LocationId;
+  location: WorldLocation;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedBuyPlanet = TxIntent & {
+  methodName: 'buyPlanet';
+  locationId: LocationId;
+  location: WorldLocation;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedBuySpaceship = TxIntent & {
+  methodName: 'buySpaceship';
+  locationId: LocationId;
+  location: WorldLocation;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedDonate = TxIntent & {
+  methodName: 'donate';
+  amount: number;
 };

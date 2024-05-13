@@ -36,12 +36,14 @@ function onlyInDevelopment(): string {
 
 const defaultSettings: Record<Setting, string> = {
   [Setting.OptOutMetrics]: onlyInDevelopment(),
-  [Setting.AutoApproveNonPurchaseTransactions]: onlyInDevelopment(),
+  [Setting.AutoApproveNonPurchaseTransactions]: 'false', //onlyInDevelopment(),
+  [Setting.PlanetDefaultEnergyLevelToSend]: '50',
+  [Setting.PlanetDefaultEnergyLevelToSendReset]: 'false',
   [Setting.DrawChunkBorders]: 'false',
   [Setting.HighPerformanceRendering]: 'false',
   [Setting.MoveNotifications]: 'true',
   [Setting.HasAcceptedPluginRisk]: onlyInDevelopment(),
-  [Setting.GasFeeGwei]: Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('1'))
+  [Setting.GasFeeGwei]: Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('6'))
     .toFixed(FIXED_DIGIT_NUMBER)
     .toString(), // AutoGasSetting.Average,
   [Setting.GasFeeLimit]: '3000000',
@@ -62,7 +64,7 @@ const defaultSettings: Record<Setting, string> = {
   [Setting.MiningCores]: '1',
   [Setting.IsMining]: 'true',
   [Setting.DisableDefaultShortcuts]: 'false',
-  [Setting.ExperimentalFeatures]: 'false',
+  [Setting.ExperimentalFeatures]: 'true',
   [Setting.DisableEmojiRendering]: 'false',
   [Setting.DisableHatRendering]: 'false',
   [Setting.AutoClearConfirmedTransactionsAfterSeconds]: '-1',
@@ -74,6 +76,8 @@ const defaultSettings: Record<Setting, string> = {
   [Setting.RendererColorDeepSpace]: '#0B061F',
   [Setting.RendererColorDeadSpace]: '#11291b',
   [Setting.ForceReloadEmbeddedPlugins]: 'false',
+  [Setting.PaneVisible]: 'true',
+  [Setting.BottomHotkeyVisible]: 'true',
 };
 
 interface SettingStorageConfig {

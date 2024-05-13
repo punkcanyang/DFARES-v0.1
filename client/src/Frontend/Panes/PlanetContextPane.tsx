@@ -1,3 +1,4 @@
+import { EMPTY_ADDRESS } from '@dfares/constants';
 import { ModalName, Planet, PlanetType } from '@dfares/types';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import GameUIManager from '../../Backend/GameLogic/GameUIManager';
@@ -5,16 +6,17 @@ import { Wrapper } from '../../Backend/Utils/Wrapper';
 import { CapturePlanetButton } from '../Components/CapturePlanetButton';
 import { VerticalSplit } from '../Components/CoreUI';
 import { MineArtifactButton } from '../Components/MineArtifactButton';
+import { OpenBlueButton } from '../Components/OpenBlueButton';
+import { OpenDropBombButton } from '../Components/OpenDropBombButton';
+import { OpenHatPaneButton } from '../Components/OpenHatPaneButton';
+import { OpenKardashevButton } from '../Components/OpenKardashevButton';
 import {
   OpenBroadcastPaneButton,
-  OpenBuyArtifactPaneButton,
-  OpenDropBombButton,
-  OpenHatPaneButton,
   OpenManagePlanetArtifactsButton,
-  OpenPinkButton,
   OpenPlanetInfoButton,
   OpenUpgradeDetailsPaneButton,
 } from '../Components/OpenPaneButtons';
+import { OpenPinkButton } from '../Components/OpenPinkButton';
 import { snips } from '../Styles/dfstyles';
 import { useAccount, useSelectedPlanet, useUIManager } from '../Utils/AppHooks';
 import { useEmitterSubscribe } from '../Utils/EmitterHooks';
@@ -26,6 +28,20 @@ import { PlanetCard, PlanetCardTitle } from '../Views/PlanetCard';
 import { getNotifsForPlanet, PlanetNotifications } from '../Views/PlanetNotifications';
 import { SendResources } from '../Views/SendResources';
 import { WithdrawSilver } from '../Views/WithdrawSilver';
+
+export const PlanetPaneName = {
+  Capture: 'Capture',
+  Upgrade: 'Upgrade',
+  Boardcast: 'Boardcast',
+  Info: 'Info',
+  BuyArtifact: 'BuyArtifact',
+  Artifacts: 'Artifacts',
+  DropBomb: 'DropBomb',
+  Pink: 'Pink',
+  Kardashev: 'Kardashev',
+  Blue: 'Blue',
+  Hat: 'Hat',
+};
 
 function PlanetContextPaneContent({
   modal,
@@ -50,31 +66,89 @@ function PlanetContextPaneContent({
 
   const p = planet.value;
 
+  const burned = p && p.burnOperator !== undefined && p.burnOperator !== EMPTY_ADDRESS;
+  const kardasheved =
+    p && p.kardashevOperator !== undefined && p.kardashevOperator !== EMPTY_ADDRESS;
+
+  const gt3 = p && p.planetLevel >= 3;
+
+  const pinkZonePassed = useMemo(() => {
+    return p && uiManager.checkPlanetCanPink(p.locationId);
+  }, [p]);
+
+  const blueZonePassed = useMemo(() => {
+    return p && uiManager.checkPlanetCanBlue(p.locationId);
+  }, [p]);
+
   let captureRow = null;
   if (!p?.destroyed && !p?.frozen && uiManager.captureZonesEnabled) {
-    captureRow = <CapturePlanetButton planetWrapper={planet} />;
+    captureRow = <CapturePlanetButton planetWrapper={planet} key={PlanetPaneName.Capture} />;
   }
 
   let upgradeRow = null;
-  if (!p?.destroyed && !p?.frozen && owned) {
-    upgradeRow = <OpenUpgradeDetailsPaneButton modal={modal} planetId={p?.locationId} />;
+  if (!p?.destroyed && !p?.frozen && owned && p?.planetType === PlanetType.PLANET) {
+    upgradeRow = (
+      <OpenUpgradeDetailsPaneButton
+        modal={modal}
+        planetId={p?.locationId}
+        key={PlanetPaneName.Upgrade}
+      />
+    );
   }
+
+  const boardcastRow = (
+    <OpenBroadcastPaneButton
+      modal={modal}
+      planetId={p?.locationId}
+      key={PlanetPaneName.Boardcast}
+    />
+  );
+  const infoRow = (
+    <OpenPlanetInfoButton modal={modal} planetId={p?.locationId} key={PlanetPaneName.Info} />
+  );
 
   let hatRow = null;
   if (!p?.destroyed && !p?.frozen && owned) {
-    hatRow = <OpenHatPaneButton modal={modal} planetId={p?.locationId} />;
+    hatRow = <OpenHatPaneButton modal={modal} planetId={p?.locationId} key={PlanetPaneName.Hat} />;
   }
 
   let dropBombRow = null;
-  if (!p?.destroyed && !p?.frozen) {
-    dropBombRow = <OpenDropBombButton modal={modal} planetId={p?.locationId} />;
+  if (!p?.destroyed && !p?.frozen && owned && gt3 && !burned) {
+    dropBombRow = (
+      <OpenDropBombButton modal={modal} planetId={p?.locationId} key={PlanetPaneName.DropBomb} />
+    );
   }
 
-  let buyArtifactRow = null;
-  if (!p?.destroyed && !p?.frozen && owned) {
-    buyArtifactRow = <OpenBuyArtifactPaneButton modal={modal} planetId={p?.locationId} />;
+  let pinkRow = null;
+  if (!p?.destroyed && !p?.frozen && gt3 && pinkZonePassed) {
+    pinkRow = <OpenPinkButton modal={modal} planetId={p?.locationId} key={PlanetPaneName.Pink} />;
   }
 
+  let kardashevRow = null;
+  if (!p?.destroyed && !p?.frozen && owned && gt3 && !kardasheved) {
+    kardashevRow = (
+      <OpenKardashevButton modal={modal} planetId={p?.locationId} key={PlanetPaneName.Kardashev} />
+    );
+  }
+
+  let blueRow = null;
+  if (!p?.destroyed && !p?.frozen && gt3 && owned && blueZonePassed) {
+    blueRow = <OpenBlueButton modal={modal} planetId={p?.locationId} key={PlanetPaneName.Blue} />;
+  }
+
+  // let buyArtifactRow = null;
+  // if (!p?.destroyed && !p?.frozen && owned) {
+  // buyArtifactRow = <OpenBuyArtifactPaneButton modal={modal}
+  // planetId={p?.locationId} key={PlanetPaneName.BuyArtifact} />;
+  // }
+
+  const artifactsRow = (
+    <OpenManagePlanetArtifactsButton
+      modal={modal}
+      planetId={p?.locationId}
+      key={PlanetPaneName.Artifacts}
+    />
+  );
   let withdrawRow = null;
   if (!p?.destroyed && !p?.frozen && owned && p?.planetType === PlanetType.TRADING_POST) {
     withdrawRow = <WithdrawSilver wrapper={planet} />;
@@ -84,6 +158,25 @@ function PlanetContextPaneContent({
   if (!p?.destroyed && !p?.frozen && notifs.length > 0) {
     notifRow = <PlanetNotifications planet={planet} notifs={notifs} />;
   }
+
+  const rows = [];
+  if (upgradeRow) rows.push(upgradeRow);
+  if (boardcastRow) rows.push(boardcastRow);
+  if (infoRow) rows.push(infoRow);
+  // if (buyArtifactRow) rows.push(buyArtifactRow);
+  if (artifactsRow) rows.push(artifactsRow);
+  if (dropBombRow) rows.push(dropBombRow);
+  if (pinkRow) rows.push(pinkRow);
+  if (kardashevRow) rows.push(kardashevRow);
+  if (blueRow) rows.push(blueRow);
+  if (hatRow) rows.push(hatRow);
+
+  const mid = Math.ceil(0.5 * rows.length);
+
+  const leftRows = [];
+  for (let i = 0; i < mid; i++) leftRows.push(rows[i]);
+  const rightRows = [];
+  for (let i = mid; i < rows.length; i++) rightRows.push(rows[i]);
 
   return (
     <>
@@ -97,18 +190,8 @@ function PlanetContextPaneContent({
       {captureRow}
 
       <VerticalSplit>
-        <>
-          {upgradeRow}
-          <OpenBroadcastPaneButton modal={modal} planetId={p?.locationId} />
-          <OpenPlanetInfoButton modal={modal} planetId={p?.locationId} />
-          {buyArtifactRow}
-        </>
-        <>
-          <OpenManagePlanetArtifactsButton modal={modal} planetId={p?.locationId} />
-          {dropBombRow}
-          <OpenPinkButton modal={modal} planetId={p?.locationId} />
-          {hatRow}
-        </>
+        <>{leftRows}</>
+        <>{rightRows}</>
       </VerticalSplit>
 
       {withdrawRow}

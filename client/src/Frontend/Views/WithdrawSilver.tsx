@@ -21,6 +21,16 @@ const StyledSilverInput = styled.div`
   align-items: center;
 `;
 
+const MinBtn = styled.div`
+  margin-right: 0.5em;
+  color: ${dfstyles.colors.subtext};
+  font-size: ${dfstyles.fontSizeS};
+  &:hover {
+    cursor: pointer;
+    text-decoration: underline;
+  }
+`;
+
 const AllBtn = styled.div`
   color: ${dfstyles.colors.subtext};
   font-size: ${dfstyles.fontSizeS};
@@ -44,7 +54,14 @@ function SilverInput({
   setAmt: Hook<number | undefined>[1];
   wrapper: Wrapper<Planet | undefined>;
 }) {
-  const click = useCallback(() => {
+  const clickMin = useCallback(() => {
+    if (wrapper.value) {
+      const silverMin = Math.floor(wrapper.value.silverCap * 0.2);
+      setAmt(silverMin);
+    }
+  }, [wrapper, setAmt]);
+
+  const clickAll = useCallback(() => {
     if (wrapper.value) setAmt(wrapper.value.silver);
   }, [wrapper, setAmt]);
 
@@ -56,13 +73,14 @@ function SilverInput({
           value={amt}
         />
       </InputWrapper>
-      <AllBtn onClick={click}>all</AllBtn>
+      <MinBtn onClick={clickMin}>min </MinBtn>
+      <AllBtn onClick={clickAll}>all </AllBtn>
     </StyledSilverInput>
   );
 }
 
 const TextWrapper = styled.span`
-  width: 120px;
+  width: 140px;
   font-size: ${dfstyles.fontSizeXS};
   text-align: center;
 `;
@@ -91,6 +109,16 @@ export function WithdrawSilver({ wrapper }: { wrapper: Wrapper<Planet | undefine
     [wrapper]
   );
   const empty = useMemo(() => !!(wrapper.value && wrapper.value.silver < 1), [wrapper]);
+  const enough = useMemo(
+    () =>
+      !!(
+        wrapper.value &&
+        amt &&
+        wrapper.value.silver >= Math.ceil(wrapper.value.silverCap * 0.2) &&
+        amt >= Math.ceil(wrapper.value.silverCap * 0.2)
+      ),
+    [wrapper, amt]
+  );
 
   if (wrapper.value?.planetType === PlanetType.TRADING_POST) {
     return (
@@ -103,9 +131,19 @@ export function WithdrawSilver({ wrapper }: { wrapper: Wrapper<Planet | undefine
         <Row>
           <SilverInput amt={amt} setAmt={setAmt} wrapper={wrapper} />
           <TooltipTrigger name={TooltipName.WithdrawSilverButton}>
-            <Btn onClick={() => withdraw(amt)} disabled={withdrawing || empty}>
+            <Btn onClick={() => withdraw(amt)} disabled={withdrawing || empty || !enough}>
               <TextWrapper>
-                {withdrawing ? <LoadingSpinner initialText='Withdrawing...' /> : 'Withdraw Silver'}
+                {enough ? (
+                  withdrawing ? (
+                    <LoadingSpinner initialText='Withdrawing...' />
+                  ) : (
+                    'Withdraw Silver'
+                  )
+                ) : (
+                  'Need at least ' +
+                  Math.ceil(wrapper.value.silverCap * 0.2) +
+                  ' silver to withdraw'
+                )}
               </TextWrapper>
             </Btn>
           </TooltipTrigger>

@@ -23,7 +23,7 @@ export const RelicsList: ArtifactType[] = [
   ArtifactType.PhotoidCannon,
   ArtifactType.BloomFilter,
   ArtifactType.BlackDomain,
-  ArtifactType.SoulSwap,
+  ArtifactType.Kardashev,
   ArtifactType.Bomb,
   ArtifactType.StellarShield,
   ArtifactType.BlindBox,
@@ -48,11 +48,15 @@ export function hasStatBoost(type: ArtifactType | undefined): boolean {
     !isSpaceShip(type) &&
     type !== ArtifactType.BlackDomain &&
     type !== ArtifactType.BloomFilter &&
-    type !== ArtifactType.Wormhole
+    type !== ArtifactType.Wormhole &&
+    type !== ArtifactType.Avatar &&
+    type !== ArtifactType.Kardashev &&
+    type !== ArtifactType.Bomb &&
+    type !== ArtifactType.StellarShield
   );
 }
 
-const artifactCooldownHoursMap = {
+export const artifactCooldownHoursMap = {
   [ArtifactType.Unknown]: 24,
   [ArtifactType.Monolith]: 0,
   [ArtifactType.Colossus]: 0,
@@ -63,7 +67,7 @@ const artifactCooldownHoursMap = {
   [ArtifactType.PhotoidCannon]: 24,
   [ArtifactType.BloomFilter]: 24,
   [ArtifactType.BlackDomain]: 24,
-  [ArtifactType.SoulSwap]: 0,
+  [ArtifactType.Kardashev]: 0,
   [ArtifactType.Bomb]: 0,
   [ArtifactType.StellarShield]: 0,
   [ArtifactType.BlindBox]: 0,

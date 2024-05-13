@@ -1,18 +1,18 @@
 {
   "name": "eth",
-  "version": "6.8.6",
+  "version": "6.8.14",
   "private": true,
   "license": "GPL-3.0",
   "author": "0xPARC <ivan@0xPARC.org>",
   "main": "index.js",
   "devDependencies": {
-    "@dfares/contracts": "6.8.6",
-    "@dfares/constants": "6.8.6",
-    "@dfares/hashing": "6.8.6",
-    "@dfares/settings": "6.8.6",
-    "@dfares/snarks": "6.8.6",
-    "@dfares/types": "6.8.6",
-    "@dfares/whitelist": "6.8.6",
+    "@dfares/contracts": "6.8.14",
+    "@dfares/constants": "6.8.14",
+    "@dfares/hashing": "6.8.14",
+    "@dfares/settings": "6.8.14",
+    "@dfares/snarks": "6.8.14",
+    "@dfares/types": "6.8.14",
+    "@dfares/whitelist": "6.8.14",
     "@graphprotocol/graph-cli": "^0.53.0",
     "@graphprotocol/graph-ts": "^0.31.0",
     "@iarna/toml": "^2.2.5",
@@ -78,6 +78,7 @@
     "hardhat:mainnet": "hardhat --network mainnet",
     "hardhat:altlayer": "hardhat --network altlayer",
     "hardhat:redstoneTestnet": "hardhat --network redstoneTestnet",
+    "hardhat:redstone": "hardhat --network redstone",
     "compile": "hardhat compile",
     "circom:prod": "hardhat circom --verbose",
     "circom:dev": "hardhat circom --deterministic --verbose --debug",
@@ -91,6 +92,6 @@
     "deploy:contracts": "hardhat --network localhost deploy",
     "hardhat:deploy": "run-s wait:node \"deploy:contracts {@}\" --",
     "start": "run-p hardhat:node \"hardhat:deploy {@}\" --",
-    "ganache": "npx ganache --chain.chainId 31337 --database.dbPath './blockchain/' -m 'change typical hire slam amateur loan grid fix drama electric seed label'  --wallet.defaultBalance 200000  --wallet.totalAccounts 20 --miner.blockTime=2"
+    "ganache": "npx ganache --chain.chainId 31337 --database.dbPath './blockchain/' -m 'change typical hire slam amateur loan grid fix drama electric seed label'  --wallet.defaultBalance 200000  --wallet.totalAccounts 20 --miner.blockTime=2 --miner.defaultGasPrice=1  --miner.blockGasLimit=100000000"
   }
 }

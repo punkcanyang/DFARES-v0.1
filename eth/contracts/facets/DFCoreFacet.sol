@@ -24,14 +24,22 @@ contract DFCoreFacet is WithStorage {
 
     event PlayerInitialized(address player, uint256 loc);
     event PlanetUpgraded(address player, uint256 loc, uint256 branch, uint256 toBranchLevel); // emitted in LibPlanet
-    event PlanetHatBought(address player, uint256 loc, uint256 tohatLevel, uint256 tohatType);
     event PlanetTransferred(address sender, uint256 loc, address receiver);
     event LocationRevealed(address revealer, uint256 loc, uint256 x, uint256 y);
-
     event PlanetSilverWithdrawn(address player, uint256 loc, uint256 amount);
-
     event LocationClaimed(address revealer, address previousClaimer, uint256 loc);
-
+    event ArtifactChangeImageType(
+        address player,
+        uint256 artifactId,
+        uint256 loc,
+        uint256 imageType
+    );
+    event PlanetProspected(address player, uint256 loc);
+    event ArtifactFound(address player, uint256 artifactId, uint256 loc);
+    event ArtifactDeposited(address player, uint256 artifactId, uint256 loc);
+    event ArtifactWithdrawn(address player, uint256 artifactId, uint256 loc);
+    event ArtifactActivated(address player, uint256 artifactId, uint256 loc, uint256 linkTo); // also emitted in LibPlanet
+    event ArtifactDeactivated(address player, uint256 artifactId, uint256 loc, uint256 linkTo); // also emitted in LibPlanet
     //////////////////////
     /// ACCESS CONTROL ///
     //////////////////////
@@ -60,6 +68,14 @@ contract DFCoreFacet is WithStorage {
         _;
     }
 
+    modifier notTokenEnded() {
+        require(
+            block.timestamp < gameConstants().TOKEN_MINT_END_TIMESTAMP,
+            "Token mint period has ended"
+        );
+        _;
+    }
+
     //////////////////////
     /// Game Mechanics ///
     //////////////////////
@@ -73,7 +89,7 @@ contract DFCoreFacet is WithStorage {
         view
         returns (
             Planet memory,
-            // myNotice: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
+            // NOTE: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
 
             uint256[16] memory eventsToRemove,
             uint256[16] memory artifactsToAdd,
@@ -145,10 +161,7 @@ contract DFCoreFacet is WithStorage {
     }
 
     function getEntryFee() public view returns (uint256) {
-        return 1 ether;
-        // return 30 ether;
-        // uint256 amount = gs().playerIds.length;
-        // return (1 ether * amount * amount * amount) / 100000;
+        return gameConstants().ENTRY_FEE * 1000000000;
     }
 
     function initializePlayer(
@@ -167,7 +180,11 @@ contract DFCoreFacet is WithStorage {
 
         // Pay the entry fee
         uint256 entryFee = getEntryFee();
+        if (gs().halfPrice) entryFee /= 2;
         require(msg.value == entryFee, "Wrong value sent");
+
+        ls().initializePlayerCnt++;
+        ls().entryCost += entryFee;
 
         // whitelist
         if (!ws().enabled) {
@@ -191,6 +208,10 @@ contract DFCoreFacet is WithStorage {
             false,
             0,
             false,
+            0,
+            0,
+            0,
+            0,
             0,
             0,
             0,
@@ -243,82 +264,26 @@ contract DFCoreFacet is WithStorage {
         require(!gs().planets[_location].frozen, "can't transfer a frozen planet");
 
         gs().planets[_location].owner = _player;
+        ls().transferPlanetCnt++;
 
         emit PlanetTransferred(msg.sender, _location, _player);
-    }
-
-    function buyHat(uint256 _location, uint256 hatType) public payable notPaused {
-        require(gs().planets[_location].isInitialized == true, "Planet is not initialized");
-        refreshPlanet(_location);
-
-        require(
-            gs().planets[_location].owner == msg.sender,
-            "Only owner account can perform that operation on planet."
-        );
-
-        Artifact memory activeArtifact = LibGameUtils.getActiveArtifact(_location);
-
-        require(activeArtifact.artifactType != ArtifactType.Avatar, "need no active Avatar");
-
-        // uint256 cost = (1 << gs().planets[_location].hatLevel) * 1 ether;
-        uint256 cost = 0.1 ether;
-
-        require(msg.value == cost, "Wrong value sent");
-
-        if (gs().firstHat == address(0)) gs().firstHat = msg.sender;
-
-        gs().players[msg.sender].hatCount++;
-        // gs().planets[_location].hatLevel += 1;
-
-        if (gs().planets[_location].hatLevel == 0) {
-            gs().planets[_location].hatLevel = 1;
-            gs().planets[_location].hatType = hatType;
-        } else {
-            gs().planets[_location].hatLevel = 0;
-            gs().planets[_location].hatType = 0;
-        }
-
-        emit PlanetHatBought(
-            msg.sender,
-            _location,
-            gs().planets[_location].hatLevel,
-            gs().planets[_location].hatType
-        );
-    }
-
-    function setHat(
-        uint256 _location,
-        uint256 hatLevel,
-        uint256 hatType
-    ) public onlyAdmin {
-        require(gs().planets[_location].isInitialized == true, "Planet is not initialized");
-        refreshPlanet(_location);
-
-        gs().planets[_location].hatLevel = hatLevel;
-        gs().planets[_location].hatType = hatType;
-        if (hatLevel >= 1) {
-            gs().planets[_location].adminProtect = true;
-        } else gs().planets[_location].adminProtect = false;
-
-        emit PlanetHatBought(
-            msg.sender,
-            _location,
-            gs().planets[_location].hatLevel,
-            gs().planets[_location].hatType
-        );
     }
 
     function setPlanetCanShow(uint256 _location, bool _canShow) public onlyAdmin {
         require(gs().planets[_location].isInitialized == true, "Planet is not initialized");
         refreshPlanet(_location);
         gs().planets[_location].canShow = _canShow;
+        ls().setPlanetCanShowCnt++;
     }
 
     // withdraw silver
     function withdrawSilver(uint256 locationId, uint256 amount) public notPaused {
         refreshPlanet(locationId);
         LibPlanet.withdrawSilver(locationId, amount);
+
         emit PlanetSilverWithdrawn(msg.sender, locationId, amount);
+        ls().withdrawSilverCnt++;
+        ls().playerLog[msg.sender].withdrawSilverCnt++;
     }
 
     /**
@@ -468,6 +433,203 @@ contract DFCoreFacet is WithStorage {
             x,
             y
         );
+
         emit LocationClaimed(msg.sender, previousClaimer, _input[0]);
+        ls().claimLocationCnt++;
+        ls().playerLog[msg.sender].claimLocationCnt++;
+    }
+
+    // DFArtifactFacet
+
+    function changeArtifactImageType(
+        uint256 locationId,
+        uint256 artifactId,
+        uint256 newImageType
+    ) public notPaused {
+        LibPlanet.refreshPlanet(locationId);
+        Planet storage planet = gs().planets[locationId];
+
+        require(!planet.destroyed, "planet is destroyed");
+        require(!planet.frozen, "planet is frozen");
+        require(
+            planet.owner == msg.sender,
+            "you can only change artifactImageType on a planet you own"
+        );
+
+        require(
+            LibGameUtils.isArtifactOnPlanet(locationId, artifactId),
+            "artifact is not on planet"
+        );
+
+        Artifact storage artifact = gs().artifacts[artifactId];
+
+        require(artifact.isInitialized, "Artifact has not been initialized");
+        require(artifact.artifactType == ArtifactType.Avatar, "artifact type should by avatar");
+        require(artifact.imageType != newImageType, "need change imageType");
+        artifact.imageType = newImageType;
+
+        emit ArtifactChangeImageType(msg.sender, artifactId, locationId, newImageType);
+        ls().changeArtifactImageTypeCnt++;
+        ls().playerLog[msg.sender].changeArtifactImageTypeCnt++;
+    }
+
+    // if there's an activated artifact on this planet, deactivates it. otherwise reverts.
+    // deactivating an artifact this debuffs the planet, and also removes whatever special
+    // effect that the artifact bestowned upon this planet.
+    function deactivateArtifact(uint256 locationId) public notPaused {
+        LibPlanet.refreshPlanet(locationId);
+
+        LibArtifactUtils.deactivateArtifact(locationId);
+        // event is emitted in the above library function
+        ls().deactivateArtifactCnt++;
+        ls().playerLog[msg.sender].deactivateArtifactCnt++;
+    }
+
+    // in order to be able to find an artifact on a planet, the planet
+    // must first be 'prospected'. prospecting commits to a currently-unknown
+    // seed that is used to randomly generate the artifact that will be
+    // found on this planet.
+    function prospectPlanet(uint256 locationId) public notPaused {
+        LibPlanet.refreshPlanet(locationId);
+        LibArtifactUtils.prospectPlanet(locationId);
+        emit PlanetProspected(msg.sender, locationId);
+        ls().prospectPlanetCnt++;
+        ls().playerLog[msg.sender].prospectPlanetCnt++;
+    }
+
+    function findArtifact(
+        uint256[2] memory _a,
+        uint256[2][2] memory _b,
+        uint256[2] memory _c,
+        uint256[7] memory _input
+    ) public notPaused notTokenEnded {
+        uint256 planetId = _input[0];
+        uint256 biomebase = _input[1];
+
+        LibGameUtils.revertIfBadSnarkPerlinFlags(
+            [_input[2], _input[3], _input[4], _input[5], _input[6]],
+            true
+        );
+
+        LibPlanet.refreshPlanet(planetId);
+
+        if (!snarkConstants().DISABLE_ZK_CHECKS) {
+            require(
+                DFVerifierFacet(address(this)).verifyBiomebaseProof(_a, _b, _c, _input),
+                "biome zkSNARK failed doesn't check out"
+            );
+        }
+
+        uint256 foundArtifactId = LibArtifactUtils.findArtifact(
+            DFPFindArtifactArgs(planetId, biomebase, address(this))
+        );
+
+        emit ArtifactFound(msg.sender, foundArtifactId, planetId);
+        ls().findArtifactCnt++;
+        ls().playerLog[msg.sender].findArtifactCnt++;
+    }
+
+    function depositArtifact(uint256 locationId, uint256 artifactId) public notPaused {
+        // should this be implemented as logic that is triggered when a player sends
+        // an artifact to the contract with locationId in the extra data?
+        // might be better use of the ERC721 standard - can use safeTransfer then
+        LibPlanet.refreshPlanet(locationId);
+
+        LibArtifactUtils.depositArtifact(locationId, artifactId, address(this));
+
+        emit ArtifactDeposited(msg.sender, artifactId, locationId);
+        ls().depositArtifactCnt++;
+        ls().playerLog[msg.sender].depositArtifactCnt++;
+    }
+
+    // withdraws the given artifact from the given planet. you must own the planet,
+    // the artifact must be on the given planet
+    function withdrawArtifact(uint256 locationId, uint256 artifactId) public notPaused {
+        LibPlanet.refreshPlanet(locationId);
+
+        LibArtifactUtils.withdrawArtifact(locationId, artifactId);
+
+        emit ArtifactWithdrawn(msg.sender, artifactId, locationId);
+        ls().withdrawArtifactCnt++;
+        ls().playerLog[msg.sender].withdrawArtifactCnt++;
+    }
+
+    /**
+      Gives players 5 spaceships on their home planet. Can only be called once
+      by a given player. This is a first pass at getting spaceships into the game.
+      Eventually ships will be able to spawn in the game naturally (construction, capturing, etc.)
+     */
+    function giveSpaceShips(uint256 locationId) public onlyWhitelisted {
+        require(!gs().players[msg.sender].claimedShips, "player already claimed ships");
+        require(
+            gs().planets[locationId].owner == msg.sender && gs().planets[locationId].isHomePlanet,
+            "you can only spawn ships on your home planet"
+        );
+
+        address owner = gs().planets[locationId].owner;
+        if (gameConstants().SPACESHIPS.MOTHERSHIP) {
+            uint256 id1 = LibArtifactUtils.createAndPlaceSpaceship(
+                locationId,
+                owner,
+                ArtifactType.ShipMothership
+            );
+
+            gs().mySpaceshipIds[owner].push(id1);
+            emit ArtifactFound(msg.sender, id1, locationId);
+        }
+
+        if (gameConstants().SPACESHIPS.CRESCENT) {
+            uint256 id2 = LibArtifactUtils.createAndPlaceSpaceship(
+                locationId,
+                owner,
+                ArtifactType.ShipCrescent
+            );
+            gs().mySpaceshipIds[owner].push(id2);
+            emit ArtifactFound(msg.sender, id2, locationId);
+        }
+
+        if (gameConstants().SPACESHIPS.WHALE) {
+            uint256 id3 = LibArtifactUtils.createAndPlaceSpaceship(
+                locationId,
+                owner,
+                ArtifactType.ShipWhale
+            );
+            gs().mySpaceshipIds[owner].push(id3);
+            emit ArtifactFound(msg.sender, id3, locationId);
+        }
+
+        if (gameConstants().SPACESHIPS.GEAR) {
+            uint256 id4 = LibArtifactUtils.createAndPlaceSpaceship(
+                locationId,
+                owner,
+                ArtifactType.ShipGear
+            );
+
+            gs().mySpaceshipIds[owner].push(id4);
+            emit ArtifactFound(msg.sender, id4, locationId);
+        }
+
+        if (gameConstants().SPACESHIPS.TITAN) {
+            uint256 id5 = LibArtifactUtils.createAndPlaceSpaceship(
+                locationId,
+                owner,
+                ArtifactType.ShipTitan
+            );
+            gs().mySpaceshipIds[owner].push(id5);
+            emit ArtifactFound(msg.sender, id5, locationId);
+        }
+
+        if (gameConstants().SPACESHIPS.PINKSHIP) {
+            uint256 id5 = LibArtifactUtils.createAndPlaceSpaceship(
+                locationId,
+                owner,
+                ArtifactType.ShipPink
+            );
+            gs().mySpaceshipIds[owner].push(id5);
+            emit ArtifactFound(msg.sender, id5, locationId);
+        }
+
+        gs().players[msg.sender].claimedShips = true;
+        ls().giveSpaceShipsCnt++;
     }
 }

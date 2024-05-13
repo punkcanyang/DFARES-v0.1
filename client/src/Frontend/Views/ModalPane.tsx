@@ -123,7 +123,6 @@ export function ModalPane({
         setFrames((frames) => {
           frames = [...frames];
           frames.push(args);
-
           return frames;
         });
       },

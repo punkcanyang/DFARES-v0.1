@@ -11,6 +11,10 @@ import { TxCollection } from '@dfares/network';
 import {
   isUnconfirmedActivateArtifact,
   isUnconfirmedActivateArtifactTx,
+  isUnconfirmedBlue,
+  isUnconfirmedBlueTx,
+  isUnconfirmedBurn,
+  isUnconfirmedBurnTx,
   isUnconfirmedBuyArtifact,
   isUnconfirmedBuyArtifactTx,
   isUnconfirmedBuyHat,
@@ -28,10 +32,16 @@ import {
   isUnconfirmedFindArtifactTx,
   isUnconfirmedGetShipsTx,
   isUnconfirmedInvadePlanetTx,
+  isUnconfirmedKardashev,
+  isUnconfirmedKardashevTx,
   isUnconfirmedMove,
   isUnconfirmedMoveTx,
+  isUnconfirmedPink,
+  isUnconfirmedPinkTx,
   isUnconfirmedProspectPlanet,
   isUnconfirmedProspectPlanetTx,
+  isUnconfirmedRefreshPlanet,
+  isUnconfirmedRefreshPlanetTx,
   isUnconfirmedReveal,
   isUnconfirmedRevealTx,
   isUnconfirmedTransfer,
@@ -54,6 +64,7 @@ import {
   Chunk,
   ClaimedLocation,
   EthAddress,
+  KardashevLocation,
   Link,
   LocatablePlanet,
   LocationId,
@@ -199,6 +210,8 @@ export class GameObjects {
    */
   private readonly burnedLocations: Map<LocationId, BurnedLocation>;
 
+  private readonly kardashevLocations: Map<LocationId, BurnedLocation>;
+
   /**
    * Some of the game's parameters are downloaded from the blockchain. This allows the client to be
    * flexible, and connect to any compatible set of Dark Forest contracts, download the parameters,
@@ -250,6 +263,7 @@ export class GameObjects {
     revealedLocations: Map<LocationId, RevealedLocation>,
     claimedLocations: Map<LocationId, ClaimedLocation>,
     burnedLocations: Map<LocationId, BurnedLocation>,
+    kardashevLocations: Map<LocationId, KardashevLocation>,
     artifacts: Map<ArtifactId, Artifact>,
     allChunks: Iterable<Chunk>,
     unprocessedArrivals: Map<VoyageId, QueuedArrival>,
@@ -266,6 +280,7 @@ export class GameObjects {
     this.revealedLocations = revealedLocations;
     this.claimedLocations = claimedLocations;
     this.burnedLocations = burnedLocations;
+    this.kardashevLocations = kardashevLocations;
     this.artifacts = artifacts;
     this.myArtifacts = new Map();
     this.contractConstants = contractConstants;
@@ -344,7 +359,13 @@ export class GameObjects {
 
     for (const [_locId, burnedLoc] of burnedLocations) {
       this.updatePlanet(burnedLoc.hash, (p) => {
-        p.operator = burnedLoc.operator;
+        p.burnOperator = burnedLoc.operator;
+      });
+    }
+
+    for (const [_locId, kardashevLoc] of kardashevLocations) {
+      this.updatePlanet(kardashevLoc.hash, (p) => {
+        p.kardashevOperator = kardashevLoc.operator;
       });
     }
 
@@ -494,7 +515,8 @@ export class GameObjects {
     updatedArtifactsOnPlanet?: ArtifactId[],
     revealedLocation?: RevealedLocation,
     claimerEthAddress?: EthAddress, // TODO: Remove this
-    operatorEthAddress?: EthAddress
+    burnOperator?: EthAddress,
+    kardashevOperator?: EthAddress
   ): void {
     this.touchedPlanetIds.add(planet.locationId);
     // does not modify unconfirmed txs
@@ -545,8 +567,12 @@ export class GameObjects {
     if (claimerEthAddress) {
       planet.claimer = claimerEthAddress;
     }
-    if (operatorEthAddress) {
-      planet.operator = operatorEthAddress;
+    if (burnOperator) {
+      planet.burnOperator = burnOperator;
+    }
+
+    if (kardashevOperator) {
+      planet.kardashevOperator = kardashevOperator;
     }
     this.setPlanet(planet);
 
@@ -750,6 +776,12 @@ export class GameObjects {
         planet.transactions?.addTransaction(tx);
         this.setPlanet(planet);
       }
+    } else if (isUnconfirmedRefreshPlanetTx(tx)) {
+      const planet = this.getPlanetWithId(tx.intent.locationId);
+      if (planet) {
+        planet.transactions?.addTransaction(tx);
+        this.setPlanet(planet);
+      }
     } else if (isUnconfirmedBuyHatTx(tx)) {
       const planet = this.getPlanetWithId(tx.intent.locationId);
       if (planet) {
@@ -858,6 +890,30 @@ export class GameObjects {
         planet.transactions?.addTransaction(tx);
         this.setPlanet(planet);
       }
+    } else if (isUnconfirmedBurnTx(tx)) {
+      const planet = this.getPlanetWithId(tx.intent.locationId);
+      if (planet) {
+        planet.transactions?.addTransaction(tx);
+        this.setPlanet(planet);
+      }
+    } else if (isUnconfirmedPinkTx(tx)) {
+      const planet = this.getPlanetWithId(tx.intent.locationId);
+      if (planet) {
+        planet.transactions?.addTransaction(tx);
+        this.setPlanet(planet);
+      }
+    } else if (isUnconfirmedKardashevTx(tx)) {
+      const planet = this.getPlanetWithId(tx.intent.locationId);
+      if (planet) {
+        planet.transactions?.addTransaction(tx);
+        this.setPlanet(planet);
+      }
+    } else if (isUnconfirmedBlueTx(tx)) {
+      const planet = this.getPlanetWithId(tx.intent.locationId);
+      if (planet) {
+        planet.transactions?.addTransaction(tx);
+        this.setPlanet(planet);
+      }
     }
   }
 
@@ -901,6 +957,12 @@ export class GameObjects {
         }
       }
     } else if (isUnconfirmedUpgrade(tx.intent)) {
+      const planet = this.getPlanetWithId(tx.intent.locationId);
+      if (planet) {
+        planet.transactions?.removeTransaction(tx);
+        this.setPlanet(planet);
+      }
+    } else if (isUnconfirmedRefreshPlanet(tx.intent)) {
       const planet = this.getPlanetWithId(tx.intent.locationId);
       if (planet) {
         planet.transactions?.removeTransaction(tx);
@@ -1017,6 +1079,30 @@ export class GameObjects {
         planet.transactions?.removeTransaction(tx);
         this.setPlanet(planet);
       }
+    } else if (isUnconfirmedBurn(tx.intent)) {
+      const planet = this.getPlanetWithId(tx.intent.locationId);
+      if (planet) {
+        planet.transactions?.removeTransaction(tx);
+        this.setPlanet(planet);
+      }
+    } else if (isUnconfirmedPink(tx.intent)) {
+      const planet = this.getPlanetWithId(tx.intent.locationId);
+      if (planet) {
+        planet.transactions?.removeTransaction(tx);
+        this.setPlanet(planet);
+      }
+    } else if (isUnconfirmedKardashev(tx.intent)) {
+      const planet = this.getPlanetWithId(tx.intent.locationId);
+      if (planet) {
+        planet.transactions?.removeTransaction(tx);
+        this.setPlanet(planet);
+      }
+    } else if (isUnconfirmedBlue(tx.intent)) {
+      const planet = this.getPlanetWithId(tx.intent.locationId);
+      if (planet) {
+        planet.transactions?.removeTransaction(tx);
+        this.setPlanet(planet);
+      }
     }
   }
 
@@ -1056,6 +1142,12 @@ export class GameObjects {
     this.burnedLocations.set(burnedLocation.hash, burnedLocation);
   }
 
+  public getKardashevLocations(): Map<LocationId, KardashevLocation> {
+    return this.kardashevLocations;
+  }
+  public setKardashevLocation(kardashevLocation: KardashevLocation) {
+    this.kardashevLocations.set(kardashevLocation.hash, kardashevLocation);
+  }
   /**
    * Gets all the planets with the given ids, giltering out the ones that we don't have.
    */
@@ -1547,7 +1639,7 @@ export class GameObjects {
       defense *= 0.5;
     } else if (planetType === PlanetType.SILVER_BANK) {
       // speed /= 2;
-      //MyNotice
+      //NOTE
       speed *= 2;
       silCap *= 10;
       energyGro = 0;

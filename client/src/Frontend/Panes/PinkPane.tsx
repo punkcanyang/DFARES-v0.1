@@ -1,14 +1,13 @@
-import { isUnconfirmedPinkTx } from '@dfares/serde';
-import { ArtifactType, EthAddress, LocationId } from '@dfares/types';
-import React, { useEffect, useState } from 'react';
+import { ArtifactType, LocationId } from '@dfares/types';
+import React from 'react';
 import styled from 'styled-components';
 import { Btn } from '../Components/Btn';
 import { CenterBackgroundSubtext, Spacer } from '../Components/CoreUI';
 import { LoadingSpinner } from '../Components/LoadingSpinner';
-import { Blue, White } from '../Components/Text';
+import { Blue, Green, White } from '../Components/Text';
 import { formatDuration, TimeUntil } from '../Components/TimeUntil';
 import dfstyles from '../Styles/dfstyles';
-import { usePlanet, useUIManager } from '../Utils/AppHooks';
+import { useActiveArtifact, usePlanet, useUIManager } from '../Utils/AppHooks';
 import { useEmitterValue } from '../Utils/EmitterHooks';
 import { ModalHandle } from '../Views/ModalPane';
 
@@ -57,7 +56,17 @@ export function PinkPane({
 }) {
   const uiManager = useUIManager();
   const planetId = useEmitterValue(uiManager.selectedPlanetId$, initialPlanetId);
+  const planetWrapper = usePlanet(uiManager, planetId);
   const planet = usePlanet(uiManager, planetId).value;
+  const activeArtifact = useActiveArtifact(planetWrapper, uiManager);
+
+  const notice = (
+    <CenterBackgroundSubtext width='100%' height='75px'>
+      You can't <br /> pink this planet.
+    </CenterBackgroundSubtext>
+  );
+
+  if (!planet || !uiManager) return notice;
 
   const getLoc = () => {
     if (!planet || !uiManager) return { x: 0, y: 0 };
@@ -70,61 +79,37 @@ export function PinkPane({
     if (!planet || !uiManager) return;
     const loc = uiManager.getLocationOfPlanet(planet.locationId);
     if (!loc) return;
-
     uiManager.pinkLocation(loc.hash);
   };
 
-  const [account, setAccount] = useState<EthAddress | undefined>(undefined); // consider moving this one to parent
-  const isDestoryedOrFrozen = planet?.destroyed || planet?.frozen;
-
-  const checkPlanetCanPink = () => {
-    if (!planetId) return false;
-    return uiManager.checkPlanetCanPink(planetId);
-  };
-
-  const pinkZonePassed = checkPlanetCanPink();
-
-  const getRes = () => {
-    if (!planetId) return 0;
-    return ui.getNextPinkAvailableTimestamp(planetId);
-  };
-
-  const res = getRes();
-  const pinkLocationIdCooldownPassed = res !== 0 ? res <= Date.now() : false;
-
-  const getStellarShieldPassed = () => {
-    if (!planetId) return false;
-    const planet = uiManager.getPlanetWithId(planetId);
-    if (!planet) return false;
-    const artifact = uiManager.getActiveArtifact(planet);
-    if (artifact === undefined) return true;
-
-    return artifact.artifactType !== ArtifactType.StellarShield;
-  };
-  const stellarShieldPassed = getStellarShieldPassed();
-
+  const isDestoryedOrFrozen = planet.destroyed || planet.frozen;
   const levelPassed = planet ? planet.planetLevel >= 3 : false;
+  const pinkZonePassed = planetId && uiManager.checkPlanetCanPink(planetId);
 
-  useEffect(() => {
-    if (!uiManager) return;
-    setAccount(uiManager.getAccount());
-  }, [uiManager]);
+  if (isDestoryedOrFrozen || !levelPassed || !pinkZonePassed) return notice;
+
+  const pinkLocationCooldownPassed =
+    planetId && ui.getNextPinkAvailableTimestamp(planetId) <= Date.now();
+
+  const hasStellarShield =
+    activeArtifact && activeArtifact.artifactType === ArtifactType.StellarShield;
+  const notPinkingAnyPlanet = uiManager.isCurrentlyPinking() === false;
 
   let pinkBtn = undefined;
 
   if (isDestoryedOrFrozen) {
     pinkBtn = <Btn disabled={true}>Pink It </Btn>;
-  } else if (planet?.transactions?.hasTransaction(isUnconfirmedPinkTx)) {
+  } else if (!notPinkingAnyPlanet) {
     pinkBtn = (
       <Btn disabled={true}>
         <LoadingSpinner initialText={'Pinking It...'} />
       </Btn>
     );
-  } else if (!pinkLocationIdCooldownPassed) {
+  } else if (!pinkLocationCooldownPassed) {
     pinkBtn = <Btn disabled={true}>Pink It </Btn>;
   } else if (!pinkZonePassed) {
     pinkBtn = <Btn disabled={true}>Pink It </Btn>;
-  } else if (!stellarShieldPassed) {
+  } else if (hasStellarShield) {
     pinkBtn = <Btn disabled={true}>Pink It </Btn>;
   } else if (!levelPassed) {
     pinkBtn = <Btn disabled={true}>Pink It </Btn>;
@@ -138,29 +123,18 @@ export function PinkPane({
 
   const warningsSection = (
     <div>
-      {isDestoryedOrFrozen && (
-        <p>
-          <Blue>INFO:</Blue> You can't drop bomb to a destoryed/frozen planet.
-        </p>
-      )}
       {!pinkZonePassed && (
         <p>
           <Blue>INFO:</Blue> You only can pink planets in your pink circle.
         </p>
       )}
-
-      {!stellarShieldPassed && (
+      {hasStellarShield && (
         <p>
           <Blue>INFO:</Blue> You can't pink a planet with active StellarShield.
         </p>
       )}
 
-      {!levelPassed && (
-        <p>
-          <Blue>INFO:</Blue> Planet level need {'>='} 3.
-        </p>
-      )}
-      {pinkZonePassed && !pinkLocationIdCooldownPassed && planetId && (
+      {pinkZonePassed && !pinkLocationCooldownPassed && planetId && (
         <p>
           <Blue>INFO:</Blue> You must wait{' '}
           <TimeUntil
@@ -177,7 +151,7 @@ export function PinkPane({
     return (
       <PinkWrapper>
         <div>
-          You need to wait{' '}
+          <Green>Tip:</Green> You need to wait{' '}
           <White>{formatDuration(uiManager.contractConstants.PINK_PLANET_COOLDOWN * 1000)}</White>{' '}
           after dropping bomb.
         </div>

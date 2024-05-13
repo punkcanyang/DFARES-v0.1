@@ -3,8 +3,11 @@ import { EthAddress, Setting, TransactionId, TxIntent } from '@dfares/types';
 import { providers } from 'ethers';
 import { getBooleanSetting } from '../Utils/SettingsHooks';
 
-// tx is killed if user doesn't click popup within 20s
-const POPUP_TIMEOUT = 20000; //MyTodo: change to 20000
+// NOTE: old setting: tx is killed if user doesn't click popup within 20s
+// const POPUP_TIMEOUT = 20000;
+
+// tx is killed if user doesn't click popup within 200s
+const POPUP_TIMEOUT = 200_000;
 
 interface OpenConfirmationConfig {
   contractAddress: EthAddress;
@@ -43,7 +46,7 @@ export async function openConfirmationWindowForTransaction({
     const popup = window.open(
       `/wallet/${contractAddress}/${from}/${id}/${balanceEth}/${method}`,
       'confirmationwindow',
-      'width=600,height=500'
+      'width=600,height=600'
     );
     if (popup) {
       const opened = Date.now();

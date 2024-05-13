@@ -50,6 +50,16 @@ const defaultInitializerValues = {
   MAX_LEVEL_LIMIT: [9, 5, 6, 7, 8, 9],
   MIN_LEVEL_BIAS: [0, 0, 0, 0, 0, 1],
 
+  KARDASHEV_END_TIMESTAMP: '3031-05-27T18:59:59.000Z',
+  KARDASHEV_PLANET_COOLDOWN: 60 * 60 * 3,
+  BLUE_PLANET_COOLDOWN: 60 * 60 * 3,
+  KARDASHEV_EFFECT_RADIUS: [0, 1_000, 2_000, 3_000, 4_000, 5_000, 6_000, 7_000, 8_000, 9_000],
+  KARDASHEV_REQUIRE_SILVER_AMOUNTS: [
+    15000, 15000, 15000, 15000, 15000, 15000, 15000, 15000, 15000, 15000,
+  ],
+  BLUE_PANET_REQUIRE_SILVER_AMOUNTS: [
+    15000, 15000, 15000, 15000, 15000, 15000, 15000, 15000, 15000, 15000,
+  ],
   PLANET_TYPE_WEIGHTS: [
     [
       [1, 0, 0, 0, 0],
@@ -126,6 +136,7 @@ const defaultInitializerValues = {
     5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   ],
+  ENTRY_FEE: 0,
 };
 
 // This builds a fake HRE-like object used to initialize the test contracts

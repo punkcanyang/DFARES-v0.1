@@ -1,6 +1,13 @@
 import { isLocatable } from '@dfares/gamelogic';
-import { getPlanetName, isLogo, numToLogoType } from '@dfares/procedural';
-import { logoFromType } from '@dfares/renderer';
+import {
+  getPlanetName,
+  isAvatar,
+  isLogo,
+  isMeme,
+  numToAvatarType,
+  numToLogoType,
+} from '@dfares/procedural';
+import { avatarFromType, logoFromType } from '@dfares/renderer';
 import { Planet, TooltipName } from '@dfares/types';
 import React from 'react';
 import styled from 'styled-components';
@@ -9,6 +16,7 @@ import { StatIdx } from '../../_types/global/GlobalTypes';
 import { AlignCenterHorizontally, EmSpacer, InlineBlock, SpreadApart } from '../Components/CoreUI';
 import { Icon, IconType } from '../Components/Icons';
 import { AccountLabel } from '../Components/Labels/Labels';
+import { MythicLabelText } from '../Components/Labels/MythicLabel';
 import {
   DefenseText,
   EnergyGrowthText,
@@ -42,6 +50,14 @@ export function PlanetCardTitle({
 
   const p = planet.value;
   let planetNameDiv = <div> {getPlanetName(planet.value)} </div>;
+
+  if (p.hatLevel > 0 && isMeme(p.hatType)) {
+    // const memeType = numToMemeType(p.hatType);
+    // const meme = memeFromType(memeType);
+    // const memeColor = meme.color;
+    planetNameDiv = <MythicLabelText text={getPlanetName(p)} />;
+  }
+
   if (p.hatLevel > 0 && isLogo(p.hatType)) {
     const logoType = numToLogoType(p.hatType);
     const logo = logoFromType(logoType);
@@ -49,6 +65,12 @@ export function PlanetCardTitle({
     planetNameDiv = <div style={{ color: logoColor }}> {getPlanetName(p)} </div>;
   }
 
+  if (p.hatLevel > 0 && isAvatar(p.hatType)) {
+    // const avatarType = numToAvatarType(p.hatType);
+    // const avatar = avatarFromType(avatarType);
+    // const avatarColor = avatar.color;
+    planetNameDiv = <MythicLabelText text={getPlanetName(p)} />;
+  }
   return (
     <AlignCenterHorizontally style={{ width: 'initial', display: 'inline-flex' }}>
       {planetNameDiv}
@@ -65,6 +87,12 @@ const ElevatedContainer = styled.div`
   margin-top: 8px;
   margin-bottom: 8px;
   font-size: 85%;
+`;
+
+const DescContainer = styled.div`
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 /** Preview basic planet information - used in `PlanetContextPane` and `HoverPlanetPane` */
@@ -84,15 +112,33 @@ export function PlanetCard({
 
   if (!planet || !isLocatable(planet)) return <></>;
 
-  let showLogoDesc = <div></div>;
+  let showDesc = <div></div>;
+
+  if (planet.hatLevel > 0 && isMeme(planet.hatType)) {
+  }
 
   if (planet.hatLevel > 0 && isLogo(planet.hatType)) {
     const logoType = numToLogoType(planet.hatType);
     const logo = logoFromType(logoType);
-
+    const website = logo.website;
     const logoColor = logo.color;
 
-    showLogoDesc = <div style={{ color: logoColor }}> {logo.desc} </div>;
+    showDesc = (
+      <div>
+        <div style={{ color: logoColor }} onClick={() => window.open(website)}>
+          <DescContainer>{logo.desc}</DescContainer>
+        </div>
+      </div>
+    );
+  }
+
+  if (planet.hatLevel > 0 && isAvatar(planet.hatType)) {
+    const avatarType = numToAvatarType(planet.hatType);
+    const avatar = avatarFromType(avatarType);
+    const desc = avatar.desc;
+    if (desc !== '') {
+      showDesc = <div style={{ color: 'pink', fontSize: '20px' }}>{desc}</div>;
+    }
   }
 
   return (
@@ -120,7 +166,7 @@ export function PlanetCard({
           </>
         )}
 
-        <StatRow>{showLogoDesc}</StatRow>
+        <StatRow>{showDesc}</StatRow>
 
         <ElevatedContainer>
           <StatRow>

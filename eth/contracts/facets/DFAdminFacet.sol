@@ -18,6 +18,7 @@ contract DFAdminFacet is WithStorage {
     event AdminPlanetCreated(uint256 loc);
     event AdminGiveSpaceship(uint256 loc, address owner, ArtifactType artifactType);
     event PauseStateChanged(bool paused);
+    event HalfPriceChanged(bool halfPrice);
 
     /////////////////////////////
     /// Administrative Engine ///
@@ -38,6 +39,18 @@ contract DFAdminFacet is WithStorage {
         require(gs().paused, "Game is already unpaused");
         gs().paused = false;
         emit PauseStateChanged(false);
+    }
+
+    function setHalfPrice() public onlyAdmin {
+        require(!gs().halfPrice, "Game is in half-price stage.");
+        gs().halfPrice = true;
+        emit HalfPriceChanged(true);
+    }
+
+    function setUnHalfPrice() public onlyAdmin {
+        require(gs().halfPrice, "Game isn't in half-price stage.");
+        gs().halfPrice = false;
+        emit HalfPriceChanged(false);
     }
 
     /**
@@ -167,16 +180,50 @@ contract DFAdminFacet is WithStorage {
         gameConstants().BURN_END_TIMESTAMP = newBurnEndTime;
     }
 
+    function setEntryFee(uint256 newEntryFee) public onlyAdmin {
+        gameConstants().ENTRY_FEE = newEntryFee;
+    }
+
+    function setKardashevEndTime(uint256 newEndTime) public onlyAdmin {
+        gameConstants().KARDASHEV_END_TIMESTAMP = newEndTime;
+    }
+
+    function setKardashevCooldowm(uint256 newCooldown) public onlyAdmin {
+        gameConstants().KARDASHEV_PLANET_COOLDOWN = newCooldown;
+    }
+
+    function setTransferEnergyCooldown(uint256 newCooldown) public onlyAdmin {
+        gameConstants().BLUE_PLANET_COOLDOWN = newCooldown;
+    }
+
+    function changeKardashevEffectRadius(uint256 level, uint256 _newRadius) public onlyAdmin {
+        gameConstants().KARDASHEV_EFFECT_RADIUS[level] = _newRadius;
+    }
+
+    function changeKardashevRequireSilverAmounts(uint256 level, uint256 _newSilver)
+        public
+        onlyAdmin
+    {
+        gameConstants().KARDASHEV_REQUIRE_SILVER_AMOUNTS[level] = _newSilver;
+    }
+
+    function changeTransferEnergyRequireSilverAmounts(uint256 level, uint256 _newSilver)
+        public
+        onlyAdmin
+    {
+        gameConstants().BLUE_PANET_REQUIRE_SILVER_AMOUNTS[level] = _newSilver;
+    }
+
     function createPlanet(AdminCreatePlanetArgs memory args) public onlyAdmin {
         require(gameConstants().ADMIN_CAN_ADD_PLANETS, "admin can no longer add planets");
         if (args.requireValidLocationId) {
             require(LibGameUtils._locationIdValid(args.location), "Not a valid planet location");
         }
 
-        //mytodo: need pass dist here, get wrong space type if some condition at
+        //NOTE: need pass dist here, get wrong space type if some condition at
         //new map algo, need to be fixed
         //
-        //myNotice: admin only add Level 9
+        //NOTE: admin only add Level 9
         SpaceType spaceType = LibGameUtils.spaceTypeFromPerlin(args.perlin, 0);
         LibPlanet._initializePlanet(
             DFPInitPlanetArgs(
@@ -210,6 +257,8 @@ contract DFAdminFacet is WithStorage {
         planet = LibPlanet.applySpaceshipArrive(artifact, planet);
 
         gs().planets[locationId] = planet;
+
+        gs().mySpaceshipIds[owner].push(shipId);
 
         emit AdminGiveSpaceship(locationId, owner, artifactType);
     }

@@ -1,4 +1,4 @@
-import { EMPTY_LOCATION_ID, GAS_ADJUST_DELTA, TOKEN_NAME } from '@dfares/constants';
+import { EMPTY_LOCATION_ID, TOKEN_NAME } from '@dfares/constants';
 import { DarkForest } from '@dfares/contracts/typechain';
 import {
   aggregateBulkGetter,
@@ -17,6 +17,7 @@ import {
   decodeArtifactPointValues,
   decodeBurnedCoords,
   decodeClaimedCoords,
+  decodeKardashevCoords,
   decodePlanet,
   decodePlanetDefaults,
   decodePlayer,
@@ -34,6 +35,7 @@ import {
   ClaimedCoords,
   DiagnosticUpdater,
   EthAddress,
+  KardashevCoords,
   LocationId,
   Planet,
   Player,
@@ -73,7 +75,8 @@ export class ContractsAPI extends EventEmitter {
   /**
    * Don't allow users to submit txs if balance falls below this amount/
    */
-  private static readonly MIN_BALANCE = ethToWei(0.002);
+  //todo: this should be change for round 3
+  private static readonly MIN_BALANCE = ethToWei(0.00001);
 
   /**
    * Instrumented {@link ThrottledConcurrentQueue} for blockchain reads.
@@ -122,19 +125,21 @@ export class ContractsAPI extends EventEmitter {
    * a string representing that we want to use an auto gas setting.
    */
   private getGasFeeForTransaction(tx: Transaction): AutoGasSetting | string {
-    if (
-      (tx.intent.methodName === 'initializePlayer' || tx.intent.methodName === 'getSpaceShips') &&
-      tx.intent.contract.address === this.contract.address
-    ) {
-      return Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('50'))
-        .toFixed(16)
-        .toString();
-    }
-
     const config = {
       contractAddress: this.contractAddress,
       account: this.ethConnection.getAddress(),
     };
+
+    if (
+      (tx.intent.methodName === 'initializePlayer' || tx.intent.methodName === 'giveSpaceShips') &&
+      tx.intent.contract.address === this.contract.address
+    ) {
+      const settingValue = getSetting(config, Setting.GasFeeGwei);
+
+      return Number(parseFloat(settingValue) * parseInt('20'))
+        .toFixed(16)
+        .toString();
+    }
 
     return getSetting(config, Setting.GasFeeGwei);
   }
@@ -194,7 +199,7 @@ export class ContractsAPI extends EventEmitter {
   }
 
   private async afterTransaction(_txRequest: Transaction, txDiagnosticInfo: unknown) {
-    // myNotice: remove /event
+    // NOTE: remove /event
     // eventLogger.logEvent(EventType.Transaction, txDiagnosticInfo);
   }
 
@@ -213,44 +218,127 @@ export class ContractsAPI extends EventEmitter {
       address: contract.address,
       topics: [
         [
+          contract.filters.PlayerInitialized(null, null).topics,
           contract.filters.ArrivalQueued(null, null, null, null, null).topics,
-          contract.filters.ArtifactActivated(null, null, null, null).topics,
-          contract.filters.ArtifactDeactivated(null, null, null, null).topics,
-          contract.filters.ArtifactDeposited(null, null, null).topics,
-          contract.filters.ArtifactFound(null, null, null).topics,
-          contract.filters.ArtifactWithdrawn(null, null, null).topics,
-          contract.filters.LocationRevealed(null, null, null, null).topics,
-          contract.filters.LocationClaimed(null, null, null).topics,
-          contract.filters.LocationBurned(null, null, null, null).topics,
+          contract.filters.PlanetUpgraded(null, null, null, null).topics,
           contract.filters.PlanetHatBought(null, null, null).topics,
-          contract.filters.PlanetProspected(null, null).topics,
-          contract.filters.PlanetSilverWithdrawn(null, null, null).topics,
           contract.filters.PlanetTransferred(null, null, null).topics,
           contract.filters.PlanetInvaded(null, null).topics,
           contract.filters.PlanetCaptured(null, null).topics,
-          contract.filters.PlayerInitialized(null, null).topics,
+          contract.filters.LocationRevealed(null, null, null, null).topics,
+          contract.filters.LocationClaimed(null, null, null).topics,
+          //NOTE: prospect planet seems don't change planet state
+          contract.filters.PlanetProspected(null, null).topics,
+          contract.filters.ArtifactFound(null, null, null).topics,
+          contract.filters.ArtifactDeposited(null, null, null).topics,
+          contract.filters.ArtifactWithdrawn(null, null, null).topics,
+          contract.filters.ArtifactActivated(null, null, null, null).topics,
+          contract.filters.ArtifactDeactivated(null, null, null, null).topics,
+          contract.filters.PlanetSilverWithdrawn(null, null, null).topics,
           contract.filters.AdminOwnershipChanged(null, null).topics,
-          contract.filters.AdminGiveSpaceship(null, null).topics,
+          contract.filters.AdminGiveSpaceship(null, null, null).topics,
           contract.filters.PauseStateChanged(null).topics,
           contract.filters.LobbyCreated(null, null).topics,
+          contract.filters.LocationBurned(null, null, null, null).topics,
+          contract.filters.Kardashev(null, null, null, null).topics,
+          contract.filters.LocationBlued(null, null, null).topics,
+          contract.filters.PlanetBought(null, null).topics,
+          contract.filters.SpaceshipBought(null, null, null).topics,
+          contract.filters.HalfPriceChanged(null).topics,
         ].map((topicsOrUndefined) => (topicsOrUndefined || [])[0]),
       ] as Array<string | Array<string>>,
     };
 
     const eventHandlers = {
-      [ContractEvent.PauseStateChanged]: (paused: boolean) => {
-        this.emit(ContractsAPIEvent.PauseStateChanged, paused);
+      [ContractEvent.PlayerInitialized]: async (player: string, locRaw: EthersBN, _: Event) => {
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(player));
+        this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(locRaw));
+        this.emit(ContractsAPIEvent.RadiusUpdated);
       },
-      [ContractEvent.AdminOwnershipChanged]: (location: EthersBN, _newOwner: string) => {
-        this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location));
+      [ContractEvent.ArrivalQueued]: async (
+        playerAddr: string,
+        arrivalId: EthersBN,
+        fromLocRaw: EthersBN,
+        toLocRaw: EthersBN,
+        _artifactIdRaw: EthersBN,
+        _: Event
+      ) => {
+        this.emit(
+          ContractsAPIEvent.ArrivalQueued,
+          arrivalId.toString() as VoyageId,
+          locationIdFromEthersBN(fromLocRaw),
+          locationIdFromEthersBN(toLocRaw)
+        );
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(playerAddr));
+        this.emit(ContractsAPIEvent.RadiusUpdated);
       },
-      [ContractEvent.AdminGiveSpaceship]: (
+
+      [ContractEvent.PlanetUpgraded]: async (
+        _playerAddr: string,
         location: EthersBN,
-        _newOwner: string,
-        _type: ArtifactType
+        _branch: EthersBN,
+        _toBranchLevel: EthersBN,
+        _: Event
       ) => {
         this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location));
       },
+      [ContractEvent.PlanetHatBought]: async (
+        _playerAddress: string,
+        location: EthersBN,
+        _: Event
+      ) => this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location)),
+
+      [ContractEvent.PlanetTransferred]: async (
+        _senderAddress: string,
+        planetId: EthersBN,
+        receiverAddress: string,
+        _: Event
+      ) => {
+        this.emit(
+          ContractsAPIEvent.PlanetTransferred,
+          locationIdFromEthersBN(planetId),
+          address(receiverAddress)
+        );
+      },
+      [ContractEvent.PlanetInvaded]: async (_playerAddr: string, location: EthersBN, _: Event) => {
+        this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location));
+      },
+      [ContractEvent.PlanetCaptured]: async (_playerAddr: string, location: EthersBN, _: Event) => {
+        this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location));
+      },
+
+      [ContractEvent.LocationRevealed]: async (
+        revealerAddr: string,
+        location: EthersBN,
+        _x: EthersBN,
+        _y: EthersBN,
+        _: Event
+      ) => {
+        this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location));
+        this.emit(
+          ContractsAPIEvent.LocationRevealed,
+          locationIdFromEthersBN(location),
+          address(revealerAddr.toLowerCase())
+        );
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(revealerAddr));
+      },
+      [ContractEvent.LocationClaimed]: async (
+        revealerAddr: string,
+        _previousClaimer: string,
+        location: EthersBN,
+        _: Event
+      ) => {
+        this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location));
+
+        this.emit(
+          ContractsAPIEvent.LocationClaimed,
+          locationIdFromEthersBN(location),
+          address(revealerAddr.toLowerCase())
+        );
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(revealerAddr));
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(_previousClaimer));
+      },
+
       [ContractEvent.ArtifactFound]: (
         _playerAddr: string,
         rawArtifactId: EthersBN,
@@ -300,92 +388,6 @@ export class ContractsAPI extends EventEmitter {
         this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(loc));
         this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(linkTo));
       },
-      [ContractEvent.PlayerInitialized]: async (player: string, locRaw: EthersBN, _: Event) => {
-        this.emit(ContractsAPIEvent.PlayerUpdate, address(player));
-        this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(locRaw));
-        this.emit(ContractsAPIEvent.RadiusUpdated);
-      },
-      [ContractEvent.PlanetTransferred]: async (
-        _senderAddress: string,
-        planetId: EthersBN,
-        receiverAddress: string,
-        _: Event
-      ) => {
-        this.emit(
-          ContractsAPIEvent.PlanetTransferred,
-          locationIdFromEthersBN(planetId),
-          address(receiverAddress)
-        );
-      },
-      [ContractEvent.ArrivalQueued]: async (
-        playerAddr: string,
-        arrivalId: EthersBN,
-        fromLocRaw: EthersBN,
-        toLocRaw: EthersBN,
-        _artifactIdRaw: EthersBN,
-        _: Event
-      ) => {
-        this.emit(
-          ContractsAPIEvent.ArrivalQueued,
-          arrivalId.toString() as VoyageId,
-          locationIdFromEthersBN(fromLocRaw),
-          locationIdFromEthersBN(toLocRaw)
-        );
-        this.emit(ContractsAPIEvent.PlayerUpdate, address(playerAddr));
-        this.emit(ContractsAPIEvent.RadiusUpdated);
-      },
-      [ContractEvent.PlanetUpgraded]: async (
-        _playerAddr: string,
-        location: EthersBN,
-        _branch: EthersBN,
-        _toBranchLevel: EthersBN,
-        _: Event
-      ) => {
-        this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location));
-      },
-      [ContractEvent.PlanetInvaded]: async (_playerAddr: string, location: EthersBN, _: Event) => {
-        this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location));
-      },
-      [ContractEvent.PlanetCaptured]: async (_playerAddr: string, location: EthersBN, _: Event) => {
-        this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location));
-      },
-      [ContractEvent.PlanetHatBought]: async (
-        _playerAddress: string,
-        location: EthersBN,
-        _: Event
-      ) => this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location)),
-      [ContractEvent.LocationRevealed]: async (
-        revealerAddr: string,
-        location: EthersBN,
-        _x: EthersBN,
-        _y: EthersBN,
-        _: Event
-      ) => {
-        this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location));
-        this.emit(
-          ContractsAPIEvent.LocationRevealed,
-          locationIdFromEthersBN(location),
-          address(revealerAddr.toLowerCase())
-        );
-        this.emit(ContractsAPIEvent.PlayerUpdate, address(revealerAddr));
-      },
-
-      [ContractEvent.LocationClaimed]: async (
-        revealerAddr: string,
-        _previousClaimer: string,
-        location: EthersBN,
-        _: Event
-      ) => {
-        this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location));
-
-        this.emit(
-          ContractsAPIEvent.LocationClaimed,
-          locationIdFromEthersBN(location),
-          address(revealerAddr.toLowerCase())
-        );
-        this.emit(ContractsAPIEvent.PlayerUpdate, address(revealerAddr));
-        this.emit(ContractsAPIEvent.PlayerUpdate, address(_previousClaimer));
-      },
       [ContractEvent.PlanetSilverWithdrawn]: async (
         player: string,
         location: EthersBN,
@@ -395,9 +397,29 @@ export class ContractsAPI extends EventEmitter {
         this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location));
         this.emit(ContractsAPIEvent.PlayerUpdate, address(player));
       },
+
+      [ContractEvent.AdminOwnershipChanged]: (location: EthersBN, _newOwner: string) => {
+        this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location));
+      },
+      [ContractEvent.AdminGiveSpaceship]: (
+        location: EthersBN,
+        _newOwner: string,
+        _type: ArtifactType
+      ) => {
+        this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location));
+      },
+      [ContractEvent.PauseStateChanged]: (paused: boolean) => {
+        this.emit(ContractsAPIEvent.PauseStateChanged, paused);
+      },
+
+      [ContractEvent.HalfPriceChanged]: (halfPrice: boolean) => {
+        this.emit(ContractsAPIEvent.HalfPriceChanged, halfPrice);
+      },
+
       [ContractEvent.LobbyCreated]: (ownerAddr: string, lobbyAddr: string) => {
         this.emit(ContractsAPIEvent.LobbyCreated, address(ownerAddr), address(lobbyAddr));
       },
+
       [ContractEvent.LocationBurned]: async (
         revealerAddr: string,
         location: EthersBN,
@@ -412,6 +434,57 @@ export class ContractsAPI extends EventEmitter {
           address(revealerAddr.toLowerCase())
         );
         this.emit(ContractsAPIEvent.PlayerUpdate, address(revealerAddr));
+      },
+
+      //todo: this is cool
+
+      [ContractEvent.Kardashev]: async (
+        revealerAddr: string,
+        location: EthersBN,
+        _x: EthersBN,
+        _y: EthersBN,
+
+        _: Event
+      ) => {
+        this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location));
+        this.emit(
+          ContractsAPIEvent.LocationRevealed,
+          locationIdFromEthersBN(location),
+          address(revealerAddr.toLowerCase())
+        );
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(revealerAddr));
+      },
+
+      [ContractEvent.LocationBlued]: async (
+        revealerAddr: string,
+        location: EthersBN,
+        _x: EthersBN,
+        _y: EthersBN,
+        centerPlanetLocation: EthersBN,
+        _: Event
+      ) => {
+        this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location));
+        this.emit(
+          ContractsAPIEvent.LocationRevealed,
+          locationIdFromEthersBN(location),
+          address(revealerAddr.toLowerCase())
+        );
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(revealerAddr));
+
+        this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(centerPlanetLocation));
+      },
+
+      [ContractEvent.PlanetBought]: async (player: string, locRaw: EthersBN, _: Event) => {
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(player));
+        this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(locRaw));
+        this.emit(ContractsAPIEvent.RadiusUpdated);
+      },
+      [ContractEvent.SpaceshipBought]: (
+        location: EthersBN,
+        _newOwner: string,
+        _type: ArtifactType
+      ) => {
+        this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location));
       },
     };
 
@@ -437,6 +510,7 @@ export class ContractsAPI extends EventEmitter {
     contract.removeAllListeners(ContractEvent.PlanetInvaded);
     contract.removeAllListeners(ContractEvent.PlanetCaptured);
     contract.removeAllListeners(ContractEvent.LocationBurned);
+    contract.removeAllListeners(ContractEvent.Kardashev);
   }
 
   public getContractAddress(): EthAddress {
@@ -530,6 +604,13 @@ export class ContractsAPI extends EventEmitter {
       MAX_LEVEL_DIST,
       MAX_LEVEL_LIMIT,
       MIN_LEVEL_BIAS,
+      ENTRY_FEE,
+      KARDASHEV_END_TIMESTAMP,
+      KARDASHEV_PLANET_COOLDOWN,
+      BLUE_PLANET_COOLDOWN,
+      KARDASHEV_EFFECT_RADIUS,
+      KARDASHEV_REQUIRE_SILVER_AMOUNTS,
+      BLUE_PANET_REQUIRE_SILVER_AMOUNTS,
     } = await this.makeCall(this.contract.getGameConstants);
 
     // const TOKEN_MINT_END_TIMESTAMP = (
@@ -780,6 +861,47 @@ export class ContractsAPI extends EventEmitter {
         MIN_LEVEL_BIAS[4].toNumber(),
         MIN_LEVEL_BIAS[5].toNumber(),
       ],
+
+      ENTRY_FEE: ENTRY_FEE.toNumber(),
+      KARDASHEV_END_TIMESTAMP: KARDASHEV_END_TIMESTAMP.toNumber(),
+      KARDASHEV_PLANET_COOLDOWN: KARDASHEV_PLANET_COOLDOWN.toNumber(),
+      BLUE_PLANET_COOLDOWN: BLUE_PLANET_COOLDOWN.toNumber(),
+      KARDASHEV_EFFECT_RADIUS: [
+        KARDASHEV_EFFECT_RADIUS[0].toNumber(),
+        KARDASHEV_EFFECT_RADIUS[1].toNumber(),
+        KARDASHEV_EFFECT_RADIUS[2].toNumber(),
+        KARDASHEV_EFFECT_RADIUS[3].toNumber(),
+        KARDASHEV_EFFECT_RADIUS[4].toNumber(),
+        KARDASHEV_EFFECT_RADIUS[5].toNumber(),
+        KARDASHEV_EFFECT_RADIUS[6].toNumber(),
+        KARDASHEV_EFFECT_RADIUS[7].toNumber(),
+        KARDASHEV_EFFECT_RADIUS[8].toNumber(),
+        KARDASHEV_EFFECT_RADIUS[9].toNumber(),
+      ],
+      KARDASHEV_REQUIRE_SILVER_AMOUNTS: [
+        KARDASHEV_REQUIRE_SILVER_AMOUNTS[0].toNumber(),
+        KARDASHEV_REQUIRE_SILVER_AMOUNTS[1].toNumber(),
+        KARDASHEV_REQUIRE_SILVER_AMOUNTS[2].toNumber(),
+        KARDASHEV_REQUIRE_SILVER_AMOUNTS[3].toNumber(),
+        KARDASHEV_REQUIRE_SILVER_AMOUNTS[4].toNumber(),
+        KARDASHEV_REQUIRE_SILVER_AMOUNTS[5].toNumber(),
+        KARDASHEV_REQUIRE_SILVER_AMOUNTS[6].toNumber(),
+        KARDASHEV_REQUIRE_SILVER_AMOUNTS[7].toNumber(),
+        KARDASHEV_REQUIRE_SILVER_AMOUNTS[8].toNumber(),
+        KARDASHEV_REQUIRE_SILVER_AMOUNTS[9].toNumber(),
+      ],
+      BLUE_PANET_REQUIRE_SILVER_AMOUNTS: [
+        BLUE_PANET_REQUIRE_SILVER_AMOUNTS[0].toNumber(),
+        BLUE_PANET_REQUIRE_SILVER_AMOUNTS[1].toNumber(),
+        BLUE_PANET_REQUIRE_SILVER_AMOUNTS[2].toNumber(),
+        BLUE_PANET_REQUIRE_SILVER_AMOUNTS[3].toNumber(),
+        BLUE_PANET_REQUIRE_SILVER_AMOUNTS[4].toNumber(),
+        BLUE_PANET_REQUIRE_SILVER_AMOUNTS[5].toNumber(),
+        BLUE_PANET_REQUIRE_SILVER_AMOUNTS[6].toNumber(),
+        BLUE_PANET_REQUIRE_SILVER_AMOUNTS[7].toNumber(),
+        BLUE_PANET_REQUIRE_SILVER_AMOUNTS[8].toNumber(),
+        BLUE_PANET_REQUIRE_SILVER_AMOUNTS[9].toNumber(),
+      ],
     };
     // console.log(constants);
     return constants;
@@ -802,7 +924,7 @@ export class ContractsAPI extends EventEmitter {
       nPlayers,
       5,
       async (start: number, end: number) =>
-        this.contractCaller.makeCall(this.contract.bulkGetLastClaimTimestamp, [start, end])
+        this.makeCall(this.contract.bulkGetLastClaimTimestamp, [start, end])
     );
     const playerLastClaimTimestampMap = lastClaimTimestamps.reduce(
       (acc, pair): Map<string, EthersBN> => {
@@ -816,7 +938,7 @@ export class ContractsAPI extends EventEmitter {
       nPlayers,
       5,
       async (start: number, end: number) =>
-        this.contractCaller.makeCall(this.contract.bulkGetLastBurnTimestamp, [start, end])
+        this.makeCall(this.contract.bulkGetLastBurnTimestamp, [start, end])
     );
 
     const playerLastBurnTimestampMap = lastBurnTimestamps.reduce(
@@ -827,14 +949,26 @@ export class ContractsAPI extends EventEmitter {
       new Map<string, EthersBN>()
     );
 
+    const lastKardashevTimestamps = await aggregateBulkGetter(
+      nPlayers,
+      5,
+      async (start: number, end: number) =>
+        this.makeCall(this.contract.bulkGetLastKardashevTimestamp, [start, end])
+    );
+
+    const playerLastKardashevTimestampMap = lastKardashevTimestamps.reduce(
+      (acc, pair): Map<string, EthersBN> => {
+        acc.set(pair.player.toLowerCase(), pair.lastKardashevTimestamp);
+        return acc;
+      },
+      new Map<string, EthersBN>()
+    );
+
     const lastActivateArtifactTimestamps = await aggregateBulkGetter(
       nPlayers,
       5,
       async (start: number, end: number) =>
-        this.contractCaller.makeCall(this.contract.bulkGetLastActivateArtifactTimestamp, [
-          start,
-          end,
-        ])
+        this.makeCall(this.contract.bulkGetLastActivateArtifactTimestamp, [start, end])
     );
     const playerLastActivateArtifactTimestampsMap = lastActivateArtifactTimestamps.reduce(
       (acc, pair): Map<string, EthersBN> => {
@@ -848,7 +982,7 @@ export class ContractsAPI extends EventEmitter {
       nPlayers,
       5,
       async (start: number, end: number) =>
-        this.contractCaller.makeCall(this.contract.bulkGetLastBuyArtifactTimestamp, [start, end])
+        this.makeCall(this.contract.bulkGetLastBuyArtifactTimestamp, [start, end])
     );
     const playerLastBuyArtifactTimestampsMap = lastBuyArtifactTimestamps.reduce(
       (acc, pair): Map<string, EthersBN> => {
@@ -863,6 +997,9 @@ export class ContractsAPI extends EventEmitter {
     for (const player of players) {
       player.lastClaimTimestamp = playerLastClaimTimestampMap.get(player.address)?.toNumber() || 0;
       player.lastBurnTimestamp = playerLastBurnTimestampMap.get(player.address)?.toNumber() || 0;
+      player.lastKardashevTimestamp =
+        playerLastKardashevTimestampMap.get(player.address)?.toNumber() || 0;
+
       player.lastActivateArtifactTimestamp =
         playerLastActivateArtifactTimestampsMap.get(player.address)?.toNumber() || 0;
       player.lastBuyArtifactTimestamp =
@@ -880,7 +1017,10 @@ export class ContractsAPI extends EventEmitter {
       playerId,
     ]);
 
-    const lastBurnedTimestamp = await this.makeCall(this.contract.getLastBurnTimestamp, [playerId]);
+    const lastBurnTimestamp = await this.makeCall(this.contract.getLastBurnTimestamp, [playerId]);
+    const lastKardashevTimestamp = await this.makeCall(this.contract.getLastKardashevTimestamp, [
+      playerId,
+    ]);
     const lastActivateArtifactTimestamp = await this.makeCall(
       this.contract.getLastActivateArtifactTimestamp,
       [playerId]
@@ -896,7 +1036,8 @@ export class ContractsAPI extends EventEmitter {
 
     const player = decodePlayer(rawPlayer);
     player.lastClaimTimestamp = lastClaimedTimestamp.toNumber();
-    player.lastBurnTimestamp = lastBurnedTimestamp.toNumber();
+    player.lastBurnTimestamp = lastBurnTimestamp.toNumber();
+    player.lastKardashevTimestamp = lastKardashevTimestamp.toNumber();
     player.lastActivateArtifactTimestamp = lastActivateArtifactTimestamp.toNumber();
     player.lastBuyArtifactTimestamp = lastBuyArtifactTimestamp.toNumber();
 
@@ -980,6 +1121,10 @@ export class ContractsAPI extends EventEmitter {
 
   public async getIsPaused(): Promise<boolean> {
     return this.makeCall(this.contract.paused);
+  }
+
+  public async getIsHalfPrice(): Promise<boolean> {
+    return this.makeCall(this.contract.halfPrice);
   }
 
   public async getRevealedPlanetsCoords(
@@ -1105,6 +1250,52 @@ export class ContractsAPI extends EventEmitter {
     return rawBurnedCoords.map(decodeBurnedCoords);
   }
 
+  public async getKardashevCoordsByIdIfExists(
+    planetId: LocationId
+  ): Promise<KardashevCoords | undefined> {
+    const decStrId = locationIdToDecStr(planetId);
+    const rawKardashevCoords = await this.makeCall(this.contract.kardashevCoords, [decStrId]);
+    const ret = decodeKardashevCoords(rawKardashevCoords);
+
+    if (ret.hash === EMPTY_LOCATION_ID) {
+      return undefined;
+    }
+    return ret;
+  }
+
+  public async getKardashevPlanetsCoords(
+    startingAt: number,
+    onProgressIds?: (fractionCompleted: number) => void,
+    onProgressCoords?: (fractionCompleted: number) => void
+  ): Promise<KardashevCoords[]> {
+    const nBurnedPlanets: number = (
+      await this.makeCall<EthersBN>(this.contract.getNKardashevPlanets)
+    ).toNumber();
+
+    const rawKardashevPlanetIds = await aggregateBulkGetter<EthersBN>(
+      nBurnedPlanets - startingAt,
+      500,
+      async (start, end) =>
+        await this.makeCall(this.contract.bulkGetKardashevPlanetIds, [
+          start + startingAt,
+          end + startingAt,
+        ]),
+      onProgressIds
+    );
+
+    const rawKardashevCoords = await aggregateBulkGetter(
+      rawKardashevPlanetIds.length,
+      500,
+      async (start, end) =>
+        await this.makeCall(this.contract.bulkGetKardashevCoordsByIds, [
+          rawKardashevPlanetIds.slice(start, end),
+        ]),
+      onProgressCoords
+    );
+
+    return rawKardashevCoords.map(decodeKardashevCoords);
+  }
+
   public async bulkGetPlanets(
     toLoadPlanets: LocationId[],
     onProgressPlanet?: (fractionCompleted: number) => void
@@ -1196,10 +1387,82 @@ export class ContractsAPI extends EventEmitter {
   ): Promise<Artifact[]> {
     if (playerId === undefined) return [];
 
-    const myArtifactIds = (await this.makeCall(this.contract.getPlayerArtifactIds, [playerId])).map(
-      artifactIdFromEthersBN
-    );
+    const mySpacespaceIds = (
+      await this.makeCall(this.contract.getPlayerArtifactIds, [playerId])
+    ).map(artifactIdFromEthersBN);
+    return this.bulkGetArtifacts(mySpacespaceIds, onProgress);
+  }
+
+  public async getPlayerSpaceships(
+    playerId?: EthAddress,
+    onProgress?: (percent: number) => void
+  ): Promise<Artifact[]> {
+    if (playerId === undefined) return [];
+
+    const myArtifactIds = (
+      await this.makeCall<EthersBN[]>(this.contract.getMySpaceshipIds, [playerId])
+    ).map(artifactIdFromEthersBN);
     return this.bulkGetArtifacts(myArtifactIds, onProgress);
+  }
+
+  public async getNTargetPlanetArrivalIds(planetId: LocationId): Promise<number> {
+    const decStrId = locationIdToDecStr(planetId);
+    const result: number = (
+      await this.makeCall<EthersBN>(this.contract.getNTargetPlanetArrivalIds, [decStrId])
+    ).toNumber();
+    return result;
+  }
+
+  public async getTargetPlanetArrivalIdsRangeWithTimestamp(
+    planetId: LocationId,
+    timestamp: number
+  ): Promise<number[]> {
+    const decStrId = locationIdToDecStr(planetId);
+
+    const result: number[] = (
+      await this.makeCall<EthersBN[]>(this.contract.getTargetPlanetArrivalIdsRangeWithTimestamp, [
+        decStrId,
+        timestamp,
+      ])
+    ).map((value) => value.toNumber());
+    return result;
+  }
+
+  public async getTargetPlanetArrivalIdsWithTimestamp(
+    planetId: LocationId,
+    timestamp: number
+  ): Promise<number[]> {
+    const decStrId = locationIdToDecStr(planetId);
+
+    const result: number[] = (
+      await this.makeCall<EthersBN[]>(this.contract.getTargetPlanetArrivalIdsWithTimestamp, [
+        decStrId,
+        timestamp,
+      ])
+    ).map((value) => value.toNumber());
+
+    return result;
+  }
+
+  public async getTargetPlanetAllArrivals(
+    planetId: LocationId,
+    timestamp: number,
+    onProgress?: (fractionCompleted: number) => void
+  ): Promise<QueuedArrival[]> {
+    const arrivalIds = await this.getTargetPlanetArrivalIdsWithTimestamp(planetId, timestamp);
+
+    const arrivalsUnflattened = await aggregateBulkGetter(
+      arrivalIds.length,
+      200,
+      async (start, end) => {
+        return (
+          await this.makeCall(this.contract.bulkGetVoyagesByIds, [arrivalIds.slice(start, end)])
+        ).map(decodeArrival);
+      },
+      onProgress
+    );
+
+    return _.flatten(arrivalsUnflattened);
   }
 
   public setDiagnosticUpdater(diagnosticUpdater?: DiagnosticUpdater) {

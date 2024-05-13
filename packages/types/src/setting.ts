@@ -32,6 +32,8 @@ export const Setting = {
   GasFeeLimit: 'GasFeeLimit' as Setting,
   TerminalVisible: 'TerminalVisible' as Setting,
   HasAcceptedPluginRisk: 'HasAcceptedPluginRisk' as Setting,
+  PlanetDefaultEnergyLevelToSend: 'DefaultEnergySend' as Setting,
+  PlanetDefaultEnergyLevelToSendReset: 'DefaultEnergySendReset' as Setting,
 
   FoundPirates: 'FoundPirates' as Setting,
   TutorialCompleted: 'TutorialCompleted' as Setting,
@@ -60,4 +62,8 @@ export const Setting = {
   RendererColorDeadSpace: 'RendererColorDeadSpace' as Setting,
   DisableFancySpaceEffect: 'DisableFancySpaceEffect' as Setting,
   ForceReloadEmbeddedPlugins: 'ForceReloadEmbeddedPlugins' as Setting,
+
+  //round3
+  PaneVisible: 'PaneVisible' as Setting,
+  BottomHotkeyVisible: 'BottomHotkeyVisible' as Setting,
 };

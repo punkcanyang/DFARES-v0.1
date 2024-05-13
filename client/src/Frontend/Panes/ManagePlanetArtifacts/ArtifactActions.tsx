@@ -90,10 +90,10 @@ export function ArtifactActions({
         if (
           artifact.artifactType === ArtifactType.Wormhole ||
           // artifact.artifactType === ArtifactType.BlackDomain ||
-          artifact.artifactType === ArtifactType.SoulSwap ||
+          // artifact.artifactType === ArtifactType.Kardashev ||
           artifact.artifactType === ArtifactType.IceLink ||
-          artifact.artifactType === ArtifactType.FireLink ||
-          artifact.artifactType === ArtifactType.Bomb
+          artifact.artifactType === ArtifactType.FireLink
+          // || artifact.artifactType === ArtifactType.Bomb
         ) {
           const targetPlanet = await uiManager.startLinkFrom(onPlanet, artifact);
           targetPlanetId = targetPlanet?.locationId;
@@ -189,8 +189,7 @@ export function ArtifactActions({
     });
   }
 
-  const activateArtifactCooldownPassed =
-    uiManager.getNextActivateArtifactAvailableTimestamp() <= Date.now();
+  const activateArtifactCooldownPassed = true; // uiManager.getNextActivateArtifactAvailableTimestamp() <= Date.now();
 
   // if (
   //   canActivateArtifact(artifact, onPlanet, otherArtifactsOnPlanet) &&

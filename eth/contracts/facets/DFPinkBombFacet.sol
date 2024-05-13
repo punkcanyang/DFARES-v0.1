@@ -11,6 +11,7 @@ import {DFArtifactFacet} from "./DFArtifactFacet.sol";
 import {LibPlanet} from "../libraries/LibPlanet.sol";
 import {LibDiamond} from "../vendor/libraries/LibDiamond.sol";
 import {LibGameUtils} from "../libraries/LibGameUtils.sol";
+import {LibArtifactUtils} from "../libraries/LibArtifactUtils.sol";
 
 // Storage imports
 import {WithStorage} from "../libraries/LibStorage.sol";
@@ -81,34 +82,57 @@ contract DFPinkBombFacet is WithStorage {
 
         uint256 planetId = _input[0];
         LibPlanet.refreshPlanet(planetId);
-        require(gs().burnedCoords[planetId].locationId == 0, "Location already burned");
 
         Planet storage planet = gs().planets[planetId];
+        Player storage player = gs().players[msg.sender];
 
+        // destoryed or frozen
         require(!planet.destroyed, "planet is destroyed");
         require(!planet.frozen, "planet is frozen");
+
+        // burned before
         require(planet.burnStartTimestamp == 0, "planet is already burned");
-        require(containsPinkShip(planetId), "pink ship must be present on planet");
+        require(gs().burnedCoords[planetId].locationId == 0, "Location already burned");
 
-        require(planet.planetLevel >= 1, "planet level >=1");
+        // planet owner & level
+        require(planet.owner == msg.sender, "planet owner needs to be you.");
+        require(planet.planetLevel >= 3, "planet level >=3");
 
-        Player storage player = gs().players[msg.sender];
-        player.dropBombAmount++;
+        //active artifact & cooldown check
+        bool activeBomb = false;
+        Artifact memory activeArtifact = LibGameUtils.getActiveArtifact(planetId);
+        if (activeArtifact.isInitialized && activeArtifact.artifactType == ArtifactType.Bomb) {
+            require(
+                block.timestamp - activeArtifact.lastActivated >
+                    gameConstants().BURN_PLANET_COOLDOWN,
+                "active artifact cooldown"
+            );
 
+            activeBomb = true;
+            LibArtifactUtils.deactivateAndBurn(planetId, activeArtifact.id, 0, activeArtifact);
+        }
+
+        require(containsPinkShip(planetId) || activeBomb, "need pink ship or active bomb");
+
+        // silver amount
         uint256 silverAmount = gameConstants().BURN_PLANET_REQUIRE_SILVER_AMOUNTS[
             planet.planetLevel
-        ] * (10**(player.dropBombAmount));
+        ] * (10**player.dropBombAmount);
+        require(player.silver >= silverAmount * 1000, "silver is not enough");
 
-        require(gs().players[msg.sender].silver >= silverAmount * 1000, "silver is not enough");
+        // burn cooldown
+        require(
+            block.timestamp - gs().lastBurnTimestamp[msg.sender] >
+                gameConstants().BURN_PLANET_COOLDOWN,
+            "burnLocation cooldown"
+        );
 
-        gs().players[msg.sender].silver -= silverAmount * 1000;
-
-        planet.operator = msg.sender;
+        player.dropBombAmount++;
+        player.silver -= silverAmount * 1000;
+        planet.burnOperator = msg.sender;
 
         gs().lastBurnTimestamp[msg.sender] = block.timestamp;
         planet.burnStartTimestamp = block.timestamp;
-
-        require(gs().burnedCoords[planetId].locationId == 0, "Location already burned");
 
         gs().burnedIds.push(planetId);
         gs().burnedPlanets[msg.sender].push(planetId);
@@ -120,9 +144,11 @@ contract DFPinkBombFacet is WithStorage {
             burnedAt: block.timestamp
         });
 
-        if (gs().firstBurnLocationOperator == address(0))
-            gs().firstBurnLocationOperator = msg.sender;
+        if (ls().firstBurnLocationOperator == address(0))
+            ls().firstBurnLocationOperator = msg.sender;
         emit LocationBurned(msg.sender, _input[0], _input[2], _input[3]);
+        ls().burnLocationCnt++;
+        ls().playerLog[msg.sender].burnLocationCnt++;
     }
 
     function containsPinkShip(uint256 locationId) public view returns (bool) {
@@ -196,7 +222,8 @@ contract DFPinkBombFacet is WithStorage {
         require(planetInPinkZone(x, y), "planet is not in your pink zone");
 
         planet.destroyed = true;
-        if (planet.operator != address(0)) planet.operator = msg.sender;
+
+        planet.pinkOperator = msg.sender;
 
         if (gs().revealedCoords[planetId].locationId == 0) {
             gs().revealedPlanetIds.push(planetId);
@@ -207,10 +234,13 @@ contract DFPinkBombFacet is WithStorage {
                 revealer: msg.sender
             });
 
-            //myNotice: pinkLocation don't update player's lastRevealTimestamp
+            //NOTE: pinkLocation don't update player's lastRevealTimestamp
             // gs().players[msg.sender].lastRevealTimestamp = block.timestamp;
             emit LocationRevealed(msg.sender, _input[0], _input[2], _input[3]);
         }
+
+        ls().pinkLocationCnt++;
+        ls().playerLog[msg.sender].pinkLocationCnt++;
     }
 
     function planetInPinkZone(uint256 x, uint256 y) public returns (bool) {

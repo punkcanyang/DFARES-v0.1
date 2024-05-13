@@ -4,6 +4,7 @@ import App from '../Pages/App';
 import '../Styles/font/stylesheet.css';
 import '../Styles/icomoon/style.css';
 import '../Styles/preflight.css';
+import '../Styles/Press_Start_2P/stylesheet.css';
 import '../Styles/style.css';
 
 ReactDOM.render(<App />, document.getElementById('root'));

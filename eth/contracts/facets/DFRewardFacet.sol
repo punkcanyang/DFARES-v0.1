@@ -9,7 +9,7 @@ import {WithStorage} from "../libraries/LibStorage.sol";
 
 import {Player} from "../DFTypes.sol";
 
-// myNotice: DFRewardFacet don't fit the rule of v0.6.3
+// NOTE: DFRewardFacet don't fit the rule of v0.6.3
 
 contract DFRewardFacet is WithStorage {
     modifier onlyWhitelisted() {

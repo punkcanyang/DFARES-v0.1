@@ -1,4 +1,4 @@
-import { BLOCKCHAIN_NAME, HOST_TEAM_NAME } from '@dfares/constants';
+import { BLOCK_EXPLORER_URL } from '@dfares/constants';
 import { ModalName } from '@dfares/types';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
@@ -50,19 +50,20 @@ function OnboardMoney({ advance }: { advance: () => void }) {
   const uiManager = useUIManager();
   const account = useAccount(uiManager);
 
-  const explorerAddressLink = `https://explorer.holesky.redstone.xyz/address/${account}`;
+  const explorerAddressLink = `${BLOCK_EXPLORER_URL}/address/${account}`;
 
   return (
     <StyledOnboardingContent>
       <p>
-        Welcome to <Green>Dark Forest</Green>!
+        Welcome to <Green>Dark Forest Ares</Green>!
       </p>
       <p>
-        <Red>There is real money being transacted in-game!</Red> We have initialized a{' '}
+        <Red>There is real money being transacted in-game!</Red> Game client have initialized a{' '}
         <a onClick={() => window.open('https://github.com/austintgriffith/burner-wallet')}>
           burner wallet
         </a>{' '}
-        for you and dripped 15c to it, courtesy of ${HOST_TEAM_NAME} Team, and ${BLOCKCHAIN_NAME}.
+        for you.
+        {/* and dripped 15c to it, courtesy of ${HOST_TEAM_NAME} Team, and ${BLOCKCHAIN_NAME}. */}
       </p>
       <p className='indent'>
         Your burner wallet address is: <br />
@@ -71,7 +72,7 @@ function OnboardMoney({ advance }: { advance: () => void }) {
         </White>
       </p>
       <p>
-        This means that when you make moves on Dark Forest,{' '}
+        This means that when you make moves on Dark Forest Ares,{' '}
         <White> you are authorizing the client to pay gas fees on your behalf</White>.
       </p>
       <p>
@@ -103,7 +104,7 @@ function OnboardStorage({ advance }: { advance: () => void }) {
       </p>
       <p>
         Your <White>private key and home coordinates</White> act as your password. You can use them
-        to access your Dark Forest account on other browsers, or to continue playing if you
+        to access your Dark Forest Ares account on other browsers, or to continue playing if you
         accidentally clear local storage. But this also means{' '}
         <Red>they should never be viewed by anyone else!</Red>
       </p>
@@ -143,6 +144,7 @@ function OnboardKeys({ advance }: { advance: () => void }) {
       <p>
         Your private key is: <br />
         <TextPreview text={sKey} focusedWidth={'150px'} unFocusedWidth={'150px'} />
+        <span style={{ color: 'pink' }}> {' <= click here to copy the private key'}</span>
       </p>
       <p>
         Your home coordinates are: <br />
@@ -184,7 +186,7 @@ function OnboardFinished({ advance }: { advance: () => void }) {
       <p>That's all! You're now ready to play the game!</p>
       <p>
         We invite you to log into the universe. Click <White>Proceed</White> to join the world of{' '}
-        <White>DARK FOREST...</White>
+        <White>DARK FOREST ARES...</White>
       </p>
       <div>
         <span></span>
@@ -216,7 +218,7 @@ export default function OnboardingPane({
   return (
     <ModalPane
       id={ModalName.Onboarding}
-      title={'Welcome to Dark Forest'}
+      title={'Welcome to Dark Forest Ares'}
       hideClose
       visible={visible}
       onClose={onClose}

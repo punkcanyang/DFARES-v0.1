@@ -179,6 +179,8 @@ export function SettingsPane({
     Viewport.instance.setMouseSensitivty(scrollSpeed / 10000);
   }, [scrollSpeed]);
 
+  const defaultEnergySendValues = [...new Array(101)].map((_, index) => String(index));
+
   return (
     <ModalPane id={ModalName.Settings} title='Settings' visible={visible} onClose={onClose}>
       <SettingsContent>
@@ -209,8 +211,10 @@ export function SettingsPane({
           <SectionHeader>Gas Price</SectionHeader>
           Your gas price setting determines the price you pay for each transaction. A higher gas
           price means your transactions will be prioritized by the blockchain, making them confirm
-          faster. We recommend using the auto average setting. All auto settings prices are pulled
-          from an oracle and are capped at 15 gwei.
+          faster. We recommend using low gas fee at first. if transaction can't be submitted
+          successfully, then you can slightly increase the gas fee.
+          {/* We recommend using the auto average setting. All auto settings prices are pulled
+          from an oracle and are capped at 15 gwei. */}
           <Spacer height={16} />
           <MultiSelectSetting
             wide
@@ -219,35 +223,62 @@ export function SettingsPane({
             values={[
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('1'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString(), // '1',
+                .toString(),
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('2'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString(), //'2',
-              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('5'))
+                .toString(),
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('4'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString(), //'5',
+                .toString(),
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('6'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString(),
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('8'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString(),
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('10'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString(), //'10',
+                .toString(),
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('20'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString(), //'20',
+                .toString(),
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('30'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString(),
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('40'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString(),
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('50'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString(), //'40',
+                .toString(),
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('60'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString(),
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('70'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString(),
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('80'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString(),
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('90'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString(),
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('100'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString(), //'40',
+                .toString(),
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('200'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString(), //'40',
-              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('500'))
+                .toString(),
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('400'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString(), //'40',
+                .toString(),
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('800'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString(),
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('1000'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString(), //'40',
-              //MyNotice: altlayer don't have GAS_PRICE_API
+                .toString(),
+              // NOTE: round 1 don't have GAS_PRICE_API
               // AutoGasSetting.Slow,
               // AutoGasSetting.Average,
               // AutoGasSetting.Fast,
@@ -255,34 +286,61 @@ export function SettingsPane({
             labels={[
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('1'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString() + ' gwei', //'1 gwei (default)',
+                .toString() + ' gwei',
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('2'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString() + ' gwei', // '2 gwei (faster)',
-              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('5'))
+                .toString() + ' gwei',
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('4'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString() + ' gwei', //'5 gwei (turbo)',
+                .toString() + ' gwei',
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('6'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString() + 'gwei',
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('8'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString() + ' gwei',
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('10'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString() + ' gwei', // '10 gwei (mega turbo)',
+                .toString() + ' gwei',
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('20'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString() + ' gwei', //'20 gwei (need4speed)',
+                .toString() + ' gwei',
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('30'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString() + ' gwei',
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('40'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString() + ' gwei',
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('50'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString() + ' gwei', // '40 gwei (gigafast)',
+                .toString() + ' gwei',
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('60'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString() + ' gwei',
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('70'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString() + ' gwei',
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('80'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString() + ' gwei',
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('90'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString() + ' gwei',
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('100'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString() + ' gwei', // '40 gwei (gigafast)',
+                .toString() + ' gwei',
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('200'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString() + ' gwei', // '40 gwei (gigafast)',
-              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('500'))
+                .toString() + ' gwei',
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('400'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString() + ' gwei', // '40 gwei (gigafast)',
+                .toString() + ' gwei',
+              Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('800'))
+                .toFixed(FIXED_DIGIT_NUMBER)
+                .toString() + ' gwei',
               Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('1000'))
                 .toFixed(FIXED_DIGIT_NUMBER)
-                .toString() + ' gwei', // '40 gwei (gigafast)',
+                .toString() + ' gwei',
               // `slow auto (~${gasPrices.slow} gwei)`,
               // `average auto (~${gasPrices.average} gwei)`,
               // `fast auto (~${gasPrices.fast} gwei)`,
@@ -323,9 +381,9 @@ export function SettingsPane({
 
         <Section>
           <SectionHeader>Burner Wallet Info (Private)</SectionHeader>
-          Your secret key, together with your home planet's coordinates, grant you access to your
-          Dark Forest account on different browsers. You should save this info somewhere on your
-          computer.
+          Your private key, together with your home planet's coordinates, grant you access to your
+          Dark Forest Ares account on different browsers. You should save this info somewhere on
+          your computer.
           <Spacer height={16} />
           <Red>WARNING:</Red> Never ever send this to anyone!
           <Spacer height={8} />
@@ -345,6 +403,28 @@ export function SettingsPane({
             uiManager={uiManager}
             setting={Setting.AutoApproveNonPurchaseTransactions}
             settingDescription={'auto confirm non-purchase transactions'}
+          />
+        </Section>
+
+        <Section>
+          <SectionHeader>Planet Default Energy Level To Send</SectionHeader>
+          Select the planet default energy level to send from planets, note that if you adjust the
+          value manually for a planet this will be new value used.
+          <Spacer height={16} />
+          <MultiSelectSetting
+            uiManager={uiManager}
+            setting={Setting.PlanetDefaultEnergyLevelToSend}
+            values={defaultEnergySendValues}
+            labels={defaultEnergySendValues}
+          />
+          <Spacer height={16} />
+          Select checkbox below if you want that the default energy send value to be used, after
+          energy has been sent from a planet.
+          <Spacer height={16} />
+          <BooleanSetting
+            uiManager={uiManager}
+            setting={Setting.PlanetDefaultEnergyLevelToSendReset}
+            settingDescription={'reset to default energy level'}
           />
         </Section>
 

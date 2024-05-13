@@ -3,6 +3,7 @@ import {
   ArtifactId,
   BurnedCoords,
   ClaimedCoords,
+  KardashevCoords,
   LocationId,
   Planet,
   Player,
@@ -30,6 +31,7 @@ export interface InitialGameState {
   allRevealedCoords: RevealedCoords[];
   allClaimedCoords: ClaimedCoords[];
   allBurnedCoords: BurnedCoords[];
+  allKardashevCoords: KardashevCoords[];
   pendingMoves: QueuedArrival[];
   touchedAndLocatedPlanets: Map<LocationId, Planet>;
   artifactsOnVoyages: Artifact[];
@@ -39,10 +41,12 @@ export interface InitialGameState {
   revealedCoordsMap: Map<LocationId, RevealedCoords>;
   claimedCoordsMap: Map<LocationId, ClaimedCoords>;
   burnedCoordsMap: Map<LocationId, BurnedCoords>;
+  kardashevCoordsMap: Map<LocationId, KardashevCoords>;
   planetVoyageIdMap: Map<LocationId, VoyageId[]>;
   arrivals: Map<VoyageId, QueuedArrival>;
   twitters: AddressTwitterMap;
   paused: boolean;
+  halfPrice: boolean;
 }
 
 export class InitialGameStateDownloader {
@@ -78,6 +82,7 @@ export class InitialGameStateDownloader {
     const storedRevealedCoords = isDev ? [] : await persistentChunkStore.getSavedRevealedCoords();
     const storedClaimedCoords = await persistentChunkStore.getSavedClaimedCoords();
     const storedBurnedCoords = await persistentChunkStore.getSavedBurnedCoords();
+    const storedKardashevCoords = await persistentChunkStore.getSavedKardashevCoords();
 
     this.terminal.printElement(<DarkForestTips tips={tips} />);
     this.terminal.newline();
@@ -92,6 +97,11 @@ export class InitialGameStateDownloader {
     const claimedPlanetsCoordsLoadingBar = this.makeProgressListener('Claimed Planet Coordinates');
     const burnedPlanetsLoadingBar = this.makeProgressListener('Burned Planet IDs');
     const burnedPlanetsCoordsLoadingBar = this.makeProgressListener('Burned Planet Coordinates');
+    const kardashevPlanetsLoadingBar = this.makeProgressListener('Kardashev Planet IDs');
+    const kardashevPlanetsCoordsLoadingBar = this.makeProgressListener(
+      'Kardashev Planet Coordinates'
+    );
+
     const pendingMovesLoadingBar = this.makeProgressListener('Pending Moves');
     const planetsLoadingBar = this.makeProgressListener('Planets');
     const artifactsOnPlanetsLoadingBar = this.makeProgressListener('Artifacts On Planets');
@@ -133,10 +143,16 @@ export class InitialGameStateDownloader {
       burnedPlanetsCoordsLoadingBar
     );
 
+    const loadedKardashevCoords = contractsAPI.getKardashevPlanetsCoords(
+      0,
+      kardashevPlanetsLoadingBar,
+      kardashevPlanetsCoordsLoadingBar
+    );
     const allTouchedPlanetIds = storedTouchedPlanetIds.concat(await loadedTouchedPlanetIds);
     const allRevealedCoords = storedRevealedCoords.concat(await loadedRevealedCoords);
     const allClaimedCoords = storedClaimedCoords.concat(await loadedClaimedCoords);
     const allBurnedCoords = storedBurnedCoords.concat(await loadedBurnedCoords);
+    const allKardashevCoords = storedKardashevCoords.concat(await loadedKardashevCoords);
 
     const revealedCoordsMap = new Map<LocationId, RevealedCoords>();
     for (const revealedCoords of allRevealedCoords) {
@@ -153,12 +169,17 @@ export class InitialGameStateDownloader {
       burnedCoordsMap.set(burnedCoords.hash, burnedCoords);
     }
 
+    const kardashevCoordsMap = new Map<LocationId, KardashevCoords>();
+    for (const kardashevCoords of allKardashevCoords) {
+      kardashevCoordsMap.set(kardashevCoords.hash, kardashevCoords);
+    }
     let planetsToLoad = allTouchedPlanetIds.filter(
       (id) =>
         minedPlanetIds.has(id) ||
         revealedCoordsMap.has(id) ||
         claimedCoordsMap.has(id) ||
-        burnedCoordsMap.has(id)
+        burnedCoordsMap.has(id) ||
+        kardashevCoordsMap.has(id)
     );
 
     const pendingMoves = await contractsAPI.getAllArrivals(planetsToLoad, pendingMovesLoadingBar);
@@ -213,6 +234,7 @@ export class InitialGameStateDownloader {
 
     const twitters = await tryGetAllTwitters();
     const paused = contractsAPI.getIsPaused();
+    const halfPrice = contractsAPI.getIsHalfPrice();
 
     const initialState: InitialGameState = {
       contractConstants: await contractConstants,
@@ -222,6 +244,7 @@ export class InitialGameStateDownloader {
       allRevealedCoords,
       allClaimedCoords,
       allBurnedCoords,
+      allKardashevCoords,
       pendingMoves,
       touchedAndLocatedPlanets,
       artifactsOnVoyages,
@@ -231,10 +254,12 @@ export class InitialGameStateDownloader {
       revealedCoordsMap,
       claimedCoordsMap,
       burnedCoordsMap,
+      kardashevCoordsMap,
       planetVoyageIdMap,
       arrivals,
       twitters,
       paused: await paused,
+      halfPrice: await halfPrice,
     };
 
     return initialState;
@@ -248,13 +273,15 @@ const tips = [
     <Link to='https://discord.com/invite/f3FrFA4T25'>DFArchon Discord</Link>!
     <br />
     <br />
-    Dark Forest Ares is a modified version of Dark Forest v0.6.5.
+    Dark Forest Ares (DFAres) is a modified version of classic{' '}
+    <Link to='https://zkga.me/'>Dark Forest</Link>
+    .
     <br />
-    DFArchon is a dev team focused on fully on-chain games.
+    DFArchon is a dev team focused on fully onchain games.
   </>,
   'There are many different artifact types, each with unique properties... try activating one on a planet!',
-  'The top players get special rewards at the end of each DFARESv0.1 round!',
-  "There are many different ways to enjoy Dark Forest - as long as you're having fun, you're doing it right.",
+  'The top players get special rewards at the end of each DFAres v0.1 round!',
+  "There are many different ways to enjoy Dark Forest Ares - as long as you're having fun, you're doing it right.",
   'Be careful when capturing planets - if you attack a player-owned planet, it may look like an act of war!',
   'A planet can have at most one active artifact.',
   'Withdrawing an artifact (via a Spacetime Rip) gives you full control of that artifact as an ERC 721 token. You can deposit artifacts you have withdrawn back into the universe via Spacetime Rips.',
@@ -280,14 +307,14 @@ const tips = [
   'Photoid Cannon artifacts will debuff your planet on activation, but get a massive stat boost for the first voyage from the planet after that a charging period. Photoid Cannon artifacts are destroyed upon use.',
   "Planetary Shield artifacts will massively boost a planet's defense, but at the cost of energy and energy growth stats. Planetary Shield artifacts are destroyed upon deactivation.",
   "Bloom Filter artifacts instantly set a planet's energy and silver to full, but are destroyed upon activation. Try using them on a Quasar!",
-  'Dark Forest exists on the blockchain, so you can play with an entirely different client if you want.',
+  'Dark Forest Ares exists on the blockchain, so you can play with an entirely different client if you want.',
   <>
     Writing plugins? Check out some documentation{' '}
-    <Link to='https://github.com/darkforest-eth/client/blob/master/docs/classes/Backend_GameLogic_GameManager.default.md'>
+    <Link to='https://github.com/dfarchon/DFARES-v0.1/blob/main/client/docs/classes/Backend_GameLogic_GameManager.default.md'>
       here
     </Link>{' '}
     and{' '}
-    <Link to='https://github.com/darkforest-eth/client/blob/master/docs/classes/Backend_GameLogic_GameUIManager.default.md'>
+    <Link to='https://github.com/dfarchon/DFARES-v0.1/blob/main/client/docs/classes/Backend_GameLogic_GameUIManager.default.md'>
       here
     </Link>
     .

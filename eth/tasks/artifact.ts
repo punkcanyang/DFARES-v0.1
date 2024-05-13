@@ -7,10 +7,12 @@ task('artifact:read', 'Read Artifact data from Tokens contract').setAction(artif
 async function artifactsRead({}, hre: HardhatRuntimeEnvironment) {
   const contract = await hre.ethers.getContractAt('DarkForest', hre.contracts.CONTRACT_ADDRESS);
 
-  const id = await contract.tokenByIndex(0);
+  const id = await contract.tokenByIndex(1);
   console.log(id.toString());
+
   const token = await contract.getArtifact(id);
   console.log(token);
+
   const URI = await contract.tokenURI(id);
   console.log(URI);
 }
@@ -26,7 +28,7 @@ async function getArtifactsOnPlanet(args: { planetId: string }, hre: HardhatRunt
   console.log(res);
 }
 
-// myNotice: after install dfares/serde
+// NOTE: after install dfares/serde
 // task('artifact:getArtifactById', '')
 //   .addOptionalParam('id', 'id', undefined, types.string)
 //   .setAction(getArtifactById);

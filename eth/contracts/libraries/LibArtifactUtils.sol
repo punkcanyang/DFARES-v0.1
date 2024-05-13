@@ -8,7 +8,7 @@ import {DFArtifactFacet} from "../facets/DFArtifactFacet.sol";
 import {LibGameUtils} from "./LibGameUtils.sol";
 
 // Storage imports
-import {LibStorage, GameStorage, GameConstants} from "./LibStorage.sol";
+import {LibStorage, GameStorage, LogStorage, GameConstants} from "./LibStorage.sol";
 
 // Type imports
 import {Biome, Planet, PlanetType, Artifact, ArtifactType, ArtifactRarity, DFPFindArtifactArgs, DFTCreateArtifactArgs} from "../DFTypes.sol";
@@ -16,6 +16,10 @@ import {Biome, Planet, PlanetType, Artifact, ArtifactType, ArtifactRarity, DFPFi
 library LibArtifactUtils {
     function gs() internal pure returns (GameStorage storage) {
         return LibStorage.gameStorage();
+    }
+
+    function ls() internal pure returns (LogStorage storage) {
+        return LibStorage.analysisStorage();
     }
 
     function gameConstants() internal pure returns (GameConstants storage) {
@@ -129,8 +133,8 @@ library LibArtifactUtils {
         );
 
         if (foundArtifact.rarity == ArtifactRarity.Mythic) {
-            if (gs().firstMythicArtifactOwner == address(0))
-                gs().firstMythicArtifactOwner = msg.sender;
+            if (ls().firstMythicArtifactOwner == address(0))
+                ls().firstMythicArtifactOwner = msg.sender;
         }
         LibGameUtils._putArtifactOnPlanet(foundArtifact.id, args.planetId);
 
@@ -228,7 +232,7 @@ library LibArtifactUtils {
         //     uint256 totalAmount = gs().players[msg.sender].activateArtifactAmount + 1;
         //     uint256 totalGameBlocks = block.number - gameConstants().GAME_START_BLOCK;
 
-        //     //myNotice: redstone 2 sec for 1 block
+        //     //NOTE: redstone 2 sec for 1 block
         //     //1 hour 1 artifact
         //     //require(totalGameBlocks * 2 >= amount * 60 * 60, "block number limit");
 
@@ -238,11 +242,12 @@ library LibArtifactUtils {
         //     gs().players[msg.sender].activateArtifactAmount++;
         // }
 
-        require(
-            block.timestamp - gs().lastActivateArtifactTimestamp[msg.sender] >
-                gameConstants().ACTIVATE_ARTIFACT_COOLDOWN,
-            "wait for cooldown before activating artifact again"
-        );
+        // round 2: activate artifact cooldown
+        // require(
+        //     block.timestamp - gs().lastActivateArtifactTimestamp[msg.sender] >
+        //         gameConstants().ACTIVATE_ARTIFACT_COOLDOWN,
+        //     "wait for cooldown before activating artifact again"
+        // );
 
         gs().lastActivateArtifactTimestamp[msg.sender] = block.timestamp;
         // bool nonAvatarArtifactCanActivateWithAvatarActivated = LibGameUtils.getActiveArtifact(locationId).artifactType == ArtifactType.Avatar && artifact.artifactType != ArtifactType.Avatar;
@@ -292,14 +297,17 @@ library LibArtifactUtils {
             );
             require(!gs().planets[linkTo].destroyed, "planet destroyed");
             require(!gs().planets[linkTo].frozen, "planet frozen");
-            require(
-                2 * uint256(artifact.rarity) >= planet.planetLevel,
-                "artifact is not powerful enough to apply effect to this planet level"
-            );
-            require(
-                2 * uint256(artifact.rarity) >= gs().planets[linkTo].planetLevel,
-                "artifact is not powerful enough to apply effect to this planet level"
-            );
+
+            //round 3 remove the rarity limit
+            // require(
+            //     2 * uint256(artifact.rarity) >= planet.planetLevel,
+            //     "artifact is not powerful enough to apply effect to this planet level"
+            // );
+            // require(
+            //     2 * uint256(artifact.rarity) >= gs().planets[linkTo].planetLevel,
+            //     "artifact is not powerful enough to apply effect to this planet level"
+            // );
+
             artifact.linkTo = linkTo;
         } else if (artifact.artifactType == ArtifactType.PlanetaryShield) {
             require(
@@ -307,10 +315,11 @@ library LibArtifactUtils {
                 "artifact is not powerful enough to apply effect to this planet level"
             );
         } else if (artifact.artifactType == ArtifactType.PhotoidCannon) {
-            require(
-                2 * uint256(artifact.rarity) >= planet.planetLevel,
-                "artifact is not powerful enough to apply effect to this planet level"
-            );
+            //NOTE: round 3 remove the rarity limit to Photoid Cannon
+            // require(
+            //     2 * uint256(artifact.rarity) >= planet.planetLevel,
+            //     "artifact is not powerful enough to apply effect to this planet level"
+            // );
         } else if (artifact.artifactType == ArtifactType.BloomFilter) {
             require(
                 2 * uint256(artifact.rarity) >= planet.planetLevel,
@@ -327,7 +336,7 @@ library LibArtifactUtils {
             planet.destroyed = true;
             shouldDeactivateAndBurn = true;
 
-            // myNotice: we change the effect of BlockDomain in round 1
+            // NOTE: we change the effect of BlockDomain in round 1
             // require(linkTo != 0, "you must provide a linkTo to activate a BlockDomain");
             // Planet storage toPlanet = gs().planets[linkTo];
 
@@ -367,7 +376,7 @@ library LibArtifactUtils {
                 "you can only create a icelink to a planet other own"
             );
 
-            require(!toPlanet.adminProtect, "planet adminProtect");
+            // require(!toPlanet.adminProtect, "planet adminProtect");
             require(!toPlanet.destroyed, "planet destroyed");
             require(!toPlanet.frozen, "planet frozen");
             require(
@@ -440,41 +449,13 @@ library LibArtifactUtils {
                 // deactivateArtifact(toPlanet.locationId);
                 deactivateArtifactWithoutCheckOwner(toPlanet.locationId);
             }
-        } else if (artifact.artifactType == ArtifactType.SoulSwap) {
-            require(linkTo != 0, "you must provide a linkTo to activate a SoulSwap");
-
-            require(!gs().planets[linkTo].destroyed, "planet destroyed");
-            require(!gs().planets[linkTo].frozen, "planet frozen");
-
-            require(
-                2 * uint256(artifact.rarity) >= planet.planetLevel,
-                "artifact is not powerful enough to apply effect to this planet level"
-            );
-            require(
-                planet.population > (planet.populationCap * 9) / 10,
-                "from planet energy need gt 90%"
-            );
-
-            require(
-                // This is dependent on Arrival being the only type of planet event.
-                gs().planetEvents[planet.locationId].length == 0,
-                "fromPlanet has incoming voyages."
-            );
-
-            require(
-                // This is dependent on Arrival being the only type of planet event.
-                gs().planetEvents[linkTo].length == 0,
-                "toPlanet has incoming voyages."
-            );
-
-            planet.owner = gs().planets[linkTo].owner;
-            gs().planets[linkTo].owner = msg.sender;
-            shouldDeactivateAndBurn = true;
+        } else if (artifact.artifactType == ArtifactType.Kardashev) {
+            //
         } else if (artifact.artifactType == ArtifactType.Bomb) {
             // require(linkTo != 0, "you must provide a linkTo to activate a Bomb");
             // planet.owner = gs().planets[linkTo].owner;
             // gs().planets[linkTo].owner = msg.sender;
-            shouldDeactivateAndBurn = true;
+            // shouldDeactivateAndBurn = true;
             // } else if (artifact.artifactType == ArtifactType.Doom) {
             //     // require(linkTo != 0, "you must provide a linkTo to activate a Doom");
             //     // require(!gs().planets[linkTo].destroyed, "planet destroyed");
@@ -497,11 +478,12 @@ library LibArtifactUtils {
         }
 
         if (shouldDeactivateAndBurn) {
-            artifact.lastDeactivated = block.timestamp; // immediately deactivate
-            DFArtifactFacet(address(this)).updateArtifact(artifact); // save artifact state immediately, because _takeArtifactOffPlanet will access pull it from tokens contract
-            emit ArtifactDeactivated(msg.sender, artifactId, locationId, linkTo);
-            // burn it after use. will be owned by contract but not on a planet anyone can control
-            LibGameUtils._takeArtifactOffPlanet(artifactId, locationId);
+            deactivateAndBurn(locationId, artifactId, linkTo, artifact);
+            // artifact.lastDeactivated = block.timestamp; // immediately deactivate
+            // DFArtifactFacet(address(this)).updateArtifact(artifact); // save artifact state immediately, because _takeArtifactOffPlanet will access pull it from tokens contract
+            // emit ArtifactDeactivated(msg.sender, artifactId, locationId, linkTo);
+            // // burn it after use. will be owned by contract but not on a planet anyone can control
+            // LibGameUtils._takeArtifactOffPlanet(artifactId, locationId);
         } else {
             DFArtifactFacet(address(this)).updateArtifact(artifact);
         }
@@ -509,6 +491,19 @@ library LibArtifactUtils {
         // this is fine even tho some artifacts are immediately deactivated, because
         // those artifacts do not buff the planet.
         LibGameUtils._buffPlanet(locationId, LibGameUtils._getUpgradeForArtifact(artifact));
+    }
+
+    function deactivateAndBurn(
+        uint256 locationId,
+        uint256 artifactId,
+        uint256 linkTo,
+        Artifact memory artifact
+    ) public {
+        artifact.lastDeactivated = block.timestamp; // immediately deactivate
+        DFArtifactFacet(address(this)).updateArtifact(artifact); // save artifact state immediately, because _takeArtifactOffPlanet will access pull it from tokens contract
+        emit ArtifactDeactivated(msg.sender, artifactId, locationId, linkTo);
+        // burn it after use. will be owned by contract but not on a planet anyone can control
+        LibGameUtils._takeArtifactOffPlanet(artifactId, locationId);
     }
 
     function deactivateArtifact(uint256 locationId) public {
@@ -638,7 +633,8 @@ library LibArtifactUtils {
         );
         require(!isSpaceship(artifact.artifactType), "cannot withdraw spaceships");
 
-        require(artifact.artifactType != ArtifactType.Avatar, "cannot withdraw logo artifacts");
+        // NOTE: round 3 can withdraw Avatar artifact
+        // require(artifact.artifactType != ArtifactType.Avatar, "cannot withdraw avatar artifact");
 
         LibGameUtils._takeArtifactOffPlanet(artifactId, locationId);
 
@@ -685,5 +681,137 @@ library LibArtifactUtils {
 
     function isSpaceship(ArtifactType artifactType) public pure returns (bool) {
         return artifactType >= ArtifactType.ShipMothership && artifactType <= ArtifactType.ShipPink;
+    }
+
+    function _randomBuyArtifactTypeAndRarity(uint256 artifactSeed)
+        internal
+        pure
+        returns (
+            Biome,
+            ArtifactType,
+            ArtifactRarity
+        )
+    {
+        uint256 lastByteOfSeed = artifactSeed % 10000;
+        uint256 secondLastByteOfSeed = ((artifactSeed - lastByteOfSeed) / 10000) % 10;
+
+        Biome biome = Biome.Ocean;
+        ArtifactType artifactType = ArtifactType.Wormhole;
+        ArtifactRarity rarity = ArtifactRarity.Common;
+
+        if (secondLastByteOfSeed == 0) {
+            biome = Biome.Ocean;
+        } else if (secondLastByteOfSeed == 1) {
+            biome = Biome.Forest;
+        } else if (secondLastByteOfSeed == 2) {
+            biome = Biome.Grassland;
+        } else if (secondLastByteOfSeed == 3) {
+            biome = Biome.Tundra;
+        } else if (secondLastByteOfSeed == 4) {
+            biome = Biome.Swamp;
+        } else if (secondLastByteOfSeed == 5) {
+            biome = Biome.Desert;
+        } else if (secondLastByteOfSeed == 6) {
+            biome = Biome.Ice;
+        } else if (secondLastByteOfSeed == 7) {
+            biome = Biome.Wasteland;
+        } else if (secondLastByteOfSeed == 8) {
+            biome = Biome.Lava;
+        } else {
+            biome = Biome.Corrupted;
+        }
+
+        if (lastByteOfSeed < 1400) {
+            rarity = ArtifactRarity.Common;
+            artifactType = ArtifactType.Wormhole;
+        } else if (lastByteOfSeed < 1750) {
+            rarity = ArtifactRarity.Rare;
+            artifactType = ArtifactType.Wormhole;
+        } else if (lastByteOfSeed < 1964) {
+            rarity = ArtifactRarity.Epic;
+            artifactType = ArtifactType.Wormhole;
+        } else if (lastByteOfSeed < 2016) {
+            rarity = ArtifactRarity.Legendary;
+            artifactType = ArtifactType.Wormhole;
+        } else if (lastByteOfSeed < 2033) {
+            rarity = ArtifactRarity.Mythic;
+            artifactType = ArtifactType.Wormhole;
+        } else if (lastByteOfSeed < 3373) {
+            rarity = ArtifactRarity.Common;
+            artifactType = ArtifactType.PlanetaryShield;
+        } else if (lastByteOfSeed < 3716) {
+            rarity = ArtifactRarity.Rare;
+            artifactType = ArtifactType.PlanetaryShield;
+        } else if (lastByteOfSeed < 3930) {
+            rarity = ArtifactRarity.Epic;
+            artifactType = ArtifactType.PlanetaryShield;
+        } else if (lastByteOfSeed < 3983) {
+            rarity = ArtifactRarity.Legendary;
+            artifactType = ArtifactType.PlanetaryShield;
+        } else if (lastByteOfSeed < 4000) {
+            rarity = ArtifactRarity.Mythic;
+            artifactType = ArtifactType.PlanetaryShield;
+        } else if (lastByteOfSeed < 5000) {
+            rarity = ArtifactRarity.Common;
+            artifactType = ArtifactType.PhotoidCannon;
+        } else if (lastByteOfSeed < 5550) {
+            rarity = ArtifactRarity.Rare;
+            artifactType = ArtifactType.PhotoidCannon;
+        } else if (lastByteOfSeed < 5800) {
+            rarity = ArtifactRarity.Epic;
+            artifactType = ArtifactType.PhotoidCannon;
+        } else if (lastByteOfSeed < 5950) {
+            rarity = ArtifactRarity.Legendary;
+            artifactType = ArtifactType.PhotoidCannon;
+        } else if (lastByteOfSeed < 6000) {
+            rarity = ArtifactRarity.Mythic;
+            artifactType = ArtifactType.PhotoidCannon;
+        } else if (lastByteOfSeed < 6700) {
+            rarity = ArtifactRarity.Common;
+            artifactType = ArtifactType.BloomFilter;
+        } else if (lastByteOfSeed < 6860) {
+            rarity = ArtifactRarity.Rare;
+            artifactType = ArtifactType.BloomFilter;
+        } else if (lastByteOfSeed < 6970) {
+            rarity = ArtifactRarity.Epic;
+            artifactType = ArtifactType.BloomFilter;
+        } else if (lastByteOfSeed < 6995) {
+            rarity = ArtifactRarity.Legendary;
+            artifactType = ArtifactType.BloomFilter;
+        } else if (lastByteOfSeed < 7000) {
+            rarity = ArtifactRarity.Mythic;
+            artifactType = ArtifactType.BloomFilter;
+        } else if (lastByteOfSeed < 7700) {
+            rarity = ArtifactRarity.Common;
+            artifactType = ArtifactType.BlackDomain;
+        } else if (lastByteOfSeed < 7860) {
+            rarity = ArtifactRarity.Rare;
+            artifactType = ArtifactType.BlackDomain;
+        } else if (lastByteOfSeed < 7970) {
+            rarity = ArtifactRarity.Epic;
+            artifactType = ArtifactType.BlackDomain;
+        } else if (lastByteOfSeed < 7995) {
+            rarity = ArtifactRarity.Legendary;
+            artifactType = ArtifactType.BlackDomain;
+        } else if (lastByteOfSeed < 8000) {
+            rarity = ArtifactRarity.Mythic;
+            artifactType = ArtifactType.BlackDomain;
+        } else if (lastByteOfSeed < 9000) {
+            rarity = ArtifactRarity.Common;
+            artifactType = ArtifactType.StellarShield;
+        } else if (lastByteOfSeed < 9550) {
+            rarity = ArtifactRarity.Rare;
+            artifactType = ArtifactType.StellarShield;
+        } else if (lastByteOfSeed < 9800) {
+            rarity = ArtifactRarity.Epic;
+            artifactType = ArtifactType.StellarShield;
+        } else if (lastByteOfSeed < 9950) {
+            rarity = ArtifactRarity.Legendary;
+            artifactType = ArtifactType.StellarShield;
+        } else {
+            rarity = ArtifactRarity.Mythic;
+            artifactType = ArtifactType.StellarShield;
+        }
+        return (biome, artifactType, rarity);
     }
 }

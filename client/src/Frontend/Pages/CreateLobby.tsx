@@ -172,6 +172,13 @@ export function CreateLobby({ match }: RouteComponentProps<{ contract: string }>
               config.MIN_LEVEL_BIAS[4],
               config.MIN_LEVEL_BIAS[5],
             ],
+            ENTRY_FEE: config.ENTRY_FEE,
+            KARDASHEV_END_TIMESTAMP: config.KARDASHEV_END_TIMESTAMP,
+            KARDASHEV_PLANET_COOLDOWN: config.KARDASHEV_PLANET_COOLDOWN,
+            BLUE_PLANET_COOLDOWN: config.BLUE_PLANET_COOLDOWN,
+            KARDASHEV_EFFECT_RADIUS: config.KARDASHEV_EFFECT_RADIUS,
+            KARDASHEV_REQUIRE_SILVER_AMOUNTS: config.KARDASHEV_REQUIRE_SILVER_AMOUNTS,
+            BLUE_PANET_REQUIRE_SILVER_AMOUNTS: config.BLUE_PANET_REQUIRE_SILVER_AMOUNTS,
           });
         })
         .catch((e) => {
@@ -213,7 +220,8 @@ export function CreateLobby({ match }: RouteComponentProps<{ contract: string }>
 
     const tx = await contract.submitTransaction(txIntent, {
       // The createLobby function costs somewhere around 12mil gas
-      gasLimit: '16777215',
+      // costs somewhere around 17,574,726
+      gasLimit: '20000000', // Redstone Mainnet block limit is 100,000,000
     });
     await tx.confirmedPromise;
   }

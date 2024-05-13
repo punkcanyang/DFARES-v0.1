@@ -26,7 +26,7 @@ const StyledExplorePane = styled.div`
   position: absolute;
   bottom: 0;
   left: 0;
-
+  z-index: 9999; /* Ensure the button overlays other elements */
   padding: 0.5em;
   margin: 0.5em;
 

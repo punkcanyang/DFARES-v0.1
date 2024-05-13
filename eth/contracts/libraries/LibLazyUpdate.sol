@@ -202,7 +202,7 @@ library LibLazyUpdate {
         view
         returns (
             Planet memory,
-            // myNotice: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
+            // NOTE: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
             uint256[32] memory,
             bool
         )
@@ -218,9 +218,11 @@ library LibLazyUpdate {
         bool shoudDeactiveArtifact = false;
 
         do {
-            if (events.length == 0 || planet.destroyed || planet.frozen) {
-                break;
-            }
+            // if (events.length == 0 || planet.destroyed || planet.frozen) {
+            //     break;
+            // }
+
+            if (events.length == 0) break;
 
             // set to to the upperbound of uint256
             earliestEventTime = 115792089237316195423570985008687907853269984665640564039457584007913129639935;
@@ -268,7 +270,7 @@ library LibLazyUpdate {
                     );
 
                     if (newArtifactId != 0) {
-                        // myNotice: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
+                        // NOTE: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
 
                         eventIdsAndArtifacts[16 + numNewArtifactsOnPlanet++] = newArtifactId;
                     }

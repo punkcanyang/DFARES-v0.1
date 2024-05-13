@@ -26,20 +26,26 @@ import { getPlanetName } from '@dfares/procedural';
 import {
   artifactIdToDecStr,
   isUnconfirmedActivateArtifactTx,
+  isUnconfirmedBlueTx,
   isUnconfirmedBurnTx,
   isUnconfirmedBuyArtifactTx,
   isUnconfirmedBuyHatTx,
+  isUnconfirmedBuyPlanetTx,
+  isUnconfirmedBuySpaceshipTx,
   isUnconfirmedCapturePlanetTx,
   isUnconfirmedChangeArtifactImageTypeTx,
   isUnconfirmedClaimTx,
   isUnconfirmedDeactivateArtifactTx,
   isUnconfirmedDepositArtifactTx,
+  isUnconfirmedDonateTx,
   isUnconfirmedFindArtifactTx,
   isUnconfirmedInitTx,
   isUnconfirmedInvadePlanetTx,
+  isUnconfirmedKardashevTx,
   isUnconfirmedMoveTx,
   isUnconfirmedPinkTx,
   isUnconfirmedProspectPlanetTx,
+  isUnconfirmedRefreshPlanetTx,
   isUnconfirmedRevealTx,
   isUnconfirmedUpgradeTx,
   isUnconfirmedWithdrawArtifactTx,
@@ -62,6 +68,8 @@ import {
   Diagnostics,
   EthAddress,
   HatType,
+  KardashevCoords,
+  KardashevLocation,
   Link,
   LocatablePlanet,
   LocationId,
@@ -83,21 +91,27 @@ import {
   Transaction,
   TxIntent,
   UnconfirmedActivateArtifact,
+  UnconfirmedBlue,
   UnconfirmedBurn,
   UnconfirmedBuyArtifact,
   UnconfirmedBuyHat,
+  UnconfirmedBuyPlanet,
+  UnconfirmedBuySpaceship,
   UnconfirmedCapturePlanet,
   UnconfirmedChangeArtifactImageType,
   UnconfirmedClaim,
   UnconfirmedDeactivateArtifact,
   UnconfirmedDepositArtifact,
+  UnconfirmedDonate,
   UnconfirmedFindArtifact,
   UnconfirmedInit,
   UnconfirmedInvadePlanet,
+  UnconfirmedKardashev,
   UnconfirmedMove,
   UnconfirmedPink,
   UnconfirmedPlanetTransfer,
   UnconfirmedProspectPlanet,
+  UnconfirmedRefreshPlanet,
   UnconfirmedReveal,
   UnconfirmedUpgrade,
   UnconfirmedWithdrawArtifact,
@@ -136,6 +150,7 @@ import {
   BurnCountdownInfo,
   ClaimCountdownInfo,
   HashConfig,
+  KardashevCountdownInfo,
   RevealCountdownInfo,
 } from '../../_types/global/GlobalTypes';
 import MinerManager, { HomePlanetMinerChunkStore, MinerManagerEvent } from '../Miner/MinerManager';
@@ -174,6 +189,8 @@ export enum GameManagerEvent {
   ArtifactUpdate = 'ArtifactUpdate',
   Moved = 'Moved',
 }
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 class GameManager extends EventEmitter {
   /**
@@ -252,10 +269,13 @@ class GameManager extends EventEmitter {
 
   private paused: boolean;
 
+  private halfPrice: boolean;
+
   /**
    * @todo change this to the correct timestamp each round.
    */
-  private readonly endTimeSeconds: number = 1948939200; // new Date("2031-10-05T04:00:00.000Z").getTime() / 1000
+  private readonly endTimeSeconds: number = 1715526000;
+  //1948939200; // new Date("2031-10-05T04:00:00.000Z").getTime() / 1000
 
   /**
    * An interface to the blockchain that is a little bit lower-level than {@link ContractsAPI}. It
@@ -313,6 +333,11 @@ class GameManager extends EventEmitter {
   private pinkZoneInterval: ReturnType<typeof setInterval>;
 
   /**
+   * Handle to an interval that periodically refreshes blueZones.
+   */
+  private blueZoneInterval: ReturnType<typeof setInterval>;
+
+  /**
    * Manages the process of mining new space territory.
    */
   private minerManager?: MinerManager;
@@ -353,6 +378,8 @@ class GameManager extends EventEmitter {
 
   public paused$: Monomitter<boolean>;
 
+  public halfPrice$: Monomitter<boolean>;
+
   /**
    * Diagnostic information about the game.
    */
@@ -388,6 +415,7 @@ class GameManager extends EventEmitter {
     revealedCoords: Map<LocationId, RevealedCoords>,
     claimedCoords: Map<LocationId, ClaimedCoords>,
     burnedCoords: Map<LocationId, BurnedCoords>,
+    kardashevCoords: Map<LocationId, KardashevCoords>,
     worldRadius: number,
     unprocessedArrivals: Map<VoyageId, QueuedArrival>,
     unprocessedPlanetArrivalIds: Map<LocationId, VoyageId[]>,
@@ -399,7 +427,8 @@ class GameManager extends EventEmitter {
     useMockHash: boolean,
     artifacts: Map<ArtifactId, Artifact>,
     ethConnection: EthConnection,
-    paused: boolean
+    paused: boolean,
+    halfPrice: boolean
   ) {
     super();
 
@@ -424,6 +453,7 @@ class GameManager extends EventEmitter {
     this.worldRadius = worldRadius;
     this.networkHealth$ = monomitter(true);
     this.paused$ = monomitter(true);
+    this.halfPrice$ = monomitter(true);
     this.playersUpdated$ = monomitter();
 
     if (contractConstants.CAPTURE_ZONES_ENABLED) {
@@ -509,6 +539,28 @@ class GameManager extends EventEmitter {
       }
     }
 
+    const kardashevLocations = new Map<LocationId, KardashevLocation>();
+    for (const [locationId, coords] of kardashevCoords) {
+      const planet = touchedPlanets.get(locationId);
+      if (planet) {
+        const location: WorldLocation = {
+          hash: locationId,
+          coords,
+          perlin: planet.perlin,
+          biomebase: this.biomebasePerlin(coords, true),
+        };
+        const revealedLocation = { ...location, revealer: coords.operator };
+        revealedLocations.set(locationId, revealedLocation);
+
+        const kardashevLocation = {
+          ...location,
+          operator: coords.operator,
+          radius: this.getContractConstants().KARDASHEV_EFFECT_RADIUS[planet.planetLevel],
+        };
+        kardashevLocations.set(locationId, kardashevLocation);
+      }
+    }
+
     this.entityStore = new GameObjects(
       account,
       touchedPlanets,
@@ -516,6 +568,7 @@ class GameManager extends EventEmitter {
       revealedLocations,
       claimedLocations,
       burnedLocations,
+      kardashevLocations,
       artifacts,
       persistentChunkStore.allChunks(),
       unprocessedArrivals,
@@ -529,20 +582,23 @@ class GameManager extends EventEmitter {
     this.snarkHelper = snarkHelper;
     this.useMockHash = useMockHash;
     this.paused = paused;
+    this.halfPrice = halfPrice;
 
     this.ethConnection = ethConnection;
-    // myNotice: event
+    // NOTE: event
     // this.diagnosticsInterval = setInterval(this.uploadDiagnostics.bind(this), 10_000);
     this.scoreboardInterval = setInterval(this.refreshScoreboard.bind(this), 10_000);
 
-    //myNotice: network health
+    //NOTE: network health
     // this.networkHealthInterval = setInterval(this.refreshNetworkHealth.bind(this), 10_000);
     this.pinkZoneInterval = setInterval(this.hardRefreshPinkZones.bind(this), 10_000);
+    this.blueZoneInterval = setInterval(this.hardRefreshBlueZones.bind(this), 10_000);
     this.playerInterval = setInterval(() => {
       if (this.account) {
         this.hardRefreshPlayer(this.account);
+        this.hardRefreshPlayerSpaceships(this.account);
       }
-    }, 5000);
+    }, 10_000);
 
     this.hashRate = 0;
 
@@ -560,10 +616,10 @@ class GameManager extends EventEmitter {
     });
 
     this.refreshScoreboard();
-    // myNotice: network health
+    // NOTE: network health
     // this.refreshNetworkHealth();
     this.hardRefreshPinkZones();
-
+    this.hardRefreshBlueZones();
     this.getSpaceships();
 
     this.safeMode = false;
@@ -632,8 +688,11 @@ class GameManager extends EventEmitter {
           });
         }
 
+        // console.log('knownScoringPlanets');
         // console.log(knownScoringPlanets);
+
         const cntMap = new Map<string, number>();
+        const haveScorePlayersMap = new Map<string, boolean>();
 
         for (const planet of knownScoringPlanets) {
           const claimer = planet.claimer;
@@ -641,28 +700,35 @@ class GameManager extends EventEmitter {
           const player = this.players.get(claimer);
           if (player === undefined) continue;
 
-          let cnt = cntMap.get(claimer);
-          if (cnt === undefined) cnt = 0;
-          cnt = cnt + 1;
-          cntMap.set(claimer, cnt);
+          const cnt = cntMap.get(claimer);
+          let cntNextValue = undefined;
 
-          // console.log(player.address, ' ', this.account, ' ', planet.score);
-          if (player.address !== this.account) {
-            const score = planet.score;
-            if (player.score === 0 && player.lastClaimTimestamp) player.score = score;
-            else if (player.score === undefined) player.score = score;
-            else if (cnt <= 1) player.score = score;
-            else player.score = Math.min(player.score, score);
+          if (cnt === undefined || cnt === 0) {
+            cntNextValue = 1;
+          } else {
+            cntNextValue = cnt + 1;
+          }
+          cntMap.set(claimer, cntNextValue);
+
+          if (player.score === undefined || cntNextValue === 1) {
+            player.score = planet.score;
+            haveScorePlayersMap.set(claimer, true);
+          } else {
+            player.score = Math.min(player.score, planet.score);
+            haveScorePlayersMap.set(claimer, true);
+          }
+        }
+        for (const playerItem of df.getAllPlayers()) {
+          const result = haveScorePlayersMap.get(playerItem.address);
+
+          const player = this.players.get(playerItem.address);
+          if (player === undefined) continue;
+
+          if (result === false || result === undefined) {
+            player.score = undefined;
           }
         }
 
-        // for (const player of df.getAllPlayers()) {
-        //   console.log(
-        //     player.address,
-        //     ' ',
-        //     player.lastClaimTimestamp === 0 ? undefined : player.score
-        //   );
-        // }
         this.playersUpdated$.publish();
       } catch (e) {
         // @todo - what do we do if we can't connect to the webserver? in general this should be a
@@ -684,12 +750,13 @@ class GameManager extends EventEmitter {
     this.contractsAPI.destroy();
     this.persistentChunkStore.destroy();
     clearInterval(this.playerInterval);
-    // myNotice: event
+    // NOTE: event
     // clearInterval(this.diagnosticsInterval);
     clearInterval(this.scoreboardInterval);
-    // myNotice: network health
+    // NOTE: network health
     // clearInterval(this.networkHealthInterval);
     clearInterval(this.pinkZoneInterval);
+    clearInterval(this.blueZoneInterval);
     this.settingsSubscription?.unsubscribe();
   }
 
@@ -798,6 +865,11 @@ class GameManager extends EventEmitter {
       initialState.burnedCoordsMap
         ? initialState.burnedCoordsMap
         : new Map<LocationId, BurnedCoords>(),
+
+      initialState.kardashevCoordsMap
+        ? initialState.kardashevCoordsMap
+        : new Map<LocationId, KardashevCoords>(),
+
       initialState.worldRadius,
       initialState.arrivals,
       initialState.planetVoyageIdMap,
@@ -809,7 +881,8 @@ class GameManager extends EventEmitter {
       useMockHash,
       knownArtifacts,
       connection,
-      initialState.paused
+      initialState.paused,
+      initialState.halfPrice
     );
 
     gameManager.setPlayerTwitters(initialState.twitters);
@@ -856,6 +929,10 @@ class GameManager extends EventEmitter {
       .on(ContractsAPIEvent.PauseStateChanged, async (paused: boolean) => {
         gameManager.paused = paused;
         gameManager.paused$.publish(paused);
+      })
+      .on(ContractsAPIEvent.HalfPriceChanged, async (halfPrice: boolean) => {
+        gameManager.halfPrice = halfPrice;
+        gameManager.halfPrice$.publish(halfPrice);
       })
       .on(ContractsAPIEvent.PlanetUpdate, async (planetId: LocationId) => {
         // don't reload planets that you don't have in your map. once a planet
@@ -914,6 +991,19 @@ class GameManager extends EventEmitter {
           await gameManager.hardRefreshPinkZones();
         } else if (isUnconfirmedPinkTx(tx)) {
           await gameManager.hardRefreshPlanet(tx.intent.locationId);
+        } else if (isUnconfirmedKardashevTx(tx)) {
+          await gameManager.hardRefreshPlanet(tx.intent.locationId);
+          await gameManager.hardRefreshBlueZones();
+        } else if (isUnconfirmedBlueTx(tx)) {
+          const centerPlanetId = gameManager.getBlueZoneCenterPlanetId(tx.intent.locationId);
+          if (centerPlanetId) {
+            await gameManager.bulkHardRefreshPlanets([tx.intent.locationId, centerPlanetId]);
+          } else {
+            // notice: this should never happen
+            await gameManager.bulkHardRefreshPlanets([tx.intent.locationId]);
+          }
+
+          gameManager.emit(GameManagerEvent.PlanetUpdate);
         } else if (isUnconfirmedInitTx(tx)) {
           terminal.current?.println('Loading Home Planet from Blockchain...');
           const retries = 5;
@@ -938,9 +1028,16 @@ class GameManager extends EventEmitter {
           await Promise.all(promises);
         } else if (isUnconfirmedUpgradeTx(tx)) {
           await gameManager.hardRefreshPlanet(tx.intent.locationId);
+        } else if (isUnconfirmedRefreshPlanetTx(tx)) {
+          await gameManager.hardRefreshPlanet(tx.intent.locationId);
         } else if (isUnconfirmedBuyHatTx(tx)) {
           await gameManager.hardRefreshPlanet(tx.intent.locationId);
         } else if (isUnconfirmedInitTx(tx)) {
+          await gameManager.hardRefreshPlanet(tx.intent.locationId);
+        } else if (isUnconfirmedBuyPlanetTx(tx)) {
+          //todo
+          await gameManager.hardRefreshPlanet(tx.intent.locationId);
+        } else if (isUnconfirmedBuySpaceshipTx(tx)) {
           await gameManager.hardRefreshPlanet(tx.intent.locationId);
         } else if (isUnconfirmedFindArtifactTx(tx)) {
           await gameManager.hardRefreshPlanet(tx.intent.planetId);
@@ -1101,6 +1198,48 @@ class GameManager extends EventEmitter {
     this.playersUpdated$.publish();
   }
 
+  private async hardRefreshPlayerSpaceships(address?: EthAddress, show?: boolean): Promise<void> {
+    if (!address) return;
+    const spaceships = await this.contractsAPI.getPlayerSpaceships(address);
+    if (show) console.log(spaceships.length);
+    for (let i = 0; i < spaceships.length; i++) {
+      if (show) {
+        console.log('--- spaceship ', i, ' ---');
+        console.log('ship id:', spaceships[i].id);
+        console.log('onPlanet: ', spaceships[i].onPlanetId);
+      }
+
+      await this.hardRefreshArtifact(spaceships[i].id);
+      const voyageId = spaceships[i].onVoyageId;
+
+      if (voyageId !== undefined) {
+        const arrival = await this.contractsAPI.getArrival(Number(voyageId));
+        if (show) console.log('voyageId:', voyageId);
+        // console.log(arrival);
+        if (arrival) {
+          const fromPlanet = arrival.fromPlanet;
+          const toPlanet = arrival.toPlanet;
+          if (show) {
+            console.log('Source Planet :', fromPlanet);
+            console.log('Target Planet :', toPlanet);
+          }
+          await Promise.all([this.hardRefreshPlanet(fromPlanet), this.hardRefreshPlanet(toPlanet)]);
+          if (show) console.log('[OK] finish hard refresh from & to planets');
+        }
+      }
+    }
+  }
+
+  private async getArrival(arrivalId: number): Promise<void> {
+    const arrival = await this.contractsAPI.getArrival(arrivalId);
+    console.log(arrival);
+  }
+
+  private async getArrivalsForPlanet(planetId: LocationId): Promise<void> {
+    const events = await this.contractsAPI.getArrivalsForPlanet(planetId);
+    console.log(events);
+  }
+
   // Dirty hack for only refreshing properties on a planet and nothing else
   private async softRefreshPlanet(planetId: LocationId): Promise<void> {
     const planet = await this.contractsAPI.getPlanetById(planetId);
@@ -1112,16 +1251,19 @@ class GameManager extends EventEmitter {
     const planet = await this.contractsAPI.getPlanetById(planetId);
     if (!planet) return;
     const arrivals = await this.contractsAPI.getArrivalsForPlanet(planetId);
+
     const artifactsOnPlanets = await this.contractsAPI.bulkGetArtifactsOnPlanets([planetId]);
     const artifactsOnPlanet = artifactsOnPlanets[0];
 
     const revealedCoords = await this.contractsAPI.getRevealedCoordsByIdIfExists(planetId);
     const claimedCoords = await this.contractsAPI.getClaimedCoordsByIdIfExists(planetId);
     const burnedCoords = await this.contractsAPI.getBurnedCoordsByIdIfExists(planetId);
+    const kardashevCoords = await this.contractsAPI.getKardashevCoordsByIdIfExists(planetId);
 
     let revealedLocation: RevealedLocation | undefined;
     let claimedLocation: ClaimedLocation | undefined;
     let burnedLocation: BurnedLocation | undefined;
+    let kardashevLocation: KardashevLocation | undefined;
     if (claimedCoords) {
       claimedLocation = {
         ...this.locationFromCoords(claimedCoords),
@@ -1152,6 +1294,19 @@ class GameManager extends EventEmitter {
         revealer: burnedCoords.operator,
       };
       this.getGameObjects().setBurnedLocation(burnedLocation);
+    } else if (kardashevCoords) {
+      kardashevLocation = {
+        ...this.locationFromCoords(kardashevCoords),
+        operator: kardashevCoords.operator,
+        radius: this.getContractConstants().KARDASHEV_EFFECT_RADIUS[planet.planetLevel],
+      };
+
+      //to show planet in map
+      revealedLocation = {
+        ...this.locationFromCoords(kardashevCoords),
+        revealer: kardashevCoords.operator,
+      };
+      this.getGameObjects().setKardashevLocation(kardashevLocation);
     }
 
     this.entityStore.replacePlanetFromContractData(
@@ -1160,7 +1315,8 @@ class GameManager extends EventEmitter {
       artifactsOnPlanet.map((a) => a.id),
       revealedLocation,
       claimedCoords?.claimer,
-      burnedCoords?.operator
+      burnedCoords?.operator,
+      kardashevCoords?.operator
     );
 
     // it's important that we reload the artifacts that are on the planet after the move
@@ -1239,12 +1395,31 @@ class GameManager extends EventEmitter {
     }
   }
 
+  //mytodo: test more
+  public async hardRefreshBlueZones(): Promise<void> {
+    const loadedKardashevCoords = await this.contractsAPI.getKardashevPlanetsCoords(0);
+
+    for (const item of loadedKardashevCoords) {
+      const locationId = item.hash;
+      const planet = this.getPlanetWithId(locationId);
+      if (planet === undefined) continue;
+
+      const kardashevLocation = {
+        ...this.locationFromCoords(item),
+        operator: item.operator,
+        radius: this.getContractConstants().KARDASHEV_EFFECT_RADIUS[planet.planetLevel],
+      };
+
+      this.getGameObjects().setKardashevLocation(kardashevLocation);
+    }
+  }
+
   private onTxSubmit(tx: Transaction): void {
     this.terminal.current?.print(`${tx.intent.methodName} transaction (`, TerminalTextStyle.Blue);
     this.terminal.current?.printLink(
       `${tx.hash?.slice(0, 6) ?? ''}`,
       () => {
-        window.open(`${BLOCK_EXPLORER_URL}/${tx.hash ?? ''}`);
+        window.open(`${BLOCK_EXPLORER_URL}/tx/${tx.hash ?? ''}`);
       },
       TerminalTextStyle.White
     );
@@ -1256,7 +1431,7 @@ class GameManager extends EventEmitter {
     this.terminal.current?.printLink(
       `${tx.hash?.slice(0, 6) ?? ''}`,
       () => {
-        window.open(`${BLOCK_EXPLORER_URL}/${tx.hash ?? ''}`);
+        window.open(`${BLOCK_EXPLORER_URL}/tx/${tx.hash ?? ''}`);
       },
       TerminalTextStyle.White
     );
@@ -1268,7 +1443,7 @@ class GameManager extends EventEmitter {
     this.terminal.current?.printLink(
       `${tx.hash?.slice(0, 6) ?? ''}`,
       () => {
-        window.open(`${BLOCK_EXPLORER_URL}/${tx.hash ?? ''}`);
+        window.open(`${BLOCK_EXPLORER_URL}/tx/${tx.hash ?? ''}`);
       },
       TerminalTextStyle.White
     );
@@ -1282,7 +1457,7 @@ class GameManager extends EventEmitter {
     this.terminal.current?.printLink(
       `${tx.hash?.slice(0, 6) ?? ''}`,
       () => {
-        window.open(`${BLOCK_EXPLORER_URL}/${tx.hash ?? ''}`);
+        window.open(`${BLOCK_EXPLORER_URL}/tx/${tx.hash ?? ''}`);
       },
       TerminalTextStyle.White
     );
@@ -1664,6 +1839,22 @@ class GameManager extends EventEmitter {
   }
 
   /**
+   * Returns info about the next time you can burn a Planet
+   */
+  getNextKardashevCountdownInfo(): KardashevCountdownInfo {
+    if (!this.account) {
+      throw new Error('no account set');
+    }
+    const myLastKardashevTimestamp = this.players.get(this.account)?.lastKardashevTimestamp;
+    return {
+      myLastKardashevTimestamp: myLastKardashevTimestamp || undefined,
+      currentlyKardasheving:
+        !!this.entityStore.transactions.hasTransaction(isUnconfirmedKardashevTx),
+      kardashevCooldownTime: this.contractConstants.KARDASHEV_PLANET_COOLDOWN,
+    };
+  }
+
+  /**
    * gets both deposited artifacts that are on planets i own as well as artifacts i own
    */
   getMyArtifacts(): Artifact[] {
@@ -1802,6 +1993,10 @@ class GameManager extends EventEmitter {
     return this.entityStore.getBurnedLocations();
   }
 
+  getKardashevLocations(): Map<LocationId, BurnedLocation> {
+    return this.entityStore.getKardashevLocations();
+  }
+
   /**
    * Each coordinate lives in a particular type of space, determined by a smooth random
    * function called 'perlin noise.
@@ -1869,6 +2064,10 @@ class GameManager extends EventEmitter {
    */
   getUnconfirmedUpgrades(): Transaction<UnconfirmedUpgrade>[] {
     return this.entityStore.transactions.getTransactions(isUnconfirmedUpgradeTx);
+  }
+
+  getUnconfirmedRefreshPlanets(): Transaction<UnconfirmedRefreshPlanet>[] {
+    return this.entityStore.transactions.getTransactions(isUnconfirmedRefreshPlanetTx);
   }
 
   getUnconfirmedLinkActivations(): Transaction<UnconfirmedActivateArtifact>[] {
@@ -2104,6 +2303,87 @@ class GameManager extends EventEmitter {
     if (result === 1) return 0;
     else return (result + this.contractConstants.PINK_PLANET_COOLDOWN) * 1000;
   }
+
+  /**
+   * Gets the center planet for blueLocation
+   */
+  public getBlueZoneCenterPlanetId(planetId: LocationId) {
+    let centerPlanetId = undefined;
+    let dis = undefined;
+    if (!this.account) {
+      throw new Error('no account set');
+    }
+    const planet = this.getPlanetWithId(planetId);
+    if (!isLocatable(planet)) return undefined;
+    const myBlueZones = this.getMyBlueZones();
+
+    for (const blueZone of myBlueZones) {
+      const blueZoneCenterPlanetId = blueZone.locationId;
+      const coords = blueZone.coords;
+
+      const centerPlanet = this.getPlanetWithId(blueZoneCenterPlanetId);
+      if (!centerPlanet) continue;
+      if (!centerPlanet.kardashevTimestamp) continue;
+      const distanceToZone = this.getDistCoords(coords, planet.location.coords);
+      if (
+        distanceToZone <= this.contractConstants.KARDASHEV_EFFECT_RADIUS[centerPlanet.planetLevel]
+      ) {
+        if (centerPlanetId === undefined || dis === undefined) {
+          centerPlanetId = centerPlanet.locationId;
+          dis = distanceToZone;
+        } else if (distanceToZone < dis) {
+          centerPlanetId = centerPlanet.locationId;
+          dis = distanceToZone;
+        } else if (distanceToZone === dis) {
+          const tmp = this.getPlanetWithId(centerPlanetId);
+          if (!tmp) continue;
+          if (!tmp.kardashevTimestamp) continue;
+          if (!centerPlanet.kardashevTimestamp) continue;
+          if (tmp.kardashevTimestamp > centerPlanet.kardashevTimestamp) {
+            centerPlanetId = centerPlanet.locationId;
+            dis = distanceToZone;
+          }
+        }
+      }
+    }
+    return centerPlanetId;
+  }
+
+  public getNextKardashevAvailableTimestamp() {
+    return Date.now() + this.timeUntilNextKardashevAvailable();
+  }
+
+  /**
+   * Gets the amount of time (ms) until the next time the current player can kardashv a planet.
+   */
+  public timeUntilNextKardashevAvailable() {
+    if (!this.account) {
+      throw new Error('no account set');
+    }
+
+    const myLastKardashevTimestamp = this.players.get(this.account)?.lastKardashevTimestamp;
+
+    // Calculation formula is the same
+    return timeUntilNextBroadcastAvailable(
+      myLastKardashevTimestamp,
+      this.contractConstants.KARDASHEV_PLANET_COOLDOWN
+    );
+  }
+
+  public getNextBlueAvailableTimestamp(planetId: LocationId) {
+    if (!this.account) {
+      throw new Error('no account set');
+    }
+    const planet = this.getPlanetWithId(planetId);
+    if (!isLocatable(planet)) return 0;
+
+    const centerPlanetId = this.getBlueZoneCenterPlanetId(planetId);
+    if (centerPlanetId === undefined) return 0;
+    const centerPlanet = this.getPlanetWithId(centerPlanetId);
+    if (!centerPlanet) return 0;
+    if (!centerPlanet.kardashevTimestamp) return 0;
+    return (centerPlanet.kardashevTimestamp + this.contractConstants.BLUE_PLANET_COOLDOWN) * 1000;
+  }
   /**
   /**
    * Gets the timestamp (ms) of the next time that we can activate artifact.
@@ -2192,7 +2472,7 @@ class GameManager extends EventEmitter {
     for (const item of allBurnedLocationsValues) {
       const planet = this.getPlanetWithId(item.hash);
       if (planet === undefined) continue;
-      if (planet.operator !== this.account) continue;
+      if (planet.burnOperator !== this.account) continue;
       const locationId = planet.locationId;
       const coords = { x: item.coords.x, y: item.coords.y };
       const operator = item.operator;
@@ -2208,6 +2488,56 @@ class GameManager extends EventEmitter {
     }
 
     return pinkZones || new Set();
+  }
+
+  public getBlueZones(): Set<PinkZone> {
+    const blueZones = new Set<PinkZone>();
+    const kardashevLocations = this.getKardashevLocations();
+    const allKardashevLocationsValues = Array.from(kardashevLocations.values());
+
+    for (const item of allKardashevLocationsValues) {
+      const planet = this.getPlanetWithId(item.hash);
+      if (planet === undefined) continue;
+      const locationId = planet.locationId;
+      const coords = { x: item.coords.x, y: item.coords.y };
+      const operator = item.operator;
+      const radius = this.getContractConstants().KARDASHEV_EFFECT_RADIUS[planet.planetLevel];
+
+      blueZones.add({
+        locationId: locationId,
+        coords: coords,
+        operator: operator,
+        radius: radius,
+      });
+    }
+
+    return blueZones || new Set();
+  }
+
+  public getMyBlueZones(): Set<PinkZone> {
+    const blueZones = new Set<PinkZone>();
+    const kardashevLocations = this.getKardashevLocations();
+    const allKardashevLocationsValues = Array.from(kardashevLocations.values());
+
+    for (const item of allKardashevLocationsValues) {
+      const planet = this.getPlanetWithId(item.hash);
+      if (planet === undefined) continue;
+      if (planet.kardashevOperator !== this.account) continue;
+      const locationId = planet.locationId;
+      const coords = { x: item.coords.x, y: item.coords.y };
+      const operator = item.operator;
+      const radius =
+        this.getContractConstants().BURN_PLANET_LEVEL_EFFECT_RADIUS[planet.planetLevel];
+
+      blueZones.add({
+        locationId: locationId,
+        coords: coords,
+        operator: operator,
+        radius: radius,
+      });
+    }
+
+    return blueZones || new Set();
   }
 
   /**
@@ -2405,11 +2735,15 @@ class GameManager extends EventEmitter {
         throw new Error("you can't burn destroyed/frozen planets");
       }
 
-      if (planet.planetLevel <= 0) {
-        throw new Error("you can't burn level zero planet");
+      if (planet.planetLevel <= 2) {
+        throw new Error('require planetLevel>=3');
       }
 
-      if (planet.operator !== undefined && planet.operator !== EMPTY_ADDRESS) {
+      if (planet.owner !== this.account) {
+        throw new Error("you don't own this planet");
+      }
+
+      if (planet.burnOperator !== undefined && planet.burnOperator !== EMPTY_ADDRESS) {
         throw new Error('someone already burn this planet');
       }
 
@@ -2418,7 +2752,7 @@ class GameManager extends EventEmitter {
       }
 
       if (this.entityStore.transactions.hasTransaction(isUnconfirmedBurnTx)) {
-        throw new Error("you're already broadcasting coordinates");
+        throw new Error("you're already burning this planet's location");
       }
 
       const myLastBurnTimestamp = this.players.get(this.account)?.lastBurnTimestamp;
@@ -2433,6 +2767,11 @@ class GameManager extends EventEmitter {
         playerSilver < this.contractConstants.BURN_PLANET_REQUIRE_SILVER_AMOUNTS[planet.planetLevel]
       ) {
         throw new Error('player silver is not enough');
+      }
+
+      const activeArtifact = this.getActiveArtifact(planet);
+      if (!activeArtifact || activeArtifact.artifactType !== ArtifactType.Bomb) {
+        throw new Error('no active bomb on this planet');
       }
 
       // this is shitty. used for the popup window
@@ -2490,6 +2829,13 @@ class GameManager extends EventEmitter {
     }
     return false;
   }
+
+  /**
+   * return isCurrentlyPinking
+   */
+  public isCurrentlyPinking(): boolean {
+    return !!this.entityStore.transactions.hasTransaction(isUnconfirmedPinkTx);
+  }
   /**
    * pinkLocation reveals a planet's location on-chain.
    */
@@ -2523,11 +2869,11 @@ class GameManager extends EventEmitter {
       // }
 
       if (planet.transactions?.hasTransaction(isUnconfirmedPinkTx)) {
-        throw new Error("you're already pinking this planet's location");
+        throw new Error("you're already pinking this planet's location 1");
       }
 
       if (this.entityStore.transactions.hasTransaction(isUnconfirmedPinkTx)) {
-        throw new Error("you're already pinking this planet's location");
+        throw new Error("you're already pinking this planet's location 2");
       }
 
       // const myLastBurnTimestamp = this.players.get(this.account)?.lastBurnTimestamp;
@@ -2574,6 +2920,234 @@ class GameManager extends EventEmitter {
       return tx;
     } catch (e) {
       this.getNotificationsManager().txInitError('pinkLocation', e.message);
+      throw e;
+    }
+  }
+
+  public async kardashev(planetId: LocationId): Promise<Transaction<UnconfirmedKardashev>> {
+    try {
+      if (!this.account) {
+        throw new Error('no account set');
+      }
+
+      if (this.checkGameHasEnded()) {
+        throw new Error('game has ended');
+      }
+
+      const planet = this.entityStore.getPlanetWithId(planetId);
+
+      if (!planet) {
+        throw new Error("you can't kardashev a planet you haven't discovered");
+      }
+
+      if (!isLocatable(planet)) {
+        throw new Error("you can't reveal a planet whose coordinates you don't know");
+      }
+
+      if (planet.destroyed || planet.frozen) {
+        throw new Error("you can't kardashev destroyed/frozen planets");
+      }
+
+      if (planet.planetLevel <= 2) {
+        throw new Error('require planet level>=3');
+      }
+
+      if (planet.kardashevOperator !== undefined && planet.kardashevOperator !== EMPTY_ADDRESS) {
+        throw new Error('someone already kardashev this planet');
+      }
+
+      if (planet.transactions?.hasTransaction(isUnconfirmedKardashevTx)) {
+        throw new Error("you're already kardasheving this planet's location");
+      }
+
+      if (this.entityStore.transactions.hasTransaction(isUnconfirmedKardashevTx)) {
+        throw new Error("you're already kardasheving coordinates");
+      }
+
+      const myLastKardashevTimestamp = this.players.get(this.account)?.lastKardashevTimestamp;
+
+      if (myLastKardashevTimestamp && Date.now() < this.getNextKardashevAvailableTimestamp()) {
+        throw new Error('still on cooldown for kardasheving');
+      }
+
+      const playerSilver = this.players.get(this.account)?.silver;
+      if (
+        playerSilver &&
+        playerSilver < this.contractConstants.KARDASHEV_REQUIRE_SILVER_AMOUNTS[planet.planetLevel]
+      ) {
+        throw new Error('player silver is not enough');
+      }
+
+      const activeArtifact = this.getActiveArtifact(planet);
+      if (!activeArtifact || activeArtifact.artifactType !== ArtifactType.Kardashev) {
+        throw new Error('no active kardashev on this planet');
+      }
+
+      if (
+        Date.now() - 1000 * activeArtifact.lastActivated <=
+        1000 * this.contractConstants.KARDASHEV_PLANET_COOLDOWN
+      ) {
+        throw new Error('still on cooldown for kardasheving');
+      }
+
+      // this is shitty. used for the popup window
+      localStorage.setItem(`${this.getAccount()?.toLowerCase()}-kardashevLocationId`, planetId);
+
+      const getArgs = async () => {
+        const revealArgs = await this.snarkHelper.getRevealArgs(
+          planet.location.coords.x,
+          planet.location.coords.y
+        );
+        this.terminal.current?.println(
+          'REVEAL: calculated SNARK with args:',
+          TerminalTextStyle.Sub
+        );
+        this.terminal.current?.println(
+          JSON.stringify(hexifyBigIntNestedArray(revealArgs.slice(0, 3))),
+          TerminalTextStyle.Sub
+        );
+        this.terminal.current?.newline();
+
+        return revealArgs;
+      };
+
+      const txIntent: UnconfirmedKardashev = {
+        methodName: 'kardashev',
+        locationId: planetId,
+        location: planet.location,
+        contract: this.contractsAPI.contract,
+        args: getArgs(),
+      };
+
+      // Always await the submitTransaction so we can catch rejections
+      const tx = await this.contractsAPI.submitTransaction(txIntent);
+
+      return tx;
+    } catch (e) {
+      this.getNotificationsManager().txInitError('kardashev', e.message);
+      throw e;
+    }
+  }
+
+  public checkPlanetCanBlue(planetId: LocationId): boolean {
+    if (!this.account) return false;
+    const planet = this.getPlanetWithId(planetId);
+    if (!planet) return false;
+    if (!isLocatable(planet)) return false;
+    const centerPlanetId = this.getBlueZoneCenterPlanetId(planetId);
+
+    if (!centerPlanetId) return false;
+    if (centerPlanetId === planetId) return false;
+    return true;
+  }
+
+  /**
+   * return isCurrentlyBlueing
+   */
+  public isCurrentlyBlueing(): boolean {
+    return !!this.entityStore.transactions.hasTransaction(isUnconfirmedBlueTx);
+  }
+
+  /**
+   * blueLocation reveals a planet's location on-chain.
+   */
+
+  public async blueLocation(planetId: LocationId): Promise<Transaction<UnconfirmedBlue>> {
+    try {
+      if (!this.account) {
+        throw new Error('no account set');
+      }
+
+      if (this.checkGameHasEnded()) {
+        throw new Error('game has ended');
+      }
+
+      const planet = this.entityStore.getPlanetWithId(planetId);
+
+      if (!planet) {
+        throw new Error("you can't blue a planet you haven't discovered");
+      }
+
+      if (!isLocatable(planet)) {
+        throw new Error("you can't blue a planet whose coordinates you don't know");
+      }
+
+      if (planet.destroyed || planet.frozen) {
+        throw new Error("you can't blue destroyed/frozen planets");
+      }
+
+      if (planet.planetLevel < 3) {
+        throw new Error('planet level requires >= 3');
+      }
+
+      const centerPlanetId = this.getBlueZoneCenterPlanetId(planetId);
+      if (centerPlanetId === undefined) {
+        throw new Error('this planet is not in your blue zones');
+      }
+
+      const centerPlanet = this.getPlanetWithId(centerPlanetId);
+
+      if (centerPlanet === undefined || centerPlanet.kardashevTimestamp === undefined) {
+        throw new Error("can't blue this planet");
+      }
+
+      if (centerPlanetId === planetId) {
+        throw new Error("can't blue center planet");
+      }
+
+      const timeCheckPassed = this.getNextBlueAvailableTimestamp(planetId) <= Date.now();
+
+      if (!timeCheckPassed) {
+        throw new Error('still in cooldown time');
+      }
+
+      if (centerPlanet.owner !== planet.owner || centerPlanet.owner !== this.account) {
+        throw new Error('center planet need to be yours');
+      }
+
+      if (planet.transactions?.hasTransaction(isUnconfirmedBlueTx)) {
+        throw new Error("you're already blueing this planet's location 1");
+      }
+
+      if (this.entityStore.transactions.hasTransaction(isUnconfirmedBlueTx)) {
+        throw new Error("you're already blueing this planet's location 2");
+      }
+
+      // this is shitty. used for the popup window
+      localStorage.setItem(`${this.getAccount()?.toLowerCase()}-blueLocationId`, planetId);
+
+      const getArgs = async () => {
+        const revealArgs = await this.snarkHelper.getRevealArgs(
+          planet.location.coords.x,
+          planet.location.coords.y
+        );
+        this.terminal.current?.println(
+          'REVEAL: calculated SNARK with args:',
+          TerminalTextStyle.Sub
+        );
+        this.terminal.current?.println(
+          JSON.stringify(hexifyBigIntNestedArray(revealArgs.slice(0, 3))),
+          TerminalTextStyle.Sub
+        );
+        this.terminal.current?.newline();
+
+        return revealArgs;
+      };
+
+      const txIntent: UnconfirmedBlue = {
+        methodName: 'blueLocation',
+        locationId: planetId,
+        location: planet.location,
+        contract: this.contractsAPI.contract,
+        args: getArgs(),
+      };
+
+      // Always await the submitTransaction so we can catch rejections
+      const tx = await this.contractsAPI.submitTransaction(txIntent);
+
+      return tx;
+    } catch (e) {
+      this.getNotificationsManager().txInitError('blueLocation', e.message);
       throw e;
     }
   }
@@ -2713,26 +3287,32 @@ class GameManager extends EventEmitter {
       const planet = await this.findRandomHomePlanet(_selectedCoords);
       this.homeLocation = planet.location;
       this.terminal.current?.println('');
-      this.terminal.current?.println(`Found Suitable Home Planet: ${getPlanetName(planet)} `);
       this.terminal.current?.println(
-        `Its coordinates are: (${planet.location.coords.x}, ${planet.location.coords.y})`
+        `Found Suitable Home Planet: ${getPlanetName(planet)}, coordinates: (${
+          planet.location.coords.x
+        }, ${planet.location.coords.y})`,
+        TerminalTextStyle.Pink
       );
-      this.terminal.current?.println('');
+      this.terminal.current?.newline();
 
       await this.persistentChunkStore.addHomeLocation(planet.location);
 
+      let txIntentCompleted = false;
       const getArgs = async () => {
         const args = await this.snarkHelper.getInitArgs(
           planet.location.coords.x,
           planet.location.coords.y,
           Math.floor(Math.sqrt(planet.location.coords.x ** 2 + planet.location.coords.y ** 2)) + 1
         );
+
         this.terminal.current?.println('INIT: calculated SNARK with args:', TerminalTextStyle.Sub);
         this.terminal.current?.println(
           JSON.stringify(hexifyBigIntNestedArray(args.slice(0, 3) as unknown as string[])),
-          TerminalTextStyle.Sub
+          TerminalTextStyle.Text
         );
         this.terminal.current?.newline();
+
+        txIntentCompleted = true;
         return args;
         // return [...args, distFromOriginSquare];
       };
@@ -2766,6 +3346,11 @@ class GameManager extends EventEmitter {
           break;
         } catch (e) {
           if (beforeRetry) {
+            // make sure the tx intent has completed so all the message are printed together.
+            while (!txIntentCompleted) {
+              await sleep(100);
+            }
+
             if (await beforeRetry(e)) {
               continue;
             }
@@ -2784,26 +3369,57 @@ class GameManager extends EventEmitter {
       throw e;
     }
   }
-
+  // mytodo: some player can't get spaceships, the homeLocation.hash is not right
   private async getSpaceships() {
-    if (!this.account || !this.homeLocation?.hash) return;
+    if (!this.account) return;
     if (!Object.values(this.contractConstants.SPACESHIPS).some((a) => a === true)) {
       console.log('all spaceships disabled, not calling the tx');
       return;
     }
 
     const player = await this.contractsAPI.getPlayerById(this.account);
+    if (!player) return;
     if (player?.claimedShips) return;
 
     if (this.getGameObjects().isGettingSpaceships()) return;
+
+    const homePlanetLocationId = '0x' + player.homePlanetId;
+
+    console.log('fix: getSpaceships');
+    console.log('  homeLocation.hash :', '0x' + this.homeLocation?.hash);
+    console.log('player.homePlanetId :', homePlanetLocationId);
+
     const tx = await this.contractsAPI.submitTransaction({
       methodName: 'giveSpaceShips',
       contract: this.contractsAPI.contract,
-      args: Promise.resolve(['0x' + this.homeLocation?.hash]),
+      args: Promise.resolve([homePlanetLocationId]),
     });
     await tx.confirmedPromise;
-    this.hardRefreshPlanet(this.homeLocation?.hash);
+    this.hardRefreshPlanet(player.homePlanetId);
   }
+  // private async getSpaceships() {
+  //   if (!this.account || !this.homeLocation?.hash) return;
+  //   if (!Object.values(this.contractConstants.SPACESHIPS).some((a) => a === true)) {
+  //     console.log('all spaceships disabled, not calling the tx');
+  //     return;
+  //   }
+
+  //   const player = await this.contractsAPI.getPlayerById(this.account);
+  //   if (player?.claimedShips) return;
+
+  //   if (this.getGameObjects().isGettingSpaceships()) return;
+
+  //   console.log('function: getSpaceships');
+  //   console.log('0x' + this.homeLocation?.hash);
+
+  //   const tx = await this.contractsAPI.submitTransaction({
+  //     methodName: 'giveSpaceShips',
+  //     contract: this.contractsAPI.contract,
+  //     args: Promise.resolve(['0x' + this.homeLocation?.hash]),
+  //   });
+  //   await tx.confirmedPromise;
+  //   this.hardRefreshPlanet(this.homeLocation?.hash);
+  // }
 
   // this is slow, do not call in i.e. render/draw loop
   /**
@@ -2836,6 +3452,13 @@ class GameManager extends EventEmitter {
     x: number;
     y: number;
   }): Promise<LocatablePlanet> {
+    this.terminal.current?.newline();
+    this.terminal.current?.println(`Initializing Home Planet Search...`);
+    this.terminal.current?.println('This may take up to 120s, and will consume a lot of CPU.');
+
+    // let other things happen in the bg.
+    await sleep(10);
+
     return new Promise<LocatablePlanet>((resolve, reject) => {
       const initPerlinMin = this.contractConstants.INIT_PERLIN_MIN;
       const initPerlinMax = this.contractConstants.INIT_PERLIN_MAX;
@@ -2844,18 +3467,29 @@ class GameManager extends EventEmitter {
       const x: number = _selectedCoords.x;
       const y: number = _selectedCoords.y;
       const d: number = Math.sqrt(x ** 2 + y ** 2);
-      const p: number = this.spaceTypePerlin({ x, y }, false);
+      // const p: number = this.spaceTypePerlin({ x, y }, false);
 
       // if this.contractConstants.SPAWN_RIM_AREA is non-zero, then players must spawn in that
       // area, distributed evenly in the inner perimeter of the world
-      let spawnInnerRadius = Math.sqrt(
-        Math.max(Math.PI * this.worldRadius ** 2 - this.contractConstants.SPAWN_RIM_AREA, 0) /
-          Math.PI
-      );
+      // let spawnInnerRadius = Math.sqrt(
+      //   Math.max(Math.PI * this.worldRadius ** 2 - this.contractConstants.SPAWN_RIM_AREA, 0) /
+      //     Math.PI
+      // );
 
-      if (this.contractConstants.SPAWN_RIM_AREA === 0) {
-        spawnInnerRadius = 0;
-      }
+      // if (this.contractConstants.SPAWN_RIM_AREA === 0) {
+      //   spawnInnerRadius = 0;
+      // }
+
+      const requireRadiusMin = this.contractConstants.MAX_LEVEL_DIST[1];
+      // const requireRadiusMax = this.contractConstants.MAX_LEVEL_DIST[0];
+      const checkCoords = () => {
+        console.log(d);
+        console.log('[' + requireRadiusMin + ',+)');
+        return d >= requireRadiusMin;
+      };
+
+      //NOTE: check coords
+      console.log(checkCoords());
 
       // do {
       //   // sample from square
@@ -2877,18 +3511,8 @@ class GameManager extends EventEmitter {
       // ?searchCenter=2866,5627
       //
 
-      // const params = new URLSearchParams(window.location.search);
-
-      // if (params.has('searchCenter')) {
-      //   const parts = params.get('searchCenter')?.split(',');
-
-      //   if (parts) {
-      //     x = parseInt(parts[0], 10);
-      //     y = parseInt(parts[1], 10);
-      //   }
-      // }
-
       const pattern: MiningPattern = new SpiralPattern({ x, y }, MIN_CHUNK_SIZE);
+
       const chunkStore = new HomePlanetMinerChunkStore(
         initPerlinMin,
         initPerlinMax,
@@ -2904,39 +3528,67 @@ class GameManager extends EventEmitter {
       );
 
       this.terminal.current?.println(``);
-      this.terminal.current?.println(`Initializing Home Planet Search...`);
-      this.terminal.current?.println(``);
       this.terminal.current?.println(`Chunked explorer: start!`);
       this.terminal.current?.println(
         `Each chunk contains ${MIN_CHUNK_SIZE}x${MIN_CHUNK_SIZE} coordinates.`
       );
       const percentSpawn = (1 / this.contractConstants.PLANET_RARITY) * 100;
-      const printProgress = 8;
+      const printProgress = 4;
       this.terminal.current?.print(`Each coordinate has a`);
       this.terminal.current?.print(` ${percentSpawn}%`, TerminalTextStyle.Text);
       this.terminal.current?.print(` chance of spawning a planet.`);
       this.terminal.current?.println('');
+
+      this.terminal.current?.newline();
       this.terminal.current?.println(
         'It may take a long time to wait here. You can choose to wait for a while or refresh the web page.',
         TerminalTextStyle.Pink
       );
+      this.terminal.current?.newline();
 
       this.terminal.current?.println(
         `Hashing first ${MIN_CHUNK_SIZE ** 2 * printProgress} potential home planets...`
       );
 
+      let done = false;
+      let index = 1;
+      const values = ['.', '..', '...', '....', '.....', '......'];
+      let lastChunkSize: number | undefined;
+      let chunkSize: number | undefined;
+      const printProgressFn = () => {
+        if (done) {
+          return;
+        }
+
+        if (chunkSize) {
+          if (lastChunkSize) {
+            this.terminal.current?.removeLast(2);
+          }
+          if (lastChunkSize && lastChunkSize !== chunkSize) {
+            this.terminal.current?.println(
+              `Hashed ${lastChunkSize * MIN_CHUNK_SIZE ** 2} potential home planets${
+                values[index - 1]
+              }`
+            );
+            index = 1;
+          }
+
+          this.terminal.current?.println(
+            `Hashed ${chunkSize * MIN_CHUNK_SIZE ** 2} potential home planets${values[index - 1]}`
+          );
+          index = (index % 6) + 1;
+          lastChunkSize = chunkSize;
+        }
+        setTimeout(printProgressFn, 180);
+      };
+      printProgressFn();
+
       homePlanetFinder.on(MinerManagerEvent.DiscoveredNewChunk, (chunk: Chunk) => {
         chunkStore.addChunk(chunk);
         minedChunksCount++;
 
-        this.terminal.current?.println(
-          `Hashed ${minedChunksCount * MIN_CHUNK_SIZE ** 2} potential home planets...`
-        );
-
         if (minedChunksCount % printProgress === 0) {
-          this.terminal.current?.println(
-            `Hashed ${minedChunksCount * MIN_CHUNK_SIZE ** 2} potential home planets...`
-          );
+          chunkSize = minedChunksCount;
         }
         for (const homePlanetLocation of chunk.planetLocations) {
           const planetPerlin = homePlanetLocation.perlin;
@@ -2957,13 +3609,19 @@ class GameManager extends EventEmitter {
             homePlanetLocation.perlin,
             distFromOrigin
           );
+
+          const spaceType = this.spaceTypeFromPerlin(planetPerlin, Math.floor(distFromOrigin));
+
           const planet = this.getPlanetWithId(homePlanetLocation.hash);
 
           if (
+            spaceType === SpaceType.NEBULA && //only NEBULA
             planetPerlin < initPerlinMax &&
             planetPerlin >= initPerlinMin &&
             distFromOrigin < this.worldRadius &&
-            distFromOrigin > spawnInnerRadius &&
+            // distFromOrigin >= spawnInnerRadius &&
+            distFromOrigin >= requireRadiusMin &&
+            // distFromOrigin < requireRadiusMax &&
             planetLevel === MIN_PLANET_LEVEL &&
             planetType === PlanetType.PLANET &&
             (!planet || !planet.isInContract) // init will fail if planet has been initialized in contract already
@@ -2977,6 +3635,8 @@ class GameManager extends EventEmitter {
             if (!homePlanet) {
               reject(new Error("Unable to create default planet for your home planet's location."));
             } else {
+              // tell the printProgressFn to stop
+              done = true;
               // can cast to `LocatablePlanet` because we know its location, as we just mined it.
               resolve(homePlanet as LocatablePlanet);
             }
@@ -3250,16 +3910,16 @@ class GameManager extends EventEmitter {
         if (!artifactId) {
           throw new Error('must supply an artifact id');
         }
-        const myLastActivateArtifactTimestamp = this.players.get(
-          this.account
-        )?.lastActivateArtifactTimestamp;
+        // const myLastActivateArtifactTimestamp = this.players.get(
+        //   this.account
+        // )?.lastActivateArtifactTimestamp;
 
-        if (
-          myLastActivateArtifactTimestamp &&
-          Date.now() < this.getNextActivateArtifactAvailableTimestamp()
-        ) {
-          throw new Error('still on cooldown for activating artifact');
-        }
+        // if (
+        //   myLastActivateArtifactTimestamp &&
+        //   Date.now() < this.getNextActivateArtifactAvailableTimestamp()
+        // ) {
+        //   throw new Error('still on cooldown for activating artifact');
+        // }
       }
 
       localStorage.setItem(`${this.getAccount()?.toLowerCase()}-activatePlanet`, locationId);
@@ -3389,6 +4049,8 @@ class GameManager extends EventEmitter {
         }
       }
 
+      const halfPrice = this.getHalfPrice();
+
       localStorage.setItem(`${this.getAccount()?.toLowerCase()}-buyArtifactOnPlanet`, locationId);
 
       localStorage.setItem(
@@ -3400,6 +4062,8 @@ class GameManager extends EventEmitter {
         `${this.getAccount()?.toLowerCase()}-buyArtifactRarity`,
         Number(rarity).toString()
       );
+
+      localStorage.setItem(`${this.getAccount()?.toLowerCase()}-halfPrice`, halfPrice.toString());
 
       // localStorage.setItem(`${this.getAccount()?.toLowerCase()}-buyArtifact`, artifactId);
 
@@ -3446,7 +4110,7 @@ class GameManager extends EventEmitter {
         } else return 0;
       }
 
-      //MyNotice: this will not be the true artifactId
+      //NOTE: this will not be the true artifactId
       const artifactId: ArtifactId = random256Id() as ArtifactId;
 
       const args = Promise.resolve([
@@ -3474,9 +4138,11 @@ class GameManager extends EventEmitter {
       // Always await the submitTransaction so we can catch rejections
 
       const tx = await this.contractsAPI.submitTransaction(txIntent, {
-        // MyNotice: when change gasLimit, need change the value in TxConfirmPopup.tsx
+        // NOTE: when change gasLimit, need change the value in TxConfirmPopup.tsx
         gasLimit: 2000000,
-        value: bigInt(1000000000000000000).multiply(price()).toString(),
+        value: halfPrice
+          ? bigInt(500_000_000_000_000).toString()
+          : bigInt(1_000_000_000_000_000).toString(), //0.001eth
       });
 
       return tx;
@@ -3513,9 +4179,15 @@ class GameManager extends EventEmitter {
         if (amount > planet.silver) {
           throw new Error('not enough silver to withdraw!');
         }
+
+        if (amount * 5 < planet.silverCap) {
+          throw new Error('require silverAmount >= silverCap * 0.2');
+        }
+
         if (amount === 0) {
           throw new Error('must withdraw more than 0 silver!');
         }
+
         if (planet.destroyed || planet.frozen) {
           throw new Error("can't withdraw silver from a destroyed/frozen planet");
         }
@@ -3592,10 +4264,11 @@ class GameManager extends EventEmitter {
    * call from the webserver, and by verifying that the request to add (or remove) an emoji from a
    * planet was signed by the owner.
    */
-  public setPlanetEmoji(locationId: LocationId, emojiStr: string) {
-    return this.submitPlanetMessage(locationId, PlanetMessageType.EmojiFlag, {
+  public async setPlanetEmoji(locationId: LocationId, emojiStr: string) {
+    const res = await this.submitPlanetMessage(locationId, PlanetMessageType.EmojiFlag, {
       emoji: emojiStr,
     });
+    return res;
   }
 
   /**
@@ -3866,18 +4539,47 @@ class GameManager extends EventEmitter {
   }
 
   /**
+   * Submits a transaction to the blockchain to refreshPlanet.
+   */
+  public async refreshPlanet(
+    planetId: LocationId,
+    _bypassChecks = false
+  ): Promise<Transaction<UnconfirmedRefreshPlanet>> {
+    try {
+      // this is shitty
+      localStorage.setItem(`${this.getAccount()?.toLowerCase()}-refreshPlanet`, planetId);
+
+      const txIntent: UnconfirmedRefreshPlanet = {
+        methodName: 'refreshPlanet',
+        contract: this.contractsAPI.contract,
+        args: Promise.resolve([locationIdToDecStr(planetId)]),
+        locationId: planetId,
+      };
+
+      // Always await the submitTransaction so we can catch rejections
+      const tx = await this.contractsAPI.submitTransaction(txIntent);
+
+      return tx;
+    } catch (e) {
+      this.getNotificationsManager().txInitError('refreshPlanet', e.message);
+      throw e;
+    }
+  }
+
+  /**
    * Submits a transaction to the blockchain to buy a hat for the given planet. You must own the
    * planet. Warning costs real token. Hats are permanently locked to a planet. They are purely
    * cosmetic and a great way to BM your opponents or just look your best. Just like in the real
    * world, more money means more hat.
    */
-  public async buyHat(
+  public async buySkin(
     planetId: LocationId,
     hatType: number,
     _bypassChecks = false
   ): Promise<Transaction<UnconfirmedBuyHat>> {
     const planetLoc = this.entityStore.getLocationOfPlanet(planetId);
     const planet = this.entityStore.getPlanetWithLocation(planetLoc);
+    const halfPrice = this.getHalfPrice();
 
     try {
       if (!planetLoc) {
@@ -3894,6 +4596,15 @@ class GameManager extends EventEmitter {
         throw new Error('[TX ERROR] hatType Error');
       }
 
+      // price requirements
+      const balanceEth = this.getMyBalanceEth();
+      let hatCostEth = planet.hatLevel === 0 ? 0.002 : 0;
+      if (halfPrice) hatCostEth *= 0.5;
+
+      if (balanceEth < hatCostEth) {
+        throw new Error("you don't have enough ETH");
+      }
+
       localStorage.setItem(`${this.getAccount()?.toLowerCase()}-hatPlanet`, planetId);
       localStorage.setItem(
         `${this.getAccount()?.toLowerCase()}-hatLevel`,
@@ -3905,8 +4616,12 @@ class GameManager extends EventEmitter {
         planet.hatType.toString()
       );
 
+      localStorage.setItem(`${this.getAccount()?.toLowerCase()}-halfPrice`, halfPrice.toString());
+
+      localStorage.setItem(`${this.getAccount()?.toLowerCase()}-hatCostEth`, hatCostEth.toString());
+
       const txIntent: UnconfirmedBuyHat = {
-        methodName: 'buyHat',
+        methodName: 'buySkin',
         contract: this.contractsAPI.contract,
         args: Promise.resolve([locationIdToDecStr(planetId), hatType]),
         locationId: planetId,
@@ -3916,16 +4631,276 @@ class GameManager extends EventEmitter {
       // Always await the submitTransaction so we can catch rejections
 
       const tx = await this.contractsAPI.submitTransaction(txIntent, {
-        // MyNotice: when change gasLimit, need change the value in TxConfirmPopup.tsx
-        gasLimit: 500000,
-        value: bigInt(100000000000000000) //0.1eth
-          .multiply(1 + 0 * planet.hatLevel)
-          .toString(),
+        value:
+          planet.hatLevel === 0
+            ? halfPrice
+              ? bigInt(1_000_000_000_000_000).toString()
+              : bigInt(2_000_000_000_000_000).toString()
+            : '0', //0.001eth
       });
 
       return tx;
     } catch (e) {
-      this.getNotificationsManager().txInitError('buyHat', e.message);
+      this.getNotificationsManager().txInitError('buySkin', e.message);
+      throw e;
+    }
+  }
+  /**
+   * Submits a transaction to the blockchain to buy a planet.
+   * Warning costs real token.
+   */
+  public async buyPlanet(planetId: LocationId): Promise<Transaction<UnconfirmedBuyPlanet>> {
+    try {
+      if (!this.account) {
+        throw new Error('no account set');
+      }
+      if (this.checkGameHasEnded()) {
+        throw new Error('game has ended');
+      }
+
+      const planet = this.entityStore.getPlanetWithId(planetId);
+
+      // planet requirements
+      if (!planet) {
+        throw new Error("you can't buy a planet you haven't discovered");
+      }
+
+      if (!isLocatable(planet)) {
+        throw new Error("you can't buy a planet whose coordinates you don't know");
+      }
+
+      if (planet.destroyed || planet.frozen) {
+        throw new Error("you can't buy destroyed/frozen planets");
+      }
+
+      if (planet.planetLevel !== 0) {
+        throw new Error('only level 0');
+      }
+
+      if (planet.owner !== EMPTY_ADDRESS) {
+        throw new Error('you can only buy planet without owner');
+      }
+
+      const x: number = planet.location.coords.x;
+      const y: number = planet.location.coords.y;
+      const radius: number = Math.sqrt(x ** 2 + y ** 2);
+
+      const MAX_LEVEL_DIST = this.contractConstants.MAX_LEVEL_DIST;
+      if (!(radius > MAX_LEVEL_DIST[1])) {
+        throw new Error('Player can only spawn at the edge of universe');
+      }
+      const spaceType = this.spaceTypeFromPerlin(
+        planet.perlin,
+        Math.floor(Math.sqrt(x * x + y * y))
+      );
+
+      if (spaceType !== SpaceType.NEBULA) {
+        throw new Error('Only NEBULA');
+      }
+
+      // const INIT_PERLIN_MIN = this.contractConstants.INIT_PERLIN_MIN;
+
+      // if (planet.perlin >= INIT_PERLIN_MIN) {
+      //   throw new Error('Init not allowed in perlin value less than INIT_PERLIN_MIN');
+      // }
+
+      //player requirements
+      const player = this.players.get(this.account);
+      if (!player) {
+        throw new Error('no player');
+      }
+      const MAX_BUY_PLANET_AMOUNT = 6;
+      if (player.buyPlanetAmount >= MAX_BUY_PLANET_AMOUNT) {
+        throw new Error('buy planet amount limit');
+      }
+
+      // price requirements
+      const balanceEth = this.getMyBalanceEth();
+      const halfPrice = this.getHalfPrice();
+      const planetCostEth = halfPrice
+        ? 0.5 * 0.003 * 2 ** player.buyPlanetAmount
+        : 0.003 * 2 ** player.buyPlanetAmount;
+      if (balanceEth < planetCostEth) {
+        throw new Error("you don't have enough ETH");
+      }
+
+      if (planet.transactions?.hasTransaction(isUnconfirmedBuyPlanetTx)) {
+        // transaction requirements
+        throw new Error("you're already buying this planet");
+      }
+      if (this.entityStore.transactions.hasTransaction(isUnconfirmedBuyPlanetTx)) {
+        throw new Error("you're already buying this planet");
+      }
+
+      const getArgs = async () => {
+        const args = await this.snarkHelper.getInitArgs(
+          planet.location.coords.x,
+          planet.location.coords.y,
+          Math.floor(Math.sqrt(planet.location.coords.x ** 2 + planet.location.coords.y ** 2)) + 1
+        );
+
+        return args;
+      };
+
+      const txIntent: UnconfirmedBuyPlanet = {
+        methodName: 'buyPlanet',
+        contract: this.contractsAPI.contract,
+        locationId: planet.location.hash,
+        location: planet.location,
+        args: getArgs(),
+      };
+
+      localStorage.setItem(`${this.getAccount()?.toLowerCase()}-buyPlanet`, planetId);
+
+      // localStorage.setItem(
+      //   `${this.getAccount()?.toLowerCase()}-buyPlanetAmountBefore`,
+      //   player.buyPlanetAmount.toString()
+      // );
+
+      localStorage.setItem(`${this.getAccount()?.toLowerCase()}-halfPrice`, halfPrice.toString());
+
+      localStorage.setItem(
+        `${this.getAccount()?.toLocaleLowerCase()}-planetCostEth`,
+        planetCostEth.toString()
+      );
+
+      const fee_delete = 2 ** player.buyPlanetAmount;
+
+      // 0.003 *(2**(num-1)) eth
+      let fee = bigInt(3_000_000_000_000_000).multiply(fee_delete);
+      if (halfPrice) fee = bigInt(1_500_000_000_000_000).multiply(fee_delete);
+
+      const tx = await this.contractsAPI.submitTransaction(txIntent, {
+        value: fee.toString(),
+      });
+
+      return tx;
+    } catch (e) {
+      this.getNotificationsManager().txInitError('buyPlanet', e.message);
+      throw e;
+    }
+  }
+
+  public async buySpaceship(planetId: LocationId): Promise<Transaction<UnconfirmedBuySpaceship>> {
+    try {
+      if (!this.account) {
+        throw new Error('no account set');
+      }
+      if (this.checkGameHasEnded()) {
+        throw new Error('game has ended');
+      }
+
+      const planet = this.entityStore.getPlanetWithId(planetId);
+
+      // planet requirements
+      if (!planet) {
+        throw new Error('you should know this planet');
+      }
+
+      if (!isLocatable(planet)) {
+        throw new Error('planet is not Locatable');
+      }
+
+      if (planet.destroyed || planet.frozen) {
+        throw new Error('planet destoryed / frozen');
+      }
+
+      //player requirements
+      const player = this.players.get(this.account);
+      if (!player) {
+        throw new Error('no player');
+      }
+
+      const halfPrice = this.getHalfPrice();
+      // price requirements
+      const balanceEth = this.getMyBalanceEth();
+      const spaceshipCostEth = halfPrice ? 0.0005 : 0.001;
+      if (balanceEth < spaceshipCostEth) {
+        throw new Error("you don't have enough ETH");
+      }
+
+      if (player.buySpaceshipAmount >= 3) {
+        throw new Error(' you can only buy 3 spaceships');
+      }
+
+      // transaction requirements
+      if (planet.transactions?.hasTransaction(isUnconfirmedBuySpaceshipTx)) {
+        throw new Error("you're already buying this planet");
+      }
+      if (this.entityStore.transactions.hasTransaction(isUnconfirmedBuySpaceshipTx)) {
+        throw new Error("you're already buying this planet");
+      }
+
+      const spaceshipType = ArtifactType.ShipWhale;
+
+      const txIntent: UnconfirmedBuySpaceship = {
+        methodName: 'buySpaceship',
+        contract: this.contractsAPI.contract,
+        locationId: planet.location.hash,
+        location: planet.location,
+        args: Promise.resolve([locationIdToDecStr(planetId), spaceshipType]),
+      };
+
+      let fee = bigInt(1_000_000_000_000_000).toString(); //0.001 eth
+      if (halfPrice) fee = bigInt(500_000_000_000_000).toString();
+
+      localStorage.setItem(`${this.getAccount()?.toLowerCase()}-buySpaceshipOnPlanetId`, planetId);
+      localStorage.setItem(`${this.getAccount()?.toLowerCase()}-halfPrice`, halfPrice.toString());
+
+      const tx = await this.contractsAPI.submitTransaction(txIntent, {
+        value: fee, //0.001 eth
+      });
+
+      return tx;
+    } catch (e) {
+      this.getNotificationsManager().txInitError('buySpaceship', e.message);
+      throw e;
+    }
+  }
+
+  public async donate(amount: number): Promise<Transaction<UnconfirmedDonate>> {
+    try {
+      if (!this.account) {
+        throw new Error('no account set');
+      }
+      if (this.checkGameHasEnded()) {
+        throw new Error('game has ended');
+      }
+
+      //player requirements
+      const player = this.players.get(this.account);
+      if (!player) {
+        throw new Error('no player');
+      }
+
+      // price requirements
+      const balanceEth = this.getMyBalanceEth();
+      const donationCostEth = amount * 0.001;
+      if (balanceEth < donationCostEth) {
+        throw new Error("you don't have enough ETH");
+      }
+
+      // transaction requirements
+      if (this.entityStore.transactions.hasTransaction(isUnconfirmedDonateTx)) {
+        throw new Error("you're donating");
+      }
+
+      const txIntent: UnconfirmedDonate = {
+        methodName: 'donate',
+        contract: this.contractsAPI.contract,
+        amount: amount,
+        args: Promise.resolve([amount]),
+      };
+
+      const fee = bigInt(1_000_000_000_000_000).multiply(amount).toString();
+
+      localStorage.setItem(`${this.getAccount()?.toLowerCase()}-donateAmount`, amount.toString());
+      const tx = await this.contractsAPI.submitTransaction(txIntent, {
+        value: fee,
+      });
+      return tx;
+    } catch (e) {
+      this.getNotificationsManager().txInitError('donate', e.message);
       throw e;
     }
   }
@@ -3974,7 +4949,7 @@ class GameManager extends EventEmitter {
     }
   }
 
-  // myNotice: get claimRoundEndReward back
+  // NOTE: get claimRoundEndReward back
   // /**
   //  * Receive XDAI for the claiming player based on their score rank at the end of the round.
   //  */
@@ -4078,27 +5053,31 @@ class GameManager extends EventEmitter {
    * know the location of either planet. Takes into account links.
    */
   getDist(fromId: LocationId, toId: LocationId): number {
-    const from = this.entityStore.getPlanetWithId(fromId);
-    const to = this.entityStore.getPlanetWithId(toId);
-
-    if (!from) throw new Error('origin planet unknown');
-    if (!to) throw new Error('destination planet unknown');
-    if (!isLocatable(from)) throw new Error('origin location unknown');
-    if (!isLocatable(to)) throw new Error('destination location unknown');
-
-    const wormholeFactors = this.getWormholeFactors(from, to);
-
-    let distance = this.getDistCoords(from.location.coords, to.location.coords);
-
-    if (wormholeFactors) {
-      distance /= wormholeFactors.distanceFactor;
+    const planetFrom = this.entityStore.getPlanetWithId(fromId);
+    if (!isLocatable(planetFrom)) {
+      throw new Error(
+        `origin planet not locatable (fromId: ${fromId}) (locationId: ${planetFrom?.locationId})`
+      );
     }
 
-    return distance;
+    const planetTo = this.entityStore.getPlanetWithId(toId);
+    if (!isLocatable(planetTo)) {
+      throw new Error(
+        `origin planet not locatable (toId: ${fromId}) (locationId: ${planetTo?.locationId})`
+      );
+    }
+
+    const wormholeFactors = this.getWormholeFactors(planetFrom, planetTo);
+    const distance = this.getDistCoords(planetFrom.location.coords, planetTo.location.coords);
+    const distanceFactor = wormholeFactors ? wormholeFactors.distanceFactor : 1;
+
+    return distance / distanceFactor;
   }
 
   /**
-   * Gets the distance between two coordinates in space.
+   * Gets the distance between two coordinates in space using manhattan geometry
+   *
+   * @see https://en.wikipedia.org/wiki/Taxicab_geometry
    */
   getDistCoords(fromCoords: WorldCoords, toCoords: WorldCoords) {
     return Math.sqrt((fromCoords.x - toCoords.x) ** 2 + (fromCoords.y - toCoords.y) ** 2);
@@ -4210,33 +5189,46 @@ class GameManager extends EventEmitter {
     const fromActiveArtifact = this.getActiveArtifact(fromPlanet);
     const toActiveArtifact = this.getActiveArtifact(toPlanet);
 
-    let greaterRarity: ArtifactRarity | undefined;
-
-    if (
+    const fromHasActiveWormhole =
       fromActiveArtifact?.artifactType === ArtifactType.Wormhole &&
-      fromActiveArtifact.linkTo === toPlanet.locationId
-    ) {
-      greaterRarity = fromActiveArtifact.rarity;
+      fromActiveArtifact.linkTo === toPlanet.locationId;
+    const toHasActiveWormhole =
+      toActiveArtifact?.artifactType === ArtifactType.Wormhole &&
+      toActiveArtifact.linkTo === fromPlanet.locationId;
+
+    let greaterRarity: ArtifactRarity | undefined = undefined;
+    switch (true) {
+      // active wormhole on both from and to planets choose the biggest rarity
+      case fromHasActiveWormhole && toHasActiveWormhole: {
+        greaterRarity = Math.max(
+          // @ts-ignore: we know the artifacts are set
+          fromActiveArtifact.rarity,
+          // @ts-ignore: we know the artifacts are set
+          toActiveArtifact.rarity
+        ) as ArtifactRarity;
+        break;
+      }
+      // only from planet has active wormhole, use that one
+
+      case fromHasActiveWormhole: {
+        // @ts-ignore: we know the artifact is set
+        greaterRarity = fromActiveArtifact.rarity;
+        break;
+      }
+      // only destination planet has active wormhole, use that one
+      case toHasActiveWormhole: {
+        // @ts-ignore: we know the artifact is set
+        greaterRarity = toActiveArtifact.rarity;
+        break;
+      }
     }
 
-    if (
-      toActiveArtifact?.artifactType === ArtifactType.Wormhole &&
-      toActiveArtifact.linkTo === fromPlanet.locationId
-    ) {
-      if (greaterRarity === undefined) {
-        greaterRarity = toActiveArtifact.rarity;
-      } else {
-        greaterRarity = Math.max(greaterRarity, toActiveArtifact.rarity) as ArtifactRarity;
-      }
+    if (greaterRarity === undefined || greaterRarity <= ArtifactRarity.Unknown) {
+      return undefined;
     }
 
     const rangeUpgradesPerRarity = [0, 2, 4, 6, 8, 10];
     const speedUpgradesPerRarity = [0, 10, 20, 30, 40, 50];
-
-    if (!greaterRarity || greaterRarity <= ArtifactRarity.Unknown) {
-      return undefined;
-    }
-
     return {
       distanceFactor: rangeUpgradesPerRarity[greaterRarity],
       speedFactor: speedUpgradesPerRarity[greaterRarity],
@@ -4249,20 +5241,34 @@ class GameManager extends EventEmitter {
    */
   getTimeForMove(fromId: LocationId, toId: LocationId, abandoning = false): number {
     const from = this.getPlanetWithId(fromId);
-    if (!from) throw new Error('origin planet unknown');
+    if (!isLocatable(from)) {
+      throw new Error(`Could not find planet from (fromId: ${fromId})`);
+    }
+
+    const to = this.getPlanetWithId(toId);
+    if (!isLocatable(to)) {
+      throw new Error(`Could not find planet to (toId: ${to})`);
+    }
+
+    // NOTE: The get distance will throw if both the fromId and toId planets are not located.
     const dist = this.getDist(fromId, toId);
 
-    const speed = from.speed * this.getSpeedBuff(abandoning);
+    // NOTE: The speed factor will always be 1 when SPACE_JUNK_ENABLED=false
+    const speedFactor = this.getSpeedBuff(abandoning);
+    const speed = from.speed * speedFactor;
 
     let deltaTime = dist / (speed / 100);
 
-    // //round 1
-    // const artifact = this.getActiveArtifact(from);
-    // //MyTodo:    //all photoid travel same time
-    // if (artifact?.artifactType === ArtifactType.PhotoidCannon) deltaTime = 600;
+    // NOTE: We have disabled the change the photoid travel time in seconds here
+    // all photoid travel same time
+    // if (this.getActiveArtifact(from)?.artifactType === ArtifactType.PhotoidCannon:) {
+    //     deltaTime = 600;
+    // }
 
-    const to = this.getPlanetWithId(toId);
-    if (to?.planetType === PlanetType.SILVER_BANK) deltaTime = deltaTime / 2;
+    // Destination planet is a silver bank, we travel twice as fast to these.
+    if (to.planetType === PlanetType.SILVER_BANK) {
+      deltaTime = deltaTime / 2;
+    }
 
     return deltaTime;
   }
@@ -4554,6 +5560,14 @@ class GameManager extends EventEmitter {
 
   public getPaused$(): Monomitter<boolean> {
     return this.paused$;
+  }
+
+  public getHalfPrice(): boolean {
+    return this.halfPrice;
+  }
+
+  public getHalfPrice$(): Monomitter<boolean> {
+    return this.halfPrice$;
   }
 }
 

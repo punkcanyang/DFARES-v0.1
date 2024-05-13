@@ -111,14 +111,13 @@ class MinimapSpawnPlugin {
 
       ctx.beginPath();
       ctx.arc(radiusNormalized + 2, radiusNormalized + 3, radiusNormalized, 0, 2 * Math.PI);
-      ctx.strokeStyle = 'pink';
+      ctx.strokeStyle = 'rgb(255,180,193,1)';
       ctx.fillStyle = 'rgb(255,180,193,0.5)';
       ctx.lineWidth = 4;
       ctx.stroke();
       ctx.closePath();
 
-      //draw pink circle
-
+      //draw pink circles
       const pinkZones = Array.from(df.getPinkZones());
       for (let i = 0; i < pinkZones.length; i++) {
         // console.log(pinkZones[i]);
@@ -131,12 +130,32 @@ class MinimapSpawnPlugin {
 
         ctx.beginPath();
         ctx.arc(normalizeX, normalizeY, normalizePinkCircleRadius, 0, 2 * Math.PI);
-        ctx.strokeStyle = 'pink';
+        // pink color
+        ctx.strokeStyle = 'rgb(255,180,193,1)';
         ctx.lineWidth = 1;
         ctx.fill();
         ctx.stroke();
       }
-      //myNotice:
+      // draw blue circles
+      const blueZones = Array.from(df.getBlueZones());
+      for (let i = 0; i < blueZones.length; i++) {
+        let coords = blueZones[i].coords;
+        let blueZoneRadius = blueZones[i].radius;
+        let normalizeX = normalize(coords.x);
+        let normalizeY = normalize(coords.y * -1);
+        let normalizeBlueCircleRadius = (blueZoneRadius * radiusNormalized) / radius;
+        ctx.beginPath();
+        ctx.arc(normalizeX, normalizeY, normalizeBlueCircleRadius, 0, 2 * Math.PI);
+        // blue circle
+        ctx.strokeStyle = 'rgb(0, 173, 225, 1)';
+        ctx.fillStyle = 'rgb(0, 173, 225, 0.6)';
+
+        ctx.lineWidth = 1;
+        ctx.fill();
+        ctx.stroke();
+      }
+
+      // NOTE:
       // draw inner circle of map
       // let rimNormalized = (normalize(rim) / 2) * 0.91; // idk why here need
       // to be corection??
@@ -284,52 +303,55 @@ class MinimapSpawnPlugin {
     const toWorldCoord = (val) => {
       return Math.floor((val * radius * 2) / this.sizeFactor - radius);
     };
-    // Add a click event listener to the canvas
-    this.canvas.addEventListener(
-      'click',
-      (event) => {
-        let x = event.offsetX;
-        let y = event.offsetY;
-        let xWorld = toWorldCoord(x);
-        let yWorld = toWorldCoord(y) * -1;
-        const radius = ui.getWorldRadius();
-        const rim = Math.sqrt(df.getContractConstants().SPAWN_RIM_AREA);
 
-        if (checkBounds(0, 0, xWorld, yWorld, rim)) {
-          console.log(`WRONG SELECTION TO CLOSE!!`);
-        }
-        // Check if the cursor is in the 'pointer' area
-        else if (checkBounds(0, 0, xWorld, yWorld, radius)) {
-          // Inside the world radius but outside the rim, change cursor to
-          // 'pointer'
+    // reset click
+    this.clickOccurred = false;
+    const onCanvasClick = (/** @type {MouseEvent} */ event) => {
+      let x = event.offsetX;
+      let y = event.offsetY;
+      let xWorld = toWorldCoord(x);
+      let yWorld = toWorldCoord(y) * -1;
+      const radius = ui.getWorldRadius();
+      const rim = Math.sqrt(df.getContractConstants().SPAWN_RIM_AREA);
 
-          const distFromOrigin = Math.floor(Math.sqrt(xWorld ** 2 + yWorld ** 2));
-          const spaceType = df.spaceTypeFromPerlin(
-            df.spaceTypePerlin({ x: xWorld, y: yWorld }),
-            distFromOrigin
-          );
+      if (checkBounds(0, 0, xWorld, yWorld, rim)) {
+        console.log(`WRONG SELECTION TO CLOSE!!`);
+      }
+      // Check if the cursor is in the 'pointer' area
+      else if (checkBounds(0, 0, xWorld, yWorld, radius)) {
+        // Inside the world radius but outside the rim, change cursor to
+        // 'pointer'
 
-          // Check if the space type is inner nebula (type 0)
-          if (spaceType === 0) {
-            selectedCoords = { x: xWorld, y: yWorld };
-            console.log(`[${xWorld}, ${yWorld}]`);
-            this.clickOccurred = true;
-          } else {
-            console.log(`WRONG SELECTION TO NOT A SPACE TYPE INNER NEBULA!!`);
-          }
+        const distFromOrigin = Math.floor(Math.sqrt(xWorld ** 2 + yWorld ** 2));
+        const spaceType = df.spaceTypeFromPerlin(
+          df.spaceTypePerlin({ x: xWorld, y: yWorld }),
+          distFromOrigin
+        );
+
+        // Check if the space type is inner nebula (type 0)
+        if (spaceType === 0) {
+          selectedCoords = { x: xWorld, y: yWorld };
+          console.log(`[${xWorld}, ${yWorld}]`);
+          this.clickOccurred = true;
         } else {
-          console.log(`WRONG SELECTION TO MUCH OUT!!`);
+          console.log(`WRONG SELECTION TO NOT A SPACE TYPE INNER NEBULA!!`);
         }
-      },
-      null
-    );
+      } else {
+        console.log(`WRONG SELECTION TO MUCH OUT!!`);
+      }
+    };
 
-    // Wait for the click event to occur
+    // Add a click event listener to the canvas
+    this.canvas.addEventListener('click', onCanvasClick);
+
+    // Wait for the click event to occur, and it should have happened not is
     while (!this.clickOccurred || this.moveInsideRim) {
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
     this.canvas.style.cursor = 'default';
+    this.canvas.removeEventListener('click', onCanvasClick);
+
     // Return the selected coordinates
     return selectedCoords;
   }

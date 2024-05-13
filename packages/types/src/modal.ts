@@ -20,6 +20,7 @@ export const ModalName = {
   TwitterVerify: 'TwitterVerify' as ModalName,
   Broadcast: 'Broadcast' as ModalName,
   Hats: 'Hats' as ModalName,
+  Trade: 'Trade' as ModalName,
   Settings: 'Settings' as ModalName,
   YourArtifacts: 'YourArtifacts' as ModalName,
   ManageArtifacts: 'ManageArtifacts' as ModalName,
@@ -137,6 +138,15 @@ export const TooltipName = {
    * So that you can render a tooltip without anything, and control its contents entirely via the
    * {@link TooltipTriggerProps#extraContent} prop field.
    */
+  DropBombDisabled: 'DropBombDiasbled' as TooltipName,
+  DropBomb: 'DropBomb' as TooltipName,
+  PinkDisabled: 'PinkDisabled' as TooltipName,
+  Pink: 'Pink' as TooltipName,
+  KardashevDisabled: 'KardashevDisabled' as TooltipName,
+  Kardashev: 'Kardashev' as TooltipName,
+  BlueDisabled: 'BlueDisabled' as TooltipName,
+  Blue: 'Blue' as TooltipName,
+  BuyHat: 'BuyHat' as TooltipName,
   Empty: 'Empty' as TooltipName,
 };
 

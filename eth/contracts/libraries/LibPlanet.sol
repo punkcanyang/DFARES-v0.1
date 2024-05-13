@@ -12,7 +12,7 @@ import {LibArtifactUtils} from "./LibArtifactUtils.sol";
 import {LibStorage, GameStorage, GameConstants, SnarkConstants} from "./LibStorage.sol";
 
 // Type imports
-import {Artifact, ArtifactType, DFPInitPlanetArgs, Planet, PlanetEventMetadata, PlanetType, RevealedCoords, SpaceType, Upgrade, UpgradeBranch} from "../DFTypes.sol";
+import {Artifact, ArtifactType, DFPInitPlanetArgs, Planet, PlanetEventMetadata, PlanetType, RevealedCoords, SpaceType, Upgrade, UpgradeBranch, ArtifactRarity, Biome} from "../DFTypes.sol";
 
 library LibPlanet {
     function gs() internal pure returns (GameStorage storage) {
@@ -257,30 +257,27 @@ library LibPlanet {
         require(!gs().players[msg.sender].isInitialized, "Player is already initialized");
         require(_radius <= gs().worldRadius, "Init radius is bigger than the current world radius");
 
-        if (gameConstants().SPAWN_RIM_AREA != 0) {
-            require(
-                (_radius**2 * 314) / 100 + gameConstants().SPAWN_RIM_AREA >=
-                    (gs().worldRadius**2 * 314) / 100,
-                "Player can only spawn at the universe rim"
-            );
-        }
-
         uint256[5] memory MAX_LEVEL_DIST = gameConstants().MAX_LEVEL_DIST;
-        require(_radius > MAX_LEVEL_DIST[1], "Player can only spawn at the edge of universe");
+        require(_radius >= MAX_LEVEL_DIST[1], "Player can only spawn at the edge of universe");
 
         SpaceType spaceType = LibGameUtils.spaceTypeFromPerlin(_perlin, _distFromOriginSquare);
+        require(spaceType == SpaceType.NEBULA, "Only NEBULA");
 
-        require(spaceType == SpaceType.NEBULA, "GUCK U");
-
-        //NEEDED?
+        // if (gameConstants().SPAWN_RIM_AREA != 0) {
+        //     require(
+        //         (_radius**2 * 314) / 100 + gameConstants().SPAWN_RIM_AREA >=
+        //             (gs().worldRadius**2 * 314) / 100,
+        //         "Player can only spawn at the universe rim"
+        //     );
+        // }
         require(
             _perlin >= gameConstants().INIT_PERLIN_MIN,
             "Init not allowed in perlin value less than INIT_PERLIN_MIN"
         );
-        // require(
-        //     _perlin < gameConstants().INIT_PERLIN_MAX,
-        //     "Init not allowed in perlin value greater than or equal to the INIT_PERLIN_MAX"
-        // );
+        require(
+            _perlin < gameConstants().INIT_PERLIN_MAX,
+            "Init not allowed in perlin value greater than or equal to the INIT_PERLIN_MAX"
+        );
         return true;
     }
 
@@ -289,7 +286,7 @@ library LibPlanet {
         view
         returns (
             Planet memory,
-            // myNotice: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
+            // NOTE: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
 
             uint256[16] memory eventsToRemove,
             uint256[16] memory artifactsToAdd,
@@ -298,7 +295,7 @@ library LibPlanet {
     {
         Planet memory planet = gs().planets[location];
 
-        // myNotice: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
+        // NOTE: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
 
         // first 16 are event ids to remove
         // last 16 are artifact ids that are new on the planet
@@ -359,7 +356,7 @@ library LibPlanet {
 
         (
             Planet memory planet,
-            // myNotice: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
+            // NOTE: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
 
             uint256[16] memory eventsToRemove,
             uint256[16] memory artifactIdsToAddToPlanet,
@@ -374,7 +371,7 @@ library LibPlanet {
 
         PlanetEventMetadata[] storage events = gs().planetEvents[location];
 
-        // myNotice: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
+        // NOTE: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
 
         for (uint256 toRemoveIdx = 0; toRemoveIdx < 16; toRemoveIdx++) {
             for (uint256 i = 0; i < events.length; i++) {
@@ -384,7 +381,7 @@ library LibPlanet {
                 }
             }
         }
-        // myNotice: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
+        // NOTE: when change gameConstants().MAX_RECEIVING_PLANET also need to change here
 
         for (uint256 i = 0; i < 16; i++) {
             if (artifactIdsToAddToPlanet[i] != 0) {
@@ -408,6 +405,8 @@ library LibPlanet {
             planet.silver >= silverToWithdraw,
             "tried to withdraw more silver than exists on planet"
         );
+
+        require(planet.silverCap <= silverToWithdraw * 5, "amount >= 0.2 * silverCap");
 
         planet.silver -= silverToWithdraw;
         gs().players[msg.sender].silver += silverToWithdraw;

@@ -1,4 +1,4 @@
-import { CONTRACT_PRECISION, GAS_ADJUST_DELTA } from '@dfares/constants';
+import { CONTRACT_PRECISION } from '@dfares/constants';
 import { fakeHash, mimcHash, modPBigInt, perlin } from '@dfares/hashing';
 import {
   buildContractCallArgs,
@@ -23,7 +23,9 @@ async function gamePause({}, hre: HardhatRuntimeEnvironment) {
   const contract = await hre.ethers.getContractAt('DarkForest', hre.contracts.CONTRACT_ADDRESS);
 
   const pauseReceipt = await contract.pause();
+  console.log(pauseReceipt);
   await pauseReceipt.wait();
+  console.log('admin:pause success');
 }
 
 task('admin:resume', 'resume the game').setAction(gameResume);
@@ -34,7 +36,9 @@ async function gameResume({}, hre: HardhatRuntimeEnvironment) {
   const contract = await hre.ethers.getContractAt('DarkForest', hre.contracts.CONTRACT_ADDRESS);
 
   const unpauseReceipt = await contract.unpause();
+  console.log(unpauseReceipt);
   await unpauseReceipt.wait();
+  console.log('admin:resume success');
 }
 
 task('admin:setPlanetOwner', 'sets the owner of the given planet to be the given address')
@@ -486,12 +490,15 @@ async function adminSetFinalScoreAndRank(
     const receipt = await contract.adminSetFinalScoreAndRank(
       playerAddress,
       playerScore,
-      playerRank,
-      {
-        gasPrice: Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('5000000000')).toString(),
-      }
-    ); // 5gwei
+      playerRank
+      // {
+      //   gasPrice: Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('5000000000')).toString(),
+      // }
+    );
+
+    console.log(receipt);
     await receipt.wait();
+    console.log('admin:adminSetFinalScoreAndRank success');
   } catch (e) {
     console.log(e);
   }

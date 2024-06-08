@@ -1,7 +1,16 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.0;
 
-contract UnionManagement {
+// Library imports
+import {LibDiamond} from "../vendor/libraries/LibDiamond.sol";
+
+// Storage imports
+import {WithStorage} from "../libraries/LibStorage.sol";
+//Type imports
+import {Player} from "../DFTypes.sol";
+import {DFWhitelistFacet} from "./DFWhitelistFacet.sol";
+
+contract DFUnion is WithStorage  {
     struct Union {
         address admin;
         address[] members;
@@ -35,7 +44,16 @@ contract UnionManagement {
         _;
     }
 
-    function createUnion() external {
+        modifier onlyWhitelisted() {
+        require(
+            DFWhitelistFacet(address(this)).isWhitelisted(msg.sender) ||
+                msg.sender == LibDiamond.contractOwner(),
+            "Player is not whitelisted"
+        );
+        _;
+    }
+
+    function createUnion() external onlyWhitelisted {
         require(userToUnion[msg.sender] == address(0), "Already part of a union");
 
         Union storage newUnion = unions[msg.sender];
@@ -48,7 +66,8 @@ contract UnionManagement {
         emit UnionCreated(msg.sender);
     }
 
-    function inviteToUnion(address _invitee) external onlyAdmin(userToUnion[msg.sender]) {
+    function inviteToUnion(address _invitee) external
+    onlyAdmin(userToUnion[msg.sender]) onlyWhitelisted {
         require(userToUnion[_invitee] == address(0), "Invitee already part of a union");
         require(_invitee != address(0), "Invalid invitee address");
 
@@ -58,7 +77,7 @@ contract UnionManagement {
         emit InviteSent(userToUnion[msg.sender], _invitee);
     }
 
-    function acceptInvite() external {
+    function acceptInvite() external onlyWhitelisted{
         require(userToUnion[msg.sender] == address(0), "Already part of a union");
 
         // Check for invitation
@@ -81,7 +100,7 @@ contract UnionManagement {
         emit InviteAccepted(unionAddress, msg.sender);
     }
 
-    function joinUnion(address _union) external {
+    function joinUnion(address _union) external onlyWhitelisted{
         require(userToUnion[msg.sender] == address(0), "Already part of a union");
         require(_union != address(0), "Invalid union address");
 
@@ -94,7 +113,7 @@ contract UnionManagement {
         emit UnionJoined(_union, msg.sender);
     }
 
-    function leaveUnion() external onlyMember(userToUnion[msg.sender]) {
+    function leaveUnion() external onlyMember(userToUnion[msg.sender]) onlyWhitelisted {
         address unionAddress = userToUnion[msg.sender];
         Union storage union = unions[unionAddress];
 
@@ -112,7 +131,8 @@ contract UnionManagement {
         emit UnionLeft(unionAddress, msg.sender);
     }
 
-    function kickMember(address _member) external onlyAdmin(userToUnion[msg.sender]) {
+    function kickMember(address _member) external
+    onlyAdmin(userToUnion[msg.sender]) onlyWhitelisted {
         require(_member != msg.sender, "Admin cannot kick themselves");
 
         address unionAddress = userToUnion[_member];
@@ -134,7 +154,8 @@ contract UnionManagement {
         emit UnionLeft(unionAddress, _member);
     }
 
-    function transferAdminRole(address _newAdmin) external onlyAdmin(userToUnion[msg.sender]) {
+    function transferAdminRole(address _newAdmin) external
+    onlyAdmin(userToUnion[msg.sender]) onlyWhitelisted {
         require(isMember(userToUnion[msg.sender], _newAdmin), "New admin must be a member");
 
         address unionAddress = userToUnion[msg.sender];
@@ -145,7 +166,7 @@ contract UnionManagement {
         emit AdminTransferred(unionAddress, _newAdmin);
     }
 
-    function disbandUnion() external onlyAdmin(userToUnion[msg.sender]) {
+    function disbandUnion() external onlyAdmin(userToUnion[msg.sender]) onlyWhitelisted {
         address unionAddress = userToUnion[msg.sender];
         Union storage union = unions[unionAddress];
 
@@ -159,7 +180,7 @@ contract UnionManagement {
         emit UnionDisbanded(unionAddress);
     }
 
-    function levelUpUnion() external onlyAdmin(userToUnion[msg.sender]) {
+    function levelUpUnion() external onlyAdmin(userToUnion[msg.sender]) onlyWhitelisted {
         address unionAddress = userToUnion[msg.sender];
         Union storage union = unions[unionAddress];
 

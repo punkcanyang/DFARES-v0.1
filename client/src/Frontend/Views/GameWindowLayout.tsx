@@ -28,6 +28,7 @@ import { TradePane } from '../Panes/TradePane';
 import { TransactionLogPane } from '../Panes/TransactionLogPane';
 import { TutorialPane } from '../Panes/TutorialPane';
 import { TwitterVerifyPane } from '../Panes/TwitterVerifyPane';
+import UnionContextPane from '../Panes/UnionPane';
 import { ZoomPane } from '../Panes/ZoomPane';
 import { useSelectedPlanet, useUIManager } from '../Utils/AppHooks';
 import { useOnUp } from '../Utils/KeyEmitters';
@@ -42,6 +43,7 @@ import {
   TOGGLE_TERMINAL,
   TOGGLE_TRADE_PANE,
   TOGGLE_TRANSACTIONS_PANE,
+  TOGGLE_UNION_PANE,
   TOGGLE_YOUR_ARTIFACTS_PANE,
   TOGGLE_YOUR_PLANETS_DEX_PANE,
 } from '../Utils/ShortcutConstants';
@@ -84,6 +86,8 @@ export function GameWindowLayout({
   const [transactionLogVisible, setTransactionLogVisible] = useState<boolean>(
     isModalOpen(ModalName.TransactionLog)
   );
+
+  const [unionVisible, setUnionVisible] = useState<boolean>(isModalOpen(ModalName.TransactionLog));
   const [planetdexVisible, setPlanetdexVisible] = useState<boolean>(
     isModalOpen(ModalName.PlanetDex)
   );
@@ -260,6 +264,14 @@ export function GameWindowLayout({
     }, [paneVisible, transactionLogVisible, setTransactionLogVisible])
   );
 
+  useOnUp(
+    TOGGLE_UNION_PANE,
+    useCallback(() => {
+      if (paneVisible) return;
+      setUnionVisible(!unionVisible);
+    }, [paneVisible, unionVisible, setUnionVisible])
+  );
+
   return (
     <WindowWrapper>
       <TopBarPaneContainer>
@@ -304,6 +316,8 @@ export function GameWindowLayout({
           visible={diagnosticsVisible}
           onClose={() => setDiagnosticsVisible(false)}
         />
+        <UnionContextPane visible={unionVisible} onClose={() => setUnionVisible(false)} />
+
         {modalsContainer && (
           <PluginLibraryPane
             modalsContainer={modalsContainer}
@@ -333,6 +347,7 @@ export function GameWindowLayout({
               pluginsHook={[pluginsVisible, setPluginsVisible]}
               yourArtifactsHook={[playerArtifactsVisible, setPlayerArtifactsVisible]}
               planetdexHook={[planetdexVisible, setPlanetdexVisible]}
+              unionHook={[unionVisible, setUnionVisible]}
             />
           )}
           <CanvasWrapper>

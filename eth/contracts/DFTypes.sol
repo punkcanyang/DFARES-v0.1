@@ -77,9 +77,11 @@ struct PlayerLog {
 }
 
 struct Union {
+    address admin;
     address member1;
     address member2;
     address member3;
+    uint256 createdAt;
 }
 
 struct Planet {

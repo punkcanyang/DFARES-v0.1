@@ -16,6 +16,7 @@ export interface QueuedArrival {
   distance: number;
   arrivalTime: number;
   arrivalType: ArrivalType;
+  union: EthAddress;
 }
 
 /**

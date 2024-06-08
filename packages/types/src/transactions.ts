@@ -1,6 +1,6 @@
 import type { Contract } from 'ethers';
 import type { LiteralUnion } from 'type-fest';
-import type { ArtifactId, EthAddress, LocationId } from './identifier';
+import type { ArtifactId, EthAddress, LocationId,Union } from './identifier';
 import type { WorldLocation } from './world';
 
 export type ContractMethodName =
@@ -35,7 +35,8 @@ export type ContractMethodName =
   | 'refreshPlanet'
   | 'buyPlanet'
   | 'buySpaceship'
-  | 'donate';
+  | 'donate'
+  | 'setUnion';
 
 export type EthTxStatus =
   | 'Init'
@@ -335,4 +336,12 @@ export type UnconfirmedBuySpaceship = TxIntent & {
 export type UnconfirmedDonate = TxIntent & {
   methodName: 'donate';
   amount: number;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedUnion = TxIntent & {
+  methodName: 'setUnion';
+  union: Union;
 };

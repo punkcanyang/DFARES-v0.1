@@ -102,7 +102,7 @@ export function arrive(toPlanet: Planet, arrival: Arrival): Planet {
   // apply energy
   const shipsMoved = arrival.milliEnergyArriving;
 
-  if (arrival.player !== toPlanet.owner) {
+  if (arrival.player !== toPlanet.owner || arrival.union !== toPlanet.owner) {
     // attacking enemy - includes emptyAddress
     const effectiveEnergy = shipsMoved
       .times(BigInt.fromI32(100))

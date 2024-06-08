@@ -40,4 +40,5 @@ export type Player = {
   kardashevAmount: number;
   buyPlanetAmount: number;
   buySpaceshipAmount: number;
+  union: string;
 };

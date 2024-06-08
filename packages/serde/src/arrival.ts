@@ -29,6 +29,7 @@ export function decodeArrival(rawArrival: RawArrival): QueuedArrival {
       ? undefined
       : artifactIdFromEthersBN(rawArrival.carriedArtifactId),
     arrivalType: rawArrival.arrivalType as ArrivalType,
+    union: address(rawArrival.union),
   };
 
   return arrival;

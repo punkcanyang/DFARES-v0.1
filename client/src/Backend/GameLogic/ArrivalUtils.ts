@@ -166,8 +166,8 @@ export const arrive = (
   const { energyArriving, arrivalTime } = arrival;
 
   const activeArtifact = artifactsOnPlanet.find((a) => a.lastActivated > a.lastDeactivated);
-
-  if (arrival.player !== toPlanet.owner) {
+// TODO double check here if AND or OR !!!! DIFERENT APROACH AS IN MY VERSION
+  if (arrival.player !== toPlanet.owner && arrival.union !== toPlanet.owner) {
     if (arrival.arrivalType === ArrivalType.Wormhole) {
       // if this is a wormhole arrival to a planet that isn't owned by the initiator of
       // the move, then don't move any energy

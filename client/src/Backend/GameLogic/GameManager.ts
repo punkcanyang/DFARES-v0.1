@@ -52,6 +52,7 @@ import {
   isUnconfirmedWithdrawSilverTx,
   locationIdFromBigInt,
   locationIdToDecStr,
+  isUnconfirmedUnionTx,
 } from '@dfares/serde';
 import {
   Artifact,
@@ -120,7 +121,9 @@ import {
   VoyageId,
   WorldCoords,
   WorldLocation,
+  UnconfirmedUnion,
 } from '@dfares/types';
+
 import bigInt, { BigInteger } from 'big-integer';
 import delay from 'delay';
 import { BigNumber, Contract, ContractInterface, providers } from 'ethers';
@@ -1140,7 +1143,12 @@ class GameManager extends EventEmitter {
             tx.intent.locationId,
             (p) => (p.claimer = gameManager.getAccount())
           );
+        } else if (isUnconfirmedUnionTx(tx)) {
+          await Promise.all([
+            gameManager.hardRefreshPlayer(gameManager.getAccount()),
+          ]);
         }
+
         gameManager.entityStore.clearUnconfirmedTxIntent(tx);
         gameManager.onTxConfirmed(tx);
       })
@@ -1667,6 +1675,12 @@ class GameManager extends EventEmitter {
     if (!player) return undefined;
     if (player.lastClaimTimestamp === 0) return undefined;
     return player?.score;
+  }
+
+  public getPlayerUnion(addr: EthAddress): string | undefined {
+    this.hardRefreshPlayer(addr);
+    const player = this.players.get(addr);
+    return player?.union;
   }
 
   public getPlayerSpaceJunk(addr: EthAddress): number | undefined {
@@ -4221,6 +4235,32 @@ class GameManager extends EventEmitter {
    * This function loads the planet states which live on the server. Plays nicely with our
    * notifications system and sets the appropriate loading state values on the planet.
    */
+
+  private async setPlayerUnion(union: EthAddress):  Promise<Transaction<UnconfirmedUnion>> {
+
+    try {
+      if (!this.account) throw new Error('no account');
+
+    localStorage.setItem(`${this.getAccount()?.toLowerCase()}-union`, union);
+    const txIntent: UnconfirmedUnion = {
+      methodName: 'setUnion',
+      contract: this.contractsAPI.contract,
+      args: Promise.resolve([union]),
+      union,
+    };
+
+    // Always await the submitTransaction so we can catch rejections
+    const tx = await this.contractsAPI.submitTransaction(txIntent);
+
+    return tx;
+  } catch (e) {
+    this.getNotificationsManager().txInitError('setUnion', e.message);
+    throw e;
+  }
+  //  this.playersUpdated$.publish();
+  }
+
+
   public async refreshServerPlanetStates(planetIds: LocationId[]) {
     const planets = this.getPlanetsWithIds(planetIds);
 

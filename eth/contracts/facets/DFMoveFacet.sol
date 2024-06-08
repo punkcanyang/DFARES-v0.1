@@ -166,7 +166,7 @@ contract DFMoveFacet is WithStorage {
 
         uint256 travelTime = effectiveDistTimesHundred /
             ((gs().planets[args.oldLoc].speed * gs().dynamicTimeFactor) / 100);
-
+        address union = gs().players[gs().planets[args.oldLoc].owner].union;
         // don't allow 0 second voyages, so that arrival can't be processed in same block
         if (travelTime == 0) {
             travelTime = 1;
@@ -205,7 +205,8 @@ contract DFMoveFacet is WithStorage {
                 silverMoved,
                 travelTime,
                 args.movedArtifactId,
-                arrivalType
+                arrivalType,
+                union
             )
         );
         LibGameUtils._debuffPlanet(args.oldLoc, temporaryUpgrade);
@@ -485,7 +486,8 @@ contract DFMoveFacet is WithStorage {
             arrivalTime: block.timestamp + args.travelTime,
             arrivalType: args.arrivalType,
             carriedArtifactId: args.movedArtifactId,
-            distance: args.actualDist
+            distance: args.actualDist,
+            union: gs().players[args.player].union
         });
 
         gs().targetPlanetArrivalIds[args.newLoc].push(gs().planetEventsCount);

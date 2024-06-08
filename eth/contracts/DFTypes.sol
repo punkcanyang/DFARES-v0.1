@@ -47,6 +47,7 @@ struct Player {
     uint256 buyPlanetAmount;
     uint256 buySpaceshipAmount;
     uint256 donationAmount; // amount (ether) * CONTRACT_PERCISION
+    address union;
 }
 
 struct PlayerLog {
@@ -73,6 +74,12 @@ struct PlayerLog {
     uint256 buySpaceshipCost;
     uint256 donateCnt;
     uint256 donateSum;
+}
+
+struct Union {
+    address member1;
+    address member2;
+    address member3;
 }
 
 struct Planet {
@@ -193,6 +200,7 @@ struct DFPCreateArrivalArgs {
     uint256 travelTime;
     uint256 movedArtifactId;
     ArrivalType arrivalType;
+    address union;
 }
 
 struct DFTCreateArtifactArgs {
@@ -219,6 +227,7 @@ struct ArrivalData {
     ArrivalType arrivalType;
     uint256 carriedArtifactId;
     uint256 distance;
+     address union;
 }
 
 struct PlanetDefaultStats {

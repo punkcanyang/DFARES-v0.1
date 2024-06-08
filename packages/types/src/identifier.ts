@@ -31,3 +31,10 @@ export type EthAddress = Abstract<string, 'EthAddress'>;
  * in `serde`.
  */
 export type ArtifactId = Abstract<string, 'ArtifactId'>;
+/**
+ * A unique identifier for a Dark Forest Ares Union address. This is expected to
+ *  be a 40-character, lowercase hex string, prefixed with 0x
+ * (so 42 characters in total). EthAddress should only ever be instantiated
+ * through the `address` function in `serde`.
+ */
+export type Union = Abstract<string, 'EthAddress'>;

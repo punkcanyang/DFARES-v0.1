@@ -25,11 +25,11 @@ import {
   UnconfirmedProspectPlanet,
   UnconfirmedRefreshPlanet,
   UnconfirmedReveal,
+  UnconfirmedUnion,
   UnconfirmedUpgrade,
   UnconfirmedUseKey,
   UnconfirmedWithdrawArtifact,
   UnconfirmedWithdrawSilver,
-  UnconfirmedUnion
 } from '@dfares/types';
 
 // @todo:
@@ -171,9 +171,7 @@ export function isUnconfirmedUseKey(txIntent: TxIntent): txIntent is Unconfirmed
   return txIntent.methodName === 'useKey';
 }
 
-export function isUnconfirmedUnion(
-  txIntent: TxIntent
-): txIntent is UnconfirmedUnion {
+export function isUnconfirmedUnion(txIntent: TxIntent): txIntent is UnconfirmedUnion {
   return txIntent.methodName === 'setUnion';
 }
 
@@ -321,8 +319,6 @@ export function isUnconfirmedDonateTx(tx: Transaction): tx is Transaction<Unconf
   return isUnconfirmedDonate(tx.intent);
 }
 
-export function isUnconfirmedUnionTx(
-  tx: Transaction
-): tx is Transaction<UnconfirmedUnion> {
+export function isUnconfirmedUnionTx(tx: Transaction): tx is Transaction<UnconfirmedUnion> {
   return isUnconfirmedUnion(tx.intent);
 }

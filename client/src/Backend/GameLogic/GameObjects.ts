@@ -52,7 +52,6 @@ import {
   isUnconfirmedWithdrawArtifactTx,
   isUnconfirmedWithdrawSilver,
   isUnconfirmedWithdrawSilverTx,
-  isUnconfirmedUnionTx
 } from '@dfares/serde';
 import {
   Abstract,
@@ -1307,7 +1306,7 @@ export class GameObjects {
       notifManager.planetLost(current as LocatablePlanet);
     }
     if (
-      (arrival.player !== this.address || arrival.union !== this.address )&&
+      (arrival.player !== this.address || arrival.union !== this.address) &&
       current.owner === this.address &&
       arrival.energyArriving !== 0
     ) {

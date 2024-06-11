@@ -220,7 +220,8 @@ contract DFCoreFacet is WithStorage {
             0,
             0,
             0,
-            0, msg.sender
+            0,
+            msg.sender
         );
 
         LibGameUtils.updateWorldRadius();
@@ -636,15 +637,16 @@ contract DFCoreFacet is WithStorage {
 
     // setUnionMembers
     function setUnion(address _Member1) public notPaused {
-        require( gs().players[msg.sender].isInitialized,
+        require(
+            gs().players[msg.sender].isInitialized,
             "Only initialized player can perform that operation with union."
         );
-       // require( _Member1, "Set Union member 1.");
+        // require( _Member1, "Set Union member 1.");
         // require( _Member2 , "Set Union member 2.");
-       //   require( _Member3 , "Set Union member 3.");
+        //   require( _Member3 , "Set Union member 3.");
 
         gs().players[msg.sender].union = _Member1;
 
-        emit PlayerSetUnion( msg.sender, _Member1);
+        emit PlayerSetUnion(msg.sender, _Member1);
     }
 }

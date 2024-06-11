@@ -78,10 +78,9 @@ struct PlayerLog {
 
 struct Union {
     address admin;
-    address member1;
-    address member2;
-    address member3;
-    uint256 createdAt;
+    address[] members;
+    uint256 level;
+    mapping(address => bool) invites; // Mapping to track invited addresses
 }
 
 struct Planet {
@@ -229,7 +228,7 @@ struct ArrivalData {
     ArrivalType arrivalType;
     uint256 carriedArtifactId;
     uint256 distance;
-     address union;
+    address union;
 }
 
 struct PlanetDefaultStats {

@@ -47,12 +47,12 @@ import {
   isUnconfirmedProspectPlanetTx,
   isUnconfirmedRefreshPlanetTx,
   isUnconfirmedRevealTx,
+  isUnconfirmedUnionTx,
   isUnconfirmedUpgradeTx,
   isUnconfirmedWithdrawArtifactTx,
   isUnconfirmedWithdrawSilverTx,
   locationIdFromBigInt,
   locationIdToDecStr,
-  isUnconfirmedUnionTx,
 } from '@dfares/serde';
 import {
   Artifact,
@@ -114,6 +114,7 @@ import {
   UnconfirmedProspectPlanet,
   UnconfirmedRefreshPlanet,
   UnconfirmedReveal,
+  UnconfirmedUnion,
   UnconfirmedUpgrade,
   UnconfirmedWithdrawArtifact,
   UnconfirmedWithdrawSilver,
@@ -121,9 +122,7 @@ import {
   VoyageId,
   WorldCoords,
   WorldLocation,
-  UnconfirmedUnion,
 } from '@dfares/types';
-
 import bigInt, { BigInteger } from 'big-integer';
 import delay from 'delay';
 import { BigNumber, Contract, ContractInterface, providers } from 'ethers';
@@ -1144,9 +1143,7 @@ class GameManager extends EventEmitter {
             (p) => (p.claimer = gameManager.getAccount())
           );
         } else if (isUnconfirmedUnionTx(tx)) {
-          await Promise.all([
-            gameManager.hardRefreshPlayer(gameManager.getAccount()),
-          ]);
+          await Promise.all([gameManager.hardRefreshPlayer(gameManager.getAccount())]);
         }
 
         gameManager.entityStore.clearUnconfirmedTxIntent(tx);
@@ -4236,30 +4233,28 @@ class GameManager extends EventEmitter {
    * notifications system and sets the appropriate loading state values on the planet.
    */
 
-  private async setPlayerUnion(union: EthAddress):  Promise<Transaction<UnconfirmedUnion>> {
-
+  private async setPlayerUnion(union: EthAddress): Promise<Transaction<UnconfirmedUnion>> {
     try {
       if (!this.account) throw new Error('no account');
 
-    localStorage.setItem(`${this.getAccount()?.toLowerCase()}-union`, union);
-    const txIntent: UnconfirmedUnion = {
-      methodName: 'setUnion',
-      contract: this.contractsAPI.contract,
-      args: Promise.resolve([union]),
-      union,
-    };
+      localStorage.setItem(`${this.getAccount()?.toLowerCase()}-union`, union);
+      const txIntent: UnconfirmedUnion = {
+        methodName: 'setUnion',
+        contract: this.contractsAPI.contract,
+        args: Promise.resolve([union]),
+        union,
+      };
 
-    // Always await the submitTransaction so we can catch rejections
-    const tx = await this.contractsAPI.submitTransaction(txIntent);
+      // Always await the submitTransaction so we can catch rejections
+      const tx = await this.contractsAPI.submitTransaction(txIntent);
 
-    return tx;
-  } catch (e) {
-    this.getNotificationsManager().txInitError('setUnion', e.message);
-    throw e;
+      return tx;
+    } catch (e) {
+      this.getNotificationsManager().txInitError('setUnion', e.message);
+      throw e;
+    }
+    //  this.playersUpdated$.publish();
   }
-  //  this.playersUpdated$.publish();
-  }
-
 
   public async refreshServerPlanetStates(planetIds: LocationId[]) {
     const planets = this.getPlanetsWithIds(planetIds);

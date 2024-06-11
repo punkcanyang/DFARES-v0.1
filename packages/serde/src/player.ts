@@ -42,6 +42,6 @@ export function decodePlayer(rawPlayer: RawPlayer): Player {
     kardashevAmount: rawPlayer.kardashevAmount.toNumber(),
     buyPlanetAmount: rawPlayer.buyPlanetAmount.toNumber(),
     buySpaceshipAmount: rawPlayer.buySpaceshipAmount.toNumber(),
-    union: rawPlayer.union
+    union: rawPlayer.union,
   };
 }

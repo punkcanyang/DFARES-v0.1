@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 // Type imports
-import {Planet, PlanetEventMetadata, PlanetDefaultStats, Upgrade, RevealedCoords, Player, ArrivalData, Artifact, ClaimedCoords, BurnedCoords, KardashevCoords, PlayerLog, SpaceshipConstants} from "../DFTypes.sol";
+import {Planet, PlanetEventMetadata, PlanetDefaultStats, Upgrade, RevealedCoords, Player, ArrivalData, Artifact, ClaimedCoords, BurnedCoords, KardashevCoords, Union, PlayerLog, SpaceshipConstants} from "../DFTypes.sol";
 
 struct WhitelistStorage {
     bool enabled;
@@ -90,6 +90,11 @@ struct GameStorage {
     mapping(address => uint256[]) mySpaceshipIds;
     mapping(uint256 => uint256[]) targetPlanetArrivalIds;
     bool halfPrice;
+}
+
+struct UnionStorage {
+    mapping(address => Union) unions;
+    mapping(address => address) userToUnion;
 }
 
 struct LogStorage {
@@ -277,6 +282,8 @@ library LibStorage {
     bytes32 constant GAME_STORAGE_POSITION = keccak256("darkforest.storage.game");
     bytes32 constant ANALYSIS_STORAGE_POSITION = keccak256("darkforest.storage.analysis");
     bytes32 constant WHITELIST_STORAGE_POSITION = keccak256("darkforest.storage.whitelist");
+    bytes32 constant UNION_STORAGE_POSITION = keccak256("darkforest.storage.union");
+
     // Constants are structs where the data gets configured on game initialization
     bytes32 constant GAME_CONSTANTS_POSITION = keccak256("darkforest.constants.game");
     bytes32 constant SNARK_CONSTANTS_POSITION = keccak256("darkforest.constants.snarks");
@@ -302,6 +309,13 @@ library LibStorage {
         bytes32 position = WHITELIST_STORAGE_POSITION;
         assembly {
             ws.slot := position
+        }
+    }
+
+    function unionStorage() internal pure returns (UnionStorage storage us) {
+        bytes32 position = UNION_STORAGE_POSITION;
+        assembly {
+            us.slot := position
         }
     }
 
@@ -354,6 +368,10 @@ contract WithStorage {
 
     function ws() internal pure returns (WhitelistStorage storage) {
         return LibStorage.whitelistStorage();
+    }
+
+    function us() internal pure returns (UnionStorage storage) {
+        return LibStorage.unionStorage();
     }
 
     function gameConstants() internal pure returns (GameConstants storage) {

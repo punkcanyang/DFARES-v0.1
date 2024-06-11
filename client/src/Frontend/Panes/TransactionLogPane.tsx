@@ -17,7 +17,6 @@ import {
   isUnconfirmedUpgradeTx,
   isUnconfirmedWithdrawArtifactTx,
   isUnconfirmedWithdrawSilverTx,
-  isUnconfirmedUnionTx
 } from '@dfares/serde';
 import { ModalName, Planet, TooltipName, Transaction } from '@dfares/types';
 import { IconType } from '@dfares/ui';

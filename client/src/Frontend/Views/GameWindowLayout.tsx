@@ -87,7 +87,10 @@ export function GameWindowLayout({
     isModalOpen(ModalName.TransactionLog)
   );
 
-  const [unionVisible, setUnionVisible] = useState<boolean>(isModalOpen(ModalName.TransactionLog));
+  const [unionVisible, setUnionVisible] = useState<boolean>(
+    isModalOpen(ModalName.UnionContextPane)
+  );
+
   const [planetdexVisible, setPlanetdexVisible] = useState<boolean>(
     isModalOpen(ModalName.PlanetDex)
   );

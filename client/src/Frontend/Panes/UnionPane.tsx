@@ -110,101 +110,95 @@ export default function UnionContextPane({
   }
   debugger;
   return (
-    <>
-      {visible && ( // Render only if visible is true
-        <ModalPane
-          id={ModalName.UnionContextPane} // Define a unique id for the modal
-          title={'Your Union'} // Set the modal title
-          visible={modalVisible} // Pass the visibility state
-          onClose={onClose} // Set modal visibility to false on close
-        >
-          <UnionContent>
-            <Section>
-              <SectionHeader>Union Management</SectionHeader>
+    <ModalPane
+      id={ModalName.UnionContextPane} // Define a unique id for the modal
+      title={'Your Union'} // Set the modal title
+      visible={visible} // Pass the visibility state
+      onClose={onClose} // Set modal visibility to false on close
+    >
+      <UnionContent>
+        <Section>
+          <SectionHeader>Union Management</SectionHeader>
 
+          <Row>
+            <span>ETH Address</span>
+            <span>
+              <input
+                type='text'
+                placeholder='Enter your ETH address'
+                value={ethAddress}
+                onChange={(e) => setEthAddress(e.target.value)}
+              />
+            </span>
+          </Row>
+
+          <Btn
+            disabled={isProcessing}
+            onClick={!unionCreated ? handleCreateUnion : handleJoinUnion}
+          >
+            {buttonContent}
+          </Btn>
+
+          {isMember && (
+            <>
               <Row>
-                <span>ETH Address</span>
-                <span>
-                  <input
-                    type='text'
-                    placeholder='Enter your ETH address'
-                    value={ethAddress}
-                    onChange={(e) => setEthAddress(e.target.value)}
-                  />
-                </span>
+                <h3>Union Members</h3>
               </Row>
+              <ul>
+                {unionMembers.map((member) => (
+                  <li key={member.address}>
+                    {member.address} - Joined: {member.joinTimestamp}
+                    {isAdmin && (
+                      <>
+                        <Btn onClick={() => handleKickMember(member.address)}>Kick Member</Btn>
+                        <Btn onClick={() => handleTransferAdminRole(member.address)}>
+                          Transfer Admin Role
+                        </Btn>
+                      </>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </Section>
 
-              <Btn
-                disabled={isProcessing}
-                onClick={!unionCreated ? handleCreateUnion : handleJoinUnion}
-              >
-                {buttonContent}
-              </Btn>
-
-              {isMember && (
-                <>
-                  <Row>
-                    <h3>Union Members</h3>
-                  </Row>
-                  <ul>
-                    {unionMembers.map((member) => (
-                      <li key={member.address}>
-                        {member.address} - Joined: {member.joinTimestamp}
-                        {isAdmin && (
-                          <>
-                            <Btn onClick={() => handleKickMember(member.address)}>Kick Member</Btn>
-                            <Btn onClick={() => handleTransferAdminRole(member.address)}>
-                              Transfer Admin Role
-                            </Btn>
-                          </>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              )}
-            </Section>
-
-            <Section>
-              <SectionHeader>Union Actions</SectionHeader>
-              {isAdmin && (
-                <>
-                  <Row>
-                    <span>Admin Actions:</span>
-                    <Btn onClick={handlePayFeeToLeaveImmediately}>
-                      Pay Instant Fee to Leave Immediately
-                    </Btn>
-                  </Row>
-                  <Row>
-                    <span>Disband Union</span>
-                    <Btn onClick={handleDisbandUnion}>Disband Union</Btn>
-                  </Row>
-                </>
-              )}
-              {isMember && !isAdmin && (
+        <Section>
+          <SectionHeader>Union Actions</SectionHeader>
+          {isAdmin && (
+            <>
+              <Row>
+                <span>Admin Actions:</span>
                 <Btn onClick={handlePayFeeToLeaveImmediately}>
                   Pay Instant Fee to Leave Immediately
                 </Btn>
-              )}
-            </Section>
-
-            <Section>
-              <SectionHeader>Union Settings</SectionHeader>
-              <Row>
-                <label>
-                  <input type='checkbox' />
-                  Restrict planet and artifact transfers to union members only
-                </label>
               </Row>
-            </Section>
+              <Row>
+                <span>Disband Union</span>
+                <Btn onClick={handleDisbandUnion}>Disband Union</Btn>
+              </Row>
+            </>
+          )}
+          {isMember && !isAdmin && (
+            <Btn onClick={handlePayFeeToLeaveImmediately}>Pay Instant Fee to Leave Immediately</Btn>
+          )}
+        </Section>
 
-            <Section>
-              <SectionHeader>Union Leaderboard</SectionHeader>
-              {/* Add leaderboard content here */}
-            </Section>
-          </UnionContent>
-        </ModalPane>
-      )}
-    </>
+        <Section>
+          <SectionHeader>Union Settings</SectionHeader>
+          <Row>
+            <label>
+              <input type='checkbox' />
+              Restrict planet and artifact transfers to union members only
+            </label>
+          </Row>
+        </Section>
+
+        <Section>
+          <SectionHeader>Union Leaderboard</SectionHeader>
+          {/* Add leaderboard content here */}
+        </Section>
+      </UnionContent>
+    </ModalPane>
   );
 }

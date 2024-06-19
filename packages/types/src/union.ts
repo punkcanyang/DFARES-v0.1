@@ -1,7 +1,7 @@
 import type { EthAddress } from './identifier';
 
 /**
- * Represents a player; corresponds fairly closely with the analogous contract
+ * Represents a Union; corresponds fairly closely with the analogous contract
  * struct
  */
 export type Union = {

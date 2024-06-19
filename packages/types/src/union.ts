@@ -7,6 +7,6 @@ import type { EthAddress, LocationId } from './identifier';
 export type Union = {
   admin: EthAddress;
   members: EthAddress[];
-  level: int ;
-  invites: boolean;;
+  level: number ;
+  invites: boolean;
 };

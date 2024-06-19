@@ -1431,6 +1431,10 @@ class GameUIManager extends EventEmitter {
     return this.gameManager.getPlayerUnion(player);
   }
 
+  // public getUnionPerMember(player: EthAddress): UnionDetailsPlayer {
+  //   return this.gameManager.getUnionPerMember(player);
+  // }
+
   public upgrade(planet: Planet, branch: number): void {
     // TODO: do something like JSON.stringify(args) so we know formatting is correct
     this.terminal.current?.printShellLn(`df.upgrade('${planet.locationId}', ${branch})`);

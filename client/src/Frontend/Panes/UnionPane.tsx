@@ -40,6 +40,7 @@ export default function UnionContextPane({
 }) {
   const uiManager = useUIManager();
   const account = useAccount(uiManager);
+  const gameManager = uiManager.getGameManager();
 
   const [ethAddress, setEthAddress] = useState('');
   const [unionMembers, setUnionMembers] = useState<UnionMember[]>([]);
@@ -47,52 +48,121 @@ export default function UnionContextPane({
   const [isAdmin, setIsAdmin] = useState(false);
   const [unionCreated, setUnionCreated] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
 
   useEffect(() => {
+    if (!account) return;
     // Fetch initial data, like union members, and check if the user is a member/admin
-    // This would typically involve API calls to your backend or smart contracts
-  }, []);
+    fetchUnionData();
+  }, [account]);
+
+  const fetchUnionData = async () => {
+    if (!account) return;
+    // Fetch union data logic
+    // try {
+    //   const unionTemp = (await gameManager.getUserUnion(account)) as UnionTeam;
+    //   debugger;
+    //   if (!unionTemp) {
+    //     setUnionCreated(true);
+    //     setIsMember(true);
+    //     //  const union = await gameManager.getUserUnion(unionAddress);
+    //     setIsAdmin(unionTemp?.admin === account);
+    //     setUnionMembers(
+    //       unionTemp.members.map((member: string) => ({
+    //         address: member,
+    //         joinTimestamp: new Date().toLocaleString(),
+    //       }))
+    //     ); // Add joinTimestamp appropriately
+    //   }
+    // } catch (error) {
+    //   console.error('Error fetching union data:', error);
+    // }
+  };
 
   const handleJoinUnion = async () => {
     setIsProcessing(true);
-    // Function to handle joining the union
+    // try {
+    //   await gameManager.joinUnion(ethAddress);
+    //   await fetchUnionData();
+    //   gameManager.setPlayerUnion(ethAddress as EthAddress);
+    // } catch (error) {
+    //   console.error('Error joining union:', error);
+    // }
     setIsProcessing(false);
   };
 
   const handleCreateUnion = async () => {
     setIsProcessing(true);
-    // Function to handle creating the union
+    try {
+      if (account !== undefined) {
+        // debugger;
+        await gameManager.createUnion();
+        //   await fetchUnionData();a
+
+        await gameManager.setPlayerUnion(account);
+      }
+    } catch (error) {
+      console.error('Error creating union:', error);
+    }
     setIsProcessing(false);
   };
 
   const handleLeaveUnion = async () => {
     setIsProcessing(true);
-    // Function to handle leaving the union
+    // try {
+    //   await gameManager.leaveUnion();
+    //   setIsMember(false);
+    //   setUnionCreated(false);
+    //   setUnionMembers([]);
+    //   gameManager.setPlayerUnion('');
+    // } catch (error) {
+    //   console.error('Error leaving union:', error);
+    // }
     setIsProcessing(false);
   };
 
   const handleKickMember = async (memberAddress: string) => {
     setIsProcessing(true);
-    // Function to handle kicking a member (admin only)
+    // try {
+    //   await gameManager.kickMember(memberAddress as EthAddress);
+    //   await fetchUnionData();
+    // } catch (error) {
+    //   console.error('Error kicking member:', error);
+    // }
     setIsProcessing(false);
   };
 
   const handleTransferAdminRole = async (newAdminAddress: string) => {
     setIsProcessing(true);
-    // Function to handle transferring admin role (admin only)
+    // try {
+    //   await gameManager.transferAdminRole(newAdminAddress as EthAddress);
+    //   await fetchUnionData();
+    // } catch (error) {
+    //   console.error('Error transferring admin role:', error);
+    // }
     setIsProcessing(false);
   };
 
   const handlePayFeeToLeaveImmediately = async () => {
     setIsProcessing(true);
-    // Function to handle paying a fee to leave immediately
+    // try {
+    //   // Function to handle paying a fee to leave immediately
+    // } catch (error) {
+    //   console.error('Error paying fee to leave immediately:', error);
+    // }
     setIsProcessing(false);
   };
 
   const handleDisbandUnion = async () => {
     setIsProcessing(true);
-    // Function to handle disbanding the union (admin only)
+    // try {
+    //   await gameManager.disbandUnion();
+    //   setIsMember(false);
+    //   setUnionCreated(false);
+    //   setUnionMembers([]);
+    //   gameManager.setPlayerUnion('');
+    // } catch (error) {
+    //   console.error('Error disbanding union:', error);
+    // }
     setIsProcessing(false);
   };
 
@@ -108,7 +178,7 @@ export default function UnionContextPane({
   } else {
     buttonContent = <>Leave Union</>;
   }
-  debugger;
+
   return (
     <ModalPane
       id={ModalName.UnionContextPane} // Define a unique id for the modal
@@ -120,7 +190,7 @@ export default function UnionContextPane({
         <Section>
           <SectionHeader>Union Management</SectionHeader>
 
-          <Row>
+          {/* <Row>
             <span>ETH Address</span>
             <span>
               <input
@@ -130,7 +200,7 @@ export default function UnionContextPane({
                 onChange={(e) => setEthAddress(e.target.value)}
               />
             </span>
-          </Row>
+          </Row> */}
 
           <Btn
             disabled={isProcessing}

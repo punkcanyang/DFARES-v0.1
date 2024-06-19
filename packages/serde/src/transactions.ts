@@ -26,6 +26,7 @@ import {
   UnconfirmedRefreshPlanet,
   UnconfirmedReveal,
   UnconfirmedUnion,
+  UnconfirmedCreateUnion,
   UnconfirmedUpgrade,
   UnconfirmedUseKey,
   UnconfirmedWithdrawArtifact,
@@ -175,6 +176,10 @@ export function isUnconfirmedUnion(txIntent: TxIntent): txIntent is UnconfirmedU
   return txIntent.methodName === 'setUnion';
 }
 
+export function isUnconfirmedCreateUnion(txIntent: TxIntent): txIntent is UnconfirmedCreateUnion {
+  return txIntent.methodName === 'createUnion';
+}
+
 export function isUnconfirmedRevealTx(tx: Transaction): tx is Transaction<UnconfirmedReveal> {
   return isUnconfirmedReveal(tx.intent);
 }
@@ -321,4 +326,8 @@ export function isUnconfirmedDonateTx(tx: Transaction): tx is Transaction<Unconf
 
 export function isUnconfirmedUnionTx(tx: Transaction): tx is Transaction<UnconfirmedUnion> {
   return isUnconfirmedUnion(tx.intent);
+}
+
+export function isUnconfirmedCreateUnionTx(tx: Transaction): tx is Transaction<UnconfirmedCreateUnion> {
+  return isUnconfirmedCreateUnion(tx.intent);
 }

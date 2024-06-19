@@ -8,7 +8,7 @@ import {LibDiamond} from "../vendor/libraries/LibDiamond.sol";
 import {WithStorage} from "../libraries/LibStorage.sol";
 
 //Type imports
-import {Player, Union} from "../DFTypes.sol";
+import {Player, Union, UnionDetailsPlayer} from "../DFTypes.sol";
 import {DFWhitelistFacet} from "./DFWhitelistFacet.sol";
 
 contract DFUnionFacet is WithStorage {
@@ -96,6 +96,7 @@ contract DFUnionFacet is WithStorage {
         emit InviteAccepted(unionAddress, msg.sender);
     }
 
+    // todo only for dev propose will be deleted!
     function joinUnion(address _union) external onlyWhitelisted {
         require(us().userToUnion[msg.sender] == address(0), "Already part of a union");
         require(_union != address(0), "Invalid union address");
@@ -223,5 +224,20 @@ contract DFUnionFacet is WithStorage {
             }
         }
         return unionAddresses;
+    }
+
+
+    function getUnionPerMember(address _user) external view returns (UnionDetailsPlayer memory) {
+        address unionAddress = us().userToUnion[_user];
+        Union storage union = us().unions[unionAddress];
+
+        UnionDetailsPlayer memory unionDetails = UnionDetailsPlayer({
+            admin: union.admin,
+            members: union.members,
+            level: union.level,
+            isInvited: union.invites[_user]
+        });
+
+        return unionDetails;
     }
 }

@@ -45,6 +45,7 @@ import {
   Transaction,
   TransactionId,
   TxIntent,
+  UnionDetailsPlayer,
   VoyageId,
 } from '@dfares/types';
 import { BigNumber as EthersBN, ContractFunction, Event, providers } from 'ethers';
@@ -1049,7 +1050,6 @@ export class ContractsAPI extends EventEmitter {
     const radius = (await this.makeCall<EthersBN>(this.contract.worldRadius)).toNumber();
     return radius;
   }
-
   // timestamp since epoch (in seconds)
   public async getTokenMintEndTimestamp(): Promise<number> {
     const timestamp = (
@@ -1379,6 +1379,15 @@ export class ContractsAPI extends EventEmitter {
     ret.forEach((a) => (a.transactions = new TxCollection()));
 
     return ret;
+  }
+
+  public async getUnionPerMember(playerId?: EthAddress): Promise<UnionDetailsPlayer[] | undefined> {
+    if (playerId === undefined) return [];
+
+    const unionRaw: UnionDetailsPlayer = await this.makeCall(this.contract.getUnionPerMember, [
+      playerId,
+    ]);
+    return unionRaw;
   }
 
   public async getPlayerArtifacts(

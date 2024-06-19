@@ -35,6 +35,7 @@ import {
   isUnconfirmedCapturePlanetTx,
   isUnconfirmedChangeArtifactImageTypeTx,
   isUnconfirmedClaimTx,
+  isUnconfirmedCreateUnionTx,
   isUnconfirmedDeactivateArtifactTx,
   isUnconfirmedDepositArtifactTx,
   isUnconfirmedDonateTx,
@@ -101,6 +102,7 @@ import {
   UnconfirmedCapturePlanet,
   UnconfirmedChangeArtifactImageType,
   UnconfirmedClaim,
+  UnconfirmedCreateUnion,
   UnconfirmedDeactivateArtifact,
   UnconfirmedDepositArtifact,
   UnconfirmedDonate,
@@ -118,6 +120,7 @@ import {
   UnconfirmedUpgrade,
   UnconfirmedWithdrawArtifact,
   UnconfirmedWithdrawSilver,
+  Union,
   Upgrade,
   VoyageId,
   WorldCoords,
@@ -1143,6 +1146,8 @@ class GameManager extends EventEmitter {
             (p) => (p.claimer = gameManager.getAccount())
           );
         } else if (isUnconfirmedUnionTx(tx)) {
+          await Promise.all([gameManager.hardRefreshPlayer(gameManager.getAccount())]);
+        } else if (isUnconfirmedCreateUnionTx(tx)) {
           await Promise.all([gameManager.hardRefreshPlayer(gameManager.getAccount())]);
         }
 
@@ -4233,7 +4238,7 @@ class GameManager extends EventEmitter {
    * notifications system and sets the appropriate loading state values on the planet.
    */
 
-  private async setPlayerUnion(union: EthAddress): Promise<Transaction<UnconfirmedUnion>> {
+  public async setPlayerUnion(union: Union): Promise<Transaction<UnconfirmedUnion>> {
     try {
       if (!this.account) throw new Error('no account');
 
@@ -4255,6 +4260,198 @@ class GameManager extends EventEmitter {
     }
     //  this.playersUpdated$.publish();
   }
+
+  public async createUnion(): Promise<Transaction<UnconfirmedCreateUnion>> {
+    try {
+      if (!this.account) throw new Error('no account');
+
+      //  const rawUnion = await this.getUnionPerMember(this.account);
+
+      const txIntent: UnconfirmedCreateUnion = {
+        methodName: 'createUnion',
+        contract: this.contractsAPI.contract,
+        args: Promise.resolve([]),
+      };
+
+      const tx = await this.submitTransaction(txIntent);
+
+      return tx;
+    } catch (e) {
+      this.getNotificationsManager().txInitError('createUnion', e.message);
+      throw e;
+    }
+  }
+
+  // public async getUserUnion(userAddress: EthAddress): Promise<Transaction<EthAddress> {
+  //   try {
+  //     if (!this.account) throw new Error('no account');
+
+  //     // Construct the transaction intent
+  //     const txIntent = {
+  //       methodName: 'getUserUnion',
+  //       contract: this.contractsAPI.contract,
+  //       args: Promise.resolve([userAddress]),
+  //       userAddress,
+  //     };
+
+  //     // Submit the transaction
+  //     const tx = await this.submitTransaction(txIntent);
+
+  //     // Assuming the result contains the union address
+  //     return tx;
+  //   } catch (e) {
+  //     this.getNotificationsManager().txInitError('getUserUnion', e.message);
+  //     throw e;
+  //   }
+  // }
+
+  // public async inviteToUnion(invitee: EthAddress): Promise<Transaction<UnconfirmedUnion>> {
+  //   try {
+  //     if (!this.account) throw new Error('no account');
+
+  //     const union = this.getAccountUnion();
+  //     const txIntent: UnconfirmedUnion = {
+  //       methodName: 'inviteToUnion',
+  //       contract: this.contractsAPI.contract,
+  //       args: [invitee],
+  //     };
+
+  //     return await this.submitTransaction(txIntent);
+  //   } catch (e) {
+  //     this.getNotificationsManager().txInitError('inviteToUnion', e.message);
+  //     throw e;
+  //   }
+  // }
+
+  // public async acceptInvite(): Promise<Transaction<UnconfirmedUnion>> {
+  //   try {
+  //     if (!this.account) throw new Error('no account');
+
+  //     const txIntent: UnconfirmedUnion = {
+  //       methodName: 'acceptInvite',
+  //       contract: this.contractsAPI.contract,
+  //       args: [],
+  //     };
+
+  //     return await this.submitTransaction(txIntent);
+  //   } catch (e) {
+  //     this.getNotificationsManager().txInitError('acceptInvite', e.message);
+  //     throw e;
+  //   }
+  // }
+
+  // public async joinUnion(union: EthAddress): Promise<Transaction<UnconfirmedUnion>> {
+  //   try {
+  //     if (!this.account) throw new Error('no account');
+
+  //     const txIntent: UnconfirmedUnion = {
+  //       methodName: 'joinUnion',
+  //       contract: this.contractsAPI.contract,
+  //       args: [union],
+  //     };
+
+  //     return await this.submitTransaction(txIntent);
+  //   } catch (e) {
+  //     this.getNotificationsManager().txInitError('joinUnion', e.message);
+  //     throw e;
+  //   }
+  // }
+
+  // public async leaveUnion(): Promise<Transaction<UnconfirmedUnion>> {
+  //   try {
+  //     if (!this.account) throw new Error('no account');
+
+  //     const union = this.getAccountUnion();
+  //     const txIntent: UnconfirmedUnion = {
+  //       methodName: 'leaveUnion',
+  //       contract: this.contractsAPI.contract,
+  //       args: [],
+  //     };
+
+  //     return await this.submitTransaction(txIntent);
+  //   } catch (e) {
+  //     this.getNotificationsManager().txInitError('leaveUnion', e.message);
+  //     throw e;
+  //   }
+  // }
+
+  // public async kickMember(member: EthAddress): Promise<Transaction<UnconfirmedUnion>> {
+  //   try {
+  //     if (!this.account) throw new Error('no account');
+
+  //     const union = this.getAccountUnion();
+  //     const txIntent: UnconfirmedUnion = {
+  //       methodName: 'kickMember',
+  //       contract: this.contractsAPI.contract,
+  //       args: [member],
+  //     };
+
+  //     return await this.submitTransaction(txIntent);
+  //   } catch (e) {
+  //     this.getNotificationsManager().txInitError('kickMember', e.message);
+  //     throw e;
+  //   }
+  // }
+
+  // public async transferAdminRole(newAdmin: EthAddress): Promise<Transaction<UnconfirmedUnion>> {
+  //   try {
+  //     if (!this.account) throw new Error('no account');
+
+  //     const union = this.getAccountUnion();
+  //     const txIntent: UnconfirmedUnion = {
+  //       methodName: 'transferAdminRole',
+  //       contract: this.contractsAPI.contract,
+  //       args: [newAdmin],
+  //     };
+
+  //     return await this.submitTransaction(txIntent);
+  //   } catch (e) {
+  //     this.getNotificationsManager().txInitError('transferAdminRole', e.message);
+  //     throw e;
+  //   }
+  // }
+
+  // public async disbandUnion(): Promise<Transaction<UnconfirmedUnion>> {
+  //   try {
+  //     if (!this.account) throw new Error('no account');
+
+  //     const union = this.getAccountUnion();
+  //     const txIntent: UnconfirmedUnion = {
+  //       methodName: 'disbandUnion',
+  //       contract: this.contractsAPI.contract,
+  //       args: [],
+  //     };
+
+  //     return await this.submitTransaction(txIntent);
+  //   } catch (e) {
+  //     this.getNotificationsManager().txInitError('disbandUnion', e.message);
+  //     throw e;
+  //   }
+  // }
+
+  // public async levelUpUnion(): Promise<Transaction<UnconfirmedUnion>> {
+  //   try {
+  //     if (!this.account) throw new Error('no account');
+
+  //     const union = this.getAccountUnion();
+  //     const txIntent: UnconfirmedUnion = {
+  //       methodName: 'levelUpUnion',
+  //       contract: this.contractsAPI.contract,
+  //       args: [],
+  //     };
+
+  //     return await this.submitTransaction(txIntent);
+  //   } catch (e) {
+  //     this.getNotificationsManager().txInitError('levelUpUnion', e.message);
+  //     throw e;
+  //   }
+  // }
+  // // Helper function to get the union associated with the current account
+  // private getAccountUnion(): EthAddress {
+  //   const union = localStorage.getItem(`${this.getAccount()?.toLowerCase()}-union`);
+  //   if (!union) throw new Error('Account is not part of any union');
+  //   return union as EthAddress;
+  // }
 
   public async refreshServerPlanetStates(planetIds: LocationId[]) {
     const planets = this.getPlanetsWithIds(planetIds);

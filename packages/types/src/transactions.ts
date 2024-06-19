@@ -36,7 +36,15 @@ export type ContractMethodName =
   | 'buyPlanet'
   | 'buySpaceship'
   | 'donate'
-  | 'setUnion';
+  | 'setUnion'
+  | 'createUnion'
+  | 'inviteToUnion'
+  | 'acceptInvite'
+  | 'leaveUnion'
+  | 'kickMember'
+  | 'transferAdminRole'
+  | 'disbandUnion'
+  | 'levelUpUnion';
 
 export type EthTxStatus =
   | 'Init'
@@ -344,4 +352,8 @@ export type UnconfirmedDonate = TxIntent & {
 export type UnconfirmedUnion = TxIntent & {
   methodName: 'setUnion';
   union: Union;
+};
+
+export type UnconfirmedCreateUnion = TxIntent & {
+  methodName: 'createUnion';
 };

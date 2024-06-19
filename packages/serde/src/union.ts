@@ -1,5 +1,5 @@
 import type { DarkForest } from '@dfares/contracts/typechain';
-import UnionDetailsPlayer from '@dfares/types';
+import Union from '@dfares/types';
 import { address } from './address';
 
 export type RawUnion = Awaited<ReturnType<DarkForest['unions']>>;
@@ -12,11 +12,11 @@ export type RawUnion = Awaited<ReturnType<DarkForest['unions']>>;
  * @param rawUnion result of an ethers.js contract call which returns a raw
  * `UnionTypes.Union` struct, typed with typechain.
  */
-export function decodeUnion(rawUnion: RawUnion): UnionDetailsPlayer {
+export function decodeUnion(rawUnion: RawUnion): Union {
   return {
     admin: address(rawUnion.admin),
     members: rawUnion.members,
     level: rawUnion.level,
-    isInvited: rawUnion.isInvited,
+    invites: rawUnion.invites,
   };
 }

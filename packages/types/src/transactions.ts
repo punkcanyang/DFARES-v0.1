@@ -1,6 +1,6 @@
 import type { Contract } from 'ethers';
 import type { LiteralUnion } from 'type-fest';
-import type { ArtifactId, EthAddress, LocationId, Union } from './identifier';
+import type { ArtifactId, EthAddress, LocationId } from './identifier';
 import type { WorldLocation } from './world';
 
 export type ContractMethodName =
@@ -351,7 +351,7 @@ export type UnconfirmedDonate = TxIntent & {
  */
 export type UnconfirmedUnion = TxIntent & {
   methodName: 'setUnion';
-  union: Union;
+  union: EthAddress;
 };
 
 export type UnconfirmedCreateUnion = TxIntent & {

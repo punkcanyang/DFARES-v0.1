@@ -1,4 +1,4 @@
-import type { EthAddress, LocationId } from './identifier';
+import type { EthAddress } from './identifier';
 
 /**
  * Represents a player; corresponds fairly closely with the analogous contract
@@ -7,6 +7,13 @@ import type { EthAddress, LocationId } from './identifier';
 export type Union = {
   admin: EthAddress;
   members: EthAddress[];
-  level: number ;
+  level: number;
+  invites: boolean[];
+};
+
+export type UnionMember = {
+  admin: EthAddress;
+  members: EthAddress[];
+  level: number;
   invites: boolean;
 };

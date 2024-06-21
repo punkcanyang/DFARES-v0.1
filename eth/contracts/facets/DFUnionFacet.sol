@@ -8,7 +8,7 @@ import {LibDiamond} from "../vendor/libraries/LibDiamond.sol";
 import {WithStorage} from "../libraries/LibStorage.sol";
 
 //Type imports
-import {Player, Union, UnionDetailsPlayer} from "../DFTypes.sol";
+import {Player, Union, UnionMemberData} from "../DFTypes.sol";
 import {DFWhitelistFacet} from "./DFWhitelistFacet.sol";
 
 contract DFUnionFacet is WithStorage {
@@ -18,22 +18,27 @@ contract DFUnionFacet is WithStorage {
     // uint256 public constant MEMBERS_PER_LEVEL = 2;
     // uint256 public constant MAX_LEVEL = 3;
 
-    event UnionCreated(address indexed admin);
-    event UnionJoined(address indexed union, address indexed member);
-    event UnionLeft(address indexed union, address indexed member);
-    event AdminTransferred(address indexed union, address indexed newAdmin);
-    event UnionDisbanded(address indexed union);
-    event UnionLeveledUp(address indexed union, uint256 newLevel);
-    event InviteSent(address indexed union, address indexed invitee);
-    event InviteAccepted(address indexed union, address indexed member);
+    event UnionCreated(uint256 indexed unionId);
+    event UnionJoined(uint256 indexed unionId, address indexed member);
+    event UnionLeft(uint256 indexed unionId, address indexed member);
+    event AdminTransferred(uint256 indexed unionId, address indexed newAdmin);
+    event UnionDisbanded(uint256 indexed unionId);
+    event UnionLeveledUp(uint256 indexed unionId, uint256 newLevel);
+    event InviteSent(uint256 indexed unionId, address indexed invitee);
+    event InviteAccepted(uint256 indexed unionId, address indexed member);
 
-    modifier onlyAdmin(address _union) {
-        require(us().unions[_union].admin == msg.sender, "Only admin can call this function");
+    modifier validUnion(uint256 _unionId) {
+        require(gs().unions[_unionId].unionId != 0, "valid union");
         _;
     }
 
-    modifier onlyMember(address _union) {
-        require(isMember(_union, msg.sender), "Only members can call this function");
+    modifier onlyAdmin(uint256 _unionId) {
+        require(gs().unions[_unionId].admin == msg.sender, "Only admin can call this function");
+        _;
+    }
+
+    modifier onlyMember(uint256 _unionId) {
+        require(isMember(_unionId, msg.sender), "Only members can call this function");
         _;
     }
 
@@ -46,154 +51,129 @@ contract DFUnionFacet is WithStorage {
         _;
     }
 
-    function createUnion() external onlyWhitelisted {
-        require(us().userToUnion[msg.sender] == address(0), "Already part of a union");
+    function createUnion(string memory name) external onlyWhitelisted {
+        require(gs().userToUnion[msg.sender] == 0, "Already part of a union");
+        //NOTE: start from 0
+        gs().unionIdx++;
+        gs().unionIds.push(gs().unionIdx);
 
-        Union storage newUnion = us().unions[msg.sender];
-        newUnion.admin = msg.sender;
-        newUnion.members.push(msg.sender);
-        newUnion.level = 0;
+        address[1] memory singleAddress = [msg.sender];
+        address[] memory dynamicAddresses = new address[](1);
+        dynamicAddresses[0] = singleAddress[0];
 
-        us().userToUnion[msg.sender] = msg.sender;
-
-        emit UnionCreated(msg.sender);
+        gs().unions[gs().unionIdx] = Union(gs().unionIdx, name, msg.sender, dynamicAddresses, 0);
+        gs().userToUnion[msg.sender] = gs().unionIdx;
+        emit UnionCreated(gs().unionIdx);
     }
 
-    function inviteToUnion(address _invitee)
+    function inviteToUnion(uint256 _unionId, address _invitee)
         external
-        onlyAdmin(us().userToUnion[msg.sender])
+        validUnion(_unionId)
+        onlyAdmin(_unionId)
         onlyWhitelisted
     {
-        require(us().userToUnion[_invitee] == address(0), "Invitee already part of a union");
+        require(gs().userToUnion[_invitee] == 0, "Invitee already part of a union");
         require(_invitee != address(0), "Invalid invitee address");
 
-        Union storage union = us().unions[us().userToUnion[msg.sender]];
-        union.invites[_invitee] = true;
+        Union storage union = gs().unions[gs().userToUnion[msg.sender]];
+        gs().invites[union.unionId][_invitee] = true;
 
-        emit InviteSent(us().userToUnion[msg.sender], _invitee);
+        emit InviteSent(gs().userToUnion[msg.sender], _invitee);
     }
 
-    function acceptInvite() external onlyWhitelisted {
-        require(us().userToUnion[msg.sender] == address(0), "Already part of a union");
+    function acceptInvite(uint256 _unionId) external validUnion(_unionId) onlyWhitelisted {
+        require(gs().userToUnion[msg.sender] == 0, "Already part of a union");
 
-        // Check for invitation
-        address unionAddress;
-        for (uint256 i = 0; i < getAllUnions().length; i++) {
-            if (us().unions[getAllUnions()[i]].invites[msg.sender]) {
-                unionAddress = getAllUnions()[i];
-                break;
-            }
-        }
-        require(unionAddress != address(0), "No valid invitation found");
+        require(gs().invites[_unionId][msg.sender], "not inivited");
 
-        Union storage union = us().unions[unionAddress];
+        Union storage union = gs().unions[_unionId];
         require(union.members.length < getMaxMembers(union.level), "Union is full");
 
         union.members.push(msg.sender);
-        union.invites[msg.sender] = false; // Clear the invitation
-        us().userToUnion[msg.sender] = unionAddress;
+        gs().invites[_unionId][msg.sender] = false; // Clear the invitation
+        gs().userToUnion[msg.sender] = _unionId;
 
-        emit InviteAccepted(unionAddress, msg.sender);
+        emit InviteAccepted(_unionId, msg.sender);
     }
 
-    // todo only for dev propose will be deleted!
-    function joinUnion(address _union) external onlyWhitelisted {
-        require(us().userToUnion[msg.sender] == address(0), "Already part of a union");
-        require(_union != address(0), "Invalid union address");
-
-        Union storage union = us().unions[_union];
-        require(union.members.length < getMaxMembers(union.level), "Union is full");
-
-        union.members.push(msg.sender);
-        us().userToUnion[msg.sender] = _union;
-
-        emit UnionJoined(_union, msg.sender);
-    }
-
-    function leaveUnion() external onlyMember(us().userToUnion[msg.sender]) onlyWhitelisted {
-        address unionAddress = us().userToUnion[msg.sender];
-        Union storage union = us().unions[unionAddress];
-
-        // Remove member from the union
-        for (uint256 i = 0; i < union.members.length; i++) {
-            if (union.members[i] == msg.sender) {
-                union.members[i] = union.members[union.members.length - 1];
-                union.members.pop();
-                break;
-            }
-        }
-
-        us().userToUnion[msg.sender] = address(0);
-
-        emit UnionLeft(unionAddress, msg.sender);
-    }
-
-    function kickMember(address _member)
+    function leaveUnion(uint256 _unionId)
         external
-        onlyAdmin(us().userToUnion[msg.sender])
+        validUnion(_unionId)
+        onlyMember(_unionId)
+        onlyWhitelisted
+    {
+        Union storage union = gs().unions[_unionId];
+        require(msg.sender != union.admin, "not admin");
+
+        gs().userToUnion[msg.sender] = 0;
+
+        emit UnionLeft(_unionId, msg.sender);
+    }
+
+    function kickMember(uint256 _unionId, address _member)
+        external
+        validUnion(_unionId)
+        onlyAdmin(_unionId)
         onlyWhitelisted
     {
         require(_member != msg.sender, "Admin cannot kick themselves");
+        require(gs().userToUnion[msg.sender] == _unionId, "Member is not part of your union");
 
-        address unionAddress = us().userToUnion[_member];
-        require(unionAddress == us().userToUnion[msg.sender], "Member is not part of your union");
+        Union storage union = gs().unions[_unionId];
 
-        Union storage union = us().unions[unionAddress];
+        gs().userToUnion[_member] = 0;
 
-        // Remove member from the union
-        for (uint256 i = 0; i < union.members.length; i++) {
-            if (union.members[i] == _member) {
-                union.members[i] = union.members[union.members.length - 1];
-                union.members.pop();
-                break;
-            }
-        }
-
-        us().userToUnion[_member] = address(0);
-
-        emit UnionLeft(unionAddress, _member);
+        emit UnionLeft(_unionId, _member);
     }
 
-    function transferAdminRole(address _newAdmin)
+    function transferAdminRole(uint256 _unionId, address _newAdmin)
         external
-        onlyAdmin(us().userToUnion[msg.sender])
+        validUnion(_unionId)
+        onlyAdmin(_unionId)
         onlyWhitelisted
     {
-        require(isMember(us().userToUnion[msg.sender], _newAdmin), "New admin must be a member");
-
-        address unionAddress = us().userToUnion[msg.sender];
-        Union storage union = us().unions[unionAddress];
-
+        require(isMember(_unionId, _newAdmin), "New admin must be a member");
+        Union storage union = gs().unions[_unionId];
         union.admin = _newAdmin;
 
-        emit AdminTransferred(unionAddress, _newAdmin);
+        emit AdminTransferred(_unionId, _newAdmin);
     }
 
-    function disbandUnion() external onlyAdmin(us().userToUnion[msg.sender]) onlyWhitelisted {
-        address unionAddress = us().userToUnion[msg.sender];
-        Union storage union = us().unions[unionAddress];
+    function disbandUnion(uint256 _unionId)
+        external
+        validUnion(_unionId)
+        onlyAdmin(_unionId)
+        onlyWhitelisted
+    {
+        Union storage union = gs().unions[_unionId];
 
         // Clear all members
         for (uint256 i = 0; i < union.members.length; i++) {
-            us().userToUnion[union.members[i]] = address(0);
+            gs().userToUnion[union.members[i]] = 0;
         }
 
-        delete us().unions[unionAddress];
+        delete gs().unions[_unionId];
 
-        emit UnionDisbanded(unionAddress);
+        emit UnionDisbanded(_unionId);
     }
 
-    function levelUpUnion() external onlyAdmin(us().userToUnion[msg.sender]) onlyWhitelisted {
-        address unionAddress = us().userToUnion[msg.sender];
-        Union storage union = us().unions[unionAddress];
+    function levelUpUnion(uint256 _unionId)
+        external
+        validUnion(_unionId)
+        onlyAdmin(_unionId)
+        onlyWhitelisted
+    {
+        Union storage union = gs().unions[_unionId];
 
         uint256 MAX_LEVEL = 3;
 
         require(union.level < MAX_LEVEL, "Union has reached the maximum level");
 
+        //Round 4 Todo: add more requirements
+
         union.level += 1;
 
-        emit UnionLeveledUp(unionAddress, union.level);
+        emit UnionLeveledUp(_unionId, union.level);
     }
 
     function getMaxMembers(uint256 _level) public pure returns (uint256) {
@@ -203,8 +183,8 @@ contract DFUnionFacet is WithStorage {
         return BASE_MAX_MEMBERS + _level * MEMBERS_PER_LEVEL;
     }
 
-    function isMember(address _union, address _user) public view returns (bool) {
-        Union storage union = us().unions[_union];
+    function isMember(uint256 _unionId, address _user) public view returns (bool) {
+        Union storage union = gs().unions[_unionId];
         for (uint256 i = 0; i < union.members.length; i++) {
             if (union.members[i] == _user) {
                 return true;
@@ -213,31 +193,30 @@ contract DFUnionFacet is WithStorage {
         return false;
     }
 
-    function getAllUnions() public view returns (address[] memory) {
-        uint256 totalUnions = 0;
-        address[] memory unionAddresses = new address[](totalUnions);
-        uint256 index = 0;
-        for (uint256 i = 0; i < unionAddresses.length; i++) {
-            if (us().unions[unionAddresses[i]].admin != address(0)) {
-                unionAddresses[index] = unionAddresses[i];
-                index++;
-            }
-        }
-        return unionAddresses;
+    function getAllUnions() public view returns (uint256[] memory) {
+        return gs().unionIds;
     }
 
+    function getUnionPerMember(uint256 _unionId, address _user)
+        external
+        view
+        returns (UnionMemberData memory)
+    {
+        Union storage union = gs().unions[_unionId];
 
-    function getUnionPerMember(address _user) external view returns (UnionDetailsPlayer memory) {
-        address unionAddress = us().userToUnion[_user];
-        Union storage union = us().unions[unionAddress];
-
-        UnionDetailsPlayer memory unionDetails = UnionDetailsPlayer({
-            admin: union.admin,
-            members: union.members,
-            level: union.level,
-            isInvited: union.invites[_user]
-        });
+        UnionMemberData memory unionDetails = UnionMemberData(
+            union.unionId,
+            union.name,
+            union.admin,
+            union.members,
+            union.level,
+            gs().invites[_unionId][_user]
+        );
 
         return unionDetails;
+    }
+
+    function unions(uint256 key) public view returns (Union memory) {
+        return gs().unions[key];
     }
 }

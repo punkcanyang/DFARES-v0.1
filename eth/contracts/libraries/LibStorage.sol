@@ -90,11 +90,14 @@ struct GameStorage {
     mapping(address => uint256[]) mySpaceshipIds;
     mapping(uint256 => uint256[]) targetPlanetArrivalIds;
     bool halfPrice;
-}
-
-struct UnionStorage {
-    mapping(address => Union) unions;
-    mapping(address => address) userToUnion;
+    /**
+     * Union
+     */
+    uint256[] unionIds;
+    uint256 unionIdx;
+    mapping(uint256 => Union) unions;
+    mapping(address => uint256) userToUnion;
+    mapping(uint256 => mapping(address => bool)) invites; // unionId => player => boolean
 }
 
 struct LogStorage {
@@ -312,13 +315,6 @@ library LibStorage {
         }
     }
 
-    function unionStorage() internal pure returns (UnionStorage storage us) {
-        bytes32 position = UNION_STORAGE_POSITION;
-        assembly {
-            us.slot := position
-        }
-    }
-
     function gameConstants() internal pure returns (GameConstants storage gc) {
         bytes32 position = GAME_CONSTANTS_POSITION;
         assembly {
@@ -368,10 +364,6 @@ contract WithStorage {
 
     function ws() internal pure returns (WhitelistStorage storage) {
         return LibStorage.whitelistStorage();
-    }
-
-    function us() internal pure returns (UnionStorage storage) {
-        return LibStorage.unionStorage();
     }
 
     function gameConstants() internal pure returns (GameConstants storage) {

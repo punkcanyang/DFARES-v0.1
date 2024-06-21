@@ -5,15 +5,18 @@ import type { EthAddress } from './identifier';
  * struct
  */
 export type Union = {
+  unionId: number;
+  name: string;
   admin: EthAddress;
   members: EthAddress[];
   level: number;
-  invites: boolean[];
 };
 
-export type UnionMember = {
+export type UnionMemberData = {
+  unionId: number;
+  name: string;
   admin: EthAddress;
   members: EthAddress[];
   level: number;
-  invites: boolean;
+  isInvited: boolean;
 };

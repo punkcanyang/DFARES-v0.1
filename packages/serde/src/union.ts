@@ -1,5 +1,5 @@
 import type { DarkForest } from '@dfares/contracts/typechain';
-import Union from '@dfares/types';
+import type { Union } from '@dfares/types';
 import { address } from './address';
 
 export type RawUnion = Awaited<ReturnType<DarkForest['unions']>>;
@@ -14,9 +14,10 @@ export type RawUnion = Awaited<ReturnType<DarkForest['unions']>>;
  */
 export function decodeUnion(rawUnion: RawUnion): Union {
   return {
+    unionId: rawUnion.unionId.toNumber(),
+    name: rawUnion.name,
     admin: address(rawUnion.admin),
-    members: rawUnion.members,
-    level: rawUnion.level,
-    invites: rawUnion.invites,
+    members: rawUnion.members.map((x) => address(x)),
+    level: rawUnion.level.toNumber(),
   };
 }

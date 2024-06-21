@@ -77,14 +77,16 @@ struct PlayerLog {
 }
 
 struct Union {
+    uint256 unionId;
+    string name;
     address admin;
-
     address[] members;
     uint256 level;
-    mapping(address => bool) invites; // Mapping to track invited addresses
 }
 
-struct UnionDetailsPlayer {
+struct UnionMemberData {
+    uint256 unionId;
+    string name;
     address admin;
     address[] members;
     uint256 level;

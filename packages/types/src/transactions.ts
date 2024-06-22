@@ -351,7 +351,7 @@ export type UnconfirmedDonate = TxIntent & {
  */
 export type UnconfirmedUnion = TxIntent & {
   methodName: 'setUnion';
-  union: EthAddress;
+  unionId: number;
 };
 
 export type UnconfirmedCreateUnion = TxIntent & {

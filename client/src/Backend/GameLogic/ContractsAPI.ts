@@ -22,9 +22,11 @@ import {
   decodePlanetDefaults,
   decodePlayer,
   decodeRevealedCoords,
+  decodeUnionMemberData,
   decodeUpgradeBranches,
   locationIdFromEthersBN,
   locationIdToDecStr,
+  RawUnionMemberData,
 } from '@dfares/serde';
 import {
   Artifact,
@@ -45,7 +47,7 @@ import {
   Transaction,
   TransactionId,
   TxIntent,
-  UnionDetailsPlayer,
+  UnionMemberData,
   VoyageId,
 } from '@dfares/types';
 import { BigNumber as EthersBN, ContractFunction, Event, providers } from 'ethers';
@@ -1381,13 +1383,14 @@ export class ContractsAPI extends EventEmitter {
     return ret;
   }
 
-  public async getUnionPerMember(playerId?: EthAddress): Promise<UnionDetailsPlayer[] | undefined> {
-    if (playerId === undefined) return [];
+  public async getUnionPerMember(playerId?: EthAddress): Promise<UnionMemberData | undefined> {
+    if (playerId === undefined) return undefined;
 
-    const unionRaw: UnionDetailsPlayer = await this.makeCall(this.contract.getUnionPerMember, [
+    const unionRaw: RawUnionMemberData = await this.makeCall(this.contract.getUnionPerMember, [
       playerId,
     ]);
-    return unionRaw;
+    const unionMemberData: UnionMemberData = decodeUnionMemberData(unionRaw);
+    return unionMemberData;
   }
 
   public async getPlayerArtifacts(

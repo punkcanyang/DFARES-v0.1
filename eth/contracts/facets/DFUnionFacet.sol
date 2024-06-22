@@ -12,7 +12,7 @@ import {Player, Union, UnionMemberData} from "../DFTypes.sol";
 import {DFWhitelistFacet} from "./DFWhitelistFacet.sol";
 
 contract DFUnionFacet is WithStorage {
-    // todo: maybe move to LibStorage.sol/GameConstants
+    // Round 4 Todo: maybe move to LibStorage.sol/GameConstants
     //
     // uint256 public constant BASE_MAX_MEMBERS = 3;
     // uint256 public constant MEMBERS_PER_LEVEL = 2;
@@ -26,6 +26,9 @@ contract DFUnionFacet is WithStorage {
     event UnionLeveledUp(uint256 indexed unionId, uint256 newLevel);
     event InviteSent(uint256 indexed unionId, address indexed invitee);
     event InviteAccepted(uint256 indexed unionId, address indexed member);
+
+    // Round 4 Todo: ?
+    event PlayerSetUnion(address indexed player, uint256 indexed unionId);
 
     modifier validUnion(uint256 _unionId) {
         require(gs().unions[_unionId].unionId != 0, "valid union");
@@ -48,6 +51,11 @@ contract DFUnionFacet is WithStorage {
                 msg.sender == LibDiamond.contractOwner(),
             "Player is not whitelisted"
         );
+        _;
+    }
+
+    modifier notPaused() {
+        require(!gs().paused, "Game is paused");
         _;
     }
 
@@ -218,5 +226,21 @@ contract DFUnionFacet is WithStorage {
 
     function unions(uint256 key) public view returns (Union memory) {
         return gs().unions[key];
+    }
+
+    // Round 4 Todo: why setUnion ?
+    //
+    // setUnionMembers
+    function setUnion(uint256 unionId) public notPaused {
+        require(
+            gs().players[msg.sender].isInitialized,
+            "Only initialized player can perform that operation with union."
+        );
+        // require( _Member1, "Set Union member 1.");
+        // require( _Member2 , "Set Union member 2.");
+        // require( _Member3 , "Set Union member 3.");
+        // gs().players[msg.sender].union = _Member1;
+        // emit PlayerSetUnion(msg.sender, _Member1);
+        emit PlayerSetUnion(msg.sender, unionId);
     }
 }

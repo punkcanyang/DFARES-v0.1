@@ -98,7 +98,8 @@ export default function UnionContextPane({
         await gameManager.createUnion();
         //   await fetchUnionData();a
 
-        await gameManager.setPlayerUnion(account);
+        //Round 4 Todo: change to unionId
+        // await gameManager.setPlayerUnion(account);
       }
     } catch (error) {
       console.error('Error creating union:', error);

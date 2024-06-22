@@ -16,7 +16,11 @@ export interface QueuedArrival {
   distance: number;
   arrivalTime: number;
   arrivalType: ArrivalType;
-  union: EthAddress;
+  unionId: number;
+  name: string;
+  admin: EthAddress;
+  members: EthAddress[];
+  level: number;
 }
 
 /**

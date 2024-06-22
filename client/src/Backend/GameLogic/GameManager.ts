@@ -120,7 +120,6 @@ import {
   UnconfirmedUpgrade,
   UnconfirmedWithdrawArtifact,
   UnconfirmedWithdrawSilver,
-  Union,
   Upgrade,
   VoyageId,
   WorldCoords,
@@ -1679,10 +1678,10 @@ class GameManager extends EventEmitter {
     return player?.score;
   }
 
-  public getPlayerUnion(addr: EthAddress): string | undefined {
+  public getPlayerUnionId(addr: EthAddress): number | undefined {
     this.hardRefreshPlayer(addr);
     const player = this.players.get(addr);
-    return player?.union;
+    return player?.unionId;
   }
 
   public getPlayerSpaceJunk(addr: EthAddress): number | undefined {
@@ -4229,25 +4228,17 @@ class GameManager extends EventEmitter {
     }
   }
 
-  /**
-   * We have two locations which planet state can live: on the server, and on the blockchain. We use
-   * the blockchain for the 'physics' of the universe, and the webserver for optional 'add-on'
-   * features, which are cryptographically secure, but live off-chain.
-   *
-   * This function loads the planet states which live on the server. Plays nicely with our
-   * notifications system and sets the appropriate loading state values on the planet.
-   */
-
-  public async setPlayerUnion(union: Union): Promise<Transaction<UnconfirmedUnion>> {
+  //Round 4 Todo: Union
+  public async setPlayerUnion(unionId: number): Promise<Transaction<UnconfirmedUnion>> {
     try {
       if (!this.account) throw new Error('no account');
 
-      localStorage.setItem(`${this.getAccount()?.toLowerCase()}-union`, union);
+      localStorage.setItem(`${this.getAccount()?.toLowerCase()}-unionId`, unionId.toString());
       const txIntent: UnconfirmedUnion = {
         methodName: 'setUnion',
         contract: this.contractsAPI.contract,
-        args: Promise.resolve([union]),
-        union,
+        args: Promise.resolve([unionId]),
+        unionId,
       };
 
       // Always await the submitTransaction so we can catch rejections
@@ -4453,6 +4444,14 @@ class GameManager extends EventEmitter {
   //   return union as EthAddress;
   // }
 
+  /**
+   * We have two locations which planet state can live: on the server, and on the blockchain. We use
+   * the blockchain for the 'physics' of the universe, and the webserver for optional 'add-on'
+   * features, which are cryptographically secure, but live off-chain.
+   *
+   * This function loads the planet states which live on the server. Plays nicely with our
+   * notifications system and sets the appropriate loading state values on the planet.
+   */
   public async refreshServerPlanetStates(planetIds: LocationId[]) {
     const planets = this.getPlanetsWithIds(planetIds);
 

@@ -1305,8 +1305,17 @@ export class GameObjects {
     if (previous.owner === this.address && current.owner !== this.address) {
       notifManager.planetLost(current as LocatablePlanet);
     }
+
+    let inUnion = false;
+    for (let i = 0; i < arrival.members.length; i++) {
+      if (arrival.members[i].toLowerCase() === this.address) {
+        inUnion = true;
+        break;
+      }
+    }
+
     if (
-      (arrival.player !== this.address || arrival.union !== this.address) &&
+      (arrival.player !== this.address || inUnion === false) &&
       current.owner === this.address &&
       arrival.energyArriving !== 0
     ) {

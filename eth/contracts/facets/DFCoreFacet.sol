@@ -40,7 +40,6 @@ contract DFCoreFacet is WithStorage {
     event ArtifactWithdrawn(address player, uint256 artifactId, uint256 loc);
     event ArtifactActivated(address player, uint256 artifactId, uint256 loc, uint256 linkTo); // also emitted in LibPlanet
     event ArtifactDeactivated(address player, uint256 artifactId, uint256 loc, uint256 linkTo); // also emitted in LibPlanet
-    event PlayerSetUnion(address player, address _Member1);
     //////////////////////
     /// ACCESS CONTROL ///
     //////////////////////
@@ -221,7 +220,7 @@ contract DFCoreFacet is WithStorage {
             0,
             0,
             0,
-            msg.sender
+            0
         );
 
         LibGameUtils.updateWorldRadius();
@@ -633,20 +632,5 @@ contract DFCoreFacet is WithStorage {
 
         gs().players[msg.sender].claimedShips = true;
         ls().giveSpaceShipsCnt++;
-    }
-
-    // setUnionMembers
-    function setUnion(address _Member1) public notPaused {
-        require(
-            gs().players[msg.sender].isInitialized,
-            "Only initialized player can perform that operation with union."
-        );
-        // require( _Member1, "Set Union member 1.");
-        // require( _Member2 , "Set Union member 2.");
-        //   require( _Member3 , "Set Union member 3.");
-
-        gs().players[msg.sender].union = _Member1;
-
-        emit PlayerSetUnion(msg.sender, _Member1);
     }
 }

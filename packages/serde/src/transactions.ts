@@ -11,6 +11,7 @@ import {
   UnconfirmedCapturePlanet,
   UnconfirmedChangeArtifactImageType,
   UnconfirmedClaim,
+  UnconfirmedCreateUnion,
   UnconfirmedDeactivateArtifact,
   UnconfirmedDepositArtifact,
   UnconfirmedDonate,
@@ -26,7 +27,6 @@ import {
   UnconfirmedRefreshPlanet,
   UnconfirmedReveal,
   UnconfirmedUnion,
-  UnconfirmedCreateUnion,
   UnconfirmedUpgrade,
   UnconfirmedUseKey,
   UnconfirmedWithdrawArtifact,
@@ -328,6 +328,8 @@ export function isUnconfirmedUnionTx(tx: Transaction): tx is Transaction<Unconfi
   return isUnconfirmedUnion(tx.intent);
 }
 
-export function isUnconfirmedCreateUnionTx(tx: Transaction): tx is Transaction<UnconfirmedCreateUnion> {
+export function isUnconfirmedCreateUnionTx(
+  tx: Transaction
+): tx is Transaction<UnconfirmedCreateUnion> {
   return isUnconfirmedCreateUnion(tx.intent);
 }

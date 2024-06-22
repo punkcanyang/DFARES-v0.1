@@ -1427,11 +1427,11 @@ class GameUIManager extends EventEmitter {
     return this.gameManager.getPlayerSilver(player);
   }
 
-  public getPlayerUnion(player: EthAddress): string | undefined {
-    return this.gameManager.getPlayerUnion(player);
+  public getPlayerUnionId(player: EthAddress): number | undefined {
+    return this.gameManager.getPlayerUnionId(player);
   }
 
-  // public getUnionPerMember(player: EthAddress): UnionDetailsPlayer {
+  // public getUnionPerMember(player: EthAddress): UnionMemberData {
   //   return this.gameManager.getUnionPerMember(player);
   // }
 

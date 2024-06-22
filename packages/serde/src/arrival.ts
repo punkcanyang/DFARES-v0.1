@@ -29,7 +29,11 @@ export function decodeArrival(rawArrival: RawArrival): QueuedArrival {
       ? undefined
       : artifactIdFromEthersBN(rawArrival.carriedArtifactId),
     arrivalType: rawArrival.arrivalType as ArrivalType,
-    union: address(rawArrival.union),
+    unionId: rawArrival.unionId.toNumber(),
+    name: rawArrival.name.toString(),
+    admin: address(rawArrival.admin),
+    members: rawArrival.members.map((x) => address(x)),
+    level: rawArrival.level.toNumber(),
   };
 
   return arrival;

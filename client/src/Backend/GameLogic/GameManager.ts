@@ -1245,7 +1245,7 @@ class GameManager extends EventEmitter {
     try {
       const unions = await this.getAllUnions(); // Implement getAllUnionIds based on your contract interface
       const updatedUnions: Union[] = [];
-      debugger;
+
       for (const union of unions) {
         const uniontemp = await this.contractsAPI.getUnionById(union.unionId); // Implement getUnionById based on your contract interface
         if (uniontemp) {
@@ -4420,11 +4420,15 @@ class GameManager extends EventEmitter {
   public async kickMember(member: EthAddress): Promise<Transaction<UnconfirmedKickMemberUnion>> {
     try {
       if (!this.account) throw new Error('no account');
-      debugger;
+
+      const rawUnions: Union[] | undefined = this.getPlayerUnion(this.account);
+      if (!rawUnions || rawUnions.length === 0) throw new Error('no union');
+      const union = rawUnions[0];
+
       const txIntent: UnconfirmedKickMemberUnion = {
         methodName: 'kickMember',
         contract: this.contractsAPI.contract,
-        args: Promise.resolve([member]),
+        args: Promise.resolve([union.unionId, member]),
       };
 
       return await this.submitTransaction(txIntent);
@@ -4439,11 +4443,14 @@ class GameManager extends EventEmitter {
   ): Promise<Transaction<UnconfirmedNewAdminUnion>> {
     try {
       if (!this.account) throw new Error('no account');
+      const rawUnions: Union[] | undefined = this.getPlayerUnion(this.account);
+      if (!rawUnions || rawUnions.length === 0) throw new Error('no union');
+      const union = rawUnions[0];
 
       const txIntent: UnconfirmedNewAdminUnion = {
         methodName: 'transferAdminRole',
         contract: this.contractsAPI.contract,
-        args: Promise.resolve([newAdmin]),
+        args: Promise.resolve([union.unionId, newAdmin]),
       };
 
       return await this.submitTransaction(txIntent);

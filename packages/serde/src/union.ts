@@ -1,5 +1,5 @@
 import type { DarkForest } from '@dfares/contracts/typechain';
-import type { Invite, Union, UnionMemberData } from '@dfares/types';
+import type { Union, UnionMemberData } from '@dfares/types';
 import { address } from './address';
 
 export type RawUnion = Awaited<ReturnType<DarkForest['unions']>>;
@@ -32,16 +32,5 @@ export function decodeUnionMemberData(rawUnion: RawUnionMemberData): UnionMember
     members: rawUnion.members.map((x) => address(x)),
     level: rawUnion.level.toNumber(),
     isInvited: rawUnion.isInvited,
-  };
-}
-
-export type RawInviteData = Awaited<ReturnType<DarkForest['invites']>>;
-// Function to decode the raw data into an Invite type
-export function decodeInvite(rawInvite: RawInviteData): Invite {
-  return {
-    unionId: rawInvite.unionId.toNumber(),
-    inviter: address(rawInvite.inviter),
-    invitee: address(rawInvite.invitee),
-    active: rawInvite.active,
   };
 }

@@ -98,8 +98,6 @@ struct GameStorage {
     mapping(uint256 => Union) unions;
     mapping(address => uint256) userToUnion;
     mapping(uint256 => mapping(address => bool)) invites;
-    mapping(uint256 => address[]) inviteesList; // Store list of invitees for each unionId
-    uint256[] inviteIds;
 }
 
 struct LogStorage {

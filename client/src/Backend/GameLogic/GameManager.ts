@@ -70,7 +70,6 @@ import {
   Diagnostics,
   EthAddress,
   HatType,
-  Invite,
   KardashevCoords,
   KardashevLocation,
   Link,
@@ -230,7 +229,7 @@ class GameManager extends EventEmitter {
    */
   private readonly players: Map<string, Player>;
   private readonly unions: Map<number, Union>;
-  private readonly invites: Map<number, Invite[]>;
+
   /**
    * Allows us to make contract calls, and execute transactions. Be careful about how you use this
    * guy. You don't want to cause your client to send an excessive amount of traffic to whatever
@@ -421,7 +420,6 @@ class GameManager extends EventEmitter {
     account: EthAddress | undefined,
     players: Map<string, Player>,
     unions: Map<number, Union>,
-    invites: Map<number, Invite>,
     touchedPlanets: Map<LocationId, Planet>,
     allTouchedPlanetIds: Set<LocationId>,
     revealedCoords: Map<LocationId, RevealedCoords>,
@@ -463,7 +461,6 @@ class GameManager extends EventEmitter {
     this.account = account;
     this.players = players;
     this.unions = unions;
-    this.invites = invites;
     this.worldRadius = worldRadius;
     this.networkHealth$ = monomitter(true);
     this.paused$ = monomitter(true);
@@ -871,7 +868,6 @@ class GameManager extends EventEmitter {
       account,
       initialState.players,
       initialState.unions,
-      initialState.invites,
       initialState.touchedAndLocatedPlanets,
       new Set(Array.from(initialState.allTouchedPlanetIds)),
       initialState.revealedCoordsMap,
@@ -1699,10 +1695,6 @@ class GameManager extends EventEmitter {
 
   public getAllUnions(): Union[] {
     return Array.from(this.unions.values());
-  }
-
-  public getPlayerInvites() {
-    return Array.from(this.invites.values());
   }
 
   public getUnionById(unionId: number): Union | undefined {

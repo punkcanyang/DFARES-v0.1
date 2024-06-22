@@ -489,35 +489,35 @@ contract DFGetterTwoFacet is WithStorage {
 
     // Function to fetch bulk invites
 
-    function bulkGetInvites(uint256 startIdx, uint256 endIdx) public view returns (Invite[] memory) {
-        require(startIdx < endIdx, "startIdx must be less than endIdx");
+    // function bulkGetInvites(uint256 startIdx, uint256 endIdx) public view returns (Invite[] memory) {
+    //     require(startIdx < endIdx, "startIdx must be less than endIdx");
 
-        uint256 totalInvites = gs().inviteIds.length;
-        require(endIdx <= totalInvites, "endIdx out of bounds");
+    //     uint256 totalInvites = gs().inviteIds.length;
+    //     require(endIdx <= totalInvites, "endIdx out of bounds");
 
-        uint256 length = endIdx - startIdx;
-        Invite[] memory invites = new Invite[](length);
+    //     uint256 length = endIdx - startIdx;
+    //     Invite[] memory invites = new Invite[](length);
 
-        for (uint256 i = startIdx; i < endIdx; i++) {
-            uint256 unionId = gs().inviteIds[i];
-            address[] storage inviteeAddresses = gs().inviteesList[unionId];
+    //     for (uint256 i = startIdx; i < endIdx; i++) {
+    //         uint256 unionId = gs().inviteIds[i];
+    //         address[] storage inviteeAddresses = gs().inviteesList[unionId];
 
-            for (uint256 j = 0; j < inviteeAddresses.length; j++) {
-                address invitee = inviteeAddresses[j];
-                bool active = gs().invites[unionId][invitee];
-                address inviter = address(0); // Adjust if inviter information is stored and needed
+    //         for (uint256 j = 0; j < inviteeAddresses.length; j++) {
+    //             address invitee = inviteeAddresses[j];
+    //             bool active = gs().invites[unionId][invitee];
+    //             address inviter = address(0); // Adjust if inviter information is stored and needed
 
-                invites[i - startIdx] = Invite({
-                    unionId: unionId,
-                    inviter: inviter,
-                    invitee: invitee,
-                    active: active
-                });
-            }
-        }
+    //             invites[i - startIdx] = Invite({
+    //                 unionId: unionId,
+    //                 inviter: inviter,
+    //                 invitee: invitee,
+    //                 active: active
+    //             });
+    //         }
+    //     }
 
-        return invites;
-    }
+    //     return invites;
+    // }
 
     function bulkGetUnions(uint256 startIdx, uint256 endIdx) public view returns (Union[] memory ret) {
         return _bulkGetStructs(gs().unionIds, gs().unions, startIdx, endIdx);

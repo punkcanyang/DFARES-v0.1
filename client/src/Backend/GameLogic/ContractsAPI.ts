@@ -17,7 +17,6 @@ import {
   decodeArtifactPointValues,
   decodeBurnedCoords,
   decodeClaimedCoords,
-  decodeInvite,
   decodeKardashevCoords,
   decodePlanet,
   decodePlanetDefaults,
@@ -39,7 +38,6 @@ import {
   ClaimedCoords,
   DiagnosticUpdater,
   EthAddress,
-  Invite,
   KardashevCoords,
   LocationId,
   Planet,
@@ -1074,28 +1072,28 @@ export class ContractsAPI extends EventEmitter {
     return unionMap;
   }
 
-  // Function to fetch invites
-  public async getInvites(
-    onProgress?: (fractionCompleted: number) => void
-  ): Promise<Map<number, Invite>> {
-    const nUnions: number = (await this.makeCall<EthersBN>(this.contract.getNUnions)).toNumber();
+  // // Function to fetch invites
+  // public async getInvites(
+  //   onProgress?: (fractionCompleted: number) => void
+  // ): Promise<Map<number, Invite>> {
+  //   const nUnions: number = (await this.makeCall<EthersBN>(this.contract.getNUnions)).toNumber();
 
-    const invites = await aggregateBulkGetter<Invite>(
-      nUnions,
-      200,
-      async (start, end) =>
-        (await this.makeCall(this.contract.bulkGetInvites, [start, end])).map(decodeInvite),
-      onProgress
-    );
+  //   const invites = await aggregateBulkGetter<Invite>(
+  //     nUnions,
+  //     200,
+  //     async (start, end) =>
+  //       (await this.makeCall(this.contract.bulkGetInvites, [start, end])).map(decodeInvite),
+  //     onProgress
+  //   );
 
-    const inviteMap: Map<number, Invite> = new Map();
+  //   const inviteMap: Map<number, Invite> = new Map();
 
-    for (const invite of invites) {
-      inviteMap.set(invite.unionId, invite);
-    }
+  //   for (const invite of invites) {
+  //     inviteMap.set(invite.unionId, invite);
+  //   }
 
-    return inviteMap;
-  }
+  //   return inviteMap;
+  // }
 
   public async getUnionById(unionId: number): Promise<Union | undefined> {
     const rawUnion = await this.makeCall(this.contract.unions, [unionId]);

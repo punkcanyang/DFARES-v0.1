@@ -119,26 +119,24 @@ export default function UnionContextPane({
     }
     setIsProcessing(false);
   };
-
+  // todo doesnt works
   const handleKickMember = async (memberAddress: string) => {
     setIsProcessing(true);
-    // try {
-    //   await gameManager.kickMember(memberAddress as EthAddress);
-    //   await fetchUnionData();
-    // } catch (error) {
-    //   console.error('Error kicking member:', error);
-    // }
+    try {
+      await gameManager.kickMember(memberAddress.toLowerCase() as EthAddress);
+    } catch (error) {
+      console.error('Error kicking member:', error);
+    }
     setIsProcessing(false);
   };
-
+  // todo doesnt works
   const handleTransferAdminRole = async (newAdminAddress: string) => {
     setIsProcessing(true);
-    // try {
-    //   await gameManager.transferAdminRole(newAdminAddress as EthAddress);
-    //   await fetchUnionData();
-    // } catch (error) {
-    //   console.error('Error transferring admin role:', error);
-    // }
+    try {
+      await gameManager.transferAdminRole(newAdminAddress.toLowerCase() as EthAddress);
+    } catch (error) {
+      console.error('Error transferring admin role:', error);
+    }
     setIsProcessing(false);
   };
 
@@ -215,7 +213,11 @@ export default function UnionContextPane({
               <Btn
                 disabled={isProcessing}
                 onClick={
-                  !unionCreated ? handleCreateUnion : !isMember ? handleLeaveUnion : handleLeaveUnion
+                  !unionCreated
+                    ? handleCreateUnion
+                    : !isMember
+                    ? handleLeaveUnion
+                    : handleLeaveUnion
                 }
               >
                 {buttonContent}
@@ -225,6 +227,18 @@ export default function UnionContextPane({
 
           {isMember && (
             <>
+              <Btn
+                disabled={isProcessing}
+                onClick={
+                  !unionCreated
+                    ? handleCreateUnion
+                    : !isMember
+                    ? handleLeaveUnion
+                    : handleLeaveUnion
+                }
+              >
+                {buttonContent}
+              </Btn>
               <Row>
                 <span>Address to Invite</span>
                 <span>

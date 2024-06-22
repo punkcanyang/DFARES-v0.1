@@ -104,16 +104,28 @@ contract DFUnionFacet is WithStorage {
         emit InviteAccepted(_unionId, msg.sender);
     }
 
-    function leaveUnion(uint256 _unionId)
-        external
-        validUnion(_unionId)
-        onlyMember(_unionId)
-        onlyWhitelisted
-    {
-        Union storage union = gs().unions[_unionId];
-        require(msg.sender != union.admin, "not admin");
 
-        gs().userToUnion[msg.sender] = 0;
+    function leaveUnion(uint256 _unionId) external validUnion(_unionId) onlyMember(_unionId) onlyWhitelisted {
+        Union storage union = gs().unions[_unionId];
+        require(msg.sender != union.admin, "Not admin");
+
+        // Find the index of msg.sender in union.members
+        uint256 indexToRemove;
+        for (uint256 i = 0; i < union.members.length; i++) {
+            if (union.members[i] == msg.sender) {
+                indexToRemove = i;
+                break;
+            }
+        }
+
+        require(indexToRemove < union.members.length, "Member not found");
+
+        // Swap with the last member and then pop the last member
+        union.members[indexToRemove] = union.members[union.members.length - 1];
+        union.members.pop();
+
+        // Clear user's union reference
+         gs().userToUnion[msg.sender] = 0;
 
         emit UnionLeft(_unionId, msg.sender);
     }
@@ -128,6 +140,20 @@ contract DFUnionFacet is WithStorage {
         require(gs().userToUnion[msg.sender] == _unionId, "Member is not part of your union");
 
         Union storage union = gs().unions[_unionId];
+
+        uint256 indexToRemove;
+        for (uint256 i = 0; i < union.members.length; i++) {
+            if (union.members[i] == msg.sender) {
+                indexToRemove = i;
+                break;
+            }
+        }
+
+        require(indexToRemove < union.members.length, "Member not found");
+
+        // Swap with the last member and then pop the last member
+        union.members[indexToRemove] = union.members[union.members.length - 1];
+        union.members.pop();
 
         gs().userToUnion[_member] = 0;
 

@@ -369,3 +369,19 @@ export type UnconfirmedDisbandUnion = TxIntent & {
 export type UnconfirmedInviteUnion = TxIntent & {
   methodName: 'inviteToUnion';
 };
+
+export type UnconfirmedAcceptInviteUnion = TxIntent & {
+  methodName: 'acceptInvite';
+};
+
+export type UnconfirmedKickMemberUnion = TxIntent & {
+  methodName: 'kickMember';
+};
+
+export type UnconfirmedNewAdminUnion = TxIntent & {
+  methodName: 'transferAdminRole';
+};
+
+export type UnconfirmedLevelUpUnion = TxIntent & {
+  methodName: 'levelUpUnion';
+};

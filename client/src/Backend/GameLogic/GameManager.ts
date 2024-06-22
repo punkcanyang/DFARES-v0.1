@@ -92,6 +92,7 @@ import {
   SpaceType,
   Transaction,
   TxIntent,
+  UnconfirmedAcceptInviteUnion,
   UnconfirmedActivateArtifact,
   UnconfirmedBlue,
   UnconfirmedBurn,
@@ -112,8 +113,11 @@ import {
   UnconfirmedInvadePlanet,
   UnconfirmedInviteUnion,
   UnconfirmedKardashev,
+  UnconfirmedKickMemberUnion,
   UnconfirmedLeaveUnion,
+  UnconfirmedLevelUpUnion,
   UnconfirmedMove,
+  UnconfirmedNewAdminUnion,
   UnconfirmedPink,
   UnconfirmedPlanetTransfer,
   UnconfirmedProspectPlanet,
@@ -124,6 +128,7 @@ import {
   UnconfirmedWithdrawArtifact,
   UnconfirmedWithdrawSilver,
   Union,
+  UnionMemberData,
   Upgrade,
   VoyageId,
   WorldCoords,
@@ -314,6 +319,11 @@ class GameManager extends EventEmitter {
   public readonly playersUpdated$: Monomitter<void>;
 
   /**
+   * Whenever we refresh the unions, we publish an event here.
+   */
+  public readonly unionsUpdated$: Monomitter<void>;
+
+  /**
    * Handle to an interval that periodically uploads diagnostic information from this client.
    */
   private diagnosticsInterval: ReturnType<typeof setInterval>;
@@ -325,6 +335,14 @@ class GameManager extends EventEmitter {
    * @todo move this into a new `PlayerState` class.
    */
   private playerInterval: ReturnType<typeof setInterval>;
+
+  /**
+   * Handle to an interval that periodically refreshes some information about the union from the
+   * blockchain.
+   *
+   * @todo move this into a new `PlayerState` class.
+   */
+  private unionInterval: ReturnType<typeof setInterval>;
 
   /**
    * Handle to an interval that periodically refreshes the scoreboard from our webserver.
@@ -466,6 +484,7 @@ class GameManager extends EventEmitter {
     this.paused$ = monomitter(true);
     this.halfPrice$ = monomitter(true);
     this.playersUpdated$ = monomitter();
+    this.unionsUpdated$ = monomitter();
 
     if (contractConstants.CAPTURE_ZONES_ENABLED) {
       this.captureZoneGenerator = new CaptureZoneGenerator(
@@ -608,6 +627,12 @@ class GameManager extends EventEmitter {
       if (this.account) {
         this.hardRefreshPlayer(this.account);
         this.hardRefreshPlayerSpaceships(this.account);
+      }
+    }, 10_000);
+
+    this.unionInterval = setInterval(() => {
+      if (this.account) {
+        this.hardRefreshUnions();
       }
     }, 10_000);
 
@@ -761,6 +786,7 @@ class GameManager extends EventEmitter {
     this.contractsAPI.destroy();
     this.persistentChunkStore.destroy();
     clearInterval(this.playerInterval);
+    clearInterval(this.unionInterval);
     // NOTE: event
     // clearInterval(this.diagnosticsInterval);
     clearInterval(this.scoreboardInterval);
@@ -1213,6 +1239,30 @@ class GameManager extends EventEmitter {
 
     this.players.set(address, playerFromBlockchain);
     this.playersUpdated$.publish();
+  }
+
+  private async hardRefreshUnions(): Promise<void> {
+    try {
+      const unions = await this.getAllUnions(); // Implement getAllUnionIds based on your contract interface
+      const updatedUnions: Union[] = [];
+      debugger;
+      for (const union of unions) {
+        const uniontemp = await this.contractsAPI.getUnionById(union.unionId); // Implement getUnionById based on your contract interface
+        if (uniontemp) {
+          updatedUnions.push(uniontemp);
+        }
+      }
+
+      // Update local storage of unions (this.unions assuming it's a Map<number, Union>)
+      updatedUnions.forEach((union) => {
+        this.unions.set(union.unionId, union);
+      });
+
+      this.unionsUpdated$.publish(); // Assuming this triggers an update in your UI or state management
+    } catch (error) {
+      console.error('Error refreshing unions:', error);
+      // Handle error as needed, e.g., show error message to user
+    }
   }
 
   private async hardRefreshPlayerSpaceships(address?: EthAddress, show?: boolean): Promise<void> {
@@ -1701,6 +1751,24 @@ class GameManager extends EventEmitter {
     // Retrieve the union from the map by its ID
     const union = this.unions.get(unionId);
     return union;
+  }
+
+  public async getUnionDetailsForMember(
+    unionId: number,
+    playerId: string
+  ): Promise<UnionMemberData | undefined> {
+    if (!playerId) {
+      console.warn('No player ID provided.');
+      return undefined;
+    }
+
+    try {
+      const unionDetails = await this.contractsAPI.getUnionPerMember(unionId, playerId);
+      return unionDetails;
+    } catch (error) {
+      console.error('Error fetching union details for member:', error);
+      return undefined;
+    }
   }
 
   public getPlayerSpaceJunk(addr: EthAddress): number | undefined {
@@ -4290,29 +4358,6 @@ class GameManager extends EventEmitter {
     }
   }
 
-  // public async getUserUnion(userAddress: EthAddress): Promise<Transaction<EthAddress> {
-  //   try {
-  //     if (!this.account) throw new Error('no account');
-
-  //     // Construct the transaction intent
-  //     const txIntent = {
-  //       methodName: 'getUserUnion',
-  //       contract: this.contractsAPI.contract,
-  //       args: Promise.resolve([userAddress]),
-  //       userAddress,
-  //     };
-
-  //     // Submit the transaction
-  //     const tx = await this.submitTransaction(txIntent);
-
-  //     // Assuming the result contains the union address
-  //     return tx;
-  //   } catch (e) {
-  //     this.getNotificationsManager().txInitError('getUserUnion', e.message);
-  //     throw e;
-  //   }
-  // }
-
   public async inviteToUnion(invitee: EthAddress): Promise<Transaction<UnconfirmedInviteUnion>> {
     try {
       if (!this.account) throw new Error('no account');
@@ -4333,40 +4378,6 @@ class GameManager extends EventEmitter {
     }
   }
 
-  // public async acceptInvite(): Promise<Transaction<UnconfirmedUnion>> {
-  //   try {
-  //     if (!this.account) throw new Error('no account');
-
-  //     const txIntent: UnconfirmedUnion = {
-  //       methodName: 'acceptInvite',
-  //       contract: this.contractsAPI.contract,
-  //       args: [],
-  //     };
-
-  //     return await this.submitTransaction(txIntent);
-  //   } catch (e) {
-  //     this.getNotificationsManager().txInitError('acceptInvite', e.message);
-  //     throw e;
-  //   }
-  // }
-
-  // public async joinUnion(union: EthAddress): Promise<Transaction<UnconfirmedUnion>> {
-  //   try {
-  //     if (!this.account) throw new Error('no account');
-
-  //     const txIntent: UnconfirmedUnion = {
-  //       methodName: 'joinUnion',
-  //       contract: this.contractsAPI.contract,
-  //       args: [union],
-  //     };
-
-  //     return await this.submitTransaction(txIntent);
-  //   } catch (e) {
-  //     this.getNotificationsManager().txInitError('joinUnion', e.message);
-  //     throw e;
-  //   }
-  // }
-
   public async leaveUnion(): Promise<Transaction<UnconfirmedLeaveUnion>> {
     try {
       if (!this.account) throw new Error('no account');
@@ -4374,6 +4385,7 @@ class GameManager extends EventEmitter {
       const rawUnions: Union[] | undefined = this.getPlayerUnion(this.account);
       if (!rawUnions || rawUnions.length === 0) throw new Error('no union');
       const union = rawUnions[0];
+
       const txIntent: UnconfirmedLeaveUnion = {
         methodName: 'leaveUnion',
         contract: this.contractsAPI.contract,
@@ -4387,41 +4399,59 @@ class GameManager extends EventEmitter {
     }
   }
 
-  // public async kickMember(member: EthAddress): Promise<Transaction<UnconfirmedUnion>> {
-  //   try {
-  //     if (!this.account) throw new Error('no account');
+  public async acceptUnionInvite(
+    unionId: number
+  ): Promise<Transaction<UnconfirmedAcceptInviteUnion>> {
+    try {
+      if (!this.account) throw new Error('no account');
 
-  //     const union = this.getAccountUnion();
-  //     const txIntent: UnconfirmedUnion = {
-  //       methodName: 'kickMember',
-  //       contract: this.contractsAPI.contract,
-  //       args: [member],
-  //     };
+      const txIntent: UnconfirmedAcceptInviteUnion = {
+        methodName: 'acceptInvite',
+        contract: this.contractsAPI.contract,
+        args: Promise.resolve([unionId]),
+      };
+      return await this.submitTransaction(txIntent);
+    } catch (e) {
+      this.getNotificationsManager().txInitError('acceptInvite', e.message);
+      throw e;
+    }
+  }
 
-  //     return await this.submitTransaction(txIntent);
-  //   } catch (e) {
-  //     this.getNotificationsManager().txInitError('kickMember', e.message);
-  //     throw e;
-  //   }
-  // }
+  public async kickMember(member: EthAddress): Promise<Transaction<UnconfirmedKickMemberUnion>> {
+    try {
+      if (!this.account) throw new Error('no account');
+      debugger;
+      const txIntent: UnconfirmedKickMemberUnion = {
+        methodName: 'kickMember',
+        contract: this.contractsAPI.contract,
+        args: Promise.resolve([member]),
+      };
 
-  // public async transferAdminRole(newAdmin: EthAddress): Promise<Transaction<UnconfirmedUnion>> {
-  //   try {
-  //     if (!this.account) throw new Error('no account');
+      return await this.submitTransaction(txIntent);
+    } catch (e) {
+      this.getNotificationsManager().txInitError('kickMember', e.message);
+      throw e;
+    }
+  }
 
-  //     const union = this.getAccountUnion();
-  //     const txIntent: UnconfirmedUnion = {
-  //       methodName: 'transferAdminRole',
-  //       contract: this.contractsAPI.contract,
-  //       args: [newAdmin],
-  //     };
+  public async transferAdminRole(
+    newAdmin: EthAddress
+  ): Promise<Transaction<UnconfirmedNewAdminUnion>> {
+    try {
+      if (!this.account) throw new Error('no account');
 
-  //     return await this.submitTransaction(txIntent);
-  //   } catch (e) {
-  //     this.getNotificationsManager().txInitError('transferAdminRole', e.message);
-  //     throw e;
-  //   }
-  // }
+      const txIntent: UnconfirmedNewAdminUnion = {
+        methodName: 'transferAdminRole',
+        contract: this.contractsAPI.contract,
+        args: Promise.resolve([newAdmin]),
+      };
+
+      return await this.submitTransaction(txIntent);
+    } catch (e) {
+      this.getNotificationsManager().txInitError('transferAdminRole', e.message);
+      throw e;
+    }
+  }
 
   public async disbandUnion(): Promise<Transaction<UnconfirmedDisbandUnion>> {
     try {
@@ -4443,23 +4473,22 @@ class GameManager extends EventEmitter {
     }
   }
 
-  // public async levelUpUnion(): Promise<Transaction<UnconfirmedUnion>> {
-  //   try {
-  //     if (!this.account) throw new Error('no account');
+  public async levelUpUnion(): Promise<Transaction<UnconfirmedLevelUpUnion>> {
+    try {
+      if (!this.account) throw new Error('no account');
 
-  //     const union = this.getAccountUnion();
-  //     const txIntent: UnconfirmedUnion = {
-  //       methodName: 'levelUpUnion',
-  //       contract: this.contractsAPI.contract,
-  //       args: [],
-  //     };
+      const txIntent: UnconfirmedLevelUpUnion = {
+        methodName: 'levelUpUnion',
+        contract: this.contractsAPI.contract,
+        args: Promise.resolve([]),
+      };
 
-  //     return await this.submitTransaction(txIntent);
-  //   } catch (e) {
-  //     this.getNotificationsManager().txInitError('levelUpUnion', e.message);
-  //     throw e;
-  //   }
-  // }
+      return await this.submitTransaction(txIntent);
+    } catch (e) {
+      this.getNotificationsManager().txInitError('levelUpUnion', e.message);
+      throw e;
+    }
+  }
   // // Helper function to get the union associated with the current account
   // private getAccountUnion(): EthAddress {
   //   const union = localStorage.getItem(`${this.getAccount()?.toLowerCase()}-union`);

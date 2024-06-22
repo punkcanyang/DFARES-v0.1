@@ -1437,16 +1437,33 @@ export class ContractsAPI extends EventEmitter {
     return ret;
   }
 
-  public async getUnionPerMember(playerId?: EthAddress): Promise<UnionMemberData | undefined> {
-    if (playerId === undefined) return undefined;
-
-    const unionRaw: RawUnionMemberData = await this.makeCall(this.contract.getUnionPerMember, [
-      playerId,
-    ]);
-    const unionMemberData: UnionMemberData = decodeUnionMemberData(unionRaw);
-    return unionMemberData;
+  public async acceptInvite(unionId: number): Promise<void> {
+    try {
+      const tx = await this.contract.acceptInvite(unionId);
+      await tx.wait(); // Wait for the transaction to be mined
+    } catch (error) {
+      console.error('Error accepting invite:', error);
+      throw error; // Optionally handle or rethrow the error
+    }
   }
 
+  public async getUnionPerMember(
+    unionId: number,
+    playerId: string
+  ): Promise<UnionMemberData | undefined> {
+    if (!playerId) return undefined;
+
+    try {
+      const unionRaw: RawUnionMemberData = await this.contract.getUnionPerMember(unionId, playerId);
+      const unionMemberData: UnionMemberData = decodeUnionMemberData(unionRaw);
+      return unionMemberData;
+    } catch (error) {
+      console.error('Error fetching union member data:', error);
+      return undefined;
+    }
+  }
+
+  
   public async getPlayerArtifacts(
     playerId?: EthAddress,
     onProgress?: (percent: number) => void

@@ -70,6 +70,7 @@ import {
   Diagnostics,
   EthAddress,
   HatType,
+  Invite,
   KardashevCoords,
   KardashevLocation,
   Link,
@@ -105,11 +106,14 @@ import {
   UnconfirmedCreateUnion,
   UnconfirmedDeactivateArtifact,
   UnconfirmedDepositArtifact,
+  UnconfirmedDisbandUnion,
   UnconfirmedDonate,
   UnconfirmedFindArtifact,
   UnconfirmedInit,
   UnconfirmedInvadePlanet,
+  UnconfirmedInviteUnion,
   UnconfirmedKardashev,
+  UnconfirmedLeaveUnion,
   UnconfirmedMove,
   UnconfirmedPink,
   UnconfirmedPlanetTransfer,
@@ -120,6 +124,7 @@ import {
   UnconfirmedUpgrade,
   UnconfirmedWithdrawArtifact,
   UnconfirmedWithdrawSilver,
+  Union,
   Upgrade,
   VoyageId,
   WorldCoords,
@@ -224,7 +229,8 @@ class GameManager extends EventEmitter {
    * @todo move this into a new `Players` class.
    */
   private readonly players: Map<string, Player>;
-
+  private readonly unions: Map<number, Union>;
+  private readonly invites: Map<number, Invite[]>;
   /**
    * Allows us to make contract calls, and execute transactions. Be careful about how you use this
    * guy. You don't want to cause your client to send an excessive amount of traffic to whatever
@@ -414,6 +420,8 @@ class GameManager extends EventEmitter {
     terminal: React.MutableRefObject<TerminalHandle | undefined>,
     account: EthAddress | undefined,
     players: Map<string, Player>,
+    unions: Map<number, Union>,
+    invites: Map<number, Invite>,
     touchedPlanets: Map<LocationId, Planet>,
     allTouchedPlanetIds: Set<LocationId>,
     revealedCoords: Map<LocationId, RevealedCoords>,
@@ -454,6 +462,8 @@ class GameManager extends EventEmitter {
     this.terminal = terminal;
     this.account = account;
     this.players = players;
+    this.unions = unions;
+    this.invites = invites;
     this.worldRadius = worldRadius;
     this.networkHealth$ = monomitter(true);
     this.paused$ = monomitter(true);
@@ -860,6 +870,8 @@ class GameManager extends EventEmitter {
       terminal,
       account,
       initialState.players,
+      initialState.unions,
+      initialState.invites,
       initialState.touchedAndLocatedPlanets,
       new Set(Array.from(initialState.allTouchedPlanetIds)),
       initialState.revealedCoordsMap,
@@ -1677,11 +1689,26 @@ class GameManager extends EventEmitter {
     if (player.lastClaimTimestamp === 0) return undefined;
     return player?.score;
   }
+  // TODO set player.UnionID according contract DFUnionFaucet
+  public getPlayerUnion(addr: EthAddress): Union[] | undefined {
+    const union = Array.from(this.unions.values()).filter(
+      (p) => p.admin === addr || p.members.includes(addr)
+    );
+    return union;
+  }
 
-  public getPlayerUnionId(addr: EthAddress): number | undefined {
-    this.hardRefreshPlayer(addr);
-    const player = this.players.get(addr);
-    return player?.unionId;
+  public getAllUnions(): Union[] {
+    return Array.from(this.unions.values());
+  }
+
+  public getPlayerInvites() {
+    return Array.from(this.invites.values());
+  }
+
+  public getUnionById(unionId: number): Union | undefined {
+    // Retrieve the union from the map by its ID
+    const union = this.unions.get(unionId);
+    return union;
   }
 
   public getPlayerSpaceJunk(addr: EthAddress): number | undefined {
@@ -4252,16 +4279,14 @@ class GameManager extends EventEmitter {
     //  this.playersUpdated$.publish();
   }
 
-  public async createUnion(): Promise<Transaction<UnconfirmedCreateUnion>> {
+  public async createUnion(unionName: string): Promise<Transaction<UnconfirmedCreateUnion>> {
     try {
       if (!this.account) throw new Error('no account');
-
-      //  const rawUnion = await this.getUnionPerMember(this.account);
 
       const txIntent: UnconfirmedCreateUnion = {
         methodName: 'createUnion',
         contract: this.contractsAPI.contract,
-        args: Promise.resolve([]),
+        args: Promise.resolve([unionName]),
       };
 
       const tx = await this.submitTransaction(txIntent);
@@ -4296,23 +4321,25 @@ class GameManager extends EventEmitter {
   //   }
   // }
 
-  // public async inviteToUnion(invitee: EthAddress): Promise<Transaction<UnconfirmedUnion>> {
-  //   try {
-  //     if (!this.account) throw new Error('no account');
+  public async inviteToUnion(invitee: EthAddress): Promise<Transaction<UnconfirmedInviteUnion>> {
+    try {
+      if (!this.account) throw new Error('no account');
 
-  //     const union = this.getAccountUnion();
-  //     const txIntent: UnconfirmedUnion = {
-  //       methodName: 'inviteToUnion',
-  //       contract: this.contractsAPI.contract,
-  //       args: [invitee],
-  //     };
+      const rawUnions: Union[] | undefined = this.getPlayerUnion(this.account);
+      if (!rawUnions || rawUnions.length === 0) throw new Error('no union');
+      const union = rawUnions[0];
+      const txIntent: UnconfirmedInviteUnion = {
+        methodName: 'inviteToUnion',
+        contract: this.contractsAPI.contract,
+        args: Promise.resolve([union.unionId, invitee]),
+      };
 
-  //     return await this.submitTransaction(txIntent);
-  //   } catch (e) {
-  //     this.getNotificationsManager().txInitError('inviteToUnion', e.message);
-  //     throw e;
-  //   }
-  // }
+      return await this.submitTransaction(txIntent);
+    } catch (e) {
+      this.getNotificationsManager().txInitError('inviteToUnion', e.message);
+      throw e;
+    }
+  }
 
   // public async acceptInvite(): Promise<Transaction<UnconfirmedUnion>> {
   //   try {
@@ -4348,23 +4375,25 @@ class GameManager extends EventEmitter {
   //   }
   // }
 
-  // public async leaveUnion(): Promise<Transaction<UnconfirmedUnion>> {
-  //   try {
-  //     if (!this.account) throw new Error('no account');
+  public async leaveUnion(): Promise<Transaction<UnconfirmedLeaveUnion>> {
+    try {
+      if (!this.account) throw new Error('no account');
 
-  //     const union = this.getAccountUnion();
-  //     const txIntent: UnconfirmedUnion = {
-  //       methodName: 'leaveUnion',
-  //       contract: this.contractsAPI.contract,
-  //       args: [],
-  //     };
+      const rawUnions: Union[] | undefined = this.getPlayerUnion(this.account);
+      if (!rawUnions || rawUnions.length === 0) throw new Error('no union');
+      const union = rawUnions[0];
+      const txIntent: UnconfirmedLeaveUnion = {
+        methodName: 'leaveUnion',
+        contract: this.contractsAPI.contract,
+        args: Promise.resolve([union.unionId]),
+      };
 
-  //     return await this.submitTransaction(txIntent);
-  //   } catch (e) {
-  //     this.getNotificationsManager().txInitError('leaveUnion', e.message);
-  //     throw e;
-  //   }
-  // }
+      return await this.submitTransaction(txIntent);
+    } catch (e) {
+      this.getNotificationsManager().txInitError('leaveUnion', e.message);
+      throw e;
+    }
+  }
 
   // public async kickMember(member: EthAddress): Promise<Transaction<UnconfirmedUnion>> {
   //   try {
@@ -4402,23 +4431,25 @@ class GameManager extends EventEmitter {
   //   }
   // }
 
-  // public async disbandUnion(): Promise<Transaction<UnconfirmedUnion>> {
-  //   try {
-  //     if (!this.account) throw new Error('no account');
+  public async disbandUnion(): Promise<Transaction<UnconfirmedDisbandUnion>> {
+    try {
+      if (!this.account) throw new Error('no account');
 
-  //     const union = this.getAccountUnion();
-  //     const txIntent: UnconfirmedUnion = {
-  //       methodName: 'disbandUnion',
-  //       contract: this.contractsAPI.contract,
-  //       args: [],
-  //     };
+      const rawUnions: Union[] | undefined = this.getPlayerUnion(this.account);
+      if (!rawUnions || rawUnions.length === 0) throw new Error('no union');
+      const union = rawUnions[0];
+      const txIntent: UnconfirmedDisbandUnion = {
+        methodName: 'disbandUnion',
+        contract: this.contractsAPI.contract,
+        args: Promise.resolve([union.unionId]),
+      };
 
-  //     return await this.submitTransaction(txIntent);
-  //   } catch (e) {
-  //     this.getNotificationsManager().txInitError('disbandUnion', e.message);
-  //     throw e;
-  //   }
-  // }
+      return await this.submitTransaction(txIntent);
+    } catch (e) {
+      this.getNotificationsManager().txInitError('disbandUnion', e.message);
+      throw e;
+    }
+  }
 
   // public async levelUpUnion(): Promise<Transaction<UnconfirmedUnion>> {
   //   try {

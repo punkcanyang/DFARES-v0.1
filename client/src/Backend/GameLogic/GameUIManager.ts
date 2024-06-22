@@ -33,6 +33,7 @@ import {
   UnconfirmedMove,
   UnconfirmedRefreshPlanet,
   UnconfirmedUpgrade,
+  Union,
   Upgrade,
   UpgradeBranchName,
   WorldCoords,
@@ -1427,13 +1428,9 @@ class GameUIManager extends EventEmitter {
     return this.gameManager.getPlayerSilver(player);
   }
 
-  public getPlayerUnionId(player: EthAddress): number | undefined {
-    return this.gameManager.getPlayerUnionId(player);
+  public getPlayerUnionId(player: EthAddress): Union[] | undefined {
+    return this.gameManager.getPlayerUnion(player);
   }
-
-  // public getUnionPerMember(player: EthAddress): UnionMemberData {
-  //   return this.gameManager.getUnionPerMember(player);
-  // }
 
   public upgrade(planet: Planet, branch: number): void {
     // TODO: do something like JSON.stringify(args) so we know formatting is correct

@@ -17,11 +17,13 @@ import {
   decodeArtifactPointValues,
   decodeBurnedCoords,
   decodeClaimedCoords,
+  decodeInvite,
   decodeKardashevCoords,
   decodePlanet,
   decodePlanetDefaults,
   decodePlayer,
   decodeRevealedCoords,
+  decodeUnion,
   decodeUnionMemberData,
   decodeUpgradeBranches,
   locationIdFromEthersBN,
@@ -37,6 +39,7 @@ import {
   ClaimedCoords,
   DiagnosticUpdater,
   EthAddress,
+  Invite,
   KardashevCoords,
   LocationId,
   Planet,
@@ -47,6 +50,7 @@ import {
   Transaction,
   TransactionId,
   TxIntent,
+  Union,
   UnionMemberData,
   VoyageId,
 } from '@dfares/types';
@@ -1046,6 +1050,58 @@ export class ContractsAPI extends EventEmitter {
 
     player.score = scoreFromBlockchain;
     return player;
+  }
+
+  public async getUnions(
+    onProgress?: (fractionCompleted: number) => void
+  ): Promise<Map<number, Union>> {
+    const nUnions: number = (await this.makeCall<EthersBN>(this.contract.getNUnions)).toNumber();
+
+    const unions = await aggregateBulkGetter<Union>(
+      nUnions,
+      200,
+      async (start, end) =>
+        (await this.makeCall(this.contract.bulkGetUnions, [start, end])).map(decodeUnion),
+      onProgress
+    );
+
+    const unionMap: Map<number, Union> = new Map();
+
+    for (const union of unions) {
+      unionMap.set(union.unionId, union);
+    }
+
+    return unionMap;
+  }
+
+  // Function to fetch invites
+  public async getInvites(
+    onProgress?: (fractionCompleted: number) => void
+  ): Promise<Map<number, Invite>> {
+    const nUnions: number = (await this.makeCall<EthersBN>(this.contract.getNUnions)).toNumber();
+
+    const invites = await aggregateBulkGetter<Invite>(
+      nUnions,
+      200,
+      async (start, end) =>
+        (await this.makeCall(this.contract.bulkGetInvites, [start, end])).map(decodeInvite),
+      onProgress
+    );
+
+    const inviteMap: Map<number, Invite> = new Map();
+
+    for (const invite of invites) {
+      inviteMap.set(invite.unionId, invite);
+    }
+
+    return inviteMap;
+  }
+
+  public async getUnionById(unionId: number): Promise<Union | undefined> {
+    const rawUnion = await this.makeCall(this.contract.unions, [unionId]);
+    const union = decodeUnion(rawUnion);
+
+    return union;
   }
 
   public async getWorldRadius(): Promise<number> {

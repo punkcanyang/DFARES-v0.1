@@ -11,7 +11,10 @@ import {LibGameUtils} from "../libraries/LibGameUtils.sol";
 import {WithStorage, GameConstants} from "../libraries/LibStorage.sol";
 
 // Type imports
-import {Artifact, ArtifactWithMetadata, RevealedCoords, ClaimedCoords, BurnedCoords, LastClaimedStruct, LastBurnedStruct, LastActivateArtifactStruct, LastBuyArtifactStruct, KardashevCoords, LastKardashevStruct, ArrivalData, PlayerLog} from "../DFTypes.sol";
+import {Artifact, ArtifactWithMetadata, RevealedCoords, ClaimedCoords,
+BurnedCoords, LastClaimedStruct, LastBurnedStruct, LastActivateArtifactStruct,
+LastBuyArtifactStruct, KardashevCoords, LastKardashevStruct, ArrivalData,
+PlayerLog, Union, Invite} from "../DFTypes.sol";
 
 contract DFGetterTwoFacet is WithStorage {
     /**
@@ -478,4 +481,85 @@ contract DFGetterTwoFacet is WithStorage {
             ret[i] = ls().hatPlayerSpent[hatType][players[i]];
         }
     }
+
+   // Function to fetch bulk invites
+    // function bulkGetInvites(uint256 startIdx, uint256 endIdx) public view returns (Invite[] memory ret) {
+    // return _bulkGetStructsInvite(gs().inviteIds, gs().invites, gs().inviteesList, startIdx, endIdx);
+    // }
+
+    // Function to fetch bulk invites
+
+    function bulkGetInvites(uint256 startIdx, uint256 endIdx) public view returns (Invite[] memory) {
+        require(startIdx < endIdx, "startIdx must be less than endIdx");
+
+        uint256 totalInvites = gs().inviteIds.length;
+        require(endIdx <= totalInvites, "endIdx out of bounds");
+
+        uint256 length = endIdx - startIdx;
+        Invite[] memory invites = new Invite[](length);
+
+        for (uint256 i = startIdx; i < endIdx; i++) {
+            uint256 unionId = gs().inviteIds[i];
+            address[] storage inviteeAddresses = gs().inviteesList[unionId];
+
+            for (uint256 j = 0; j < inviteeAddresses.length; j++) {
+                address invitee = inviteeAddresses[j];
+                bool active = gs().invites[unionId][invitee];
+                address inviter = address(0); // Adjust if inviter information is stored and needed
+
+                invites[i - startIdx] = Invite({
+                    unionId: unionId,
+                    inviter: inviter,
+                    invitee: invitee,
+                    active: active
+                });
+            }
+        }
+
+        return invites;
+    }
+
+    function bulkGetUnions(uint256 startIdx, uint256 endIdx) public view returns (Union[] memory ret) {
+        return _bulkGetStructs(gs().unionIds, gs().unions, startIdx, endIdx);
+    }
+
+    function _bulkGetStructs(uint256[] storage keys, mapping(uint256 => Union) storage data, uint256 startIdx, uint256 endIdx) internal view returns (Union[] memory ret) {
+        ret = new Union[](endIdx - startIdx);
+        for (uint256 i = startIdx; i < endIdx; i++) {
+            ret[i - startIdx] = data[keys[i]];
+        }
+    }
+
+// // Helper function to fetch invites
+// function _bulkGetStructsInvite(
+//     uint256[] storage ids,
+//     mapping(uint256 => mapping(address => bool)) storage invites,
+//     mapping(uint256 => address[]) storage inviteesList,
+//     uint256 startIdx,
+//     uint256 endIdx
+// ) internal view returns (Invite[] memory ret) {
+//     require(endIdx >= startIdx, "Invalid range");
+//     uint256 length = endIdx - startIdx;
+//     ret = new Invite[](length);
+
+//     for (uint256 i = 0; i < length; i++) {
+//         uint256 unionId = ids[startIdx + i];
+//         address[] storage inviteeAddresses = inviteesList[unionId];
+
+//         for (uint256 j = 0; j < inviteeAddresses.length; j++) {
+//             address invitee = inviteeAddresses[j];
+//             bool active = invites[unionId][invitee];
+
+//             Invite memory invite = Invite({
+//                 unionId: unionId,
+//                 inviter: address(0), // Adjust based on actual data structure
+//                 invitee: invitee,
+//                 active: active
+//             });
+
+//             ret[i] = invite;
+//         }
+//     }
+// }
+
 }

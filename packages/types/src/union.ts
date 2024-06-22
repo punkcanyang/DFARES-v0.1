@@ -20,3 +20,10 @@ export type UnionMemberData = {
   level: number;
   isInvited: boolean;
 };
+
+export type Invite = {
+  unionId: number;
+  inviter: EthAddress;
+  invitee: EthAddress;
+  active: boolean;
+};

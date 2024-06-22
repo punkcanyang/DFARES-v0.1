@@ -93,6 +93,13 @@ struct UnionMemberData {
     bool isInvited; // Mapping to track invited addresses
 }
 
+struct Invite {
+    uint256 unionId;
+    address inviter;
+    address invitee;
+    bool active;
+}
+
 struct Planet {
     address owner;
     uint256 range;

@@ -357,3 +357,15 @@ export type UnconfirmedUnion = TxIntent & {
 export type UnconfirmedCreateUnion = TxIntent & {
   methodName: 'createUnion';
 };
+
+export type UnconfirmedLeaveUnion = TxIntent & {
+  methodName: 'leaveUnion';
+};
+
+export type UnconfirmedDisbandUnion = TxIntent & {
+  methodName: 'disbandUnion';
+};
+
+export type UnconfirmedInviteUnion = TxIntent & {
+  methodName: 'inviteToUnion';
+};

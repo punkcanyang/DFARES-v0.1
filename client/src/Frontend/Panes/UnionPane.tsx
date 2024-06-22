@@ -1,4 +1,4 @@
-import { ModalName } from '@dfares/types';
+import { EthAddress, ModalName, Union } from '@dfares/types';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Btn } from '../Components/Btn';
@@ -41,7 +41,8 @@ export default function UnionContextPane({
   const uiManager = useUIManager();
   const account = useAccount(uiManager);
   const gameManager = uiManager.getGameManager();
-
+  const [unionNameText, setUnionNameText] = useState('');
+  const [inviteNameText, setInviteNameText] = useState('');
   const [ethAddress, setEthAddress] = useState('');
   const [unionMembers, setUnionMembers] = useState<UnionMember[]>([]);
   const [isMember, setIsMember] = useState(false);
@@ -57,25 +58,27 @@ export default function UnionContextPane({
 
   const fetchUnionData = async () => {
     if (!account) return;
+
     // Fetch union data logic
-    // try {
-    //   const unionTemp = (await gameManager.getUserUnion(account)) as UnionTeam;
-    //   debugger;
-    //   if (!unionTemp) {
-    //     setUnionCreated(true);
-    //     setIsMember(true);
-    //     //  const union = await gameManager.getUserUnion(unionAddress);
-    //     setIsAdmin(unionTemp?.admin === account);
-    //     setUnionMembers(
-    //       unionTemp.members.map((member: string) => ({
-    //         address: member,
-    //         joinTimestamp: new Date().toLocaleString(),
-    //       }))
-    //     ); // Add joinTimestamp appropriately
-    //   }
-    // } catch (error) {
-    //   console.error('Error fetching union data:', error);
-    // }
+    try {
+      const rawUnion: Union[] = (await gameManager.getPlayerUnion(account)) as Union[];
+      const union: Union = rawUnion[0];
+
+      if (rawUnion.length > 0) {
+        setUnionCreated(true);
+        setIsMember(true);
+
+        setIsAdmin(union.admin.toLowerCase() === account.toLowerCase());
+        setUnionMembers(
+          union.members.map((member: string) => ({
+            address: member,
+            joinTimestamp: new Date().toLocaleString(),
+          }))
+        );
+      }
+    } catch (error) {
+      console.error('Error fetching union data:', error);
+    }
   };
 
   const handleJoinUnion = async () => {
@@ -95,9 +98,8 @@ export default function UnionContextPane({
     try {
       if (account !== undefined) {
         // debugger;
-        await gameManager.createUnion();
+        await gameManager.createUnion(unionNameText);
         //   await fetchUnionData();a
-
         //Round 4 Todo: change to unionId
         // await gameManager.setPlayerUnion(account);
       }
@@ -109,15 +111,12 @@ export default function UnionContextPane({
 
   const handleLeaveUnion = async () => {
     setIsProcessing(true);
-    // try {
-    //   await gameManager.leaveUnion();
-    //   setIsMember(false);
-    //   setUnionCreated(false);
-    //   setUnionMembers([]);
-    //   gameManager.setPlayerUnion('');
-    // } catch (error) {
-    //   console.error('Error leaving union:', error);
-    // }
+    try {
+      await gameManager.leaveUnion();
+      //gameManager.setPlayerUnion('');
+    } catch (error) {
+      console.error('Error leaving union:', error);
+    }
     setIsProcessing(false);
   };
 
@@ -155,15 +154,21 @@ export default function UnionContextPane({
 
   const handleDisbandUnion = async () => {
     setIsProcessing(true);
-    // try {
-    //   await gameManager.disbandUnion();
-    //   setIsMember(false);
-    //   setUnionCreated(false);
-    //   setUnionMembers([]);
-    //   gameManager.setPlayerUnion('');
-    // } catch (error) {
-    //   console.error('Error disbanding union:', error);
-    // }
+    try {
+      await gameManager.disbandUnion();
+    } catch (error) {
+      console.error('Error Disbanding union:', error);
+    }
+    setIsProcessing(false);
+  };
+
+  const handleInviteToUnion = async () => {
+    setIsProcessing(true);
+    try {
+      await gameManager.inviteToUnion(inviteNameText as EthAddress);
+    } catch (error) {
+      console.error('Error invite union:', error);
+    }
     setIsProcessing(false);
   };
 
@@ -180,6 +185,13 @@ export default function UnionContextPane({
     buttonContent = <>Leave Union</>;
   }
 
+  let buttonContent2 = <></>;
+  if (isProcessing) {
+    buttonContent2 = <LoadingSpinner initialText={'Processing...'} />;
+  } else {
+    buttonContent2 = <>Send invite</>;
+  }
+
   return (
     <ModalPane
       id={ModalName.UnionContextPane} // Define a unique id for the modal
@@ -190,28 +202,45 @@ export default function UnionContextPane({
       <UnionContent>
         <Section>
           <SectionHeader>Union Management</SectionHeader>
-
-          {/* <Row>
-            <span>ETH Address</span>
-            <span>
-              <input
-                type='text'
-                placeholder='Enter your ETH address'
-                value={ethAddress}
-                onChange={(e) => setEthAddress(e.target.value)}
-              />
-            </span>
-          </Row> */}
-
-          <Btn
-            disabled={isProcessing}
-            onClick={!unionCreated ? handleCreateUnion : handleJoinUnion}
-          >
-            {buttonContent}
-          </Btn>
+          {!isMember && (
+            <Row>
+              <span>
+                <input
+                  type='text'
+                  placeholder='Union name'
+                  value={unionNameText}
+                  onChange={(e) => setUnionNameText(e.target.value)}
+                />
+              </span>
+              <Btn
+                disabled={isProcessing}
+                onClick={
+                  !unionCreated ? handleCreateUnion : !isMember ? handleLeaveUnion : handleLeaveUnion
+                }
+              >
+                {buttonContent}
+              </Btn>
+            </Row>
+          )}
 
           {isMember && (
             <>
+              <Row>
+                <span>Address to Invite</span>
+                <span>
+                  <input
+                    type='text'
+                    placeholder='Player address'
+                    value={inviteNameText}
+                    onChange={(e) => setInviteNameText(e.target.value)}
+                  />
+                </span>
+              </Row>
+
+              <Btn disabled={isProcessing} onClick={handleInviteToUnion}>
+                {buttonContent2}
+              </Btn>
+
               <Row>
                 <h3>Union Members</h3>
               </Row>

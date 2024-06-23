@@ -34,6 +34,7 @@ import {
   UnconfirmedRefreshPlanet,
   UnconfirmedUpgrade,
   Union,
+  UnionId,
   Upgrade,
   UpgradeBranchName,
   WorldCoords,
@@ -1428,10 +1429,6 @@ class GameUIManager extends EventEmitter {
     return this.gameManager.getPlayerSilver(player);
   }
 
-  public getPlayerUnionId(player: EthAddress): Union[] | undefined {
-    return this.gameManager.getPlayerUnion(player);
-  }
-
   public upgrade(planet: Planet, branch: number): void {
     // TODO: do something like JSON.stringify(args) so we know formatting is correct
     this.terminal.current?.printShellLn(`df.upgrade('${planet.locationId}', ${branch})`);
@@ -1461,7 +1458,7 @@ class GameUIManager extends EventEmitter {
   }
 
   public donate(amount: number): void {
-    // this.terminal.current?.printShellLn(`df.donate('${amount}')`);
+    this.terminal.current?.printShellLn(`df.donate('${amount}')`);
     this.gameManager.donate(amount);
   }
 
@@ -1740,6 +1737,24 @@ class GameUIManager extends EventEmitter {
   public disableCustomRenderer(customRenderer: BaseRenderer) {
     const renderer = this.getRenderer();
     if (renderer) renderer.removeCustomRenderer(customRenderer);
+  }
+
+  // Round 4 Union
+
+  public getPlayerUnionId(addr: EthAddress): UnionId | undefined {
+    return this.gameManager.getPlayerUnionId(addr);
+  }
+
+  public getAllUnions(): Union[] {
+    return this.gameManager.getAllUnions();
+  }
+
+  public getUnion(unionId?: UnionId): Union | undefined {
+    return this.gameManager.getUnion(unionId);
+  }
+
+  public getMaxMembers(unionLevel: number) {
+    return this.gameManager.getMaxMembers(unionLevel);
   }
 }
 

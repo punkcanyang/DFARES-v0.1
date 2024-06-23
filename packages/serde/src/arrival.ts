@@ -31,9 +31,10 @@ export function decodeArrival(rawArrival: RawArrival): QueuedArrival {
     arrivalType: rawArrival.arrivalType as ArrivalType,
     unionId: rawArrival.unionId.toNumber(),
     name: rawArrival.name.toString(),
-    admin: address(rawArrival.admin),
-    members: rawArrival.members.map((x) => address(x)),
+    leader: address(rawArrival.leader),
     level: rawArrival.level.toNumber(),
+    members: rawArrival.members.map((x) => address(x)),
+    invitees: rawArrival.invitees.map((x) => address(x)),
   };
 
   return arrival;

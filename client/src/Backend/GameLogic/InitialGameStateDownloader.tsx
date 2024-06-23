@@ -10,6 +10,7 @@ import {
   QueuedArrival,
   RevealedCoords,
   Union,
+  UnionId,
   VoyageId,
 } from '@dfares/types';
 import _ from 'lodash';
@@ -27,7 +28,7 @@ import { ContractsAPI } from './ContractsAPI';
 export interface InitialGameState {
   contractConstants: ContractConstants;
   players: Map<string, Player>;
-  unions: Map<number, Union>;
+  unions: Map<UnionId, Union>;
   worldRadius: number;
   allTouchedPlanetIds: LocationId[];
   allRevealedCoords: RevealedCoords[];
@@ -116,6 +117,7 @@ export class InitialGameStateDownloader {
 
     const players = contractsAPI.getPlayers(playersLoadingBar);
     const unions = contractsAPI.getUnions(unionsLoadingBar);
+
     const arrivals: Map<VoyageId, QueuedArrival> = new Map();
     const planetVoyageIdMap: Map<LocationId, VoyageId[]> = new Map();
 

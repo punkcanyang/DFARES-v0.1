@@ -18,9 +18,10 @@ export interface QueuedArrival {
   arrivalType: ArrivalType;
   unionId: number;
   name: string;
-  admin: EthAddress;
-  members: EthAddress[];
+  leader: EthAddress;
   level: number;
+  members: EthAddress[];
+  invitees: EthAddress[];
 }
 
 /**

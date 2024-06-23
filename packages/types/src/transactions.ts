@@ -1,6 +1,6 @@
 import type { Contract } from 'ethers';
 import type { LiteralUnion } from 'type-fest';
-import type { ArtifactId, EthAddress, LocationId } from './identifier';
+import type { ArtifactId, EthAddress, LocationId, UnionId } from './identifier';
 import type { WorldLocation } from './world';
 
 export type ContractMethodName =
@@ -36,13 +36,14 @@ export type ContractMethodName =
   | 'buyPlanet'
   | 'buySpaceship'
   | 'donate'
-  | 'setUnion'
+  | 'addMemberByAdmin'
   | 'createUnion'
-  | 'inviteToUnion'
+  | 'inviteMember'
+  | 'cancelInvite'
   | 'acceptInvite'
   | 'leaveUnion'
   | 'kickMember'
-  | 'transferAdminRole'
+  | 'transferLeaderRole'
   | 'disbandUnion'
   | 'levelUpUnion';
 
@@ -349,39 +350,85 @@ export type UnconfirmedDonate = TxIntent & {
 /**
  * @hidden
  */
-export type UnconfirmedUnion = TxIntent & {
-  methodName: 'setUnion';
-  unionId: number;
+export type UnconfirmedAddMemberByAdmin = TxIntent & {
+  methodName: 'addMemberByAdmin';
+  unionId: UnionId;
+  member: EthAddress;
 };
 
+/**
+ * @hidden
+ *
+ */
 export type UnconfirmedCreateUnion = TxIntent & {
   methodName: 'createUnion';
+  name: string;
 };
 
+/**
+ * @hidden
+ */
+export type UnconfirmedInviteMember = TxIntent & {
+  methodName: 'inviteMember';
+  unionId: UnionId;
+  invitee: EthAddress;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedCancelInvite = TxIntent & {
+  methodName: 'cancelInvite';
+  unionId: UnionId;
+  invitee: EthAddress;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedAcceptInvite = TxIntent & {
+  methodName: 'acceptInvite';
+  unionId: UnionId;
+};
+
+/**
+ * @hidden
+ */
 export type UnconfirmedLeaveUnion = TxIntent & {
   methodName: 'leaveUnion';
+  unionId: UnionId;
 };
 
+/**
+ * @hidden
+ */
+export type UnconfirmedKickMember = TxIntent & {
+  methodName: 'kickMember';
+  unionId: UnionId;
+  member: EthAddress;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedTransferLeaderRole = TxIntent & {
+  methodName: 'transferLeaderRole';
+  unionId: UnionId;
+  newLeader: EthAddress;
+};
+
+/**
+ * @hidden
+ */
 export type UnconfirmedDisbandUnion = TxIntent & {
   methodName: 'disbandUnion';
+  unionId: UnionId;
 };
 
-export type UnconfirmedInviteUnion = TxIntent & {
-  methodName: 'inviteToUnion';
-};
-
-export type UnconfirmedAcceptInviteUnion = TxIntent & {
-  methodName: 'acceptInvite';
-};
-
-export type UnconfirmedKickMemberUnion = TxIntent & {
-  methodName: 'kickMember';
-};
-
-export type UnconfirmedNewAdminUnion = TxIntent & {
-  methodName: 'transferAdminRole';
-};
-
+/**
+ * @hidden
+ */
 export type UnconfirmedLevelUpUnion = TxIntent & {
   methodName: 'levelUpUnion';
+  unionId: UnionId;
 };

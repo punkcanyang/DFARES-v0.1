@@ -24,10 +24,14 @@ contract DFUnionFacet is WithStorage {
     event InviteAccepted(uint256 indexed unionId, address indexed invitee);
     event MemberLeft(uint256 indexed unionId, address indexed member);
     event MemberKicked(uint256 indexed unionId, address indexed member);
-    event UnionTransferred(uint256 indexed unionId, address indexed newAdmin);
-    event UnionDisbanded(uint256 indexed unionId);
+    event UnionTransferred(
+        uint256 indexed unionId,
+        address indexed oldAdmin,
+        address indexed newAdmin
+    );
+    event UnionDisbanded(uint256 indexed unionId, address[] members);
     event UnionLeveledUp(uint256 indexed unionId, uint256 newLevel);
-    event MemberAddedByAdmin(uint256 indexed unionId, address indexed member);
+    event MemberAddedByAdmin(uint256 indexed unionId, address member);
 
     modifier onlyAdmin() {
         LibDiamond.enforceIsContractOwner();
@@ -172,7 +176,7 @@ contract DFUnionFacet is WithStorage {
         emit UnionCreated(gs().unionCount, msg.sender);
     }
 
-    function inviteToUnion(uint256 _unionId, address _invitee)
+    function inviteMember(uint256 _unionId, address _invitee)
         public
         onlyWhitelisted
         notPaused
@@ -220,13 +224,7 @@ contract DFUnionFacet is WithStorage {
         emit InviteCanceled(_unionId, _invitee);
     }
 
-    function acceptInvite(uint256 _unionId)
-        public
-        onlyWhitelisted
-        notPaused
-        validUnion(_unionId)
-        onlyUnionLeader(_unionId)
-    {
+    function acceptInvite(uint256 _unionId) public onlyWhitelisted notPaused validUnion(_unionId) {
         require(gs().players[msg.sender].unionId == 0, "Already part of a union");
         require(isInvitee(_unionId, msg.sender), "Not inivited");
         require(!isMember((_unionId), msg.sender), "Already in this union");
@@ -260,7 +258,7 @@ contract DFUnionFacet is WithStorage {
         onlyUnionMember(_unionId)
     {
         Union storage union = gs().unions[_unionId];
-        require(msg.sender != union.leader, "Leader cannot leave the guild");
+        require(msg.sender != union.leader, "Leader cannot leave the union");
 
         for (uint256 i = 0; i < union.members.length; i++) {
             if (union.members[i] == msg.sender) {
@@ -332,11 +330,12 @@ contract DFUnionFacet is WithStorage {
         require(_newLeader != address(0), "invalid address");
         require(gs().players[_newLeader].isInitialized, "only intialized player");
         require(isMember(_unionId, _newLeader), "New admin must be a member");
+        require(_newLeader != msg.sender, "change leader");
 
         Union storage union = gs().unions[_unionId];
         union.leader = _newLeader;
 
-        emit UnionTransferred(_unionId, _newLeader);
+        emit UnionTransferred(_unionId, msg.sender, _newLeader);
     }
 
     function disbandUnion(uint256 _unionId)
@@ -348,6 +347,7 @@ contract DFUnionFacet is WithStorage {
     {
         Union storage union = gs().unions[_unionId];
 
+        address[] memory members = union.members;
         // Clear all members
         for (uint256 i = 0; i < union.members.length; i++) {
             gs().players[union.members[i]].unionId = 0;
@@ -355,14 +355,14 @@ contract DFUnionFacet is WithStorage {
 
         delete gs().unions[_unionId];
 
-        emit UnionDisbanded(_unionId);
+        emit UnionDisbanded(_unionId, members);
     }
 
-    function getLevelUpUnionFee(uint256 level) public view returns (uint256) {
+    function getLevelUpUnionFee(uint256 level) public pure returns (uint256) {
         uint256 value = 0;
-        if (level == 1) value = 0.1 ether;
-        else if (level == 2) value = 0.5 ether;
-        else if (level == 3) value = 1 ether;
+        if (level == 1) value = 0.01 ether;
+        else if (level == 2) value = 0.05 ether;
+        else if (level == 3) value = 0.1 ether;
         return value;
     }
 

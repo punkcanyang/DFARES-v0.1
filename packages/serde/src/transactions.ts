@@ -1,32 +1,40 @@
 import {
   Transaction,
   TxIntent,
+  UnconfirmedAcceptInvite,
   UnconfirmedActivateArtifact,
+  UnconfirmedAddMemberByAdmin,
   UnconfirmedBlue,
   UnconfirmedBurn,
   UnconfirmedBuyArtifact,
   UnconfirmedBuyHat,
   UnconfirmedBuyPlanet,
   UnconfirmedBuySpaceship,
+  UnconfirmedCancelInvite,
   UnconfirmedCapturePlanet,
   UnconfirmedChangeArtifactImageType,
   UnconfirmedClaim,
   UnconfirmedCreateUnion,
   UnconfirmedDeactivateArtifact,
   UnconfirmedDepositArtifact,
+  UnconfirmedDisbandUnion,
   UnconfirmedDonate,
   UnconfirmedFindArtifact,
   UnconfirmedGetShips,
   UnconfirmedInit,
   UnconfirmedInvadePlanet,
+  UnconfirmedInviteMember,
   UnconfirmedKardashev,
+  UnconfirmedKickMember,
+  UnconfirmedLeaveUnion,
+  UnconfirmedLevelUpUnion,
   UnconfirmedMove,
   UnconfirmedPink,
   UnconfirmedPlanetTransfer,
   UnconfirmedProspectPlanet,
   UnconfirmedRefreshPlanet,
   UnconfirmedReveal,
-  UnconfirmedUnion,
+  UnconfirmedTransferLeaderRole,
   UnconfirmedUpgrade,
   UnconfirmedUseKey,
   UnconfirmedWithdrawArtifact,
@@ -172,12 +180,48 @@ export function isUnconfirmedUseKey(txIntent: TxIntent): txIntent is Unconfirmed
   return txIntent.methodName === 'useKey';
 }
 
-export function isUnconfirmedUnion(txIntent: TxIntent): txIntent is UnconfirmedUnion {
-  return txIntent.methodName === 'setUnion';
+export function isUnconfirmedAddMemberByAdmin(
+  txIntent: TxIntent
+): txIntent is UnconfirmedAddMemberByAdmin {
+  return txIntent.methodName === 'addMemberByAdmin';
 }
 
 export function isUnconfirmedCreateUnion(txIntent: TxIntent): txIntent is UnconfirmedCreateUnion {
   return txIntent.methodName === 'createUnion';
+}
+
+export function isUnconfirmedInviteMember(txIntent: TxIntent): txIntent is UnconfirmedInviteMember {
+  return txIntent.methodName === 'inviteMember';
+}
+
+export function isUnconfirmedCancelInvite(txIntent: TxIntent): txIntent is UnconfirmedCancelInvite {
+  return txIntent.methodName === 'cancelInvite';
+}
+
+export function isUnconfirmedAcceptInvite(txIntent: TxIntent): txIntent is UnconfirmedAcceptInvite {
+  return txIntent.methodName === 'acceptInvite';
+}
+
+export function isUnconfirmedLeaveUnion(txIntent: TxIntent): txIntent is UnconfirmedLeaveUnion {
+  return txIntent.methodName === 'leaveUnion';
+}
+
+export function isUnconfirmedKickMember(txIntent: TxIntent): txIntent is UnconfirmedKickMember {
+  return txIntent.methodName === 'kickMember';
+}
+
+export function isUnconfirmedTransferLeaderRole(
+  txIntent: TxIntent
+): txIntent is UnconfirmedTransferLeaderRole {
+  return txIntent.methodName === 'transferLeaderRole';
+}
+
+export function isUnconfirmedDisbandUnion(txIntent: TxIntent): txIntent is UnconfirmedDisbandUnion {
+  return txIntent.methodName === 'disbandUnion';
+}
+
+export function isUnconfirmedLevelUpUnion(txIntent: TxIntent): txIntent is UnconfirmedLevelUpUnion {
+  return txIntent.methodName === 'levelUpUnion';
 }
 
 export function isUnconfirmedRevealTx(tx: Transaction): tx is Transaction<UnconfirmedReveal> {
@@ -324,12 +368,62 @@ export function isUnconfirmedDonateTx(tx: Transaction): tx is Transaction<Unconf
   return isUnconfirmedDonate(tx.intent);
 }
 
-export function isUnconfirmedUnionTx(tx: Transaction): tx is Transaction<UnconfirmedUnion> {
-  return isUnconfirmedUnion(tx.intent);
+export function isUnconfirmedAddMemberByAdminTx(
+  tx: Transaction
+): tx is Transaction<UnconfirmedAddMemberByAdmin> {
+  return isUnconfirmedAddMemberByAdmin(tx.intent);
 }
 
 export function isUnconfirmedCreateUnionTx(
   tx: Transaction
 ): tx is Transaction<UnconfirmedCreateUnion> {
   return isUnconfirmedCreateUnion(tx.intent);
+}
+
+export function isUnconfirmedInviteMemberTx(
+  tx: Transaction
+): tx is Transaction<UnconfirmedInviteMember> {
+  return isUnconfirmedInviteMember(tx.intent);
+}
+
+export function isUnconfirmedCancelInviteTx(
+  tx: Transaction
+): tx is Transaction<UnconfirmedCancelInvite> {
+  return isUnconfirmedCancelInvite(tx.intent);
+}
+
+export function isUnconfirmedAcceptInviteTx(
+  tx: Transaction
+): tx is Transaction<UnconfirmedAcceptInvite> {
+  return isUnconfirmedAcceptInvite(tx.intent);
+}
+
+export function isUnconfirmedLeaveUnionTx(
+  tx: Transaction
+): tx is Transaction<UnconfirmedLeaveUnion> {
+  return isUnconfirmedLeaveUnion(tx.intent);
+}
+
+export function isUnconfirmedKickMemberTx(
+  tx: Transaction
+): tx is Transaction<UnconfirmedKickMember> {
+  return isUnconfirmedKickMember(tx.intent);
+}
+
+export function isUnconfirmedTransferLeaderRoleTx(
+  tx: Transaction
+): tx is Transaction<UnconfirmedTransferLeaderRole> {
+  return isUnconfirmedTransferLeaderRole(tx.intent);
+}
+
+export function isUnconfirmedDisbandUnionTx(
+  tx: Transaction
+): tx is Transaction<UnconfirmedDisbandUnion> {
+  return isUnconfirmedDisbandUnion(tx.intent);
+}
+
+export function isUnconfirmedLevelUpUnionTx(
+  tx: Transaction
+): tx is Transaction<UnconfirmedLevelUpUnion> {
+  return isUnconfirmedLevelUpUnion(tx.intent);
 }

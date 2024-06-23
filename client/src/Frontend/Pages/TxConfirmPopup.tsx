@@ -294,6 +294,10 @@ export function TxConfirmPopup({
   const joinGameCost: number =
     method === 'initializePlayer' && entryFee ? weiToEth(BigNumber.from(entryFee)) : 0;
 
+  const levelUpUnionFee = localStorage.getItem(`${account}-levelUpUnion-fee`);
+  const levelUpUnionCost: number =
+    method === 'levelUpUnion' && levelUpUnionFee ? weiToEth(BigNumber.from(levelUpUnionFee)) : 0;
+
   const getTxCost = () => {
     if (!isNaN(Number(gasFeeGwei))) {
       // console.log('first');
@@ -309,6 +313,7 @@ export function TxConfirmPopup({
         buyPlanetCost +
         buySpaceshipCost +
         donationAmount +
+        levelUpUnionCost +
         weiToEth(gweiToWei(Number(gasLimit) * Number(gasFeeGwei)));
 
       return res.toFixed(18).toString();
@@ -333,6 +338,7 @@ export function TxConfirmPopup({
         buyPlanetCost +
         buySpaceshipCost +
         donationAmount +
+        levelUpUnionCost +
         weiToEth(gweiToWei(Number(gasLimit) * Number(val)));
 
       return pre + res.toFixed(18).toString();
@@ -580,6 +586,17 @@ export function TxConfirmPopup({
               <b>Entry Fee </b>
               <span>
                 {joinGameCost} ${TOKEN_NAME}
+              </span>
+            </Row>
+          </>
+        )}
+
+        {method === 'levelUpUnion' && (
+          <>
+            <Row>
+              <b>levelUp Union Fee </b>
+              <span>
+                {levelUpUnionCost} ${TOKEN_NAME}
               </span>
             </Row>
           </>

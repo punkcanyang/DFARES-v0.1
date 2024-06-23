@@ -1,4 +1,4 @@
-import { EthAddress, ModalName, Union } from '@dfares/types';
+import { ModalName } from '@dfares/types';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Btn } from '../Components/Btn';
@@ -59,26 +59,27 @@ export default function UnionContextPane({
   const fetchUnionData = async () => {
     if (!account) return;
 
-    // Fetch union data logic
-    try {
-      const rawUnion: Union[] = (await gameManager.getPlayerUnion(account)) as Union[];
-      const union: Union = rawUnion[0];
+    //Round 4 Todo
+    // // Fetch union data logic
+    // try {
+    //   const rawUnion: Union[] = (await gameManager.getPlayerUnion(account)) as Union[];
+    //   const union: Union = rawUnion[0];
 
-      if (rawUnion.length > 0) {
-        setUnionCreated(true);
-        setIsMember(true);
+    //   if (rawUnion.length > 0) {
+    //     setUnionCreated(true);
+    //     setIsMember(true);
 
-        setIsAdmin(union.admin.toLowerCase() === account.toLowerCase());
-        setUnionMembers(
-          union.members.map((member: string) => ({
-            address: member,
-            joinTimestamp: new Date().toLocaleString(),
-          }))
-        );
-      }
-    } catch (error) {
-      console.error('Error fetching union data:', error);
-    }
+    //     setIsAdmin(union.leader.toLowerCase() === account.toLowerCase());
+    //     setUnionMembers(
+    //       union.members.map((member: string) => ({
+    //         address: member,
+    //         joinTimestamp: new Date().toLocaleString(),
+    //       }))
+    //     );
+    //   }
+    // } catch (error) {
+    //   console.error('Error fetching union data:', error);
+    // }
   };
 
   const handleJoinUnion = async () => {
@@ -98,7 +99,8 @@ export default function UnionContextPane({
     try {
       if (account !== undefined) {
         // debugger;
-        await gameManager.createUnion(unionNameText);
+        //Round 4 Todo
+        // await gameManager.createUnion(unionNameText);
         //   await fetchUnionData();a
         //Round 4 Todo: change to unionId
         // await gameManager.setPlayerUnion(account);
@@ -112,7 +114,8 @@ export default function UnionContextPane({
   const handleLeaveUnion = async () => {
     setIsProcessing(true);
     try {
-      await gameManager.leaveUnion();
+      //Round 4 Todo
+      // await gameManager.leaveUnion();
       //gameManager.setPlayerUnion('');
     } catch (error) {
       console.error('Error leaving union:', error);
@@ -123,7 +126,8 @@ export default function UnionContextPane({
   const handleKickMember = async (memberAddress: string) => {
     setIsProcessing(true);
     try {
-      await gameManager.kickMember(memberAddress.toLowerCase() as EthAddress);
+      //Round 4 Todo
+      // await gameManager.kickMember(memberAddress.toLowerCase() as EthAddress);
     } catch (error) {
       console.error('Error kicking member:', error);
     }
@@ -133,7 +137,8 @@ export default function UnionContextPane({
   const handleTransferAdminRole = async (newAdminAddress: string) => {
     setIsProcessing(true);
     try {
-      await gameManager.transferAdminRole(newAdminAddress.toLowerCase() as EthAddress);
+      //Round 4 Todo
+      // await gameManager.transferAdminRole(newAdminAddress.toLowerCase() as EthAddress);
     } catch (error) {
       console.error('Error transferring admin role:', error);
     }
@@ -153,7 +158,8 @@ export default function UnionContextPane({
   const handleDisbandUnion = async () => {
     setIsProcessing(true);
     try {
-      await gameManager.disbandUnion();
+      //Round 4 Todo
+      // await gameManager.disbandUnion();
     } catch (error) {
       console.error('Error Disbanding union:', error);
     }
@@ -163,7 +169,8 @@ export default function UnionContextPane({
   const handleInviteToUnion = async () => {
     setIsProcessing(true);
     try {
-      await gameManager.inviteToUnion(inviteNameText as EthAddress);
+      //Round 4 Todo
+      // await gameManager.inviteToUnion(inviteNameText as EthAddress);
     } catch (error) {
       console.error('Error invite union:', error);
     }

@@ -20,5 +20,3 @@ export type UnionMemberData = {
   level: number;
   isInvited: boolean;
 };
-
-

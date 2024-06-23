@@ -79,25 +79,10 @@ struct PlayerLog {
 struct Union {
     uint256 unionId;
     string name;
-    address admin;
-    address[] members;
+    address leader;
     uint256 level;
-}
-
-struct UnionMemberData {
-    uint256 unionId;
-    string name;
-    address admin;
     address[] members;
-    uint256 level;
-    bool isInvited; // Mapping to track invited addresses
-}
-
-struct Invite {
-    uint256 unionId;
-    address inviter;
-    address invitee;
-    bool active;
+    address[] invitees;
 }
 
 struct Planet {
@@ -248,9 +233,10 @@ struct ArrivalData {
     // Union state when sending arrival
     uint256 unionId;
     string name;
-    address admin;
-    address[] members;
+    address leader;
     uint256 level;
+    address[] members;
+    address[] invitees;
 }
 
 struct PlanetDefaultStats {

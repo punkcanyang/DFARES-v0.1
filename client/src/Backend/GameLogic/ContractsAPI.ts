@@ -1463,7 +1463,6 @@ export class ContractsAPI extends EventEmitter {
     }
   }
 
-  
   public async getPlayerArtifacts(
     playerId?: EthAddress,
     onProgress?: (percent: number) => void

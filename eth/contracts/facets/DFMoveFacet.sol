@@ -492,9 +492,10 @@ contract DFMoveFacet is WithStorage {
             distance: args.actualDist,
             unionId: unionId,
             name: gs().unions[unionId].name,
-            admin: gs().unions[unionId].admin,
+            leader: gs().unions[unionId].leader,
+            level: gs().unions[unionId].level,
             members: gs().unions[unionId].members,
-            level: gs().unions[unionId].level
+            invitees: gs().unions[unionId].invitees
         });
 
         gs().targetPlanetArrivalIds[args.newLoc].push(gs().planetEventsCount);

@@ -1,4 +1,4 @@
-import { ModalName } from '@dfares/types';
+import { EthAddress, ModalName, Union, UnionId } from '@dfares/types';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Btn } from '../Components/Btn';
@@ -6,12 +6,6 @@ import { Section, SectionHeader } from '../Components/CoreUI';
 import { LoadingSpinner } from '../Components/LoadingSpinner';
 import { useAccount, useUIManager } from '../Utils/AppHooks';
 import { ModalPane } from '../Views/ModalPane'; // Import ModalPane and ModalHandle
-
-// Define the type for union members
-interface UnionMember {
-  address: string;
-  joinTimestamp: string;
-}
 
 const UnionContent = styled.div`
   width: 500px;
@@ -44,65 +38,72 @@ export default function UnionContextPane({
   const [unionNameText, setUnionNameText] = useState('');
   const [inviteNameText, setInviteNameText] = useState('');
   const [ethAddress, setEthAddress] = useState('');
-  const [unionMembers, setUnionMembers] = useState<UnionMember[]>([]);
+  const [unionMembers, setUnionMembers] = useState<EthAddress[]>([]);
   const [isMember, setIsMember] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [unionCreated, setUnionCreated] = useState(false);
+  const [playerUnionPane, setPlayerUnionPane] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const [unions, setUnions] = useState<Union[]>([]);
+  const [union, setUnion] = useState<Union>();
+  const [playerInvitees, setPlayerInvitees] = useState<Union[]>([]);
+  const refreshUnions = () => {
+    if (!uiManager) return;
+    const myAddr = uiManager.getAccount();
+    if (!myAddr) return;
+
+    const rawUnions = uiManager.getAllUnions() as Union[];
+    setUnions(rawUnions);
+
+    const playerUnion = rawUnions.find((u) => u.members.includes(myAddr)) as Union;
+    if (playerUnion) {
+      setPlayerUnionPane(true);
+      setIsMember(true);
+      setIsAdmin(playerUnion.leader.toLowerCase() === myAddr.toLowerCase());
+      setUnionMembers(playerUnion.members);
+      setUnion(playerUnion);
+    } else {
+      setPlayerUnionPane(false);
+      setIsMember(false);
+      setIsAdmin(false);
+      setUnionMembers([]);
+      setUnion(playerUnion);
+    }
+
+    const playerInvitees = rawUnions.filter((u) => u.invitees.includes(myAddr)) as Union[];
+    if (playerInvitees.length > 0) {
+      setPlayerInvitees(playerInvitees);
+    } else {
+      setPlayerInvitees([]);
+    }
+  };
+
+  // update planet list on open / close
   useEffect(() => {
-    if (!account) return;
-    // Fetch initial data, like union members, and check if the user is a member/admin
-    fetchUnionData();
-  }, [account]);
+    refreshUnions();
+  }, [visible, uiManager]);
 
-  const fetchUnionData = async () => {
-    if (!account) return;
+  // refresh planets every 10 seconds
+  useEffect(() => {
+    if (!uiManager) return;
+    if (!visible) return;
 
-    //Round 4 Todo
-    // // Fetch union data logic
-    // try {
-    //   const rawUnion: Union[] = (await gameManager.getPlayerUnion(account)) as Union[];
-    //   const union: Union = rawUnion[0];
+    refreshUnions();
 
-    //   if (rawUnion.length > 0) {
-    //     setUnionCreated(true);
-    //     setIsMember(true);
+    const intervalId = setInterval(refreshUnions, 10000);
 
-    //     setIsAdmin(union.leader.toLowerCase() === account.toLowerCase());
-    //     setUnionMembers(
-    //       union.members.map((member: string) => ({
-    //         address: member,
-    //         joinTimestamp: new Date().toLocaleString(),
-    //       }))
-    //     );
-    //   }
-    // } catch (error) {
-    //   console.error('Error fetching union data:', error);
-    // }
-  };
-
-  const handleJoinUnion = async () => {
-    setIsProcessing(true);
-    // try {
-    //   await gameManager.joinUnion(ethAddress);
-    //   await fetchUnionData();
-    //   gameManager.setPlayerUnion(ethAddress as EthAddress);
-    // } catch (error) {
-    //   console.error('Error joining union:', error);
-    // }
-    setIsProcessing(false);
-  };
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [visible, uiManager]);
 
   const handleCreateUnion = async () => {
     setIsProcessing(true);
     try {
       if (account !== undefined) {
-        // debugger;
-        //Round 4 Todo
-        // await gameManager.createUnion(unionNameText);
-        //   await fetchUnionData();a
-        //Round 4 Todo: change to unionId
+        await gameManager.createUnion(unionNameText);
+        await refreshUnions();
+        // Round 4 Todo: change to unionId
         // await gameManager.setPlayerUnion(account);
       }
     } catch (error) {
@@ -114,9 +115,15 @@ export default function UnionContextPane({
   const handleLeaveUnion = async () => {
     setIsProcessing(true);
     try {
-      //Round 4 Todo
-      // await gameManager.leaveUnion();
-      //gameManager.setPlayerUnion('');
+      if (account !== undefined) {
+        const unionId = await gameManager.getPlayerUnionId(account);
+        if (unionId !== undefined) {
+          await gameManager.leaveUnion(unionId);
+          await refreshUnions();
+          // Round 4 Todo: change to unionId
+          // await gameManager.setPlayerUnion(account);
+        }
+      }
     } catch (error) {
       console.error('Error leaving union:', error);
     }
@@ -126,19 +133,32 @@ export default function UnionContextPane({
   const handleKickMember = async (memberAddress: string) => {
     setIsProcessing(true);
     try {
-      //Round 4 Todo
-      // await gameManager.kickMember(memberAddress.toLowerCase() as EthAddress);
+      if (account !== undefined) {
+        const unionId = await gameManager.getPlayerUnionId(account);
+        if (unionId !== undefined) {
+          await gameManager.kickMember(unionId, memberAddress.toLowerCase() as EthAddress);
+          await refreshUnions();
+        }
+      }
     } catch (error) {
       console.error('Error kicking member:', error);
     }
     setIsProcessing(false);
   };
   // todo doesnt works
-  const handleTransferAdminRole = async (newAdminAddress: string) => {
+  const handleTransferLeaderRole = async (newAdminAddress: string) => {
     setIsProcessing(true);
     try {
-      //Round 4 Todo
-      // await gameManager.transferAdminRole(newAdminAddress.toLowerCase() as EthAddress);
+      if (account !== undefined) {
+        const unionId = await gameManager.getPlayerUnionId(account);
+        if (unionId !== undefined) {
+          await gameManager.transferLeaderRole(
+            unionId,
+            newAdminAddress.toLowerCase() as EthAddress
+          );
+          await refreshUnions();
+        }
+      }
     } catch (error) {
       console.error('Error transferring admin role:', error);
     }
@@ -149,6 +169,7 @@ export default function UnionContextPane({
     setIsProcessing(true);
     // try {
     //   // Function to handle paying a fee to leave immediately
+    // await refreshUnions();
     // } catch (error) {
     //   console.error('Error paying fee to leave immediately:', error);
     // }
@@ -158,8 +179,13 @@ export default function UnionContextPane({
   const handleDisbandUnion = async () => {
     setIsProcessing(true);
     try {
-      //Round 4 Todo
-      // await gameManager.disbandUnion();
+      if (account !== undefined) {
+        const unionId = await gameManager.getPlayerUnionId(account);
+        if (unionId !== undefined) {
+          await gameManager.disbandUnion(unionId);
+          await refreshUnions();
+        }
+      }
     } catch (error) {
       console.error('Error Disbanding union:', error);
     }
@@ -169,8 +195,44 @@ export default function UnionContextPane({
   const handleInviteToUnion = async () => {
     setIsProcessing(true);
     try {
-      //Round 4 Todo
-      // await gameManager.inviteToUnion(inviteNameText as EthAddress);
+      if (account !== undefined) {
+        const unionId = await gameManager.getPlayerUnionId(account);
+        if (unionId !== undefined) {
+          await gameManager.inviteMember(unionId, inviteNameText as EthAddress);
+          await refreshUnions();
+        }
+      }
+    } catch (error) {
+      console.error('Error invite union:', error);
+    }
+    setIsProcessing(false);
+  };
+
+  const handleCancelInviteToUnion = async () => {
+    setIsProcessing(true);
+    try {
+      if (account !== undefined) {
+        const unionId = await gameManager.getPlayerUnionId(account);
+        if (unionId !== undefined) {
+          await gameManager.cancelInvite(unionId, inviteNameText as EthAddress);
+          await refreshUnions();
+        }
+      }
+    } catch (error) {
+      console.error('Error invite union:', error);
+    }
+    setIsProcessing(false);
+  };
+
+  const handleAcceptInvite = async (unionId: UnionId) => {
+    setIsProcessing(true);
+    try {
+      if (account !== undefined) {
+        if (unionId !== undefined) {
+          await gameManager.acceptInvite(unionId);
+          await refreshUnions();
+        }
+      }
     } catch (error) {
       console.error('Error invite union:', error);
     }
@@ -182,7 +244,7 @@ export default function UnionContextPane({
   let buttonContent = <></>;
   if (isProcessing) {
     buttonContent = <LoadingSpinner initialText={'Processing...'} />;
-  } else if (!unionCreated) {
+  } else if (!playerUnionPane) {
     buttonContent = <>Create Union</>;
   } else if (!isMember) {
     buttonContent = <>Join Union</>;
@@ -220,7 +282,7 @@ export default function UnionContextPane({
               <Btn
                 disabled={isProcessing}
                 onClick={
-                  !unionCreated
+                  !playerUnionPane
                     ? handleCreateUnion
                     : !isMember
                     ? handleLeaveUnion
@@ -237,7 +299,7 @@ export default function UnionContextPane({
               <Btn
                 disabled={isProcessing}
                 onClick={
-                  !unionCreated
+                  !playerUnionPane
                     ? handleCreateUnion
                     : !isMember
                     ? handleLeaveUnion
@@ -267,12 +329,12 @@ export default function UnionContextPane({
               </Row>
               <ul>
                 {unionMembers.map((member) => (
-                  <li key={member.address}>
-                    {member.address} - Joined: {member.joinTimestamp}
+                  <li key={member}>
+                    {member}
                     {isAdmin && (
                       <>
-                        <Btn onClick={() => handleKickMember(member.address)}>Kick Member</Btn>
-                        <Btn onClick={() => handleTransferAdminRole(member.address)}>
+                        <Btn onClick={() => handleKickMember(member)}>Kick Member</Btn>
+                        <Btn onClick={() => handleTransferLeaderRole(member)}>
                           Transfer Admin Role
                         </Btn>
                       </>
@@ -314,7 +376,35 @@ export default function UnionContextPane({
             </label>
           </Row>
         </Section>
-
+        <Section>
+          <SectionHeader>Invites from Unions to you</SectionHeader>
+          <ul>
+            {playerInvitees.map((u) => (
+              <li key={u.unionId}>
+                {u.unionId} {u.name}
+                {/* union?.unionId === '0' && */}
+                {
+                  <>
+                    <Btn onClick={() => handleAcceptInvite(u.unionId)}>Join to this</Btn>
+                  </>
+                }
+              </li>
+            ))}
+          </ul>
+          <SectionHeader>Union active invitees</SectionHeader>
+          <ul>
+            {union?.invitees.map((i) => (
+              <li key={i}>
+                {i}
+                {isAdmin && (
+                  <>
+                    <Btn onClick={() => handleCancelInviteToUnion()}>Cancel this invite</Btn>
+                  </>
+                )}
+              </li>
+            ))}
+          </ul>
+        </Section>
         <Section>
           <SectionHeader>Union Leaderboard</SectionHeader>
           {/* Add leaderboard content here */}

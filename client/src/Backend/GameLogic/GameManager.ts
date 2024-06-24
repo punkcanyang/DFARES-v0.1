@@ -4624,7 +4624,7 @@ class GameManager extends EventEmitter {
       }
 
       let inMemberList = false;
-      for (let i = 0; i < union.members.length; i++) {
+      for (let i = 1; i <= union.members.length; i++) {
         if (union.members[i] === member) {
           inMemberList = true;
         }

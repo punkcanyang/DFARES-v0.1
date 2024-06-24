@@ -172,6 +172,7 @@ contract DFUnionFacet is WithStorage {
             invitees
         );
         gs().players[msg.sender].unionId = gs().unionCount;
+        gs().isMember[gs().unionCount][msg.sender] = true;
 
         emit UnionCreated(gs().unionCount, msg.sender);
     }
@@ -320,43 +321,44 @@ contract DFUnionFacet is WithStorage {
     //     emit MemberKicked(_unionId, _member);
     // }
 
-function kickMember(uint256 _unionId, address _member)
-    public
-    onlyWhitelisted
-    notPaused
-    validUnion(_unionId)
-    onlyUnionLeader(_unionId)
-{
-    require(_member != msg.sender, "Admin cannot kick themselves");
-    require(isMember(_unionId, _member), "Member is not part of your union");
+    function kickMember(uint256 _unionId, address _member)
+        public
+        onlyWhitelisted
+        notPaused
+        validUnion(_unionId)
+        onlyUnionLeader(_unionId)
+    {
+        require(_member != msg.sender, "Admin cannot kick themselves");
+        require(isMember(_unionId, _member), "Member is not part of your union");
 
-    Union storage union = gs().unions[_unionId];
+        Union storage union = gs().unions[_unionId];
 
-    // Remove member from union.members
-    for (uint256 i = 0; i < union.members.length; i++) {
-        if (union.members[i] == _member) {
-            union.members[i] = union.members[union.members.length - 1];
-            union.members.pop();
-            break;
+        // Remove member from union.members
+        for (uint256 i = 0; i < union.members.length; i++) {
+            if (union.members[i] == _member) {
+                union.members[i] = union.members[union.members.length - 1];
+                union.members.pop();
+                break;
+            }
         }
-    }
-    gs().isMember[_unionId][_member] = false;
+        gs().isMember[_unionId][_member] = false;
 
-    // Remove member from union.invitees if they are an invitee
-    for (uint256 i = 0; i < union.invitees.length; i++) {
-        if (union.invitees[i] == _member) {
-            union.invitees[i] = union.invitees[union.invitees.length - 1];
-            union.invitees.pop();
-            break;
+        // Remove member from union.invitees if they are an invitee
+        for (uint256 i = 0; i < union.invitees.length; i++) {
+            if (union.invitees[i] == _member) {
+                union.invitees[i] = union.invitees[union.invitees.length - 1];
+                union.invitees.pop();
+                break;
+            }
         }
+        gs().isInvitee[_unionId][_member] = false;
+
+        // Clear the kicked member's union reference
+        gs().players[_member].unionId = 0;
+
+        emit MemberKicked(_unionId, _member);
     }
-    gs().isInvitee[_unionId][_member] = false;
 
-    // Clear the kicked member's union reference
-    gs().players[_member].unionId = 0;
-
-    emit MemberKicked(_unionId, _member);
-}
     function transferLeaderRole(uint256 _unionId, address _newLeader)
         public
         onlyWhitelisted

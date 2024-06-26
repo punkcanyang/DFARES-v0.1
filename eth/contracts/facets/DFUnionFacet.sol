@@ -130,6 +130,25 @@ contract DFUnionFacet is WithStorage {
 
     // Round 4 Todo: add more admin operations
 
+    function disbandUnionAdmin(uint256 _unionId)
+        public
+        onlyWhitelisted
+        notPaused
+        validUnion(_unionId)
+        onlyAdmin
+    {
+        Union storage union = gs().unions[_unionId];
+
+        address[] memory members = union.members;
+        // Clear all members
+        for (uint256 i = 0; i < union.members.length; i++) {
+            gs().players[union.members[i]].unionId = 0;
+        }
+
+        delete gs().unions[_unionId];
+
+        emit UnionDisbanded(_unionId, members);
+    }
     // Administrator adds a member directly without invitation
     function addMemberByAdmin(uint256 _unionId, address _member)
         public
@@ -284,42 +303,6 @@ contract DFUnionFacet is WithStorage {
 
         emit MemberLeft(_unionId, msg.sender);
     }
-
-    // function kickMember(uint256 _unionId, address _member)
-    //     public
-    //     onlyWhitelisted
-    //     notPaused
-    //     validUnion(_unionId)
-    //     onlyUnionLeader(_unionId)
-    // {
-    //     require(_member != msg.sender, "Admin cannot kick themselves");
-    //     require(isMember(_unionId, _member), "Member is not part of your union");
-
-    //     Union storage union = gs().unions[_unionId];
-
-    //     for (uint256 i = 0; i < union.members.length; i++) {
-    //         if (union.members[i] == msg.sender) {
-    //             union.members[i] = union.members[union.members.length - 1];
-    //             union.members.pop();
-    //             break;
-    //         }
-    //     }
-    //     gs().isMember[_unionId][msg.sender] = false;
-
-    //     for (uint256 i = 0; i < union.invitees.length; i++) {
-    //         if (union.invitees[i] == msg.sender) {
-    //             union.invitees[i] = union.invitees[union.invitees.length - 1];
-    //             union.invitees.pop();
-    //             break;
-    //         }
-    //     }
-    //     gs().isInvitee[_unionId][msg.sender] = false;
-
-    //     // Clear user's union reference
-    //     gs().players[msg.sender].unionId = 0;
-
-    //     emit MemberKicked(_unionId, _member);
-    // }
 
     function kickMember(uint256 _unionId, address _member)
         public

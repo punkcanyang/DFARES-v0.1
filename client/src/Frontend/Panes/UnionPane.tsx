@@ -7,8 +7,53 @@ import { LoadingSpinner } from '../Components/LoadingSpinner';
 import { useAccount, useUIManager } from '../Utils/AppHooks';
 import { ModalPane } from '../Views/ModalPane'; // Import ModalPane and ModalHandle
 
+// Styled component for the list item with hover effect and tooltip
+const ListItem = styled.li`
+  position: relative; /* Required for tooltip positioning */
+  cursor: pointer; /* Show cursor as pointer on hover */
+
+  /* Tooltip styles */
+  &::before {
+    content: attr(data-tooltip); /* Display content from data-tooltip attribute */
+    position: absolute;
+    z-index: 1;
+    bottom: 100%; /* Position above the list item */
+    left: 50%; /* Centered horizontally */
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8); /* Dark background */
+    color: #fff; /* White text */
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    white-space: normal; /* Allow line breaks */
+    visibility: hidden; /* Hidden by default */
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    max-width: 200%; /* Maximum width of the tooltip */
+    text-align: center; /* Center text in the tooltip */
+    word-wrap: break-word; /* Allow wrapping of long words */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add box shadow for better visibility */
+  }
+
+  &:hover::before {
+    visibility: visible; /* Show tooltip on hover */
+    opacity: 1;
+  }
+`;
+
+const CenteredSectionHeader = styled(SectionHeader)`
+  text-align: center;
+  font-size: 140%;
+`;
+
+const CenteredText = styled.div`
+  text-align: center;
+  font-size: 140%;
+  font-weight: bold;
+`;
+
 const UnionContent = styled.div`
-  width: 500px;
+  width: 550px;
   overflow-y: scroll;
   display: flex;
   flex-direction: column;
@@ -25,6 +70,22 @@ const Row = styled.div`
   }
 `;
 
+const Header = styled.div`
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 5px;
+`;
+
+const Frame = styled.div<{ visible: boolean }>`
+  display: ${(props) => (props.visible ? 'block' : 'none')};
+`;
+
+const InvitesButton = styled(Btn)`
+  position: relative;
+  right: 0;
+  top: 0;
+`;
+
 export default function UnionContextPane({
   visible,
   onClose,
@@ -37,16 +98,17 @@ export default function UnionContextPane({
   const gameManager = uiManager.getGameManager();
   const [unionNameText, setUnionNameText] = useState('');
   const [inviteNameText, setInviteNameText] = useState('');
-  const [ethAddress, setEthAddress] = useState('');
   const [unionMembers, setUnionMembers] = useState<EthAddress[]>([]);
   const [isMember, setIsMember] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isLeader, setIsAdmin] = useState(false);
   const [playerUnionPane, setPlayerUnionPane] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const [unions, setUnions] = useState<Union[]>([]);
   const [union, setUnion] = useState<Union>();
   const [playerInvitees, setPlayerInvitees] = useState<Union[]>([]);
+  const [activeFrame, setActiveFrame] = useState('management'); // State to manage active frame
+
   const refreshUnions = () => {
     if (!uiManager) return;
     const myAddr = uiManager.getAccount();
@@ -160,7 +222,7 @@ export default function UnionContextPane({
         }
       }
     } catch (error) {
-      console.error('Error transferring admin role:', error);
+      console.error('Error transferring leader role:', error);
     }
     setIsProcessing(false);
   };
@@ -246,8 +308,6 @@ export default function UnionContextPane({
     buttonContent = <LoadingSpinner initialText={'Processing...'} />;
   } else if (!playerUnionPane) {
     buttonContent = <>Create Union</>;
-  } else if (!isMember) {
-    buttonContent = <>Join Union</>;
   } else {
     buttonContent = <>Leave Union</>;
   }
@@ -259,157 +319,167 @@ export default function UnionContextPane({
     buttonContent2 = <>Send invite</>;
   }
 
+  const handleFrameChange = async (frame: string) => {
+    setActiveFrame(frame);
+    await refreshUnions();
+  };
+
   return (
     <ModalPane
-      id={ModalName.UnionContextPane} // Define a unique id for the modal
-      title={'Your Union'} // Set the modal title
-      visible={visible} // Pass the visibility state
-      onClose={onClose} // Set modal visibility to false on close
+      id={ModalName.UnionContextPane}
+      title={'Your Union'}
+      visible={visible}
+      onClose={onClose}
     >
-      <UnionContent>
-        <Section>
-          <SectionHeader>Union Management</SectionHeader>
-          {!isMember && (
-            <Row>
-              <span>
-                <input
-                  type='text'
-                  placeholder='Union name'
-                  value={unionNameText}
-                  onChange={(e) => setUnionNameText(e.target.value)}
-                />
-              </span>
-              <Btn
-                disabled={isProcessing}
-                onClick={
-                  !playerUnionPane
-                    ? handleCreateUnion
-                    : !isMember
-                    ? handleLeaveUnion
-                    : handleLeaveUnion
-                }
-              >
-                {buttonContent}
-              </Btn>
-            </Row>
-          )}
+      <Header>
+        <Btn onClick={() => handleFrameChange('management')}>Union Management</Btn>
+        <InvitesButton onClick={() => handleFrameChange('invites')}>
+          Invites ({playerInvitees.length}) ({isLeader && union?.invitees.length})
+        </InvitesButton>
+        <Btn onClick={() => handleFrameChange('leaderboard')}>Leaderboard</Btn>
+      </Header>
 
-          {isMember && (
-            <>
-              <Btn
-                disabled={isProcessing}
-                onClick={
-                  !playerUnionPane
-                    ? handleCreateUnion
-                    : !isMember
-                    ? handleLeaveUnion
-                    : handleLeaveUnion
-                }
-              >
-                {buttonContent}
-              </Btn>
+      <Frame visible={activeFrame === 'management'}>
+        <UnionContent>
+          <Section>
+            <CenteredText>{union?.name}</CenteredText>
+            {!isMember && (
               <Row>
-                <span>Address to Invite</span>
                 <span>
                   <input
                     type='text'
-                    placeholder='Player address'
-                    value={inviteNameText}
-                    onChange={(e) => setInviteNameText(e.target.value)}
+                    placeholder='Union name'
+                    value={unionNameText}
+                    onChange={(e) => setUnionNameText(e.target.value)}
                   />
                 </span>
-              </Row>
-
-              <Btn disabled={isProcessing} onClick={handleInviteToUnion}>
-                {buttonContent2}
-              </Btn>
-
-              <Row>
-                <h3>Union Members</h3>
-              </Row>
-              <ul>
-                {unionMembers.map((member) => (
-                  <li key={member}>
-                    {member}
-                    {isAdmin && (
-                      <>
-                        <Btn onClick={() => handleKickMember(member)}>Kick Member</Btn>
-                        <Btn onClick={() => handleTransferLeaderRole(member)}>
-                          Transfer Admin Role
-                        </Btn>
-                      </>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
-        </Section>
-
-        <Section>
-          <SectionHeader>Union Actions</SectionHeader>
-          {isAdmin && (
-            <>
-              <Row>
-                <span>Admin Actions:</span>
-                <Btn onClick={handlePayFeeToLeaveImmediately}>
-                  Pay Instant Fee to Leave Immediately
+                <Btn disabled={isProcessing} onClick={handleCreateUnion}>
+                  {buttonContent}
                 </Btn>
               </Row>
-              <Row>
-                <span>Disband Union</span>
-                <Btn onClick={handleDisbandUnion}>Disband Union</Btn>
-              </Row>
-            </>
-          )}
-          {isMember && !isAdmin && (
-            <Btn onClick={handlePayFeeToLeaveImmediately}>Pay Instant Fee to Leave Immediately</Btn>
-          )}
-        </Section>
+            )}
 
-        <Section>
-          <SectionHeader>Union Settings</SectionHeader>
-          <Row>
-            <label>
-              <input type='checkbox' />
-              Restrict planet and artifact transfers to union members only
-            </label>
-          </Row>
-        </Section>
-        <Section>
-          <SectionHeader>Invites from Unions to you</SectionHeader>
-          <ul>
-            {playerInvitees.map((u) => (
-              <li key={u.unionId}>
-                {u.unionId} {u.name}
-                {/* union?.unionId === '0' && */}
-                {
+            {isMember && (
+              <>
+                <Row>
+                  <h3>Members:</h3>
+                </Row>
+                <ul>
+                  {unionMembers.map((member) => (
+                    <li key={member}>
+                      {member}
+                      {isLeader && account !== member && (
+                        <>
+                          <Btn onClick={() => handleKickMember(member)}>Kick</Btn>
+                          <Btn onClick={() => handleTransferLeaderRole(member)}>Transfer Admin</Btn>
+                        </>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+                <Row>
+                  <span>Address to Invite</span>
+                  <span>
+                    <input
+                      type='text'
+                      placeholder='Player address'
+                      value={inviteNameText}
+                      onChange={(e) => setInviteNameText(e.target.value)}
+                    />
+                  </span>
+                  <Btn disabled={isProcessing} onClick={handleInviteToUnion}>
+                    {buttonContent2}
+                  </Btn>
+                </Row>
+              </>
+            )}
+          </Section>
+
+          <Section>
+            {isMember && (
+              <>
+                <CenteredSectionHeader>Union Actions</CenteredSectionHeader>
+                <Row>
+                  <Btn disabled={isProcessing} onClick={handleLeaveUnion}>
+                    {buttonContent}
+                  </Btn>
+                  <Btn onClick={handlePayFeeToLeaveImmediately}>
+                    Pay Instant Fee to Leave Immediately
+                  </Btn>
+                </Row>
+                {isLeader && (
                   <>
-                    <Btn onClick={() => handleAcceptInvite(u.unionId)}>Join to this</Btn>
-                  </>
-                }
-              </li>
-            ))}
-          </ul>
-          <SectionHeader>Union active invitees</SectionHeader>
-          <ul>
-            {union?.invitees.map((i) => (
-              <li key={i}>
-                {i}
-                {isAdmin && (
-                  <>
-                    <Btn onClick={() => handleCancelInviteToUnion()}>Cancel this invite</Btn>
+                    <span>Admin Actions:</span>
+                    <Row>
+                      <Btn onClick={handleDisbandUnion}>Disband Union</Btn>
+                    </Row>
+                    <SectionHeader>Union Settings</SectionHeader>
+                    <Row>
+                      <label>
+                        <input type='checkbox' />
+                        Restrict planet and artifact transfers to union members only
+                      </label>
+                    </Row>
                   </>
                 )}
-              </li>
-            ))}
-          </ul>
-        </Section>
-        <Section>
-          <SectionHeader>Union Leaderboard</SectionHeader>
-          {/* Add leaderboard content here */}
-        </Section>
-      </UnionContent>
+              </>
+            )}
+          </Section>
+        </UnionContent>
+      </Frame>
+
+      <Frame visible={activeFrame === 'invites'}>
+        <UnionContent>
+          <Section>
+            <CenteredSectionHeader>Invites from Unions</CenteredSectionHeader>
+            <ul>
+              {playerInvitees.map((u) => (
+                <li key={u.unionId}>
+                  #{u.unionId} : {u.name}
+                  {
+                    <>
+                      <Btn onClick={() => handleAcceptInvite(u.unionId)}>Join to this</Btn>
+                    </>
+                  }
+                </li>
+              ))}
+            </ul>
+          </Section>
+          <Section>
+            <CenteredSectionHeader>Active invitees from your union</CenteredSectionHeader>
+            <ul>
+              {union?.invitees.map((i) => (
+                <li key={i}>
+                  {i}
+                  {isLeader && (
+                    <>
+                      <Btn onClick={() => handleCancelInviteToUnion()}>Cancel this invite</Btn>
+                    </>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </Section>
+        </UnionContent>
+      </Frame>
+
+      <Frame visible={activeFrame === 'leaderboard'}>
+        <UnionContent>
+          <Section>
+            <SectionHeader>Union Leaderboard</SectionHeader>
+            <ul>
+              {unions?.map((u) => (
+                <ListItem
+                  key={u.unionId}
+                  data-tooltip={`Leader: ${u.leader}, Members: ${u.members.join(', ')}`}
+                >
+                  #{u.unionId} : {u.name} - {u.members.length}
+                </ListItem>
+              ))}
+            </ul>
+          </Section>
+        </UnionContent>
+      </Frame>
     </ModalPane>
   );
 }

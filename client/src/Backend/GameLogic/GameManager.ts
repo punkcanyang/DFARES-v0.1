@@ -1221,6 +1221,7 @@ class GameManager extends EventEmitter {
           await Promise.all([gameManager.hardRefreshUnion(tx.intent.unionId)]);
         }
 
+        gameManager.entityStore.clearUnconfirmedTxIntent(tx);
         gameManager.onTxConfirmed(tx);
       })
       .on(ContractsAPIEvent.TxErrored, async (tx: Transaction) => {

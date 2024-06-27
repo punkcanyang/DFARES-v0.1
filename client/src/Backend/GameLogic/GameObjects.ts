@@ -9,6 +9,8 @@ import { hasOwner, isActivated, isLocatable } from '@dfares/gamelogic';
 import { bonusFromHex, getBytesFromHex } from '@dfares/hexgen';
 import { TxCollection } from '@dfares/network';
 import {
+  isUnconfirmedAcceptInvite,
+  isUnconfirmedAcceptInviteTx,
   isUnconfirmedActivateArtifact,
   isUnconfirmedActivateArtifactTx,
   isUnconfirmedBlue,
@@ -19,21 +21,35 @@ import {
   isUnconfirmedBuyArtifactTx,
   isUnconfirmedBuyHat,
   isUnconfirmedBuyHatTx,
+  isUnconfirmedCancelInvite,
+  isUnconfirmedCancelInviteTx,
   isUnconfirmedCapturePlanetTx,
   isUnconfirmedChangeArtifactImageType,
   isUnconfirmedChangeArtifactImageTypeTx,
   isUnconfirmedClaim,
   isUnconfirmedClaimTx,
+  isUnconfirmedCreateUnion,
+  isUnconfirmedCreateUnionTx,
   isUnconfirmedDeactivateArtifact,
   isUnconfirmedDeactivateArtifactTx,
   isUnconfirmedDepositArtifact,
   isUnconfirmedDepositArtifactTx,
+  isUnconfirmedDisbandUnion,
+  isUnconfirmedDisbandUnionTx,
   isUnconfirmedFindArtifact,
   isUnconfirmedFindArtifactTx,
   isUnconfirmedGetShipsTx,
   isUnconfirmedInvadePlanetTx,
+  isUnconfirmedInviteMember,
+  isUnconfirmedInviteMemberTx,
   isUnconfirmedKardashev,
   isUnconfirmedKardashevTx,
+  isUnconfirmedKickMember,
+  isUnconfirmedKickMemberTx,
+  isUnconfirmedLeaveUnion,
+  isUnconfirmedLeaveUnionTx,
+  isUnconfirmedLevelUpUnion,
+  isUnconfirmedLevelUpUnionTx,
   isUnconfirmedMove,
   isUnconfirmedMoveTx,
   isUnconfirmedPink,
@@ -45,6 +61,8 @@ import {
   isUnconfirmedReveal,
   isUnconfirmedRevealTx,
   isUnconfirmedTransfer,
+  isUnconfirmedTransferLeaderRole,
+  isUnconfirmedTransferLeaderRoleTx,
   isUnconfirmedTransferTx,
   isUnconfirmedUpgrade,
   isUnconfirmedUpgradeTx,
@@ -915,14 +933,17 @@ export class GameObjects {
         this.setPlanet(planet);
       }
     }
-    /** TODO check if need here!!!
-     * else if (isUnconfirmedUnionTx(tx)) {
-      const planet = this.getPlanetWithId(tx.intent.locationId);
-      if (planet) {
-        planet.transactions?.addTransaction(tx);
-        this.setPlanet(planet);
-      }
-    }*/
+    // Round 4 Todo: maybe don't need
+    else if (isUnconfirmedCreateUnionTx(tx)) {
+    } else if (isUnconfirmedInviteMemberTx(tx)) {
+    } else if (isUnconfirmedCancelInviteTx(tx)) {
+    } else if (isUnconfirmedAcceptInviteTx(tx)) {
+    } else if (isUnconfirmedLeaveUnionTx(tx)) {
+    } else if (isUnconfirmedKickMemberTx(tx)) {
+    } else if (isUnconfirmedTransferLeaderRoleTx(tx)) {
+    } else if (isUnconfirmedDisbandUnionTx(tx)) {
+    } else if (isUnconfirmedLevelUpUnionTx(tx)) {
+    }
   }
 
   /**
@@ -1111,6 +1132,17 @@ export class GameObjects {
         planet.transactions?.removeTransaction(tx);
         this.setPlanet(planet);
       }
+    }
+    //Round 4 Todo: maybe don't need
+    else if (isUnconfirmedCreateUnion(tx.intent)) {
+    } else if (isUnconfirmedInviteMember(tx.intent)) {
+    } else if (isUnconfirmedCancelInvite(tx.intent)) {
+    } else if (isUnconfirmedAcceptInvite(tx.intent)) {
+    } else if (isUnconfirmedLeaveUnion(tx.intent)) {
+    } else if (isUnconfirmedKickMember(tx.intent)) {
+    } else if (isUnconfirmedTransferLeaderRole(tx.intent)) {
+    } else if (isUnconfirmedDisbandUnion(tx.intent)) {
+    } else if (isUnconfirmedLevelUpUnion(tx.intent)) {
     }
   }
 

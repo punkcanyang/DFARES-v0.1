@@ -1338,20 +1338,26 @@ export class GameObjects {
       notifManager.planetLost(current as LocatablePlanet);
     }
 
-    let inUnion = false;
+    let currentOwnerAlliance = false;
+
     for (let i = 0; i < arrival.members.length; i++) {
-      if (arrival.members[i].toLowerCase() === this.address) {
-        inUnion = true;
+      if (arrival.members[i].toLowerCase() === current.owner) {
+        currentOwnerAlliance = true;
         break;
       }
     }
 
     if (
-      (arrival.player !== this.address || inUnion === false) &&
+      currentOwnerAlliance === false &&
+      arrival.player !== this.address &&
       current.owner === this.address &&
       arrival.energyArriving !== 0
     ) {
       notifManager.planetAttacked(current as LocatablePlanet);
+    }
+
+    if (currentOwnerAlliance && current.owner === this.address) {
+      notifManager.planetSupportedByUnion(current as LocatablePlanet);
     }
   }
 

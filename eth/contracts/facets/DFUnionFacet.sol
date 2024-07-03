@@ -149,6 +149,7 @@ contract DFUnionFacet is WithStorage {
 
         emit UnionDisbanded(_unionId, members);
     }
+
     // Administrator adds a member directly without invitation
     function addMemberByAdmin(uint256 _unionId, address _member)
         public

@@ -804,6 +804,23 @@ class GameUIManager extends EventEmitter {
     return planet.owner === this.gameManager.getAccount();
   }
 
+  public isOwnedByPlayerInMyUnion(planet: Planet): boolean {
+    const addr = this.gameManager.getAccount();
+    if (!addr) return false;
+
+    const unionId = this.getPlayerUnionId(addr);
+    if (!unionId || unionId === '0') return false;
+
+    const union = this.getUnion(unionId);
+    if (!union) return false;
+
+    for (let i = 0; i < union.members.length; i++) {
+      if (union.members[i] === planet.owner) return true;
+    }
+
+    return false;
+  }
+
   public addNewChunk(chunk: Chunk) {
     this.gameManager.addNewChunk(chunk);
   }

@@ -131,6 +131,7 @@ contract DFInitialize is WithStorage {
         gameConstants().MAX_RECEIVING_PLANET = initArgs.MAX_RECEIVING_PLANET;
         gs().nextChangeBlock = block.number + initArgs.CAPTURE_ZONE_CHANGE_BLOCK_INTERVAL;
         gs().worldRadius = initArgs.WORLD_RADIUS_MIN; // will be overridden by `LibGameUtils.updateWorldRadius()` if !WORLD_RADIUS_LOCKED
+        gs().innerRadius = initArgs.MAX_LEVEL_DIST[1]; //NOTE: Round 4 innerRadius
         gs().paused = initArgs.START_PAUSED;
         gs().halfPrice = false;
         gameConstants().TOKEN_MINT_END_TIMESTAMP = initArgs.TOKEN_MINT_END_TIMESTAMP;
@@ -170,6 +171,7 @@ contract DFInitialize is WithStorage {
         }
 
         LibGameUtils.updateWorldRadius();
+        LibGameUtils.updateInnerRadius();
     }
 
     function initializeDefaults() public {

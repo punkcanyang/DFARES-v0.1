@@ -13,6 +13,9 @@ import {LibStorage, GameStorage, GameConstants, SnarkConstants} from "./LibStora
 import {Biome, SpaceType, Planet, PlanetType, PlanetEventType, Artifact, ArtifactType, ArtifactRarity, Upgrade, PlanetDefaultStats} from "../DFTypes.sol";
 
 library LibGameUtils {
+    event WorldRadiusUpdated(uint256 radius);
+    event InnerRadiusUpdated(uint256 radius);
+
     function gs() internal pure returns (GameStorage storage) {
         return LibStorage.gameStorage();
     }
@@ -212,6 +215,17 @@ library LibGameUtils {
         } else {
             return r4;
         }
+    }
+
+    function _getInnerRadius() public view returns (uint256) {
+        uint256 delta = 2 * (block.number - gameConstants().GAME_START_BLOCK);
+        // Round 4 Todo: change the config
+        // 2s = 1 block
+        // take 6 hours to become 0
+        uint256 timeInSeconds = 21600; // 6 * 60 * 60;
+        if (delta >= timeInSeconds) return 0;
+        uint256 innerRadiusStart = gameConstants().MAX_LEVEL_DIST[1];
+        return innerRadiusStart - (innerRadiusStart * delta) / timeInSeconds;
     }
 
     function _randomArtifactTypeAndLevelBonus(
@@ -745,7 +759,13 @@ library LibGameUtils {
     function updateWorldRadius() public {
         if (!gameConstants().WORLD_RADIUS_LOCKED) {
             gs().worldRadius = _getRadius();
+            emit WorldRadiusUpdated(gs().worldRadius);
         }
+    }
+
+    function updateInnerRadius() public {
+        gs().innerRadius = _getInnerRadius();
+        emit InnerRadiusUpdated(gs().innerRadius);
     }
 
     function isPopCapBoost(uint256 _location) public pure returns (bool) {

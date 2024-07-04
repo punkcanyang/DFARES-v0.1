@@ -124,6 +124,7 @@ export interface RendererGameContext extends DiagnosticUpdater {
   getBooleanSetting(setting: Setting): boolean;
   getIsHighPerfMode(): boolean;
   getWorldRadius(): number;
+  getInnerRadius(): number;
   getMouseDownPlanet(): LocatablePlanet | undefined;
   getLocationsAndChunks(): {
     chunks: Set<Chunk>;

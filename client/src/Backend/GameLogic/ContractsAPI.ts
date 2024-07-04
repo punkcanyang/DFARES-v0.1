@@ -1050,6 +1050,11 @@ export class ContractsAPI extends EventEmitter {
     return radius;
   }
 
+  public async getInnerRadius(): Promise<number> {
+    const radius = (await this.makeCall<EthersBN>(this.contract.innerRadius)).toNumber();
+    return radius;
+  }
+
   // timestamp since epoch (in seconds)
   public async getTokenMintEndTimestamp(): Promise<number> {
     const timestamp = (

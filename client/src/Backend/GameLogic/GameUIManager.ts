@@ -1396,6 +1396,10 @@ class GameUIManager extends EventEmitter {
     return this.gameManager.getWorldRadius();
   }
 
+  public getInnerRadius(): number {
+    return this.gameManager.getInnerRadius();
+  }
+
   public getWorldSilver(): number {
     return this.gameManager.getWorldSilver();
   }

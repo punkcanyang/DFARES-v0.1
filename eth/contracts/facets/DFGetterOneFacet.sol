@@ -52,6 +52,10 @@ contract DFGetterOneFacet is WithStorage {
         return gs().worldRadius;
     }
 
+    function innerRadius() public view returns (uint256) {
+        return gs().innerRadius;
+    }
+
     function planetEventsCount() public view returns (uint256) {
         return gs().planetEventsCount;
     }

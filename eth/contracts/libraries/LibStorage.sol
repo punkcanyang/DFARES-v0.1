@@ -33,6 +33,7 @@ struct GameStorage {
     uint256[] revealedPlanetIds;
     address[] playerIds;
     uint256 worldRadius;
+    uint256 innerRadius;
     uint256 planetEventsCount;
     uint256 miscNonce;
     mapping(uint256 => Planet) planets;

@@ -256,6 +256,7 @@ library LibPlanet {
     ) public view returns (bool) {
         require(!gs().players[msg.sender].isInitialized, "Player is already initialized");
         require(_radius <= gs().worldRadius, "Init radius is bigger than the current world radius");
+        require(_radius >= gs().innerRadius, "nit radius is smaller than the current inner radius");
 
         uint256[5] memory MAX_LEVEL_DIST = gameConstants().MAX_LEVEL_DIST;
         require(_radius >= MAX_LEVEL_DIST[1], "Player can only spawn at the edge of universe");

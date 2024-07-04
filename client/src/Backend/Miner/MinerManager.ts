@@ -61,6 +61,7 @@ class MinerManager extends EventEmitter {
   private miningPattern: MiningPattern;
   private workers: Worker[];
   private worldRadius: number;
+  private innerRadius: number;
   private cores = 1;
   // chunks we're exploring
   private exploringChunk: { [chunkKey: string]: Chunk } = {};
@@ -77,6 +78,7 @@ class MinerManager extends EventEmitter {
     minedChunksStore: ChunkStore,
     miningPattern: MiningPattern,
     worldRadius: number,
+    innerRadius: number,
     planetRarity: number,
     hashConfig: HashConfig,
     useMockHash: boolean,
@@ -86,6 +88,7 @@ class MinerManager extends EventEmitter {
     this.minedChunksStore = minedChunksStore;
     this.miningPattern = miningPattern;
     this.worldRadius = worldRadius;
+    this.innerRadius = innerRadius;
     this.planetRarity = planetRarity;
     this.workers = [];
     this.hashConfig = hashConfig;
@@ -121,6 +124,7 @@ class MinerManager extends EventEmitter {
     chunkStore: ChunkStore,
     miningPattern: MiningPattern,
     worldRadius: number,
+    innerRadius: number,
     planetRarity: number,
     hashConfig: HashConfig,
     useMockHash = false,
@@ -130,6 +134,7 @@ class MinerManager extends EventEmitter {
       chunkStore,
       miningPattern,
       worldRadius,
+      innerRadius,
       planetRarity,
       hashConfig,
       useMockHash,
@@ -249,6 +254,9 @@ class MinerManager extends EventEmitter {
     this.worldRadius = radius;
   }
 
+  public setInnerRadius(radius: number): void {
+    this.innerRadius = radius;
+  }
   private async nextValidExploreTarget(
     chunkLocation: Rectangle,
     jobId: number
@@ -290,7 +298,9 @@ class MinerManager extends EventEmitter {
     const squareDist = xMinAbs ** 2 + yMinAbs ** 2;
     // should be inbounds, and unexplored
     return (
-      squareDist < this.worldRadius ** 2 && !this.minedChunksStore.hasMinedChunk(chunkLocation)
+      squareDist < this.worldRadius ** 2 &&
+      squareDist >= this.innerRadius ** 2 &&
+      !this.minedChunksStore.hasMinedChunk(chunkLocation)
     );
   }
 

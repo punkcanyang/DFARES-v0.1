@@ -223,6 +223,7 @@ contract DFCoreFacet is WithStorage {
         );
 
         LibGameUtils.updateWorldRadius();
+        LibGameUtils.updateInnerRadius();
         emit PlayerInitialized(msg.sender, _location);
         return _location;
     }

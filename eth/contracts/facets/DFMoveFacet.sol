@@ -74,7 +74,15 @@ contract DFMoveFacet is WithStorage {
         }
 
         // check radius
+
+        //Round 4 Todo: need to check the zk circuits here
         require(newRadius <= gs().worldRadius, "Attempting to move out of bounds");
+
+        uint256 targetDistFromOriginSquare = _input[10];
+        require(
+            targetDistFromOriginSquare >= gs().innerRadius * gs().innerRadius,
+            "Attempting to move out of bounds"
+        );
 
         // Refresh fromPlanet first before doing any action on it
         LibPlanet.refreshPlanet(args.oldLoc);
@@ -102,6 +110,7 @@ contract DFMoveFacet is WithStorage {
         _executeMove(args);
 
         LibGameUtils.updateWorldRadius();
+        LibGameUtils.updateInnerRadius();
         emit ArrivalQueued(
             msg.sender,
             gs().planetEventsCount,

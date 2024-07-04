@@ -43,13 +43,21 @@ contract DFUnionFacet is WithStorage {
         _;
     }
 
+    modifier onlyAdminOrUnionLeader(uint256 _unionId) {
+        require(
+            LibDiamond.contractOwner() == msg.sender || gs().unions[_unionId].leader == msg.sender,
+            "Only admin or  union leader"
+        );
+        _;
+    }
+
     modifier onlyUnionLeader(uint256 _unionId) {
-        require(gs().unions[_unionId].leader == msg.sender, "Only union admin");
+        require(gs().unions[_unionId].leader == msg.sender, "Only union leader");
         _;
     }
 
     modifier onlyUnionMember(uint256 _unionId) {
-        require(isMember(_unionId, msg.sender), "Caller is not a member of the union");
+        require(isMember(_unionId, msg.sender), "Only union member");
         _;
     }
 
@@ -202,7 +210,7 @@ contract DFUnionFacet is WithStorage {
         onlyWhitelisted
         notPaused
         validUnion(_unionId)
-        onlyUnionLeader(_unionId)
+        onlyAdminOrUnionLeader(_unionId)
     {
         require(_invitee != address(0), "Invalid invitee address");
         require(gs().players[_invitee].isInitialized, "Only initialized player");
@@ -223,7 +231,7 @@ contract DFUnionFacet is WithStorage {
         onlyWhitelisted
         notPaused
         validUnion(_unionId)
-        onlyUnionLeader(_unionId)
+        onlyAdminOrUnionLeader(_unionId)
     {
         require(_invitee != address(0), "Invalid invitee address");
         require(gs().players[_invitee].isInitialized, "Only initialized player");
@@ -310,12 +318,12 @@ contract DFUnionFacet is WithStorage {
         onlyWhitelisted
         notPaused
         validUnion(_unionId)
-        onlyUnionLeader(_unionId)
+        onlyAdminOrUnionLeader(_unionId)
     {
-        require(_member != msg.sender, "Admin cannot kick themselves");
         require(isMember(_unionId, _member), "Member is not part of your union");
 
         Union storage union = gs().unions[_unionId];
+        require(_member != union.leader, "Leader cannot kick themselves");
 
         // Remove member from union.members
         for (uint256 i = 0; i < union.members.length; i++) {
@@ -348,17 +356,19 @@ contract DFUnionFacet is WithStorage {
         onlyWhitelisted
         notPaused
         validUnion(_unionId)
-        onlyUnionLeader(_unionId)
+        onlyAdminOrUnionLeader(_unionId)
     {
         require(_newLeader != address(0), "invalid address");
         require(gs().players[_newLeader].isInitialized, "only intialized player");
         require(isMember(_unionId, _newLeader), "New admin must be a member");
-        require(_newLeader != msg.sender, "change leader");
-
         Union storage union = gs().unions[_unionId];
+
+        address _oldLeader = union.leader;
+
+        require(_newLeader != union.leader, "change leader");
         union.leader = _newLeader;
 
-        emit UnionTransferred(_unionId, msg.sender, _newLeader);
+        emit UnionTransferred(_unionId, _oldLeader, _newLeader);
     }
 
     function disbandUnion(uint256 _unionId)
@@ -366,7 +376,7 @@ contract DFUnionFacet is WithStorage {
         onlyWhitelisted
         notPaused
         validUnion(_unionId)
-        onlyUnionLeader(_unionId)
+        onlyAdminOrUnionLeader(_unionId)
     {
         Union storage union = gs().unions[_unionId];
 
@@ -395,7 +405,7 @@ contract DFUnionFacet is WithStorage {
         onlyWhitelisted
         notPaused
         validUnion(_unionId)
-        onlyUnionLeader(_unionId)
+        onlyAdminOrUnionLeader(_unionId)
     {
         Union storage union = gs().unions[_unionId];
 

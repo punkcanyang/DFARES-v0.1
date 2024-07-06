@@ -98,8 +98,10 @@ struct GameStorage {
     mapping(uint256 => Union) unions;
     mapping(uint256 => mapping(address => bool)) isMember;
     mapping(uint256 => mapping(address => bool)) isInvitee;
-
-    // mapping(uint256 => mapping(address => bool)) invites;
+    mapping(uint256 => mapping(address => bool)) isApplicant;
+    uint256 unionCreationFee;
+    uint256 unionUpgradeFeePerMember;
+    uint256 unionRejoinCooldown;
 }
 
 struct LogStorage {

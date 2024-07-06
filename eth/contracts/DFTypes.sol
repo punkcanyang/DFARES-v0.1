@@ -48,6 +48,7 @@ struct Player {
     uint256 buySpaceshipAmount;
     uint256 donationAmount; // amount (ether) * CONTRACT_PERCISION
     uint256 unionId;
+    uint256 leaveUnionTimestamp;
 }
 
 struct PlayerLog {
@@ -83,6 +84,7 @@ struct Union {
     uint256 level;
     address[] members;
     address[] invitees;
+    address[] applicants;
 }
 
 struct Planet {

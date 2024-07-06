@@ -213,6 +213,8 @@ export class ContractsAPI extends EventEmitter {
 
   public async setupEventListeners(): Promise<void> {
     const { contract } = this;
+    console.log('test');
+    console.log(contract);
 
     const filter = {
       address: contract.address,
@@ -245,6 +247,8 @@ export class ContractsAPI extends EventEmitter {
           contract.filters.PlanetBought(null, null).topics,
           contract.filters.SpaceshipBought(null, null, null).topics,
           contract.filters.HalfPriceChanged(null).topics,
+          contract.filters.WorldRadiusUpdated(null).topics,
+          contract.filters.InnerRadiusUpdated(null).topics,
         ].map((topicsOrUndefined) => (topicsOrUndefined || [])[0]),
       ] as Array<string | Array<string>>,
     };
@@ -486,6 +490,12 @@ export class ContractsAPI extends EventEmitter {
       ) => {
         this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location));
       },
+      [ContractEvent.WorldRadiusUpdated]: (_radius: EthersBN, _: Event) => {
+        this.emit(ContractsAPIEvent.RadiusUpdated);
+      },
+      [ContractEvent.InnerRadiusUpdated]: (_radius: EthersBN, _: Event) => {
+        this.emit(ContractsAPIEvent.RadiusUpdated);
+      },
     };
 
     this.ethConnection.subscribeToContractEvents(contract, eventHandlers, filter);
@@ -511,6 +521,8 @@ export class ContractsAPI extends EventEmitter {
     contract.removeAllListeners(ContractEvent.PlanetCaptured);
     contract.removeAllListeners(ContractEvent.LocationBurned);
     contract.removeAllListeners(ContractEvent.Kardashev);
+    contract.removeAllListeners(ContractEvent.WorldRadiusUpdated);
+    contract.removeAllListeners(ContractEvent.InnerRadiusUpdated);
   }
 
   public getContractAddress(): EthAddress {

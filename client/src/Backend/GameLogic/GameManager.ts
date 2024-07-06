@@ -1162,8 +1162,7 @@ class GameManager extends EventEmitter {
         gameManager.onTxCancelled(tx);
       })
       .on(ContractsAPIEvent.RadiusUpdated, async () => {
-        const newRadius = await gameManager.contractsAPI.getWorldRadius();
-        gameManager.setRadius(newRadius);
+        gameManager.hardRefreshRadius();
       });
 
     const unconfirmedTxs = await persistentChunkStore.getUnconfirmedSubmittedEthTxs();

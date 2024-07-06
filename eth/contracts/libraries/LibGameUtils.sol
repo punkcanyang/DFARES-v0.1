@@ -13,9 +13,6 @@ import {LibStorage, GameStorage, GameConstants, SnarkConstants} from "./LibStora
 import {Biome, SpaceType, Planet, PlanetType, PlanetEventType, Artifact, ArtifactType, ArtifactRarity, Upgrade, PlanetDefaultStats} from "../DFTypes.sol";
 
 library LibGameUtils {
-    event WorldRadiusUpdated(uint256 radius);
-    event InnerRadiusUpdated(uint256 radius);
-
     function gs() internal pure returns (GameStorage storage) {
         return LibStorage.gameStorage();
     }
@@ -759,13 +756,12 @@ library LibGameUtils {
     function updateWorldRadius() public {
         if (!gameConstants().WORLD_RADIUS_LOCKED) {
             gs().worldRadius = _getRadius();
-            emit WorldRadiusUpdated(gs().worldRadius);
         }
     }
 
     function updateInnerRadius() public {
-        gs().innerRadius = _getInnerRadius();
-        emit InnerRadiusUpdated(gs().innerRadius);
+        if (gs().adminSetInnerRadius != 0) gs().innerRadius = gs().adminSetInnerRadius;
+        else gs().innerRadius = _getInnerRadius();
     }
 
     function isPopCapBoost(uint256 _location) public pure returns (bool) {

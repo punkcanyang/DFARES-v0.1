@@ -31,6 +31,9 @@ contract DFMoveFacet is WithStorage {
         uint256 abandoning
     );
 
+    event WorldRadiusUpdated(uint256 radius);
+    event InnerRadiusUpdated(uint256 radius);
+
     function move(
         uint256[2] memory _a,
         uint256[2][2] memory _b,
@@ -111,6 +114,9 @@ contract DFMoveFacet is WithStorage {
 
         LibGameUtils.updateWorldRadius();
         LibGameUtils.updateInnerRadius();
+        emit WorldRadiusUpdated(gs().worldRadius);
+        emit InnerRadiusUpdated(gs().innerRadius);
+
         emit ArrivalQueued(
             msg.sender,
             gs().planetEventsCount,

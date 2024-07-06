@@ -20,6 +20,9 @@ contract DFTradeFacet is WithStorage {
     event PlanetBought(address player, uint256 loc);
     event SpaceshipBought(uint256 locationId, address owner, ArtifactType artifactType);
 
+    event WorldRadiusUpdated(uint256 radius);
+    event InnerRadiusUpdated(uint256 radius);
+
     modifier notPaused() {
         require(!gs().paused, "Game is paused");
         _;
@@ -118,6 +121,9 @@ contract DFTradeFacet is WithStorage {
         planet.population = planet.populationCap;
         LibGameUtils.updateWorldRadius();
         LibGameUtils.updateInnerRadius();
+        emit WorldRadiusUpdated(gs().worldRadius);
+        emit InnerRadiusUpdated(gs().innerRadius);
+
         emit PlanetBought(msg.sender, planetId);
         ls().buyPlanetCnt++;
         ls().playerLog[msg.sender].buyPlanetCnt++;

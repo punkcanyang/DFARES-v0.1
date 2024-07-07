@@ -63,7 +63,8 @@ import { ContractConstants } from '../../_types/darkforest/api/ContractsAPITypes
 import { HashConfig } from '../../_types/global/GlobalTypes';
 import { MiningPattern } from '../Miner/MiningPatterns';
 import { coordsEqual } from '../Utils/Coordinates';
-import GameManager, { GameManagerEvent } from './GameManager';
+import { GameManagerEvent } from './BaseGameManager';
+import GameManager from './GameManager';
 import { GameObjects } from './GameObjects';
 import { PluginManager } from './PluginManager';
 import TutorialManager, { TutorialState } from './TutorialManager';

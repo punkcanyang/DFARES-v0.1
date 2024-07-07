@@ -43,5 +43,6 @@ export function decodePlayer(rawPlayer: RawPlayer): Player {
     buyPlanetAmount: rawPlayer.buyPlanetAmount.toNumber(),
     buySpaceshipAmount: rawPlayer.buySpaceshipAmount.toNumber(),
     unionId: rawPlayer.unionId.toString() as UnionId,
+    leaveUnionTimestamp: rawPlayer.leaveUnionTimestamp.toNumber(),
   };
 }

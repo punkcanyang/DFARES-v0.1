@@ -2,7 +2,7 @@ import { monomitter, Monomitter } from '@dfares/events';
 import { CaptureZone, Chunk, LocationId } from '@dfares/types';
 import bigInt from 'big-integer';
 import { utils } from 'ethers';
-import GameManager, { GameManagerEvent } from './GameManager';
+import BaseGameManager, { GameManagerEvent } from './BaseGameManager';
 
 export type CaptureZonesGeneratedEvent = {
   changeBlock: number;
@@ -14,7 +14,7 @@ export type CaptureZonesGeneratedEvent = {
  * Given a game start block and a zone change block interval, decide when to generate new Capture Zones.
  */
 export class CaptureZoneGenerator {
-  private gameManager: GameManager;
+  private gameManager: BaseGameManager;
 
   private zones: Set<CaptureZone>;
   private capturablePlanets: Set<LocationId>;
@@ -25,7 +25,7 @@ export class CaptureZoneGenerator {
 
   public readonly generated$: Monomitter<CaptureZonesGeneratedEvent>;
 
-  constructor(gameManager: GameManager, gameStartBlock: number, changeInterval: number) {
+  constructor(gameManager: BaseGameManager, gameStartBlock: number, changeInterval: number) {
     this.gameManager = gameManager;
     this.changeInterval = changeInterval;
     this.nextChangeBlock = gameStartBlock;

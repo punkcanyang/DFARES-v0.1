@@ -201,7 +201,7 @@ export class ContractsAPI extends EventEmitter {
     this.emit(ContractsAPIEvent.TxProcessing, tx);
   }
 
-  private async afterTransaction(_txRequest: Transaction, txDiagnosticInfo: unknown) {
+  private async afterTransaction(_txRequest: Transaction, _txDiagnosticInfo: unknown) {
     // NOTE: remove /event
     // eventLogger.logEvent(EventType.Transaction, txDiagnosticInfo);
   }
@@ -252,9 +252,14 @@ export class ContractsAPI extends EventEmitter {
           contract.filters.InviteSent(null, null).topics,
           contract.filters.InviteCanceled(null, null).topics,
           contract.filters.InviteAccepted(null, null).topics,
+          contract.filters.ApplicationSent(null, null).topics,
+          contract.filters.ApplicationCanceled(null, null).topics,
+          contract.filters.ApplicationAccepted(null, null).topics,
+          contract.filters.ApplicationRejected(null, null).topics,
           contract.filters.MemberLeft(null, null).topics,
           contract.filters.MemberKicked(null, null).topics,
           contract.filters.UnionTransferred(null, null, null).topics,
+          contract.filters.UnionNameChanged(null, null).topics,
           contract.filters.UnionDisbanded(null).topics,
           contract.filters.UnionLeveledUp(null, null).topics,
           contract.filters.MemberAddedByAdmin(null, null).topics,
@@ -448,9 +453,6 @@ export class ContractsAPI extends EventEmitter {
         );
         this.emit(ContractsAPIEvent.PlayerUpdate, address(revealerAddr));
       },
-
-      //todo: this is cool
-
       [ContractEvent.Kardashev]: async (
         revealerAddr: string,
         location: EthersBN,
@@ -514,6 +516,34 @@ export class ContractsAPI extends EventEmitter {
         this.emit(ContractsAPIEvent.UnionUpdate, unionId.toString() as UnionId);
         this.emit(ContractsAPIEvent.PlayerUpdate, address(invitee));
       },
+      [ContractEvent.ApplicationSent]: async (unionId: EthersBN, applicant: string, _: Event) => {
+        this.emit(ContractsAPIEvent.UnionUpdate, unionId.toString() as UnionId);
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(applicant));
+      },
+      [ContractEvent.ApplicationCanceled]: async (
+        unionId: EthersBN,
+        applicant: string,
+        _: Event
+      ) => {
+        this.emit(ContractsAPIEvent.UnionUpdate, unionId.toString() as UnionId);
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(applicant));
+      },
+      [ContractEvent.ApplicationAccepted]: async (
+        unionId: EthersBN,
+        applicant: string,
+        _: Event
+      ) => {
+        this.emit(ContractsAPIEvent.UnionUpdate, unionId.toString() as UnionId);
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(applicant));
+      },
+      [ContractEvent.ApplicationRejected]: async (
+        unionId: EthersBN,
+        applicant: string,
+        _: Event
+      ) => {
+        this.emit(ContractsAPIEvent.UnionUpdate, unionId.toString() as UnionId);
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(applicant));
+      },
       [ContractEvent.MemberLeft]: async (unionId: EthersBN, member: string, _: Event) => {
         this.emit(ContractsAPIEvent.UnionUpdate, unionId.toString() as UnionId);
         this.emit(ContractsAPIEvent.PlayerUpdate, address(member));
@@ -526,6 +556,9 @@ export class ContractsAPI extends EventEmitter {
       [ContractEvent.UnionTransferred]: async (unionId: EthersBN, member: string, _: Event) => {
         this.emit(ContractsAPIEvent.UnionUpdate, unionId.toString() as UnionId);
         this.emit(ContractsAPIEvent.PlayerUpdate, address(member));
+      },
+      [ContractEvent.UnionNameChanged]: async (unionId: EthersBN, _newName: string, _: Event) => {
+        this.emit(ContractsAPIEvent.UnionUpdate, unionId.toString() as UnionId);
       },
       [ContractEvent.UnionDisbanded]: async (unionId: EthersBN, members: string[], _: Event) => {
         this.emit(ContractsAPIEvent.UnionUpdate, unionId.toString() as UnionId);
@@ -588,10 +621,6 @@ export class ContractsAPI extends EventEmitter {
     return res;
   }
 
-  public async getLevelUpUnionFee(level: number): Promise<EthersBN> {
-    const res = await this.makeCall<EthersBN>(this.contract.getLevelUpUnionFee, [level]);
-    return res;
-  }
   /**
    * If this player has a claimed planet, their score is the distance between the claimed planet and
    * the center. If this player does not have a claimed planet, then the score is undefined.
@@ -1153,6 +1182,31 @@ export class ContractsAPI extends EventEmitter {
 
   public async isInvitee(unionId: UnionId, addr: EthAddress): Promise<boolean> {
     const res = await this.makeCall(this.contract.isInvitee, [unionId, addr]);
+    return res;
+  }
+
+  public async isApplicant(unionId: UnionId, addr: EthAddress): Promise<boolean> {
+    const res = await this.makeCall(this.contract.isApplicant, [unionId, addr]);
+    return res;
+  }
+
+  public async getUnionCreationFee(): Promise<EthersBN> {
+    const res = await this.makeCall(this.contract.getUnionCreationFee, []);
+    return res;
+  }
+
+  public async getUnionUpgradeFeePreMember(): Promise<EthersBN> {
+    const res = await this.makeCall(this.contract.getUnionUpgradeFeePreMember, []);
+    return res;
+  }
+
+  public async getUnionRejoinCooldown(): Promise<EthersBN> {
+    const res = await this.makeCall(this.contract.getUnionRejoinCooldown, []);
+    return res;
+  }
+
+  public async getLevelUpUnionFee(level: number): Promise<EthersBN> {
+    const res = await this.makeCall<EthersBN>(this.contract.getLevelUpUnionFee, [level]);
     return res;
   }
 

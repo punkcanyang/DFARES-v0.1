@@ -41,9 +41,14 @@ export type ContractMethodName =
   | 'inviteMember'
   | 'cancelInvite'
   | 'acceptInvite'
+  | 'sendApplication'
+  | 'cancelApplication'
+  | 'rejectApplication'
+  | 'acceptApplication'
   | 'leaveUnion'
   | 'kickMember'
   | 'transferLeaderRole'
+  | 'changeUnionName'
   | 'disbandUnion'
   | 'levelUpUnion';
 
@@ -386,6 +391,40 @@ export type UnconfirmedCancelInvite = TxIntent & {
 /**
  * @hidden
  */
+export type UnconfirmedSendApplication = TxIntent & {
+  methodName: 'sendApplication';
+  unionId: UnionId;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedCancelApplication = TxIntent & {
+  methodName: 'cancelApplication';
+  unionId: UnionId;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedRejectApplication = TxIntent & {
+  methodName: 'rejectApplication';
+  unionId: UnionId;
+  applicant: EthAddress;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedAcceptApplication = TxIntent & {
+  methodName: 'acceptApplication';
+  unionId: UnionId;
+  applicant: EthAddress;
+};
+
+/**
+ * @hidden
+ */
 export type UnconfirmedAcceptInvite = TxIntent & {
   methodName: 'acceptInvite';
   unionId: UnionId;
@@ -415,6 +454,15 @@ export type UnconfirmedTransferLeaderRole = TxIntent & {
   methodName: 'transferLeaderRole';
   unionId: UnionId;
   newLeader: EthAddress;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedChangeUnionName = TxIntent & {
+  methodName: 'changeUnionName';
+  unionId: UnionId;
+  newName: string;
 };
 
 /**

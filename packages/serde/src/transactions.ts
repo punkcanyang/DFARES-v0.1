@@ -1,6 +1,7 @@
 import {
   Transaction,
   TxIntent,
+  UnconfirmedAcceptApplication,
   UnconfirmedAcceptInvite,
   UnconfirmedActivateArtifact,
   UnconfirmedAddMemberByAdmin,
@@ -10,9 +11,11 @@ import {
   UnconfirmedBuyHat,
   UnconfirmedBuyPlanet,
   UnconfirmedBuySpaceship,
+  UnconfirmedCancelApplication,
   UnconfirmedCancelInvite,
   UnconfirmedCapturePlanet,
   UnconfirmedChangeArtifactImageType,
+  UnconfirmedChangeUnionName,
   UnconfirmedClaim,
   UnconfirmedCreateUnion,
   UnconfirmedDeactivateArtifact,
@@ -33,7 +36,9 @@ import {
   UnconfirmedPlanetTransfer,
   UnconfirmedProspectPlanet,
   UnconfirmedRefreshPlanet,
+  UnconfirmedRejectApplication,
   UnconfirmedReveal,
+  UnconfirmedSendApplication,
   UnconfirmedTransferLeaderRole,
   UnconfirmedUpgrade,
   UnconfirmedUseKey,
@@ -202,6 +207,30 @@ export function isUnconfirmedAcceptInvite(txIntent: TxIntent): txIntent is Uncon
   return txIntent.methodName === 'acceptInvite';
 }
 
+export function isUnconfirmedSendApplication(
+  txIntent: TxIntent
+): txIntent is UnconfirmedSendApplication {
+  return txIntent.methodName === 'sendApplication';
+}
+
+export function isUnconfirmedCancelApplication(
+  txIntent: TxIntent
+): txIntent is UnconfirmedCancelApplication {
+  return txIntent.methodName === 'cancelApplication';
+}
+
+export function isUnconfirmedRejectApplication(
+  txIntent: TxIntent
+): txIntent is UnconfirmedCancelApplication {
+  return txIntent.methodName === 'rejectApplication';
+}
+
+export function isUnconfirmedAcceptApplication(
+  txIntent: TxIntent
+): txIntent is UnconfirmedAcceptApplication {
+  return txIntent.methodName === 'acceptApplication';
+}
+
 export function isUnconfirmedLeaveUnion(txIntent: TxIntent): txIntent is UnconfirmedLeaveUnion {
   return txIntent.methodName === 'leaveUnion';
 }
@@ -214,6 +243,12 @@ export function isUnconfirmedTransferLeaderRole(
   txIntent: TxIntent
 ): txIntent is UnconfirmedTransferLeaderRole {
   return txIntent.methodName === 'transferLeaderRole';
+}
+
+export function isUnconfirmedChangeUnionName(
+  txIntent: TxIntent
+): txIntent is UnconfirmedChangeUnionName {
+  return txIntent.methodName === 'changeUnionName';
 }
 
 export function isUnconfirmedDisbandUnion(txIntent: TxIntent): txIntent is UnconfirmedDisbandUnion {
@@ -398,6 +433,30 @@ export function isUnconfirmedAcceptInviteTx(
   return isUnconfirmedAcceptInvite(tx.intent);
 }
 
+export function isUnconfirmedSendApplicationTx(
+  tx: Transaction
+): tx is Transaction<UnconfirmedSendApplication> {
+  return isUnconfirmedSendApplication(tx.intent);
+}
+
+export function isUnconfirmedCancelApplicationTx(
+  tx: Transaction
+): tx is Transaction<UnconfirmedCancelApplication> {
+  return isUnconfirmedCancelApplication(tx.intent);
+}
+
+export function isUnconfirmedRejectApplicationTx(
+  tx: Transaction
+): tx is Transaction<UnconfirmedRejectApplication> {
+  return isUnconfirmedRejectApplication(tx.intent);
+}
+
+export function isUnconfirmedAcceptApplicationTx(
+  tx: Transaction
+): tx is Transaction<UnconfirmedAcceptApplication> {
+  return isUnconfirmedAcceptApplication(tx.intent);
+}
+
 export function isUnconfirmedLeaveUnionTx(
   tx: Transaction
 ): tx is Transaction<UnconfirmedLeaveUnion> {
@@ -414,6 +473,12 @@ export function isUnconfirmedTransferLeaderRoleTx(
   tx: Transaction
 ): tx is Transaction<UnconfirmedTransferLeaderRole> {
   return isUnconfirmedTransferLeaderRole(tx.intent);
+}
+
+export function isUnconfirmedChangeUnionNameTx(
+  tx: Transaction
+): tx is Transaction<UnconfirmedChangeUnionName> {
+  return isUnconfirmedChangeUnionName(tx.intent);
 }
 
 export function isUnconfirmedDisbandUnionTx(

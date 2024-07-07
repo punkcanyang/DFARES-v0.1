@@ -20,5 +20,6 @@ export function decodeUnion(rawUnion: RawUnion): Union {
     level: rawUnion.level.toNumber(),
     members: rawUnion.members.map((x) => address(x)),
     invitees: rawUnion.invitees.map((x) => address(x)),
+    applicants: rawUnion.applicants.map((x) => address(x)),
   };
 }

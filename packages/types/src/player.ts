@@ -41,4 +41,5 @@ export type Player = {
   buyPlanetAmount: number;
   buySpaceshipAmount: number;
   unionId: UnionId;
+  leaveUnionTimestamp: number;
 };

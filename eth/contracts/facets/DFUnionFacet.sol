@@ -171,8 +171,8 @@ contract DFUnionFacet is WithStorage {
         gs().unionUpgradeFeePerMember = fee;
     }
 
-    function adminSetUnionRejoinCooldown(uint256 fee) public onlyAdmin {
-        gs().unionRejoinCooldown = fee;
+    function adminSetUnionRejoinCooldown(uint256 cooldown) public onlyAdmin {
+        gs().unionRejoinCooldown = cooldown;
     }
 
     // Administrator adds a member directly without invitation
@@ -185,6 +185,7 @@ contract DFUnionFacet is WithStorage {
         require(gs().players[_member].isInitialized, "Only initialized player");
         require(!isMember(_unionId, _member), "Not in this union");
         Union storage union = gs().unions[_unionId];
+        require(union.unionId == _unionId, "Union is disbanded");
         require(union.members.length < getMaxMembers(union.level), "Union is full");
 
         union.members.push(_member);
@@ -234,6 +235,7 @@ contract DFUnionFacet is WithStorage {
         require(!isApplicant(_unionId, _invitee), "invitee is already in applicant list");
 
         Union storage union = gs().unions[_unionId];
+        require(union.unionId == _unionId, "Union is disbanded");
         union.invitees.push(_invitee);
         gs().isInvitee[_unionId][_invitee] = true;
 
@@ -249,10 +251,11 @@ contract DFUnionFacet is WithStorage {
     {
         require(_invitee != address(0), "Invalid invitee address");
         require(gs().players[_invitee].isInitialized, "Only initialized player");
-        require(isInvitee(_unionId, _invitee), "Invited before");
+        require(isInvitee(_unionId, _invitee), "No invition");
         require(!isMember(_unionId, _invitee), "Not member");
 
         Union storage union = gs().unions[_unionId];
+        require(union.unionId == _unionId, "Union is disbanded");
         gs().isInvitee[_unionId][_invitee] = false;
         removeAddressFromList(union.invitees, _invitee);
 
@@ -270,6 +273,7 @@ contract DFUnionFacet is WithStorage {
         );
 
         Union storage union = gs().unions[_unionId];
+        require(union.unionId == _unionId, "Union is disbanded");
         require(union.members.length < getMaxMembers(union.level), "Union is full");
 
         gs().players[msg.sender].unionId = _unionId;
@@ -301,6 +305,7 @@ contract DFUnionFacet is WithStorage {
         );
 
         Union storage union = gs().unions[_unionId];
+        require(union.unionId == _unionId, "Union is disbanded");
         require(union.members.length < getMaxMembers(union.level), "Union is full");
         union.applicants.push(msg.sender);
         gs().isApplicant[_unionId][msg.sender] = true;
@@ -315,8 +320,10 @@ contract DFUnionFacet is WithStorage {
         onlyWhitelisted
     {
         require(isApplicant(_unionId, msg.sender), "Not in Applicant list");
+        require(!isMember(_unionId, msg.sender), "Already in this union");
 
         Union storage union = gs().unions[_unionId];
+        require(union.unionId == _unionId, "Union is disbanded");
         gs().isApplicant[_unionId][msg.sender] = false;
         removeAddressFromList(union.applicants, msg.sender);
 
@@ -332,11 +339,12 @@ contract DFUnionFacet is WithStorage {
     {
         require(_applicant != address(0), "Invalid applicant address");
         require(gs().players[_applicant].isInitialized, "Only initialized player");
-        require(!isMember(_unionId, _applicant), "Not union member");
-        require(!isInvitee(_unionId, _applicant), "Not union invitee");
+        require(!isMember(_unionId, _applicant), "union member");
+        require(!isInvitee(_unionId, _applicant), "union invitee");
         require(isApplicant(_unionId, _applicant), "In union applicant list");
 
         Union storage union = gs().unions[_unionId];
+        require(union.unionId == _unionId, "Union is disbanded");
         gs().isApplicant[_unionId][_applicant] = false;
         removeAddressFromList(union.applicants, _applicant);
 
@@ -357,12 +365,15 @@ contract DFUnionFacet is WithStorage {
         require(isApplicant(_unionId, _applicant), "In union applicant list");
 
         Union storage union = gs().unions[_unionId];
+        require(union.unionId == _unionId, "Union is disbanded");
         gs().isMember[_unionId][_applicant] = true;
         union.members.push(_applicant);
         gs().isApplicant[_unionId][_applicant] = false;
         removeAddressFromList(union.applicants, _applicant);
         gs().isInvitee[_unionId][_applicant] = false;
         removeAddressFromList(union.invitees, _applicant);
+
+        gs().players[_applicant].unionId = _unionId;
 
         emit ApplicationAccepted(_unionId, _applicant);
     }
@@ -375,6 +386,7 @@ contract DFUnionFacet is WithStorage {
         onlyUnionMember(_unionId)
     {
         Union storage union = gs().unions[_unionId];
+        require(union.unionId == _unionId, "Union is disbanded");
         require(msg.sender != union.leader, "Leader cannot leave the union");
 
         gs().isMember[_unionId][msg.sender] = false;
@@ -384,6 +396,7 @@ contract DFUnionFacet is WithStorage {
         gs().isApplicant[_unionId][msg.sender] = false;
         removeAddressFromList(union.applicants, msg.sender);
 
+        gs().players[msg.sender].leaveUnionTimestamp = block.timestamp;
         // Clear user's union reference
         gs().players[msg.sender].unionId = 0;
 
@@ -400,6 +413,7 @@ contract DFUnionFacet is WithStorage {
         require(isMember(_unionId, _member), "Member is not part of your union");
 
         Union storage union = gs().unions[_unionId];
+        require(union.unionId == _unionId, "Union is disbanded");
         require(_member != union.leader, "Leader cannot kick themselves");
 
         gs().isMember[_unionId][msg.sender] = false;
@@ -425,6 +439,7 @@ contract DFUnionFacet is WithStorage {
         require(isMember(_unionId, _newLeader), "New admin must be a member");
 
         Union storage union = gs().unions[_unionId];
+        require(union.unionId == _unionId, "Union is disbanded");
         address _oldLeader = union.leader;
         require(_newLeader != union.leader, "change leader");
         union.leader = _newLeader;
@@ -440,6 +455,7 @@ contract DFUnionFacet is WithStorage {
         onlyAdminOrUnionLeader(_unionId)
     {
         Union storage union = gs().unions[_unionId];
+        require(union.unionId == _unionId, "Union is disbanded");
         union.name = _name;
 
         emit UnionNameChanged(_unionId, _name);
@@ -453,6 +469,8 @@ contract DFUnionFacet is WithStorage {
         onlyAdminOrUnionLeader(_unionId)
     {
         Union storage union = gs().unions[_unionId];
+        require(union.unionId == _unionId, "Union is disbanded");
+
         address[] memory members = union.members;
 
         // Clear all members
@@ -477,6 +495,7 @@ contract DFUnionFacet is WithStorage {
         onlyAdminOrUnionLeader(_unionId)
     {
         Union storage union = gs().unions[_unionId];
+        require(union.unionId == _unionId, "Union is disbanded");
         uint256 MAX_LEVEL = 3;
         require(union.level < MAX_LEVEL, "Union has reached the maximum level");
 

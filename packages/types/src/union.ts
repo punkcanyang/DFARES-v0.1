@@ -11,4 +11,5 @@ export type Union = {
   level: number;
   members: EthAddress[];
   invitees: EthAddress[];
+  applicants: EthAddress[];
 };

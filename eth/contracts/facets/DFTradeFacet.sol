@@ -80,7 +80,7 @@ contract DFTradeFacet is WithStorage {
         require(planet.owner == address(0), "no owner before");
         require(_radius <= gs().worldRadius, "Init radius is bigger than the current world radius");
         require(
-            _radius <= gs().innerRadius,
+            _radius >= gs().innerRadius,
             "Init radius is smaller than the current inner radius"
         );
 

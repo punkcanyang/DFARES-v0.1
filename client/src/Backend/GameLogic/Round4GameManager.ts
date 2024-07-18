@@ -730,6 +730,10 @@ class Round4GameManager extends BaseGameManager {
     return BASE_MAX_MEMBERS + unionLevel * MEMBERS_PER_LEVEL;
   }
 
+  public getUnionCreationFee() {
+    return this.contractsAPI.getUnionCreationFee();
+  }
+
   /**
    *
    */

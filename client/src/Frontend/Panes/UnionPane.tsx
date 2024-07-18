@@ -6,6 +6,7 @@ import { Section, SectionHeader } from '../Components/CoreUI';
 import { LoadingSpinner } from '../Components/LoadingSpinner';
 import { useAccount, useUIManager } from '../Utils/AppHooks';
 import { ModalPane } from '../Views/ModalPane'; // Import ModalPane and ModalHandle
+import { UnionCreatePane } from './UnionCreatePane';
 
 // Styled component for the list item with hover effect and tooltip
 const ListItem = styled.li`
@@ -107,7 +108,7 @@ export default function UnionContextPane({
   const [unions, setUnions] = useState<Union[]>([]);
   const [union, setUnion] = useState<Union>();
   const [playerInvitees, setPlayerInvitees] = useState<Union[]>([]);
-  const [activeFrame, setActiveFrame] = useState('management'); // State to manage active frame
+  const [activeFrame, setActiveFrame] = useState('create'); // State to manage active frame
 
   const refreshUnions = () => {
     if (!uiManager) return;
@@ -332,12 +333,17 @@ export default function UnionContextPane({
       onClose={onClose}
     >
       <Header>
+        <Btn onClick={() => handleFrameChange('create')}>Create</Btn>
         <Btn onClick={() => handleFrameChange('management')}>Union Management</Btn>
         <InvitesButton onClick={() => handleFrameChange('invites')}>
           Invites ({playerInvitees.length}) ({isLeader && union?.invitees.length})
         </InvitesButton>
         <Btn onClick={() => handleFrameChange('leaderboard')}>Leaderboard</Btn>
       </Header>
+
+      <Frame visible={activeFrame === 'create'}>
+        <UnionCreatePane />
+      </Frame>
 
       <Frame visible={activeFrame === 'management'}>
         <UnionContent>

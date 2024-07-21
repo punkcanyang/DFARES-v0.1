@@ -79,9 +79,10 @@ contract DFTradeFacet is WithStorage {
         require(planet.planetLevel == 0, "only level 0");
         require(planet.owner == address(0), "no owner before");
         require(_radius <= gs().worldRadius, "Init radius is bigger than the current world radius");
+
         require(
-            _radius >= gs().innerRadius,
-            "Init radius is smaller than the current inner radius"
+            _distFromOriginSquare >= gs().innerRadius * gs().innerRadius,
+            "Init radius is smaller than the current world radius"
         );
 
         uint256[5] memory MAX_LEVEL_DIST = gameConstants().MAX_LEVEL_DIST;

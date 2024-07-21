@@ -830,6 +830,7 @@ class Round4GameManager extends BaseGameManager {
 
       const invitePlayer = this.getPlayer(invitee);
       if (!invitePlayer) throw Error('invalid invitee');
+      if (invitePlayer.unionId !== '0') throw Error('invitee already in other union');
 
       const union = this.getUnion(unionId);
       if (!union) throw Error('no union');
@@ -1080,6 +1081,7 @@ class Round4GameManager extends BaseGameManager {
       if (!applicantPlayer) throw 'invalid applicant';
 
       const union = this.getUnion(unionId);
+
       if (!union) throw Error('no union');
       if (union.unionId !== unionId) throw Error('union is disbanded');
       if (union.leader !== this.account) throw Error('not the union leader');
@@ -1092,6 +1094,7 @@ class Round4GameManager extends BaseGameManager {
       let isApplicant = false;
       for (let i = 0; i < union.applicants.length; i++)
         if (union.applicants[i] === applicant) isApplicant = true;
+
       if (!isApplicant) throw Error('not in applicant list');
 
       let isInvitee = false;

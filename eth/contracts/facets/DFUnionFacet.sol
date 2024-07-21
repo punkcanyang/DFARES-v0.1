@@ -410,18 +410,20 @@ contract DFUnionFacet is WithStorage {
         onlyWhitelisted
         onlyAdminOrUnionLeader(_unionId)
     {
-        require(isMember(_unionId, _member), "Member is not part of your union");
+        address account = _member;
+        require(isMember(_unionId, account), "Member is not part of your union");
 
         Union storage union = gs().unions[_unionId];
         require(union.unionId == _unionId, "Union is disbanded");
-        require(_member != union.leader, "Leader cannot kick themselves");
+        require(account != union.leader, "Leader cannot kick themselves");
 
-        gs().isMember[_unionId][msg.sender] = false;
-        removeAddressFromList(union.members, msg.sender);
-        gs().isInvitee[_unionId][msg.sender] = false;
-        removeAddressFromList(union.invitees, msg.sender);
+        gs().isMember[_unionId][account] = false;
+        removeAddressFromList(union.members, account);
+        gs().isInvitee[_unionId][account] = false;
+        removeAddressFromList(union.invitees, account);
         gs().isApplicant[_unionId][msg.sender] = false;
-        removeAddressFromList(union.applicants, msg.sender);
+        removeAddressFromList(union.applicants, _member);
+        // Clear user's union reference
         gs().players[_member].unionId = 0;
 
         emit MemberKicked(_unionId, _member);
@@ -477,6 +479,10 @@ contract DFUnionFacet is WithStorage {
         for (uint256 i = 0; i < union.members.length; i++) {
             gs().players[union.members[i]].unionId = 0;
         }
+
+        // Clear leader
+        gs().players[union.leader].unionId = 0;
+
         delete gs().unions[_unionId];
 
         emit UnionDisbanded(_unionId, members);

@@ -7,6 +7,9 @@ import { LoadingSpinner } from '../Components/LoadingSpinner';
 import { useAccount, useUIManager } from '../Utils/AppHooks';
 import { ModalPane } from '../Views/ModalPane'; // Import ModalPane and ModalHandle
 import { UnionCreatePane } from './UnionCreatePane';
+import { UnionDetailPane } from './UnionDetailPane';
+import { UnionListPane } from './UnionListPane';
+import { UnionManagePane } from './UnionManagePane';
 
 // Styled component for the list item with hover effect and tooltip
 const ListItem = styled.li`
@@ -75,6 +78,7 @@ const Header = styled.div`
   display: flex;
   justify-content: space-around;
   margin-bottom: 5px;
+  width: 600px;
 `;
 
 const Frame = styled.div<{ visible: boolean }>`
@@ -334,7 +338,10 @@ export default function UnionContextPane({
     >
       <Header>
         <Btn onClick={() => handleFrameChange('create')}>Create</Btn>
-        <Btn onClick={() => handleFrameChange('management')}>Union Management</Btn>
+        <Btn onClick={() => handleFrameChange('list')}>List</Btn>
+        <Btn onClick={() => handleFrameChange('detail')}>Detail</Btn>
+        <Btn onClick={() => handleFrameChange('manage')}>Manage</Btn>
+        <Btn onClick={() => handleFrameChange('management')}> Management</Btn>
         <InvitesButton onClick={() => handleFrameChange('invites')}>
           Invites ({playerInvitees.length}) ({isLeader && union?.invitees.length})
         </InvitesButton>
@@ -343,6 +350,18 @@ export default function UnionContextPane({
 
       <Frame visible={activeFrame === 'create'}>
         <UnionCreatePane />
+      </Frame>
+
+      <Frame visible={activeFrame === 'list'}>
+        <UnionListPane />
+      </Frame>
+
+      <Frame visible={activeFrame === 'detail'}>
+        <UnionDetailPane />
+      </Frame>
+
+      <Frame visible={activeFrame === 'manage'}>
+        <UnionManagePane />
       </Frame>
 
       <Frame visible={activeFrame === 'management'}>
@@ -356,7 +375,9 @@ export default function UnionContextPane({
                     type='text'
                     placeholder='Union name'
                     value={unionNameText}
-                    onChange={(e) => setUnionNameText(e.target.value)}
+                    onChange={(e) => {
+                      setUnionNameText(e.target.value);
+                    }}
                   />
                 </span>
                 <Btn disabled={isProcessing} onClick={handleCreateUnion}>

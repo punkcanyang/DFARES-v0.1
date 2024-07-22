@@ -2,7 +2,7 @@ import { EthAddress, Setting, Union } from '@dfares/types';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Btn } from '../Components/Btn';
-import { SectionHeader } from '../Components/CoreUI';
+import { SectionHeader, Spacer } from '../Components/CoreUI';
 import { DarkForestTextInput, TextInput } from '../Components/Input';
 import { TextPreview } from '../Components/TextPreview';
 import dfstyles from '../Styles/dfstyles';
@@ -56,6 +56,25 @@ export const UnionManageSection = styled.div`
 
   &:last-child {
     border-bottom: none;
+  }
+`;
+
+const Actions = styled.div`
+  float: right;
+
+  .blue {
+    --df-button-hover-background: ${dfstyles.colors.dfblue};
+    --df-button-hover-border: 1px solid ${dfstyles.colors.dfblue};
+  }
+
+  .red {
+    --df-button-hover-background: ${dfstyles.colors.dfred};
+    --df-button-hover-border: 1px solid ${dfstyles.colors.dfred};
+  }
+
+  .green {
+    --df-button-hover-background: ${dfstyles.colors.dfgreen};
+    --df-button-hover-border: 1px solid ${dfstyles.colors.dfgreen};
   }
 `;
 
@@ -216,6 +235,18 @@ export function UnionManagePane() {
     }
   };
 
+  const handleLevelupUnion = async () => {
+    if (!account || !union || !validUnion(union)) return;
+    setIsProcessing(true);
+    try {
+      await gameManager.levelUpUnion(union.unionId);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   if (!account || !player || !union) return <>You haven't joined a union yet</>;
   if (!validUnion(union)) return <>You haven't joined a union yet</>;
   if (!isLeader(union, account)) return <>You are not the leader of one union</>;
@@ -226,7 +257,8 @@ export function UnionManagePane() {
         <UnionManageSection>
           <CenteredText>{'Union: ' + union?.name}</CenteredText>
           <Row>
-            <Btn onClick={() => handleDisbandUnion()}> Disband This Union</Btn>
+            <Btn onClick={handleDisbandUnion}> Disband This Union</Btn>
+            <Btn onClick={handleLevelupUnion}>Levelup Union</Btn>
           </Row>
           <Row>
             <span> Id </span>
@@ -269,8 +301,15 @@ export function UnionManagePane() {
             <li key={member}>
               <BtnSet>
                 {member}
-                <Btn onClick={() => handleKickMember(member)}>Kick</Btn>
-                <Btn onClick={() => handleTransferLeaderRole(member)}> Transfer Admin </Btn>
+                <Actions>
+                  <Btn className='red' onClick={() => handleKickMember(member)}>
+                    Kick
+                  </Btn>
+                  <Spacer width={4} />
+                  <Btn className='button' onClick={() => handleTransferLeaderRole(member)}>
+                    Transfer Admin
+                  </Btn>
+                </Actions>
               </BtnSet>
             </li>
           ))}
@@ -325,6 +364,7 @@ export function UnionManagePane() {
                 <Btn disabled={isProcessing} onClick={() => handleRejectApplication(applicant)}>
                   Reject
                 </Btn>
+                <Spacer width={4} />
                 <Btn disabled={isProcessing} onClick={() => handleAcceptApplication(applicant)}>
                   Accept
                 </Btn>

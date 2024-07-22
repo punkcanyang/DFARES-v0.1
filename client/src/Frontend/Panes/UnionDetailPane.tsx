@@ -1,14 +1,14 @@
-import { EthAddress, Setting, Union } from '@dfares/types';
+import { weiToEth } from '@dfares/network';
+import { EthAddress, Union, UnionId } from '@dfares/types';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Btn } from '../Components/Btn';
 import { SectionHeader } from '../Components/CoreUI';
-import { DarkForestTextInput, TextInput } from '../Components/Input';
 import { LoadingSpinner } from '../Components/LoadingSpinner';
 import { TextPreview } from '../Components/TextPreview';
+import { formatDuration } from '../Components/TimeUntil';
 import dfstyles from '../Styles/dfstyles';
 import { useAccount, usePlayer, useUIManager } from '../Utils/AppHooks';
-import { useBooleanSetting } from '../Utils/SettingsHooks';
 
 const UnionDetailContent = styled.div`
   width: 600px;
@@ -43,11 +43,6 @@ const CenteredText = styled.div`
   font-weight: bold;
 `;
 
-const BtnSet = styled.div`
-  display: flex;
-  justify-content: space-around;
-`;
-
 export const UnionDetailSection = styled.div`
   padding: 0.5em 0;
 
@@ -60,7 +55,7 @@ export const UnionDetailSection = styled.div`
   }
 `;
 
-export function UnionDetailPane() {
+export function UnionDetailPane({ _unionId }: { _unionId: UnionId }) {
   const uiManager = useUIManager();
   const gameManager = uiManager.getGameManager();
   const account = useAccount(uiManager);
@@ -69,97 +64,77 @@ export function UnionDetailPane() {
   const [union, setUnion] = useState<Union>();
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // about input
-  const [inviteAddressText, setInviteAddressText] = useState('');
-  const [savedSettingValue, setSavedSettingValue] = useState(false);
-  const [settingValue, setSettingValue] = useBooleanSetting(
-    uiManager,
-    Setting.DisableDefaultShortcuts
-  );
-  const handleKeyDown = () => {
-    console.log('handle key down');
-    console.log(settingValue);
-    setSettingValue(true);
-    console.log('become true');
-  };
-
-  const handleKeyUp = () => {
-    console.log('handle key up');
-    console.log(savedSettingValue);
-    setSettingValue(savedSettingValue);
-  };
+  const [unionRejoinCooldown, setUnionRejoinCooldown] = useState<number>();
+  const [levelupUnionFee, setLevelupUnionFee] = useState<number>();
 
   useEffect(() => {
-    if (!account || !uiManager) return;
-    const unionId = uiManager.getPlayerUnionId(account);
+    if (!uiManager) return;
+    const unionId = _unionId;
     const union = uiManager.getUnion(unionId);
     setUnion(union);
-    setSavedSettingValue(settingValue);
-  }, [account, uiManager]);
+  }, [_unionId, uiManager]);
 
-  //refresh unions every 10 seconds
   useEffect(() => {
-    if (!account || !uiManager) return;
-
-    const refreshUnion = () => {
-      if (!account || !uiManager) return;
-      const unionId = uiManager.getPlayerUnionId(account);
-      const union = uiManager.getUnion(unionId);
-      setUnion(union);
+    const fetchConfig = async () => {
+      if (!union) return;
+      const rawCooldown = await gameManager.getContractAPI().getUnionRejoinCooldown();
+      const cooldown = rawCooldown.toNumber();
+      setUnionRejoinCooldown(cooldown);
+      const rawFee = await gameManager.getContractAPI().getLevelUpUnionFee(union.level + 1);
+      const fee = weiToEth(rawFee);
+      setLevelupUnionFee(fee);
     };
 
-    const intervalId = setInterval(refreshUnion, 10000);
+    fetchConfig();
+  }, [union, gameManager]);
 
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [account, uiManager]);
+  // refresh unions every 10 seconds
+  useEffect(() => {
+    if (!uiManager) return;
+    const unionId = _unionId;
+    const union = uiManager.getUnion(unionId);
+    setUnion(union);
+  }, [_unionId, uiManager]);
 
   const validUnion = (union: Union | undefined): boolean => {
     if (!union) return false;
     return union.unionId !== '0';
   };
 
-  const isLeader = (union: Union | undefined, address: EthAddress | undefined): boolean => {
-    if (!union || !address) return false;
+  const isLeader = (union: Union, address: EthAddress): boolean => {
     return union.leader === address;
   };
 
-  const handleKickMember = async (memberAddress: EthAddress) => {
-    if (!account || !union) return;
+  const isMember = (union: Union, address: EthAddress): boolean => {
+    return union.members.includes(address);
+  };
+
+  const isInvitee = (union: Union, address: EthAddress): boolean => {
+    return union.invitees.includes(address);
+  };
+
+  const isApplicant = (union: Union, address: EthAddress): boolean => {
+    return union.applicants.includes(address);
+  };
+
+  const hasNoRelationship = (union: Union, address: EthAddress): boolean => {
+    return (
+      !isLeader(union, address) &&
+      !isMember(union, address) &&
+      !isInvitee(union, address) &&
+      !isApplicant(union, address)
+    );
+  };
+
+  // utils functions
+
+  const handleLeaveUnion = async () => {
+    if (!union || !account) return;
     if (!validUnion(union)) return;
-
+    if (!isMember(union, account)) return;
     setIsProcessing(true);
     try {
-      await gameManager.kickMember(union.unionId, memberAddress);
-    } catch (err) {
-      console.error('Error kicking member:', err);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const handleTransferLeaderRole = async (newAdminAddress: EthAddress) => {
-    if (!account || !union || !validUnion(union)) return;
-
-    setIsProcessing(true);
-
-    try {
-      await gameManager.transferLeaderRole(union.unionId, newAdminAddress);
-    } catch (err) {
-      console.error('Error transferring leader role:', err);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const handleInviteToUnion = async () => {
-    if (!account || !union || !validUnion(union)) return;
-
-    setIsProcessing(true);
-
-    try {
-      await gameManager.inviteMember(union.unionId, inviteAddressText as EthAddress);
+      await gameManager.leaveUnion(union.unionId);
     } catch (err) {
       console.error(err);
     } finally {
@@ -167,25 +142,13 @@ export function UnionDetailPane() {
     }
   };
 
-  const handleCancelInvite = async (newAdminAddress: EthAddress) => {
-    if (!account || !union || !validUnion(union)) return;
-    setIsProcessing(true);
-
-    try {
-      await gameManager.cancelInvite(union.unionId, newAdminAddress);
-    } catch (err) {
-      console.error('Error canceling Invite:', err);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  // Round 4 Todo add functions here
-  const handleRejectApplication = async (applicant: EthAddress) => {
-    if (!account || !union || !validUnion(union)) return;
+  const handleAcceptInvite = async () => {
+    if (!union || !account) return;
+    if (!validUnion(union)) return;
+    if (!isInvitee(union, account)) return;
     setIsProcessing(true);
     try {
-      await gameManager.rejectApplication(union.unionId, applicant);
+      await gameManager.acceptInvite(union.unionId);
     } catch (err) {
       console.error(err);
     } finally {
@@ -193,11 +156,11 @@ export function UnionDetailPane() {
     }
   };
 
-  const handleAcceptApplication = async (applicant: EthAddress) => {
+  const handleSendApplication = async () => {
     if (!account || !union || !validUnion(union)) return;
     setIsProcessing(true);
     try {
-      await gameManager.acceptApplication(union.unionId, applicant);
+      await gameManager.sendApplication(union.unionId);
     } catch (err) {
       console.error(err);
     } finally {
@@ -207,10 +170,12 @@ export function UnionDetailPane() {
 
   if (!account || !player || !union) return <>You haven't joined a union yet</>;
   if (!validUnion(union)) return <>You haven't joined a union yet</>;
-  if (!isLeader(union, account)) return <>You are not the leader of one union</>;
+  if (!unionRejoinCooldown || !levelupUnionFee)
+    return <LoadingSpinner initialText={'Loading...'} />;
 
   return (
     <UnionDetailContent>
+      {/* Basic Union Info */}
       <UnionInfoContent>
         <UnionDetailSection>
           <CenteredText>{'Union: ' + union?.name}</CenteredText>
@@ -247,86 +212,54 @@ export function UnionDetailPane() {
           </Row>
         </UnionDetailSection>
       </UnionInfoContent>
-
+      {/* Union Members  */}
       <UnionDetailSection>
         <SectionHeader> Members </SectionHeader>
         <ul>
           {union.members.map((member) => (
-            <li key={member}>
-              <BtnSet>
-                {member}
-                <Btn onClick={() => handleKickMember(member)}>Kick</Btn>
-                <Btn onClick={() => handleTransferLeaderRole(member)}> Transfer Admin </Btn>
-              </BtnSet>
-            </li>
+            <li key={member}></li>
           ))}
         </ul>
       </UnionDetailSection>
 
-      <UnionDetailSection>
-        <SectionHeader> Invitees </SectionHeader>
+      {/* If you are in member list */}
+      {isMember(union, account) && !isLeader(union, account) && (
+        <UnionDetailSection>
+          <div> You are a member of this guild.</div>
+          <span>
+            Afer you leave one union, you need to wait {formatDuration(unionRejoinCooldown * 1000)}{' '}
+            before you can join a new guild again.{' '}
+          </span>
+          <Btn disabled={isProcessing} onClick={handleLeaveUnion}>
+            Leave Union
+          </Btn>
+        </UnionDetailSection>
+      )}
+      {/* If you are in invitee list */}
+      {isInvitee(union, account) && (
+        <UnionDetailSection>
+          <div> You are in invitee list of this guild.</div>
+          <Btn disabled={isProcessing} onClick={handleAcceptInvite}>
+            Accept Invition
+          </Btn>
+        </UnionDetailSection>
+      )}
 
-        <div style={{ padding: '10px' }}>
-          <Row>
-            <span>
-              <TextInput
-                placeholder='Player Address'
-                value={inviteAddressText ?? ''}
-                onKeyDown={handleKeyDown}
-                onKeyUp={handleKeyUp}
-                onChange={(e: Event & React.ChangeEvent<DarkForestTextInput>) => {
-                  setInviteAddressText(e.target.value);
-                }}
-              />
-            </span>
+      {/* If you are in applicant list */}
+      {isApplicant(union, account) && (
+        <UnionDetailSection>You are in applicant list.</UnionDetailSection>
+      )}
 
-            <Btn disabled={isProcessing} onClick={handleInviteToUnion}>
-              {'Send Invite'}
-            </Btn>
-          </Row>
-        </div>
-
-        <ul>
-          {union.invitees.map((invitee) => (
-            <li key={invitee}>
-              <BtnSet>
-                {invitee}
-                <Btn onClick={() => handleCancelInvite(invitee)}>
-                  {isProcessing ? (
-                    <LoadingSpinner initialText='Cancel...' />
-                  ) : (
-                    <span> Cancel Invition</span>
-                  )}
-                </Btn>
-              </BtnSet>
-            </li>
-          ))}
-        </ul>
-      </UnionDetailSection>
-
-      <UnionDetailSection>
-        <SectionHeader> Applicants </SectionHeader>
-
-        <ul>
-          {union.applicants.map((applicant) => (
-            <li key={applicant}>
-              <BtnSet>
-                {applicant}
-                <Btn onClick={() => handleRejectApplication(applicant)}>
-                  <div style={{ width: '50px' }}>
-                    {isProcessing ? <LoadingSpinner initialText='Processing...' /> : 'Reject'}
-                  </div>
-                </Btn>
-                <Btn onClick={() => handleAcceptApplication(applicant)}>
-                  <div style={{ width: '50px' }}>
-                    {isProcessing ? <LoadingSpinner initialText='Processing...' /> : 'Accept'}
-                  </div>
-                </Btn>
-              </BtnSet>
-            </li>
-          ))}
-        </ul>
-      </UnionDetailSection>
+      {/* No Relationship */}
+      {hasNoRelationship(union, account) && (
+        <UnionDetailContent>
+          You has no relationship with this union.
+          <div> Round 4 Todo: the cooldown time </div>
+          <Btn disabled={isProcessing} onClick={handleSendApplication}>
+            Send Application{' '}
+          </Btn>
+        </UnionDetailContent>
+      )}
     </UnionDetailContent>
   );
 }

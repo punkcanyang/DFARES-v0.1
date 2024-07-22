@@ -357,7 +357,7 @@ export default function UnionContextPane({
       </Frame>
 
       <Frame visible={activeFrame === 'detail'}>
-        <UnionDetailPane />
+        {union?.unionId && <UnionDetailPane _unionId={union?.unionId} />}
       </Frame>
 
       <Frame visible={activeFrame === 'manage'}>

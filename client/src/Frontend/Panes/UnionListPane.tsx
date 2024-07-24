@@ -16,15 +16,24 @@ const UnionListContent = styled.div`
   display: flex;
   flex-direction: column;
   /* text-align: justify; */
-  margin-left: 0.5em;
-  /* margin-right: 0.5em; */
+  margin-top: 1em;
+  margin-left: 1em;
+  margin-right: 1em;
 `;
 
 const TableContainer = styled.div`
   overflow-y: scroll;
 `;
 
-export function UnionListPane() {
+type SetStateFunction = (value: string) => void;
+
+export function UnionListPane({
+  setSelectedUnionId,
+  setActiveFrame,
+}: {
+  setSelectedUnionId: SetStateFunction;
+  setActiveFrame: SetStateFunction;
+}) {
   const uiManager = useUIManager();
   const [unions, setUnions] = useState<Union[]>([]);
 
@@ -84,7 +93,16 @@ export function UnionListPane() {
     //Details
     (union: Union) => (
       <span>
-        <Btn>Detail</Btn>
+        <Btn
+          onClick={() => {
+            console.log('Detail');
+            console.log(union.unionId);
+            setSelectedUnionId(union.unionId);
+            setActiveFrame('detail');
+          }}
+        >
+          Detail
+        </Btn>
       </span>
     ),
   ];

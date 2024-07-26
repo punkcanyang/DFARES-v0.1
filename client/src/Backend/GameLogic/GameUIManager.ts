@@ -572,6 +572,14 @@ class GameUIManager extends EventEmitter {
     return this.gameManager.timeUntilNextBuyArtifactAvailable();
   }
 
+  public timeUntilNextApplyUnionAvaiable() {
+    return this.gameManager.timeUntilNextApplyUnionAvaiable();
+  }
+
+  public async getNextApplyUnionAvailableTimestamp() {
+    return this.gameManager.getNextApplyUnionAvailableTimestamp();
+  }
+
   public getEnergyArrivingForMove(
     from: LocationId,
     to: LocationId | undefined,

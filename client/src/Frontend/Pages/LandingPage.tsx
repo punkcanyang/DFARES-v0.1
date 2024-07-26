@@ -114,7 +114,7 @@ export default function LandingPage() {
                     </span>
                     <br />
                     <span style={{ fontSize: '40px' }}>
-                      <Round3Title>Round 3 : Kardashev</Round3Title>
+                      <Round3Title>Round 4 : Union</Round3Title>
                     </span>
                   </div>
 

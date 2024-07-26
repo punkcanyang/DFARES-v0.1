@@ -78,7 +78,7 @@ export class ContractsAPI extends EventEmitter {
   /**
    * Don't allow users to submit txs if balance falls below this amount/
    */
-  //todo: this should be change for round 3
+  //todo: this should be change for round 4
   private static readonly MIN_BALANCE = ethToWei(0.00001);
 
   /**

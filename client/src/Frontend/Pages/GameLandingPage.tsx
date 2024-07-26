@@ -883,7 +883,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       terminal.current?.newline();
       terminal.current?.println('Welcome to DARK FOREST ARES.');
       terminal.current?.newline();
-      //NOTE: round 3 don't collect those information
+      //NOTE: round 4 don't collect those information
       // terminal.current?.println('We collect a minimal set of statistics such as SNARK proving');
       // terminal.current?.println('times and average transaction times across browsers, to help ');
       // terminal.current?.println('us optimize performance and fix bugs. You can opt out of this');
@@ -1508,7 +1508,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       </GameWindowWrapper>
       <TerminalWrapper initRender={initRenderState} terminalEnabled={terminalVisible}>
         <MythicLabelText
-          text={`Welcome To Dark Forest Ares v0.1.3: Kardashev`}
+          text={`Welcome To Dark Forest Ares v0.1.4: Union`}
           style={{
             fontFamily: "'Start Press 2P', sans-serif",
             display: initRenderState !== InitRenderState.COMPLETE ? 'block' : 'none',

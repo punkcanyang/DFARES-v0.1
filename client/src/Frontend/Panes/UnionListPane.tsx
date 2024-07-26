@@ -131,7 +131,7 @@ export function UnionListPane({
   let content;
   if (unions.length === 0) {
     content = (
-      <CenterBackgroundSubtext width='1000px' height='100px'>
+      <CenterBackgroundSubtext width='600px' height='100px'>
         There is no union right now.
       </CenterBackgroundSubtext>
     );

@@ -287,6 +287,8 @@ contract DFUnionFacet is WithStorage {
         emit InviteAccepted(_unionId, msg.sender);
     }
 
+    // Feature: Players can apply to all unions initially to avoid the cooldown time.
+
     function sendApplication(uint256 _unionId)
         public
         notPaused

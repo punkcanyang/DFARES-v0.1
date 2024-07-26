@@ -95,8 +95,6 @@ export function UnionListPane({
       <span>
         <Btn
           onClick={() => {
-            console.log('Detail');
-            console.log(union.unionId);
             setSelectedUnionId(union.unionId);
             setActiveFrame('detail');
           }}

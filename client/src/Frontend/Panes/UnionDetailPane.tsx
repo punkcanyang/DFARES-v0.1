@@ -3,18 +3,11 @@ import { EthAddress, Union, UnionId } from '@dfares/types';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Btn } from '../Components/Btn';
-import {
-  AlignCenterHorizontally,
-  EmSpacer,
-  SectionHeader,
-  SpreadApart,
-} from '../Components/CoreUI';
 import { LoadingSpinner } from '../Components/LoadingSpinner';
-import { Row } from '../Components/Row';
-import { TextPreview } from '../Components/TextPreview';
-import { formatDuration } from '../Components/TimeUntil';
-import dfstyles, { snips } from '../Styles/dfstyles';
+import { Blue, Green } from '../Components/Text';
+import { formatDuration, TimeUntil } from '../Components/TimeUntil';
 import { useAccount, usePlayer, useUIManager } from '../Utils/AppHooks';
+import { UnionInfoPane } from './UnionInfoPane';
 
 const UnionDetailContent = styled.div`
   width: 600px;
@@ -25,6 +18,7 @@ const UnionDetailContent = styled.div`
   margin-left: 1em;
   margin-right: 1em;
   margin-top: 1em;
+  margin-bottom: 1em;
 `;
 
 export const UnionDetailSection = styled.div`
@@ -45,130 +39,6 @@ const ButtonContainer = styled.div`
   margin-top: 0.5em;
 `;
 
-const UnionInfoContent = styled.div`
-  margin-left: 1em;
-  margin-right: 1em;
-`;
-
-const InfoHead = styled.div`
-  text-align: left;
-  font-size: 120%;
-  font-weight: bold;
-  color: yellow;
-`;
-
-const ElevatedContainer = styled.div`
-  ${snips.roundedBordersWithEdge}
-  border-color: ${dfstyles.colors.borderDarker};
-  background-color: ${dfstyles.colors.backgroundlight};
-  margin-top: 8px;
-  margin-bottom: 8px;
-  font-size: 100%;
-`;
-
-const StatRow = styled(AlignCenterHorizontally)`
-  ${snips.roundedBorders}
-  display: inline-block;
-  box-sizing: border-box;
-  width: 100%;
-
-  /* Set the Icon color to something a little dimmer */
-  --df-icon-color: ${dfstyles.colors.subtext};
-`;
-
-const LeftRow = styled.div`
-  border: 1px solid ${dfstyles.colors.borderDarker};
-  border-top: none;
-  border-left: none;
-  width: 50%;
-`;
-
-const UnionInfoComponent: React.FC<{ union: Union }> = ({ union }) => {
-  return (
-    <UnionInfoContent>
-      <InfoHead>
-        {union.name && union.name.length !== 0
-          ? '✨✨✨ ' + union.name.toUpperCase() + ' UNION ✨✨✨'
-          : '✨✨✨ ANONYMOUS UNION ✨✨✨'}
-      </InfoHead>
-
-      <ElevatedContainer>
-        <StatRow>
-          <SpreadApart>
-            <LeftRow>
-              <SpreadApart>
-                <AlignCenterHorizontally>
-                  <EmSpacer width={1} />
-                  Union ID
-                </AlignCenterHorizontally>
-                <AlignCenterHorizontally>
-                  {union.unionId}
-                  <EmSpacer width={1} />
-                </AlignCenterHorizontally>
-              </SpreadApart>
-            </LeftRow>
-            <div
-              style={{
-                border: `1px solid ${dfstyles.colors.borderDarker}`,
-                borderTop: 'none',
-                borderRight: 'none',
-                borderLeft: 'none',
-                width: '50%',
-              }}
-            >
-              <SpreadApart>
-                <AlignCenterHorizontally>
-                  <EmSpacer width={0.5} />
-                  Members Total
-                </AlignCenterHorizontally>
-                <AlignCenterHorizontally>
-                  {union.members.length}
-                  <EmSpacer width={0.5} />
-                </AlignCenterHorizontally>
-              </SpreadApart>
-            </div>
-          </SpreadApart>
-        </StatRow>
-        <StatRow> </StatRow>
-        <StatRow> </StatRow>
-        <StatRow> </StatRow>
-      </ElevatedContainer>
-
-      <div>
-        <span>
-          <strong>Union ID:</strong> {union.unionId}
-        </span>
-        <span>
-          <strong>Level:</strong> {union.level}
-        </span>
-      </div>
-
-      <p>
-        <strong>Leader:</strong> {union.leader}
-      </p>
-
-      <h2>Members:</h2>
-      <ul>
-        {union.members.map((member) => (
-          <li key={member}>{member}</li>
-        ))}
-      </ul>
-      <h2>Invitees:</h2>
-      <ul>
-        {union.invitees.map((invitee) => (
-          <li key={invitee}>{invitee}</li>
-        ))}
-      </ul>
-      <h2>Applicants:</h2>
-      <ul>
-        {union.applicants.map((applicant) => (
-          <li key={applicant}>{applicant}</li>
-        ))}
-      </ul>
-    </UnionInfoContent>
-  );
-};
-
 type SetStateFunction = (value: string) => void;
 
 export function UnionDetailPane({
@@ -188,6 +58,8 @@ export function UnionDetailPane({
 
   const [unionRejoinCooldown, setUnionRejoinCooldown] = useState<number>();
   const [levelupUnionFee, setLevelupUnionFee] = useState<number>();
+  const [nextApplyUnionAvailableTimestamp, setNextApplyUnionAvailableTimestamp] =
+    useState<number>();
 
   useEffect(() => {
     if (!uiManager) return;
@@ -206,10 +78,12 @@ export function UnionDetailPane({
       const rawFee = await gameManager.getContractAPI().getLevelUpUnionFee(union.level + 1);
       const fee = weiToEth(rawFee);
       setLevelupUnionFee(fee);
+      const rawTimestamp = await uiManager.getNextApplyUnionAvailableTimestamp();
+      setNextApplyUnionAvailableTimestamp(rawTimestamp);
     };
 
     fetchConfig();
-  }, [union, gameManager]);
+  }, [union, gameManager, uiManager]);
 
   // refresh unions every 10 seconds
   useEffect(() => {
@@ -255,15 +129,6 @@ export function UnionDetailPane({
     return union.applicants.includes(address);
   };
 
-  const hasNoRelationship = (union: Union, address: EthAddress): boolean => {
-    return (
-      !isLeader(union, address) &&
-      !isMember(union, address) &&
-      !isInvitee(union, address) &&
-      !isApplicant(union, address)
-    );
-  };
-
   // utils functions
   const handleLeaveUnion = async () => {
     if (!union || !account) return;
@@ -293,6 +158,9 @@ export function UnionDetailPane({
     }
   };
 
+  const leaveUnionCooldownPassed =
+    nextApplyUnionAvailableTimestamp && Date.now() >= nextApplyUnionAvailableTimestamp;
+
   const handleSendApplication = async () => {
     if (!account || !union || !validUnion(union)) return;
     setIsProcessing(true);
@@ -318,7 +186,7 @@ export function UnionDetailPane({
       </UnionDetailContent>
     );
 
-  if (!unionRejoinCooldown || !levelupUnionFee)
+  if (!unionRejoinCooldown || !levelupUnionFee || !nextApplyUnionAvailableTimestamp)
     return <LoadingSpinner initialText={'Loading...'} />;
 
   return (
@@ -353,85 +221,72 @@ export function UnionDetailPane({
 
       <UnionDetailContent>
         {/* Basic Union Info */}
-        <UnionInfoComponent union={union} />
-        <UnionInfoContent>
-          <UnionDetailSection>
-            <InfoHead>{'Union: ' + union?.name}</InfoHead>
-            <Row>
-              <span> Id </span>
-              <span> {union.unionId} </span>
-            </Row>
-            <Row>
-              <span> Name</span>
-              <span> {union.name}</span>
-            </Row>
-            <Row>
-              <span> Leader</span>
-              <span>
-                <TextPreview
-                  style={{ color: dfstyles.colors.text }}
-                  text={union.leader}
-                  focusedWidth={'100px'}
-                  unFocusedWidth={'100px'}
-                />
-              </span>
-            </Row>
-            <Row>
-              <span> Members Amount</span>
-              <span>{union.members.length}</span>
-            </Row>
-            <Row>
-              <span> Level</span>
-              <span>{union.level}</span>
-            </Row>
-            <Row>
-              <span> Max Members </span>
-              <span>{gameManager.getMaxMembers(union.level)}</span>
-            </Row>
-          </UnionDetailSection>
-        </UnionInfoContent>
-        {/* Union Members  */}
-        <UnionDetailSection>
-          <SectionHeader> Members </SectionHeader>
-          <ul>
-            {union.members.map((member) => (
-              <li key={member}></li>
-            ))}
-          </ul>
-        </UnionDetailSection>
+        <UnionInfoPane union={union} uiManager={uiManager} />
+
         {/* If you are in member list */}
         {isMember(union, account) && !isLeader(union, account) && (
-          <UnionDetailSection>
-            <div> You are a member of this guild.</div>
-            <span>
-              Afer you leave one union, you need to wait{' '}
-              {formatDuration(unionRejoinCooldown * 1000)} before you can join a new guild again.{' '}
-            </span>
+          <UnionDetailContent>
+            <p> You are a member of this union.</p>
+
+            <div>
+              <Green>NOTE:</Green> After you leave one union, you need to wait{' '}
+              {formatDuration(unionRejoinCooldown * 1000)} before you can join a new union again.{' '}
+            </div>
+
             <Btn disabled={isProcessing} onClick={handleLeaveUnion}>
               Leave Union
             </Btn>
-          </UnionDetailSection>
+          </UnionDetailContent>
         )}
         {/* If you are in invitee list */}
         {isInvitee(union, account) && (
-          <UnionDetailSection>
-            <div> You are in invitee list of this guild.</div>
-            <Btn disabled={isProcessing} onClick={handleAcceptInvite}>
+          <UnionDetailContent>
+            <p>
+              <Blue>INFO: </Blue> Congratulations, you have been invited to join this union!
+            </p>
+
+            {!leaveUnionCooldownPassed && (
+              <p>
+                <Blue>INFO: </Blue>
+                You must wait{' '}
+                <TimeUntil timestamp={nextApplyUnionAvailableTimestamp} ifPassed={'now!'} />
+                &amp;nbsp; to rejoin another union
+              </p>
+            )}
+
+            <Btn disabled={leaveUnionCooldownPassed || isProcessing} onClick={handleAcceptInvite}>
               Accept Invition
             </Btn>
-          </UnionDetailSection>
+          </UnionDetailContent>
         )}
         {/* If you are in applicant list */}
         {isApplicant(union, account) && (
-          <UnionDetailSection>You are in applicant list.</UnionDetailSection>
-        )}
-        {/* No Relationship */}
-        {hasNoRelationship(union, account) && (
           <UnionDetailContent>
-            You has no relationship with this union.
-            <div> Round 4 Todo: the cooldown time </div>
-            <Btn disabled={isProcessing} onClick={handleSendApplication}>
-              Send Application{' '}
+            <p>
+              <Blue>INFO: </Blue>You have applied to join this union. Please wait patiently or
+              contact the union leader.
+            </p>
+          </UnionDetailContent>
+        )}
+
+        {/* Player not in union */}
+        {!isApplicant(union, account) && !isPlayerInUnion(account) && (
+          <UnionDetailContent>
+            <p>
+              <Blue>INFO: </Blue>You are not currently in a union.
+            </p>
+            {!leaveUnionCooldownPassed && (
+              <p>
+                <Blue>INFO: </Blue> You must wait{' '}
+                <TimeUntil timestamp={nextApplyUnionAvailableTimestamp} ifPassed={'now!'} />
+                to rejoin another union
+              </p>
+            )}
+            <Btn
+              disabled={!leaveUnionCooldownPassed || isProcessing}
+              onClick={handleSendApplication}
+            >
+              Send Application to this union
             </Btn>
           </UnionDetailContent>
         )}

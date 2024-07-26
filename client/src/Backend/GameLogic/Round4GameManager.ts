@@ -927,6 +927,7 @@ class Round4GameManager extends BaseGameManager {
 
     const myLastLeaveUnionTimestamp = this.players.get(this.account)?.leaveUnionTimestamp;
     if (!myLastLeaveUnionTimestamp) return 0;
+
     const cooldown = (await this.contractsAPI.getUnionRejoinCooldown()).toNumber();
     return (myLastLeaveUnionTimestamp + cooldown) * 1000 - Date.now();
   }

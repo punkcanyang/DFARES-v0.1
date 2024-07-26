@@ -4,10 +4,10 @@ import styled from 'styled-components';
 import { Btn } from '../Components/Btn';
 import { SectionHeader, Spacer } from '../Components/CoreUI';
 import { DarkForestTextInput, TextInput } from '../Components/Input';
-import { TextPreview } from '../Components/TextPreview';
 import dfstyles from '../Styles/dfstyles';
 import { useAccount, usePlayer, useUIManager } from '../Utils/AppHooks';
 import { useBooleanSetting } from '../Utils/SettingsHooks';
+import { UnionInfoPane } from './UnionInfoPane';
 
 const UnionManageContent = styled.div`
   width: 600px;
@@ -15,13 +15,8 @@ const UnionManageContent = styled.div`
   display: flex;
   flex-direction: column;
   /* text-align: justify; */
-  margin-left: 0.5em;
-  /* margin-right: 0.5em; */
-`;
-
-const UnionInfoContent = styled.div`
-  margin-left: 4em;
-  margin-right: 4em;
+  margin-left: 1em;
+  margin-right: 1em;
 `;
 
 const Row = styled.div`
@@ -31,15 +26,12 @@ const Row = styled.div`
   justify-content: space-between;
   align-items: center;
 
+  margin-left: 1em;
+  margin-right: 1em;
+
   & > span:first-child {
     flex-grow: 1;
   }
-`;
-
-const CenteredText = styled.div`
-  text-align: center;
-  font-size: 140%;
-  font-weight: bold;
 `;
 
 const BtnSet = styled.div`
@@ -253,46 +245,13 @@ export function UnionManagePane() {
 
   return (
     <UnionManageContent>
-      <UnionInfoContent>
-        <UnionManageSection>
-          <CenteredText>{'Union: ' + union?.name}</CenteredText>
-          <Row>
-            <Btn onClick={handleDisbandUnion}> Disband This Union</Btn>
-            <Btn onClick={handleLevelupUnion}>Levelup Union</Btn>
-          </Row>
-          <Row>
-            <span> Id </span>
-            <span> {union.unionId} </span>
-          </Row>
-          <Row>
-            <span> Name</span>
-            <span> {union.name}</span>
-          </Row>
-          <Row>
-            <span> Leader</span>
-            <span>
-              <TextPreview
-                style={{ color: dfstyles.colors.text }}
-                text={union.leader}
-                focusedWidth={'100px'}
-                unFocusedWidth={'100px'}
-              />
-            </span>
-          </Row>
-          <Row>
-            <span> Members Amount</span>
-            <span>{union.members.length}</span>
-          </Row>
-          <Row>
-            <span> Level</span>
-            <span>{union.level}</span>
-          </Row>
-          <Row>
-            <span> Max Members </span>
-            <span>{gameManager.getMaxMembers(union.level)}</span>
-          </Row>
-        </UnionManageSection>
-      </UnionInfoContent>
+      {/* Basic Union Info */}
+      <UnionInfoPane union={union} uiManager={uiManager} />
+
+      <Row>
+        <Btn onClick={handleDisbandUnion}> Disband This Union</Btn>
+        <Btn onClick={handleLevelupUnion}>Levelup Union</Btn>
+      </Row>
 
       <UnionManageSection>
         <SectionHeader> Members </SectionHeader>

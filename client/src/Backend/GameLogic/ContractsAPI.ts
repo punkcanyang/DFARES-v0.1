@@ -216,8 +216,6 @@ export class ContractsAPI extends EventEmitter {
 
   public async setupEventListeners(): Promise<void> {
     const { contract } = this;
-    console.log('test');
-    console.log(contract);
 
     const filter = {
       address: contract.address,
@@ -510,6 +508,7 @@ export class ContractsAPI extends EventEmitter {
       },
       [ContractEvent.InnerRadiusUpdated]: (_radius: EthersBN, _: Event) => {
         this.emit(ContractsAPIEvent.RadiusUpdated);
+      },
       [ContractEvent.UnionCreated]: async (unionId: EthersBN, creator: string, _: Event) => {
         this.emit(ContractsAPIEvent.UnionUpdate, unionId.toString() as UnionId);
         this.emit(ContractsAPIEvent.PlayerUpdate, address(creator));
@@ -621,7 +620,6 @@ export class ContractsAPI extends EventEmitter {
     contract.removeAllListeners(ContractEvent.UnionDisbanded);
     contract.removeAllListeners(ContractEvent.UnionLeveledUp);
     contract.removeAllListeners(ContractEvent.MemberAddedByAdmin);
-
   }
 
   public getContractAddress(): EthAddress {

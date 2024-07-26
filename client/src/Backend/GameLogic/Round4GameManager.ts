@@ -125,6 +125,7 @@ class Round4GameManager extends BaseGameManager {
     burnedCoords: Map<LocationId, BurnedCoords>,
     kardashevCoords: Map<LocationId, KardashevCoords>,
     worldRadius: number,
+    innerRadius: number,
     unprocessedArrivals: Map<VoyageId, QueuedArrival>,
     unprocessedPlanetArrivalIds: Map<LocationId, VoyageId[]>,
     contractsAPI: ContractsAPI,
@@ -150,6 +151,7 @@ class Round4GameManager extends BaseGameManager {
       burnedCoords,
       kardashevCoords,
       worldRadius,
+      innerRadius,
       unprocessedArrivals,
       unprocessedPlanetArrivalIds,
       contractsAPI,
@@ -280,6 +282,7 @@ class Round4GameManager extends BaseGameManager {
         : new Map<LocationId, KardashevCoords>(),
 
       initialState.worldRadius,
+      initialState.innerRadius,
       initialState.arrivals,
       initialState.planetVoyageIdMap,
       contractsAPI,
@@ -635,8 +638,7 @@ class Round4GameManager extends BaseGameManager {
         gameManager.onTxCancelled(tx);
       })
       .on(ContractsAPIEvent.RadiusUpdated, async () => {
-        const newRadius = await gameManager.contractsAPI.getWorldRadius();
-        gameManager.setRadius(newRadius);
+        gameManager.hardRefreshRadius();
       });
 
     const unconfirmedTxs = await persistentChunkStore.getUnconfirmedSubmittedEthTxs();

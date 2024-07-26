@@ -35,7 +35,7 @@ export const engineConsts = {
     green: [0, 255, 0] as RGBVec,
     greenA: [0, 255, 0, 255] as RGBAVec,
     pinkA: [255, 149, 183, 255] as RGBAVec,
-    pink: [255, 149, 183],
+    pink: [255, 149, 183] as RGBVec,
     sensaichaA: [77, 81, 57, 255] as RGBAVec,
     sensaicha: [77, 81, 57] as RGBVec,
     range: {
@@ -49,6 +49,8 @@ export const engineConsts = {
       mineA: [255, 255, 255, 255] as RGBAVec,
       // Alpha version of `gold` above
       shipA: [255, 221, 48, 255] as RGBAVec,
+      support: [0, 255, 255] as RGBVec,
+      supportA: [0, 255, 255, 255] as RGBAVec,
     },
     bonus: {
       energyCap: hslToRgb([360, 73, 70]) as RGBVec,

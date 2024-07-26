@@ -15,6 +15,7 @@ import {
   deployMoveFacet,
   deployPinkBombFacet,
   deployTradeFacet,
+  deployUnionFacet,
   deployVerifierFacet,
   deployWhitelistFacet,
 } from './deploy';
@@ -84,6 +85,9 @@ async function upgrade({}, hre: HardhatRuntimeEnvironment) {
   console.log('tradeFacet');
   const tradeFacet = await deployTradeFacet({}, libraries, hre);
 
+  console.log('unionFacet');
+  const unionFacet = await deployUnionFacet({}, libraries, hre);
+
   // console.log('rewardFacets');
 
   // const rewardFacet = await deployRewardFacet({}, libraries, hre);
@@ -97,6 +101,7 @@ async function upgrade({}, hre: HardhatRuntimeEnvironment) {
     ...changes.getFacetCuts('DFPinkBombFacet', pinkBombFacet),
     ...changes.getFacetCuts('DFKardashevFacet', kardashevFacet),
     ...changes.getFacetCuts('DFTradeFacet', tradeFacet),
+    ...changes.getFacetCuts('DFUnionFacet', unionFacet),
     ...changes.getFacetCuts('DFArtifactFacet', artifactFacet),
     ...changes.getFacetCuts('DFGetterOneFacet', getterOneFacet),
     ...changes.getFacetCuts('DFGetterTwoFacet', getterTwoFacet),

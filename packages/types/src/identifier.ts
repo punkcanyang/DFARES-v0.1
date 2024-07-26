@@ -31,3 +31,10 @@ export type EthAddress = Abstract<string, 'EthAddress'>;
  * in `serde`.
  */
 export type ArtifactId = Abstract<string, 'ArtifactId'>;
+
+/**
+ * a union UID. these start at 1 and auto-increment in the contract. this is
+ * immutable and the only place a UnionId should ever be created is on
+ * initial deserialization of a Union from contract data (see `serde`)
+ */
+export type UnionId = Abstract<string, 'UnionId'>;

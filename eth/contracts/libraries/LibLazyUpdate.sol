@@ -130,8 +130,17 @@ library LibLazyUpdate {
         )
     {
         bool shoudDeactiveArtifact = false;
+
+        bool inUnion = false;
+        for (uint256 i = 0; i < arrival.members.length; i++) {
+            if (arrival.members[i] == planet.owner) {
+                inUnion = true;
+                break;
+            }
+        }
+
         // checks whether the planet is owned by the player sending ships
-        if (arrival.player == planet.owner) {
+        if (arrival.player == planet.owner || (arrival.unionId != 0 && inUnion)) {
             // simply increase the population if so
             planet.population = planet.population + arrival.popArriving;
         } else {

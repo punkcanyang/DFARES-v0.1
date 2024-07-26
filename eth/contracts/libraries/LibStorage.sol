@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 // Type imports
-import {Planet, PlanetEventMetadata, PlanetDefaultStats, Upgrade, RevealedCoords, Player, ArrivalData, Artifact, ClaimedCoords, BurnedCoords, KardashevCoords, PlayerLog, SpaceshipConstants} from "../DFTypes.sol";
+import {Planet, PlanetEventMetadata, PlanetDefaultStats, Upgrade, RevealedCoords, Player, ArrivalData, Artifact, ClaimedCoords, BurnedCoords, KardashevCoords, Union, PlayerLog, SpaceshipConstants} from "../DFTypes.sol";
 
 struct WhitelistStorage {
     bool enabled;
@@ -90,6 +90,18 @@ struct GameStorage {
     mapping(address => uint256[]) mySpaceshipIds;
     mapping(uint256 => uint256[]) targetPlanetArrivalIds;
     bool halfPrice;
+    /**
+     * Union
+     */
+    uint256[] unionIds;
+    uint256 unionCount;
+    mapping(uint256 => Union) unions;
+    mapping(uint256 => mapping(address => bool)) isMember;
+    mapping(uint256 => mapping(address => bool)) isInvitee;
+    mapping(uint256 => mapping(address => bool)) isApplicant;
+    uint256 unionCreationFee;
+    uint256 unionUpgradeFeePerMember;
+    uint256 unionRejoinCooldown;
 }
 
 struct LogStorage {
@@ -277,6 +289,8 @@ library LibStorage {
     bytes32 constant GAME_STORAGE_POSITION = keccak256("darkforest.storage.game");
     bytes32 constant ANALYSIS_STORAGE_POSITION = keccak256("darkforest.storage.analysis");
     bytes32 constant WHITELIST_STORAGE_POSITION = keccak256("darkforest.storage.whitelist");
+    bytes32 constant UNION_STORAGE_POSITION = keccak256("darkforest.storage.union");
+
     // Constants are structs where the data gets configured on game initialization
     bytes32 constant GAME_CONSTANTS_POSITION = keccak256("darkforest.constants.game");
     bytes32 constant SNARK_CONSTANTS_POSITION = keccak256("darkforest.constants.snarks");

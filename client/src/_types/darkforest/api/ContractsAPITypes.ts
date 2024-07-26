@@ -65,6 +65,21 @@ export const enum ContractEvent {
   LocationBlued = 'LocationBlued',
   PlanetBought = 'PlanetBought',
   SpaceshipBought = 'SpaceshipBought',
+  UnionCreated = 'UnionCreated',
+  InviteSent = 'InviteSent',
+  InviteCanceled = 'InviteCanceled',
+  InviteAccepted = 'InviteAccepted',
+  ApplicationSent = 'ApplicationSent',
+  ApplicationCanceled = 'ApplicationCanceled',
+  ApplicationAccepted = 'ApplicationAccepted',
+  ApplicationRejected = 'ApplicationRejected',
+  MemberLeft = 'MemberLeft',
+  MemberKicked = 'MemberKicked',
+  UnionTransferred = 'UnionTransferred',
+  UnionNameChanged = 'UnionNameChanged',
+  UnionDisbanded = 'UnionDisbanded',
+  UnionLeveledUp = 'UnionLeveledUp',
+  MemberAddedByAdmin = 'MemberAddedByAdmin',
 }
 
 export const enum ContractsAPIEvent {
@@ -113,6 +128,7 @@ export const enum ContractsAPIEvent {
   LocationClaimed = 'LocationClaimed',
   LobbyCreated = 'LobbyCreated',
   HalfPriceChanged = 'HalfPriceChanged',
+  UnionUpdate = 'UnionUpdate',
 }
 
 // planet locationID(BigInt), branch number

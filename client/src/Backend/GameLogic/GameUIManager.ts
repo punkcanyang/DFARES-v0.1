@@ -33,6 +33,8 @@ import {
   UnconfirmedMove,
   UnconfirmedRefreshPlanet,
   UnconfirmedUpgrade,
+  Union,
+  UnionId,
   Upgrade,
   UpgradeBranchName,
   WorldCoords,
@@ -61,7 +63,8 @@ import { ContractConstants } from '../../_types/darkforest/api/ContractsAPITypes
 import { HashConfig } from '../../_types/global/GlobalTypes';
 import { MiningPattern } from '../Miner/MiningPatterns';
 import { coordsEqual } from '../Utils/Coordinates';
-import GameManager, { GameManagerEvent } from './GameManager';
+import { GameManagerEvent } from './BaseGameManager';
+import GameManager from './GameManager';
 import { GameObjects } from './GameObjects';
 import { PluginManager } from './PluginManager';
 import TutorialManager, { TutorialState } from './TutorialManager';
@@ -802,6 +805,23 @@ class GameUIManager extends EventEmitter {
     return planet.owner === this.gameManager.getAccount();
   }
 
+  public isOwnedByPlayerInMyUnion(planet: Planet): boolean {
+    const addr = this.gameManager.getAccount();
+    if (!addr) return false;
+
+    const unionId = this.getPlayerUnionId(addr);
+    if (!unionId || unionId === '0') return false;
+
+    const union = this.getUnion(unionId);
+    if (!union) return false;
+
+    for (let i = 0; i < union.members.length; i++) {
+      if (union.members[i] === planet.owner) return true;
+    }
+
+    return false;
+  }
+
   public addNewChunk(chunk: Chunk) {
     this.gameManager.addNewChunk(chunk);
   }
@@ -1456,7 +1476,7 @@ class GameUIManager extends EventEmitter {
   }
 
   public donate(amount: number): void {
-    // this.terminal.current?.printShellLn(`df.donate('${amount}')`);
+    this.terminal.current?.printShellLn(`df.donate('${amount}')`);
     this.gameManager.donate(amount);
   }
 
@@ -1735,6 +1755,24 @@ class GameUIManager extends EventEmitter {
   public disableCustomRenderer(customRenderer: BaseRenderer) {
     const renderer = this.getRenderer();
     if (renderer) renderer.removeCustomRenderer(customRenderer);
+  }
+
+  // Round 4 Union
+
+  public getPlayerUnionId(addr: EthAddress): UnionId | undefined {
+    return this.gameManager.getPlayerUnionId(addr);
+  }
+
+  public getAllUnions(): Union[] {
+    return this.gameManager.getAllUnions();
+  }
+
+  public getUnion(unionId?: UnionId): Union | undefined {
+    return this.gameManager.getUnion(unionId);
+  }
+
+  public getMaxMembers(unionLevel: number) {
+    return this.gameManager.getMaxMembers(unionLevel);
   }
 }
 

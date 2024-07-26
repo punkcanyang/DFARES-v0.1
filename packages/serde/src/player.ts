@@ -1,6 +1,6 @@
 import { CONTRACT_PRECISION } from '@dfares/constants';
 import type { DarkForest } from '@dfares/contracts/typechain';
-import type { Player } from '@dfares/types';
+import type { Player, UnionId } from '@dfares/types';
 import { address } from './address';
 import { locationIdFromEthersBN } from './location';
 
@@ -42,5 +42,7 @@ export function decodePlayer(rawPlayer: RawPlayer): Player {
     kardashevAmount: rawPlayer.kardashevAmount.toNumber(),
     buyPlanetAmount: rawPlayer.buyPlanetAmount.toNumber(),
     buySpaceshipAmount: rawPlayer.buySpaceshipAmount.toNumber(),
+    unionId: rawPlayer.unionId.toString() as UnionId,
+    leaveUnionTimestamp: rawPlayer.leaveUnionTimestamp.toNumber(),
   };
 }

@@ -132,6 +132,19 @@ async function gameSetRadius(args: { radius: number }, hre: HardhatRuntimeEnviro
   await setRadiusReceipt.wait();
 }
 
+task('admin:setInnerRadius', 'change the radius')
+  .addPositionalParam('radius', 'the radius', undefined, types.int)
+  .setAction(gameSetInnerRadius);
+
+async function gameSetInnerRadius(args: { radius: number }, hre: HardhatRuntimeEnvironment) {
+  await hre.run('utils:assertChainId');
+
+  const contract = await hre.ethers.getContractAt('DarkForest', hre.contracts.CONTRACT_ADDRESS);
+
+  const setRadiusReceipt = await contract.adminSetInnerRadius(args.radius);
+  await setRadiusReceipt.wait();
+}
+
 task('admin:changeCaptureZoneRadius', 'change capture zone radius')
   .addPositionalParam('radius', 'the radius', undefined, types.int)
   .setAction(changeCaptureZoneRadius);

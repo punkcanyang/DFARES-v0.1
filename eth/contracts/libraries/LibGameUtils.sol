@@ -214,6 +214,17 @@ library LibGameUtils {
         }
     }
 
+    function _getInnerRadius() public view returns (uint256) {
+        uint256 delta = 2 * (block.number - gameConstants().GAME_START_BLOCK);
+        // Round 4 Todo: change the config
+        // 2s = 1 block
+        // take 6 hours to become 0
+        uint256 timeInSeconds = 21600; // 6 * 60 * 60;
+        if (delta >= timeInSeconds) return 0;
+        uint256 innerRadiusStart = gameConstants().MAX_LEVEL_DIST[1];
+        return innerRadiusStart - (innerRadiusStart * delta) / timeInSeconds;
+    }
+
     function _randomArtifactTypeAndLevelBonus(
         uint256 artifactSeed,
         Biome biome,
@@ -746,6 +757,11 @@ library LibGameUtils {
         if (!gameConstants().WORLD_RADIUS_LOCKED) {
             gs().worldRadius = _getRadius();
         }
+    }
+
+    function updateInnerRadius() public {
+        if (gs().adminSetInnerRadius != 0) gs().innerRadius = gs().adminSetInnerRadius;
+        else gs().innerRadius = _getInnerRadius();
     }
 
     function isPopCapBoost(uint256 _location) public pure returns (bool) {

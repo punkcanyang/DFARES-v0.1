@@ -30,6 +30,7 @@ export interface InitialGameState {
   players: Map<string, Player>;
   unions: Map<UnionId, Union>;
   worldRadius: number;
+  innerRadius: number;
   allTouchedPlanetIds: LocationId[];
   allRevealedCoords: RevealedCoords[];
   allClaimedCoords: ClaimedCoords[];
@@ -114,6 +115,7 @@ export class InitialGameStateDownloader {
 
     const contractConstants = contractsAPI.getConstants();
     const worldRadius = contractsAPI.getWorldRadius();
+    const innerRadius = contractsAPI.getInnerRadius();
 
     const players = contractsAPI.getPlayers(playersLoadingBar);
     const unions = contractsAPI.getUnions(unionsLoadingBar);
@@ -246,6 +248,7 @@ export class InitialGameStateDownloader {
       players: await players,
       unions: await unions,
       worldRadius: await worldRadius,
+      innerRadius: await innerRadius,
       allTouchedPlanetIds,
       allRevealedCoords,
       allClaimedCoords,

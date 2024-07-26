@@ -248,6 +248,8 @@ export class ContractsAPI extends EventEmitter {
           contract.filters.PlanetBought(null, null).topics,
           contract.filters.SpaceshipBought(null, null, null).topics,
           contract.filters.HalfPriceChanged(null).topics,
+          contract.filters.WorldRadiusUpdated(null).topics,
+          contract.filters.InnerRadiusUpdated(null).topics,
           contract.filters.UnionCreated(null, null).topics,
           contract.filters.InviteSent(null, null).topics,
           contract.filters.InviteCanceled(null, null).topics,
@@ -501,6 +503,12 @@ export class ContractsAPI extends EventEmitter {
       ) => {
         this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location));
       },
+      [ContractEvent.WorldRadiusUpdated]: (_radius: EthersBN, _: Event) => {
+        this.emit(ContractsAPIEvent.RadiusUpdated);
+      },
+      [ContractEvent.InnerRadiusUpdated]: (_radius: EthersBN, _: Event) => {
+        this.emit(ContractsAPIEvent.RadiusUpdated);
+      },
       [ContractEvent.UnionCreated]: async (unionId: EthersBN, creator: string, _: Event) => {
         this.emit(ContractsAPIEvent.UnionUpdate, unionId.toString() as UnionId);
         this.emit(ContractsAPIEvent.PlayerUpdate, address(creator));
@@ -600,6 +608,8 @@ export class ContractsAPI extends EventEmitter {
     contract.removeAllListeners(ContractEvent.PlanetCaptured);
     contract.removeAllListeners(ContractEvent.LocationBurned);
     contract.removeAllListeners(ContractEvent.Kardashev);
+    contract.removeAllListeners(ContractEvent.WorldRadiusUpdated);
+    contract.removeAllListeners(ContractEvent.InnerRadiusUpdated);
     contract.removeAllListeners(ContractEvent.UnionCreated);
     contract.removeAllListeners(ContractEvent.InviteSent);
     contract.removeAllListeners(ContractEvent.InviteCanceled);
@@ -1214,6 +1224,12 @@ export class ContractsAPI extends EventEmitter {
     const radius = (await this.makeCall<EthersBN>(this.contract.worldRadius)).toNumber();
     return radius;
   }
+
+  public async getInnerRadius(): Promise<number> {
+    const radius = (await this.makeCall<EthersBN>(this.contract.innerRadius)).toNumber();
+    return radius;
+  }
+
   // timestamp since epoch (in seconds)
   public async getTokenMintEndTimestamp(): Promise<number> {
     const timestamp = (

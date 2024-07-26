@@ -19,6 +19,8 @@ contract DFAdminFacet is WithStorage {
     event AdminGiveSpaceship(uint256 loc, address owner, ArtifactType artifactType);
     event PauseStateChanged(bool paused);
     event HalfPriceChanged(bool halfPrice);
+    event WorldRadiusUpdated(uint256 radius);
+    event InnerRadiusUpdated(uint256 radius);
 
     /////////////////////////////
     /// Administrative Engine ///
@@ -121,10 +123,17 @@ contract DFAdminFacet is WithStorage {
     function changeWorldRadiusMin(uint256 _newConstant) public onlyAdmin {
         gameConstants().WORLD_RADIUS_MIN = _newConstant;
         LibGameUtils.updateWorldRadius();
+        emit WorldRadiusUpdated(gs().worldRadius);
     }
 
     function adminSetWorldRadius(uint256 _newRadius) public onlyAdmin {
         gs().worldRadius = _newRadius;
+    }
+
+    function adminSetInnerRadius(uint256 _radius) public onlyAdmin {
+        gs().adminSetInnerRadius = _radius;
+        LibGameUtils.updateInnerRadius();
+        emit InnerRadiusUpdated(gs().innerRadius);
     }
 
     function changeCaptureZoneRadius(uint256 _newRadius) public onlyAdmin {

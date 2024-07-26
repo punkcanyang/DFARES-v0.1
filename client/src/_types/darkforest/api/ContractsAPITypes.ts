@@ -65,6 +65,8 @@ export const enum ContractEvent {
   LocationBlued = 'LocationBlued',
   PlanetBought = 'PlanetBought',
   SpaceshipBought = 'SpaceshipBought',
+  WorldRadiusUpdated = 'WorldRadiusUpdated',
+  InnerRadiusUpdated = 'InnerRadiusUpdated',
   UnionCreated = 'UnionCreated',
   InviteSent = 'InviteSent',
   InviteCanceled = 'InviteCanceled',

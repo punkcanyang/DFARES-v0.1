@@ -351,6 +351,8 @@ class BaseGameManager extends EventEmitter {
    */
   protected worldRadius: number;
 
+  protected innerRadius: number;
+
   /**
    * Emits whenever we load the network health summary from the webserver, which is derived from
    * diagnostics that the client sends up to the webserver as well.
@@ -398,6 +400,7 @@ class BaseGameManager extends EventEmitter {
     burnedCoords: Map<LocationId, BurnedCoords>,
     kardashevCoords: Map<LocationId, KardashevCoords>,
     worldRadius: number,
+    innerRadius: number,
     unprocessedArrivals: Map<VoyageId, QueuedArrival>,
     unprocessedPlanetArrivalIds: Map<LocationId, VoyageId[]>,
     contractsAPI: ContractsAPI,
@@ -432,6 +435,7 @@ class BaseGameManager extends EventEmitter {
     this.account = account;
     this.players = players;
     this.worldRadius = worldRadius;
+    this.innerRadius = innerRadius;
     this.networkHealth$ = monomitter(true);
     this.paused$ = monomitter(true);
     this.halfPrice$ = monomitter(true);
@@ -578,6 +582,8 @@ class BaseGameManager extends EventEmitter {
       if (this.account) {
         this.hardRefreshPlayer(this.account);
         this.hardRefreshPlayerSpaceships(this.account);
+        //Round 4 Todo: change the way to update radius
+        this.hardRefreshRadius();
       }
     }, 10_000);
 
@@ -803,6 +809,15 @@ class BaseGameManager extends EventEmitter {
     const planet = await this.contractsAPI.getPlanetById(planetId);
     if (!planet) return;
     this.entityStore.replacePlanetFromContractData(planet);
+  }
+
+  public async hardRefreshRadius(): Promise<void> {
+    const newRadius = await this.contractsAPI.getWorldRadius();
+    console.log('new world radius:', newRadius);
+    this.setRadius(newRadius);
+    const newInnerRadius = await this.contractsAPI.getInnerRadius();
+    console.log('new inner radius:', newInnerRadius);
+    this.setInnterRadius(newInnerRadius);
   }
 
   public async hardRefreshPlanet(planetId: LocationId): Promise<void> {
@@ -1183,6 +1198,13 @@ class BaseGameManager extends EventEmitter {
   }
 
   /**
+   * Gets the inner radius of the playable area of the universe.
+   */
+  public getInnerRadius(): number {
+    return this.innerRadius;
+  }
+
+  /**
    * Gets the total amount of silver that lives on a planet that somebody owns.
    */
   public getWorldSilver(): number {
@@ -1264,6 +1286,7 @@ class BaseGameManager extends EventEmitter {
       this.persistentChunkStore,
       myPattern,
       this.worldRadius,
+      this.innerRadius,
       this.planetRarity,
       this.hashConfig,
       this.useMockHash
@@ -1722,6 +1745,14 @@ class BaseGameManager extends EventEmitter {
 
     if (this.minerManager) {
       this.minerManager.setRadius(this.worldRadius);
+    }
+  }
+
+  private setInnterRadius(innerRadius: number) {
+    this.innerRadius = innerRadius;
+
+    if (this.minerManager) {
+      this.minerManager.setInnerRadius(this.innerRadius);
     }
   }
 
@@ -3080,6 +3111,7 @@ class BaseGameManager extends EventEmitter {
         chunkStore,
         pattern,
         this.worldRadius,
+        this.innerRadius,
         this.planetRarity,
         this.hashConfig,
         this.useMockHash
@@ -3177,6 +3209,7 @@ class BaseGameManager extends EventEmitter {
             planetPerlin < initPerlinMax &&
             planetPerlin >= initPerlinMin &&
             distFromOrigin < this.worldRadius &&
+            distFromOrigin >= this.innerRadius &&
             // distFromOrigin >= spawnInnerRadius &&
             distFromOrigin >= requireRadiusMin &&
             // distFromOrigin < requireRadiusMax &&
@@ -3981,6 +4014,10 @@ class BaseGameManager extends EventEmitter {
         throw new Error('attempted to move out of bounds');
       }
 
+      if (newX ** 2 + newY ** 2 <= this.innerRadius ** 2) {
+        throw new Error('attempted to move out of bounds');
+      }
+
       const oldPlanet = this.entityStore.getPlanetWithLocation(oldLocation);
 
       if (
@@ -4022,6 +4059,12 @@ class BaseGameManager extends EventEmitter {
           args[6] = artifactIdToDecStr(artifactMoved);
         }
 
+        const targetDistFromOriginSquare = args[3][10];
+        const targetDistFromOrign = Math.sqrt(Number(targetDistFromOriginSquare));
+
+        console.log('target dist:', targetDistFromOrign);
+        console.log('inner radius:', this.innerRadius);
+
         return args;
       };
 
@@ -4029,7 +4072,7 @@ class BaseGameManager extends EventEmitter {
         methodName: 'move',
         contract: this.contractsAPI.contract,
         args: getArgs(),
-        from: oldLocation.hash, //以下的东西没屁用
+        from: oldLocation.hash, //NOTE: The following things seems useless
         to: newLocation.hash,
         forces: shipsMoved,
         silver: silverMoved,

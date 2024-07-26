@@ -18,14 +18,38 @@ import { Renderer } from '../Renderer';
 import { GameGLManager } from '../WebGL/GameGLManager';
 
 const { white, gold } = engineConsts.colors;
-const { enemyA, mineA, shipA } = engineConsts.colors.voyage;
+const { enemyA, mineA, shipA, supportA } = engineConsts.colors.voyage;
 
-function getVoyageColor(fromPlanet: Planet, toPlanet: Planet, isMine: boolean, isShip: boolean) {
+function getIsSupportVoyage(voyage: QueuedArrival, toPlanet: Planet) {
+  let supportMove = false;
+
+  for (let i = 0; i < voyage.members.length; i++) {
+    if (toPlanet.owner === voyage.members[i]) {
+      supportMove = true;
+      break;
+    }
+  }
+  const result = supportMove && voyage.player !== toPlanet.owner;
+  return result;
+}
+
+function getVoyageColor(
+  fromPlanet: Planet,
+  toPlanet: Planet,
+  isMine: boolean,
+  isShip: boolean,
+  isSupport: boolean
+) {
   if (isMine) {
     return mineA;
   }
 
+  if (isSupport) {
+    return supportA;
+  }
+
   const isAttack = hasOwner(toPlanet) && fromPlanet.owner !== toPlanet.owner;
+
   if (isAttack) {
     if (isShip) {
       return shipA;
@@ -50,7 +74,8 @@ export class VoyageRenderer implements VoyageRendererType {
     voyage: QueuedArrival,
     _player: Player | undefined,
     isMyVoyage: boolean,
-    isShipVoyage: boolean
+    isShipVoyage: boolean,
+    isSupportVoyage: boolean
   ) {
     const {
       now: nowMs,
@@ -65,6 +90,7 @@ export class VoyageRenderer implements VoyageRendererType {
     const fromPlanet = gameUIManager.getPlanetWithId(voyage.fromPlanet);
     const toLoc = gameUIManager.getLocationOfPlanet(voyage.toPlanet);
     const toPlanet = gameUIManager.getPlanetWithId(voyage.toPlanet);
+
     if (!fromPlanet || !toLoc) {
       // not enough info to draw anything
       return;
@@ -72,10 +98,13 @@ export class VoyageRenderer implements VoyageRendererType {
       // can draw a ring around dest, but don't know source location
       const myMove = voyage.player === gameUIManager.getAccount();
       const shipMove = voyage.player === EMPTY_ADDRESS;
+      const supportMove = getIsSupportVoyage(voyage, toPlanet);
+
       const now = nowMs / 1000;
       const timeLeft = voyage.arrivalTime - now;
       const radius = (timeLeft * fromPlanet.speed) / 100;
-      const color = getVoyageColor(fromPlanet, toPlanet, myMove, shipMove);
+
+      const color = getVoyageColor(fromPlanet, toPlanet, myMove, shipMove, supportMove);
 
       const text = shipMove ? 'Ship' : `${Math.floor(voyage.energyArriving)}`;
 
@@ -101,7 +130,14 @@ export class VoyageRenderer implements VoyageRendererType {
       const shipsLocation = { x: shipsLocationX, y: shipsLocationY };
 
       const timeLeftSeconds = Math.floor(voyage.arrivalTime - now);
-      const voyageColor = getVoyageColor(fromPlanet, toPlanet, isMyVoyage, isShipVoyage);
+
+      const voyageColor = getVoyageColor(
+        fromPlanet,
+        toPlanet,
+        isMyVoyage,
+        isShipVoyage,
+        isSupportVoyage
+      );
 
       // alpha calculation
       const viewport = this.renderer.getViewport();
@@ -189,8 +225,19 @@ export class VoyageRenderer implements VoyageRendererType {
             gameUIManager.getPlayer()?.address;
         const isShipVoyage = voyage.player === EMPTY_ADDRESS;
         const sender = gameUIManager.getPlayer(voyage.player);
-        this.drawVoyagePath(voyage.fromPlanet, voyage.toPlanet, true, isMyVoyage, isShipVoyage);
-        this.drawFleet(voyage, sender, isMyVoyage, isShipVoyage);
+
+        const toPlanet = gameUIManager.getPlanetWithId(voyage.toPlanet);
+        const isSupportVoyage = toPlanet ? getIsSupportVoyage(voyage, toPlanet) : false;
+
+        this.drawVoyagePath(
+          voyage.fromPlanet,
+          voyage.toPlanet,
+          true,
+          isMyVoyage,
+          isShipVoyage,
+          isSupportVoyage
+        );
+        this.drawFleet(voyage, sender, isMyVoyage, isShipVoyage, isSupportVoyage);
       }
     }
 
@@ -202,7 +249,8 @@ export class VoyageRenderer implements VoyageRendererType {
         false,
         true,
         // This false doesn't matter because we force isMyVoyage to true
-        false
+        false,
+        false // unconfirmed moves are always white
       );
     }
   }
@@ -212,7 +260,8 @@ export class VoyageRenderer implements VoyageRendererType {
     to: LocationId,
     confirmed: boolean,
     isMyVoyage: boolean,
-    isShipVoyage: boolean
+    isShipVoyage: boolean,
+    isSupportVoyage: boolean
   ) {
     const { context: gameUIManager } = this.renderer;
 
@@ -224,7 +273,13 @@ export class VoyageRenderer implements VoyageRendererType {
       return;
     }
 
-    const voyageColor = getVoyageColor(fromPlanet, toPlanet, isMyVoyage, isShipVoyage);
+    const voyageColor = getVoyageColor(
+      fromPlanet,
+      toPlanet,
+      isMyVoyage,
+      isShipVoyage,
+      isSupportVoyage
+    );
 
     this.renderer.lineRenderer.queueLineWorld(
       fromLoc.coords,

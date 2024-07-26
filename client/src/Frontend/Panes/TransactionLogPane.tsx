@@ -52,6 +52,7 @@ const TableContainer = styled.div`
   min-width: 500px;
   overflow-y: scroll;
 `;
+// TODO add isUnconfirmedUnionTx??
 
 function TransactionState({ tx }: { tx: Transaction }) {
   let element;

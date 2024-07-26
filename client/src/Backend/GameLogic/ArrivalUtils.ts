@@ -163,11 +163,21 @@ export const arrive = (
   // }
 
   // apply energy
-  const { energyArriving, arrivalTime } = arrival;
+  const { energyArriving, arrivalTime, members } = arrival;
+
+  let inUnion = false;
+  for (let i = 0; i < members.length; i++) {
+    if (members[i].toLowerCase() === toPlanet.owner) {
+      inUnion = true;
+      break;
+    }
+  }
 
   const activeArtifact = artifactsOnPlanet.find((a) => a.lastActivated > a.lastDeactivated);
-
-  if (arrival.player !== toPlanet.owner) {
+  if (arrival.player === toPlanet.owner || (arrival.unionId !== 0 && inUnion)) {
+    // moving between my own planets or between union members
+    toPlanet.energy += energyArriving;
+  } else {
     if (arrival.arrivalType === ArrivalType.Wormhole) {
       // if this is a wormhole arrival to a planet that isn't owned by the initiator of
       // the move, then don't move any energy
@@ -206,9 +216,6 @@ export const arrive = (
         Math.floor((toPlanet.energy * CONTRACT_PRECISION * toPlanet.defense) / 100) /
           CONTRACT_PRECISION;
     }
-  } else {
-    // moving between my own planets
-    toPlanet.energy += energyArriving;
   }
 
   if (toPlanet.planetType === PlanetType.SILVER_BANK || toPlanet.pausers !== 0) {

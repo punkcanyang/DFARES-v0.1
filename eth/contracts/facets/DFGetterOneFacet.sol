@@ -179,11 +179,7 @@ contract DFGetterOneFacet is WithStorage {
         view
         returns (uint256[] memory ret)
     {
-        // return slice of planetIds array from startIdx through endIdx - 1
-        ret = new uint256[](endIdx - startIdx);
-        for (uint256 i = startIdx; i < endIdx; i++) {
-            ret[i - startIdx] = gs().planetIds[i];
-        }
+        return _bulkGetArray(gs().planetIds, startIdx, endIdx);
     }
 
     function bulkGetRevealedPlanetIds(uint256 startIdx, uint256 endIdx)
@@ -191,16 +187,11 @@ contract DFGetterOneFacet is WithStorage {
         view
         returns (uint256[] memory ret)
     {
-        // return slice of revealedPlanetIds array from startIdx through endIdx - 1
-        ret = new uint256[](endIdx - startIdx);
-        for (uint256 i = startIdx; i < endIdx; i++) {
-            ret[i - startIdx] = gs().revealedPlanetIds[i];
-        }
+        return _bulkGetArray(gs().revealedPlanetIds, startIdx, endIdx);
     }
 
     function bulkGetPlanetsByIds(uint256[] calldata ids) public view returns (Planet[] memory ret) {
         ret = new Planet[](ids.length);
-
         for (uint256 i = 0; i < ids.length; i++) {
             ret[i] = gs().planets[ids[i]];
         }
@@ -212,7 +203,6 @@ contract DFGetterOneFacet is WithStorage {
         returns (RevealedCoords[] memory ret)
     {
         ret = new RevealedCoords[](ids.length);
-
         for (uint256 i = 0; i < ids.length; i++) {
             ret[i] = gs().revealedCoords[ids[i]];
         }
@@ -221,15 +211,12 @@ contract DFGetterOneFacet is WithStorage {
     function bulkGetPlanetArrivalsByIds(uint256[] calldata ids)
         public
         view
-        returns (ArrivalData[][] memory)
+        returns (ArrivalData[][] memory ret)
     {
-        ArrivalData[][] memory ret = new ArrivalData[][](ids.length);
-
+        ret = new ArrivalData[][](ids.length);
         for (uint256 i = 0; i < ids.length; i++) {
             ret[i] = getPlanetArrivals(ids[i]);
         }
-
-        return ret;
     }
 
     function bulkGetPlanetsDataByIds(uint256[] calldata ids)
@@ -262,11 +249,7 @@ contract DFGetterOneFacet is WithStorage {
         view
         returns (Planet[] memory ret)
     {
-        // return array of planets corresponding to planetIds[startIdx] through planetIds[endIdx - 1]
-        ret = new Planet[](endIdx - startIdx);
-        for (uint256 i = startIdx; i < endIdx; i++) {
-            ret[i - startIdx] = gs().planets[gs().planetIds[i]];
-        }
+        return _bulkGetStructs(gs().planetIds, gs().planets, startIdx, endIdx);
     }
 
     function bulkGetPlayerIds(uint256 startIdx, uint256 endIdx)
@@ -274,11 +257,7 @@ contract DFGetterOneFacet is WithStorage {
         view
         returns (address[] memory ret)
     {
-        // return slice of players array from startIdx through endIdx - 1
-        ret = new address[](endIdx - startIdx);
-        for (uint256 i = startIdx; i < endIdx; i++) {
-            ret[i - startIdx] = gs().playerIds[i];
-        }
+        return _bulkGetArray(gs().playerIds, startIdx, endIdx);
     }
 
     function bulkGetPlayers(uint256 startIdx, uint256 endIdx)
@@ -286,27 +265,18 @@ contract DFGetterOneFacet is WithStorage {
         view
         returns (Player[] memory ret)
     {
-        // return array of planets corresponding to planetIds[startIdx] through planetIds[endIdx - 1]
-        ret = new Player[](endIdx - startIdx);
-        for (uint256 i = startIdx; i < endIdx; i++) {
-            ret[i - startIdx] = gs().players[gs().playerIds[i]];
-        }
+        return _bulkGetStructs(gs().playerIds, gs().players, startIdx, endIdx);
     }
 
     function getPlanetArrivals(uint256 _location) public view returns (ArrivalData[] memory ret) {
-        uint256 arrivalCount = 0;
-        for (uint256 i = 0; i < getPlanetEventsCount(_location); i += 1) {
-            if (getPlanetEvent(_location, i).eventType == PlanetEventType.ARRIVAL) {
-                arrivalCount += 1;
-            }
-        }
+        uint256 arrivalCount = getPlanetEventsCount(_location);
         ret = new ArrivalData[](arrivalCount);
-
-        for (uint256 i = 0; i < getPlanetEventsCount(_location); i += 1) {
+        uint256 index = 0;
+        for (uint256 i = 0; i < arrivalCount; i++) {
             PlanetEventMetadata memory arrivalEvent = getPlanetEvent(_location, i);
-
             if (arrivalEvent.eventType == PlanetEventType.ARRIVAL) {
-                ret[i] = gs().planetArrivals[arrivalEvent.id];
+                ret[index] = gs().planetArrivals[arrivalEvent.id];
+                index++;
             }
         }
     }
@@ -314,17 +284,12 @@ contract DFGetterOneFacet is WithStorage {
     function bulkGetPlanetArrivals(uint256 startIdx, uint256 endIdx)
         public
         view
-        returns (ArrivalData[][] memory)
+        returns (ArrivalData[][] memory ret)
     {
-        // return array of planets corresponding to planetIds[startIdx] through planetIds[endIdx - 1]
-
-        ArrivalData[][] memory ret = new ArrivalData[][](endIdx - startIdx);
-
+        ret = new ArrivalData[][](endIdx - startIdx);
         for (uint256 i = startIdx; i < endIdx; i++) {
             ret[i - startIdx] = getPlanetArrivals(gs().planetIds[i]);
         }
-
-        return ret;
     }
 
     function getArtifactById(uint256 artifactId)
@@ -333,17 +298,7 @@ contract DFGetterOneFacet is WithStorage {
         returns (ArtifactWithMetadata memory ret)
     {
         Artifact memory artifact = DFArtifactFacet(address(this)).getArtifact(artifactId);
-
-        address owner;
-
-        try DFArtifactFacet(address(this)).ownerOf(artifact.id) returns (address addr) {
-            owner = addr;
-        } catch Error(string memory) {
-            // artifact is probably burned / owned by 0x0, so owner is 0x0
-        } catch (bytes memory) {
-            // this shouldn't happen
-        }
-
+        address owner = _getArtifactOwner(artifact.id);
         ret = ArtifactWithMetadata({
             artifact: artifact,
             upgrade: LibGameUtils._getUpgradeForArtifact(artifact),
@@ -360,26 +315,18 @@ contract DFGetterOneFacet is WithStorage {
         returns (ArtifactWithMetadata[] memory ret)
     {
         uint256[] memory artifactIds = gs().planetArtifacts[locationId];
-        ret = new ArtifactWithMetadata[](artifactIds.length);
-        for (uint256 i = 0; i < artifactIds.length; i++) {
-            ret[i] = getArtifactById(artifactIds[i]);
-        }
-        return ret;
+        ret = bulkGetArtifactsByIds(artifactIds);
     }
 
     function bulkGetPlanetArtifacts(uint256[] calldata planetIds)
         public
         view
-        returns (ArtifactWithMetadata[][] memory)
+        returns (ArtifactWithMetadata[][] memory ret)
     {
-        ArtifactWithMetadata[][] memory ret = new ArtifactWithMetadata[][](planetIds.length);
-
+        ret = new ArtifactWithMetadata[][](planetIds.length);
         for (uint256 i = 0; i < planetIds.length; i++) {
-            uint256[] memory planetOwnedArtifactIds = gs().planetArtifacts[planetIds[i]];
-            ret[i] = bulkGetArtifactsByIds(planetOwnedArtifactIds);
+            ret[i] = getArtifactsOnPlanet(planetIds[i]);
         }
-
-        return ret;
     }
 
     function bulkGetArtifactsByIds(uint256[] memory ids)
@@ -388,28 +335,62 @@ contract DFGetterOneFacet is WithStorage {
         returns (ArtifactWithMetadata[] memory ret)
     {
         ret = new ArtifactWithMetadata[](ids.length);
-
         for (uint256 i = 0; i < ids.length; i++) {
-            Artifact memory artifact = DFArtifactFacet(address(this)).getArtifact(ids[i]);
+            ret[i] = getArtifactById(ids[i]);
+        }
+    }
 
-            address owner;
+    function _bulkGetArray(
+        uint256[] storage arr,
+        uint256 startIdx,
+        uint256 endIdx
+    ) internal view returns (uint256[] memory ret) {
+        ret = new uint256[](endIdx - startIdx);
+        for (uint256 i = startIdx; i < endIdx; i++) {
+            ret[i - startIdx] = arr[i];
+        }
+    }
 
-            try DFArtifactFacet(address(this)).ownerOf(artifact.id) returns (address addr) {
-                owner = addr;
-            } catch Error(string memory) {
-                // artifact is probably burned or owned by 0x0, so owner is 0x0
-            } catch (bytes memory) {
-                // this shouldn't happen
-            }
+    function _bulkGetArray(
+        address[] storage arr,
+        uint256 startIdx,
+        uint256 endIdx
+    ) internal view returns (address[] memory ret) {
+        ret = new address[](endIdx - startIdx);
+        for (uint256 i = startIdx; i < endIdx; i++) {
+            ret[i - startIdx] = arr[i];
+        }
+    }
 
-            ret[i] = ArtifactWithMetadata({
-                artifact: artifact,
-                upgrade: LibGameUtils._getUpgradeForArtifact(artifact),
-                timeDelayedUpgrade: LibGameUtils.timeDelayUpgrade(artifact),
-                owner: owner,
-                locationId: gs().artifactIdToPlanetId[artifact.id],
-                voyageId: gs().artifactIdToVoyageId[artifact.id]
-            });
+    function _bulkGetStructs(
+        uint256[] storage keys,
+        mapping(uint256 => Planet) storage data,
+        uint256 startIdx,
+        uint256 endIdx
+    ) internal view returns (Planet[] memory ret) {
+        ret = new Planet[](endIdx - startIdx);
+        for (uint256 i = startIdx; i < endIdx; i++) {
+            ret[i - startIdx] = data[keys[i]];
+        }
+    }
+
+    function _bulkGetStructs(
+        address[] storage keys,
+        mapping(address => Player) storage data,
+        uint256 startIdx,
+        uint256 endIdx
+    ) internal view returns (Player[] memory ret) {
+        ret = new Player[](endIdx - startIdx);
+        for (uint256 i = startIdx; i < endIdx; i++) {
+            ret[i - startIdx] = data[keys[i]];
+        }
+    }
+
+    function _getArtifactOwner(uint256 artifactId) internal view returns (address owner) {
+        try DFArtifactFacet(address(this)).ownerOf(artifactId) returns (address addr) {
+            owner = addr;
+        } catch {
+            // artifact is probably burned or owned by 0x0, so owner is 0x0
         }
     }
 }

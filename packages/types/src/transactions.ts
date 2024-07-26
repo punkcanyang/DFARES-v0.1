@@ -1,6 +1,6 @@
 import type { Contract } from 'ethers';
 import type { LiteralUnion } from 'type-fest';
-import type { ArtifactId, EthAddress, LocationId } from './identifier';
+import type { ArtifactId, EthAddress, LocationId, UnionId } from './identifier';
 import type { WorldLocation } from './world';
 
 export type ContractMethodName =
@@ -35,7 +35,22 @@ export type ContractMethodName =
   | 'refreshPlanet'
   | 'buyPlanet'
   | 'buySpaceship'
-  | 'donate';
+  | 'donate'
+  | 'addMemberByAdmin'
+  | 'createUnion'
+  | 'inviteMember'
+  | 'cancelInvite'
+  | 'acceptInvite'
+  | 'sendApplication'
+  | 'cancelApplication'
+  | 'rejectApplication'
+  | 'acceptApplication'
+  | 'leaveUnion'
+  | 'kickMember'
+  | 'transferLeaderRole'
+  | 'changeUnionName'
+  | 'disbandUnion'
+  | 'levelUpUnion';
 
 export type EthTxStatus =
   | 'Init'
@@ -335,4 +350,133 @@ export type UnconfirmedBuySpaceship = TxIntent & {
 export type UnconfirmedDonate = TxIntent & {
   methodName: 'donate';
   amount: number;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedAddMemberByAdmin = TxIntent & {
+  methodName: 'addMemberByAdmin';
+  unionId: UnionId;
+  member: EthAddress;
+};
+
+/**
+ * @hidden
+ *
+ */
+export type UnconfirmedCreateUnion = TxIntent & {
+  methodName: 'createUnion';
+  name: string;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedInviteMember = TxIntent & {
+  methodName: 'inviteMember';
+  unionId: UnionId;
+  invitee: EthAddress;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedCancelInvite = TxIntent & {
+  methodName: 'cancelInvite';
+  unionId: UnionId;
+  invitee: EthAddress;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedSendApplication = TxIntent & {
+  methodName: 'sendApplication';
+  unionId: UnionId;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedCancelApplication = TxIntent & {
+  methodName: 'cancelApplication';
+  unionId: UnionId;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedRejectApplication = TxIntent & {
+  methodName: 'rejectApplication';
+  unionId: UnionId;
+  applicant: EthAddress;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedAcceptApplication = TxIntent & {
+  methodName: 'acceptApplication';
+  unionId: UnionId;
+  applicant: EthAddress;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedAcceptInvite = TxIntent & {
+  methodName: 'acceptInvite';
+  unionId: UnionId;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedLeaveUnion = TxIntent & {
+  methodName: 'leaveUnion';
+  unionId: UnionId;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedKickMember = TxIntent & {
+  methodName: 'kickMember';
+  unionId: UnionId;
+  member: EthAddress;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedTransferLeaderRole = TxIntent & {
+  methodName: 'transferLeaderRole';
+  unionId: UnionId;
+  newLeader: EthAddress;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedChangeUnionName = TxIntent & {
+  methodName: 'changeUnionName';
+  unionId: UnionId;
+  newName: string;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedDisbandUnion = TxIntent & {
+  methodName: 'disbandUnion';
+  unionId: UnionId;
+};
+
+/**
+ * @hidden
+ */
+export type UnconfirmedLevelUpUnion = TxIntent & {
+  methodName: 'levelUpUnion';
+  unionId: UnionId;
 };

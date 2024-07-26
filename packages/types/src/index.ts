@@ -51,6 +51,7 @@ export * from './reveal';
 export * from './setting';
 export * from './transaction';
 export * from './transactions';
+export * from './union';
 export * from './upgrade';
 export * from './utility';
 export * from './webserver';

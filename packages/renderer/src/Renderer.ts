@@ -143,6 +143,7 @@ export interface RendererGameContext extends DiagnosticUpdater {
   getSpaceTypePerlin(coords: WorldCoords, floor: boolean): number;
   getPerlinThresholds(): [number, number, number];
   isOwnedByMe(planet: Planet): boolean;
+  isOwnedByPlayerInMyUnion(planet: Planet): boolean;
   getArtifactsWithIds(artifactIds: ArtifactId[]): Array<Artifact | undefined>;
   getSelectedPlanet(): LocatablePlanet | undefined;
   getHoveringOverPlanet(): Planet | undefined;

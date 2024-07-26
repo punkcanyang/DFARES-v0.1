@@ -266,6 +266,7 @@ export async function deployAndCut(
   const pinkBombFacet = await deployPinkBombFacet({}, libraries, hre);
   const kardashevFacet = await deployKardashevFacet({}, libraries, hre);
   const tradeFacet = await deployTradeFacet({}, libraries, hre);
+  const unionFacet = await deployUnionFacet({}, libraries, hre);
 
   const artifactFacet = await deployArtifactFacet(
     { diamondAddress: diamond.address },
@@ -292,6 +293,7 @@ export async function deployAndCut(
     ...changes.getFacetCuts('DFPinkBombFacet', pinkBombFacet),
     ...changes.getFacetCuts('DFKardashevFacet', kardashevFacet),
     ...changes.getFacetCuts('DFTradeFacet', tradeFacet),
+    ...changes.getFacetCuts('DFUnionFacet', unionFacet),
     ...changes.getFacetCuts('DFArtifactFacet', artifactFacet),
     ...changes.getFacetCuts('DFGetterOneFacet', getterOneFacet),
     ...changes.getFacetCuts('DFGetterTwoFacet', getterTwoFacet),
@@ -626,6 +628,17 @@ export async function deployTradeFacet(
   console.log('------ tx:', contract.address, ' ------');
   await contract.deployTransaction.wait();
   console.log(`DFTradeFacet deployed to: ${contract.address}`);
+  return contract;
+}
+
+export async function deployUnionFacet({}, {}: Libraries, hre: HardhatRuntimeEnvironment) {
+  const factory = await hre.ethers.getContractFactory('DFUnionFacet', {
+    libraries: {},
+  });
+  const contract = await factory.deploy();
+  console.log('------ tx:', contract.address, ' ------');
+  await contract.deployTransaction.wait();
+  console.log(`DFUnionFacet deployed to: ${contract.address}`);
   return contract;
 }
 

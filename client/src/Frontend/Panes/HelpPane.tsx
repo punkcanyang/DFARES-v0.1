@@ -102,8 +102,8 @@ export function HelpPane({ visible, onClose }: { visible: boolean; onClose: () =
       <HelpContent>
         {uiManager.isRoundOver() && (
           <Section>
-            <SectionHeader>Round 3: Kardashev Complete</SectionHeader>
-            Dark Forest Ares v0.1 Round 3 is now complete! Scores are being compiled and winners
+            <SectionHeader>Round 4: Union Complete</SectionHeader>
+            Dark Forest Ares v0.1 Round 4 is now complete! Scores are being compiled and winners
             will be announced shortly. Also, Artifacts will no longer be mintable. Thanks for
             playing!
           </Section>
@@ -114,7 +114,7 @@ export function HelpPane({ visible, onClose }: { visible: boolean; onClose: () =
         </Section>
 
         <Section>
-          <SectionHeader>Dark Forest Ares v0.1 Round 3: Kardashev🔷</SectionHeader>
+          <SectionHeader>Dark Forest Ares v0.1 Round 4: Union</SectionHeader>
           {/* The game is a vast universe, obfuscated by zero-knowledge cryptography. Your{' '}
           <White>explorer</White> (bottom left) explores the universe, searching for{' '}
           <White>Planets</White> and other players.
@@ -134,7 +134,7 @@ export function HelpPane({ visible, onClose }: { visible: boolean; onClose: () =
               to='https://dfares.notion.site/DFAres-Round-3-Guide-for-New-Players-3980998d8f65440085c116ba0df0d99a?pvs=74'
               color='pink'
             >
-              DFAres Round 3 Guide
+              DFAres Round 4 Guide
             </Link>{' '}
             to know how to play.
           </div>
@@ -143,7 +143,7 @@ export function HelpPane({ visible, onClose }: { visible: boolean; onClose: () =
             <Link to='https://twitter.com/DFArchon' color={dfstyles.colors.dfpink}>
               DFArchon team
             </Link>{' '}
-            host <Pink>Dark Forest Ares</Pink> Round 3 on{' '}
+            host <Pink>Dark Forest Ares</Pink> Round 4 on{' '}
             <Link to={BLOCK_EXPLORER_URL} color={'rgb(243,66,66)'}>
               Redstone
             </Link>

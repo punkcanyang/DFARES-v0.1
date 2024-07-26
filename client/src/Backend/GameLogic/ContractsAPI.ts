@@ -22,6 +22,7 @@ import {
   decodePlanetDefaults,
   decodePlayer,
   decodeRevealedCoords,
+  decodeUnion,
   decodeUpgradeBranches,
   locationIdFromEthersBN,
   locationIdToDecStr,
@@ -45,6 +46,8 @@ import {
   Transaction,
   TransactionId,
   TxIntent,
+  Union,
+  UnionId,
   VoyageId,
 } from '@dfares/types';
 import { BigNumber as EthersBN, ContractFunction, Event, providers } from 'ethers';
@@ -75,7 +78,7 @@ export class ContractsAPI extends EventEmitter {
   /**
    * Don't allow users to submit txs if balance falls below this amount/
    */
-  //todo: this should be change for round 3
+  //todo: this should be change for round 4
   private static readonly MIN_BALANCE = ethToWei(0.00001);
 
   /**
@@ -198,7 +201,7 @@ export class ContractsAPI extends EventEmitter {
     this.emit(ContractsAPIEvent.TxProcessing, tx);
   }
 
-  private async afterTransaction(_txRequest: Transaction, txDiagnosticInfo: unknown) {
+  private async afterTransaction(_txRequest: Transaction, _txDiagnosticInfo: unknown) {
     // NOTE: remove /event
     // eventLogger.logEvent(EventType.Transaction, txDiagnosticInfo);
   }
@@ -249,6 +252,21 @@ export class ContractsAPI extends EventEmitter {
           contract.filters.HalfPriceChanged(null).topics,
           contract.filters.WorldRadiusUpdated(null).topics,
           contract.filters.InnerRadiusUpdated(null).topics,
+          contract.filters.UnionCreated(null, null).topics,
+          contract.filters.InviteSent(null, null).topics,
+          contract.filters.InviteCanceled(null, null).topics,
+          contract.filters.InviteAccepted(null, null).topics,
+          contract.filters.ApplicationSent(null, null).topics,
+          contract.filters.ApplicationCanceled(null, null).topics,
+          contract.filters.ApplicationAccepted(null, null).topics,
+          contract.filters.ApplicationRejected(null, null).topics,
+          contract.filters.MemberLeft(null, null).topics,
+          contract.filters.MemberKicked(null, null).topics,
+          contract.filters.UnionTransferred(null, null, null).topics,
+          contract.filters.UnionNameChanged(null, null).topics,
+          contract.filters.UnionDisbanded(null).topics,
+          contract.filters.UnionLeveledUp(null, null).topics,
+          contract.filters.MemberAddedByAdmin(null, null).topics,
         ].map((topicsOrUndefined) => (topicsOrUndefined || [])[0]),
       ] as Array<string | Array<string>>,
     };
@@ -439,15 +457,11 @@ export class ContractsAPI extends EventEmitter {
         );
         this.emit(ContractsAPIEvent.PlayerUpdate, address(revealerAddr));
       },
-
-      //todo: this is cool
-
       [ContractEvent.Kardashev]: async (
         revealerAddr: string,
         location: EthersBN,
         _x: EthersBN,
         _y: EthersBN,
-
         _: Event
       ) => {
         this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location));
@@ -486,7 +500,8 @@ export class ContractsAPI extends EventEmitter {
       [ContractEvent.SpaceshipBought]: (
         location: EthersBN,
         _newOwner: string,
-        _type: ArtifactType
+        _type: ArtifactType,
+        _: Event
       ) => {
         this.emit(ContractsAPIEvent.PlanetUpdate, locationIdFromEthersBN(location));
       },
@@ -495,6 +510,79 @@ export class ContractsAPI extends EventEmitter {
       },
       [ContractEvent.InnerRadiusUpdated]: (_radius: EthersBN, _: Event) => {
         this.emit(ContractsAPIEvent.RadiusUpdated);
+      [ContractEvent.UnionCreated]: async (unionId: EthersBN, creator: string, _: Event) => {
+        this.emit(ContractsAPIEvent.UnionUpdate, unionId.toString() as UnionId);
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(creator));
+      },
+
+      [ContractEvent.InviteSent]: async (unionId: EthersBN, _invitee: string, _: Event) => {
+        this.emit(ContractsAPIEvent.UnionUpdate, unionId.toString() as UnionId);
+      },
+      [ContractEvent.InviteCanceled]: async (unionId: EthersBN, _invitee: string, _: Event) => {
+        this.emit(ContractsAPIEvent.UnionUpdate, unionId.toString() as UnionId);
+      },
+      [ContractEvent.InviteAccepted]: async (unionId: EthersBN, invitee: string, _: Event) => {
+        this.emit(ContractsAPIEvent.UnionUpdate, unionId.toString() as UnionId);
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(invitee));
+      },
+      [ContractEvent.ApplicationSent]: async (unionId: EthersBN, applicant: string, _: Event) => {
+        this.emit(ContractsAPIEvent.UnionUpdate, unionId.toString() as UnionId);
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(applicant));
+      },
+      [ContractEvent.ApplicationCanceled]: async (
+        unionId: EthersBN,
+        applicant: string,
+        _: Event
+      ) => {
+        this.emit(ContractsAPIEvent.UnionUpdate, unionId.toString() as UnionId);
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(applicant));
+      },
+      [ContractEvent.ApplicationAccepted]: async (
+        unionId: EthersBN,
+        applicant: string,
+        _: Event
+      ) => {
+        this.emit(ContractsAPIEvent.UnionUpdate, unionId.toString() as UnionId);
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(applicant));
+      },
+      [ContractEvent.ApplicationRejected]: async (
+        unionId: EthersBN,
+        applicant: string,
+        _: Event
+      ) => {
+        this.emit(ContractsAPIEvent.UnionUpdate, unionId.toString() as UnionId);
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(applicant));
+      },
+      [ContractEvent.MemberLeft]: async (unionId: EthersBN, member: string, _: Event) => {
+        this.emit(ContractsAPIEvent.UnionUpdate, unionId.toString() as UnionId);
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(member));
+      },
+      [ContractEvent.MemberKicked]: async (unionId: EthersBN, member: string, _: Event) => {
+        this.emit(ContractsAPIEvent.UnionUpdate, unionId.toString() as UnionId);
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(member));
+      },
+
+      [ContractEvent.UnionTransferred]: async (unionId: EthersBN, member: string, _: Event) => {
+        this.emit(ContractsAPIEvent.UnionUpdate, unionId.toString() as UnionId);
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(member));
+      },
+      [ContractEvent.UnionNameChanged]: async (unionId: EthersBN, _newName: string, _: Event) => {
+        this.emit(ContractsAPIEvent.UnionUpdate, unionId.toString() as UnionId);
+      },
+      [ContractEvent.UnionDisbanded]: async (unionId: EthersBN, members: string[], _: Event) => {
+        this.emit(ContractsAPIEvent.UnionUpdate, unionId.toString() as UnionId);
+
+        //Round 4 Todo: bulkHardRefreshPlayers
+        for (let i = 0; i < members.length; i++) {
+          this.emit(ContractsAPIEvent.PlayerUpdate, address(members[i]));
+        }
+      },
+      [ContractEvent.UnionLeveledUp]: async (unionId: EthersBN, _newLevel: number, _: Event) => {
+        this.emit(ContractsAPIEvent.UnionUpdate, unionId.toString() as UnionId);
+      },
+      [ContractEvent.MemberAddedByAdmin]: async (unionId: EthersBN, member: string, _: Event) => {
+        this.emit(ContractsAPIEvent.UnionUpdate, unionId.toString() as UnionId);
+        this.emit(ContractsAPIEvent.PlayerUpdate, address(member));
       },
     };
 
@@ -523,6 +611,17 @@ export class ContractsAPI extends EventEmitter {
     contract.removeAllListeners(ContractEvent.Kardashev);
     contract.removeAllListeners(ContractEvent.WorldRadiusUpdated);
     contract.removeAllListeners(ContractEvent.InnerRadiusUpdated);
+    contract.removeAllListeners(ContractEvent.UnionCreated);
+    contract.removeAllListeners(ContractEvent.InviteSent);
+    contract.removeAllListeners(ContractEvent.InviteCanceled);
+    contract.removeAllListeners(ContractEvent.InviteAccepted);
+    contract.removeAllListeners(ContractEvent.MemberLeft);
+    contract.removeAllListeners(ContractEvent.MemberKicked);
+    contract.removeAllListeners(ContractEvent.UnionTransferred);
+    contract.removeAllListeners(ContractEvent.UnionDisbanded);
+    contract.removeAllListeners(ContractEvent.UnionLeveledUp);
+    contract.removeAllListeners(ContractEvent.MemberAddedByAdmin);
+
   }
 
   public getContractAddress(): EthAddress {
@@ -533,6 +632,7 @@ export class ContractsAPI extends EventEmitter {
     const res = await this.makeCall<EthersBN>(this.contract.getEntryFee);
     return res;
   }
+
   /**
    * If this player has a claimed planet, their score is the distance between the claimed planet and
    * the center. If this player does not have a claimed planet, then the score is undefined.
@@ -1057,6 +1157,71 @@ export class ContractsAPI extends EventEmitter {
     return player;
   }
 
+  // Union Getter Functions
+
+  public async getUnions(
+    onProgress?: (fractionCompleted: number) => void
+  ): Promise<Map<UnionId, Union>> {
+    const nUnions: number = (await this.makeCall<EthersBN>(this.contract.getNUnions)).toNumber();
+
+    const unions = await aggregateBulkGetter<Union>(
+      nUnions,
+      200,
+      async (start, end) =>
+        (await this.makeCall(this.contract.bulkGetUnions, [start, end])).map(decodeUnion),
+      onProgress
+    );
+
+    const unionMap: Map<UnionId, Union> = new Map();
+
+    for (const union of unions) {
+      unionMap.set(union.unionId, union);
+    }
+
+    return unionMap;
+  }
+
+  public async getUnionById(unionId: UnionId): Promise<Union | undefined> {
+    const rawUnion = await this.makeCall(this.contract.unions, [unionId]);
+    const union = decodeUnion(rawUnion);
+    return union;
+  }
+
+  public async isMember(unionId: UnionId, addr: EthAddress): Promise<boolean> {
+    const res = await this.makeCall(this.contract.isMember, [unionId, addr]);
+    return res;
+  }
+
+  public async isInvitee(unionId: UnionId, addr: EthAddress): Promise<boolean> {
+    const res = await this.makeCall(this.contract.isInvitee, [unionId, addr]);
+    return res;
+  }
+
+  public async isApplicant(unionId: UnionId, addr: EthAddress): Promise<boolean> {
+    const res = await this.makeCall(this.contract.isApplicant, [unionId, addr]);
+    return res;
+  }
+
+  public async getUnionCreationFee(): Promise<EthersBN> {
+    const res = await this.makeCall(this.contract.getUnionCreationFee, []);
+    return res;
+  }
+
+  public async getUnionUpgradeFeePreMember(): Promise<EthersBN> {
+    const res = await this.makeCall(this.contract.getUnionUpgradeFeePreMember, []);
+    return res;
+  }
+
+  public async getUnionRejoinCooldown(): Promise<EthersBN> {
+    const res = await this.makeCall(this.contract.getUnionRejoinCooldown, []);
+    return res;
+  }
+
+  public async getLevelUpUnionFee(level: number): Promise<EthersBN> {
+    const res = await this.makeCall<EthersBN>(this.contract.getLevelUpUnionFee, [level]);
+    return res;
+  }
+
   public async getWorldRadius(): Promise<number> {
     const radius = (await this.makeCall<EthersBN>(this.contract.worldRadius)).toNumber();
     return radius;
@@ -1397,6 +1562,25 @@ export class ContractsAPI extends EventEmitter {
 
     return ret;
   }
+
+  // Round 4 Todo: handle with this function
+  //
+  //
+  // public async getUnionPerMember(
+  //   unionId: number,
+  //   playerId: string
+  // ): Promise<UnionMemberData | undefined> {
+  //   if (!playerId) return undefined;
+
+  //   try {
+  //     const unionRaw: RawUnionMemberData = await this.contract.getUnionPerMember(unionId, playerId);
+  //     const unionMemberData: UnionMemberData = decodeUnionMemberData(unionRaw);
+  //     return unionMemberData;
+  //   } catch (error) {
+  //     console.error('Error fetching union member data:', error);
+  //     return undefined;
+  //   }
+  // }
 
   public async getPlayerArtifacts(
     playerId?: EthAddress,

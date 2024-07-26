@@ -181,7 +181,7 @@ contract DFMoveFacet is WithStorage {
 
         uint256 travelTime = effectiveDistTimesHundred /
             ((gs().planets[args.oldLoc].speed * gs().dynamicTimeFactor) / 100);
-
+        uint256 unionId = gs().players[gs().planets[args.oldLoc].owner].unionId;
         // don't allow 0 second voyages, so that arrival can't be processed in same block
         if (travelTime == 0) {
             travelTime = 1;
@@ -220,7 +220,8 @@ contract DFMoveFacet is WithStorage {
                 silverMoved,
                 travelTime,
                 args.movedArtifactId,
-                arrivalType
+                arrivalType,
+                unionId
             )
         );
         LibGameUtils._debuffPlanet(args.oldLoc, temporaryUpgrade);
@@ -489,6 +490,9 @@ contract DFMoveFacet is WithStorage {
         // space ship moves are implemented as 0-energy moves
         require(popArriving > 0 || isSpaceship, "Not enough forces to make move");
         require(isSpaceship ? args.popMoved == 0 : true, "spaceship moves must be 0 energy moves");
+
+        uint256 unionId = gs().players[args.player].unionId;
+
         gs().planetArrivals[gs().planetEventsCount] = ArrivalData({
             id: gs().planetEventsCount,
             player: args.player, // player address or address(0) for ship moves
@@ -500,7 +504,13 @@ contract DFMoveFacet is WithStorage {
             arrivalTime: block.timestamp + args.travelTime,
             arrivalType: args.arrivalType,
             carriedArtifactId: args.movedArtifactId,
-            distance: args.actualDist
+            distance: args.actualDist,
+            unionId: unionId,
+            name: gs().unions[unionId].name,
+            leader: gs().unions[unionId].leader,
+            level: gs().unions[unionId].level,
+            members: gs().unions[unionId].members,
+            invitees: gs().unions[unionId].invitees
         });
 
         gs().targetPlanetArrivalIds[args.newLoc].push(gs().planetEventsCount);

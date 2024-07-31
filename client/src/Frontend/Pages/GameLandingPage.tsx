@@ -1,4 +1,11 @@
-import { BLOCKCHAIN_BRIDGE, BLOCK_EXPLORER_URL, TOKEN_NAME } from '@dfares/constants';
+import {
+  BLOCKCHAIN_BRIDGE,
+  BLOCK_EXPLORER_URL,
+  HOW_TO_ENABLE_POPUPS,
+  HOW_TO_TRANSFER_ETH_FROM_L2_TO_REDSTONE,
+  PLAYER_GUIDE,
+  TOKEN_NAME,
+} from '@dfares/constants';
 import { CONTRACT_ADDRESS } from '@dfares/contracts';
 import { DarkForest } from '@dfares/contracts/typechain';
 import { EthConnection, neverResolves, weiToEth } from '@dfares/network';
@@ -43,7 +50,6 @@ import { GameWindowLayout } from '../Views/GameWindowLayout';
 import { Terminal, TerminalHandle } from '../Views/Terminal';
 import { BrowserCompatibleState, BrowserIssues } from './components/BrowserIssues';
 import { MiniMap, MiniMapHandle } from './components/MiniMap';
-
 const enum TerminalPromptStep {
   NONE,
   COMPATIBILITY_CHECKS_PASSED,
@@ -141,9 +147,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
         terminal.current?.printLink(
           'Please Click Here',
           () => {
-            window.open(
-              'https://dfares.notion.site/DFAres-Round-3-Guide-3980998d8f65440085c116ba0df0d99a'
-            );
+            window.open(PLAYER_GUIDE);
           },
           TerminalTextStyle.Blue
         );
@@ -522,9 +526,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
           terminal.current?.printLink(
             'How to get ETH on the Redstone mainnet for your account',
             () => {
-              window.open(
-                'https://dfares.notion.site/How-to-transfer-ETH-from-L2-to-Redstone-Mainnet-89198e3016a444779c121efa2590bddd?pvs=74'
-              );
+              window.open(HOW_TO_TRANSFER_ETH_FROM_L2_TO_REDSTONE);
             },
             TerminalTextStyle.Green
           );
@@ -1071,9 +1073,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
                 terminal.current?.printLink(
                   'How to enable popups',
                   () => {
-                    window.open(
-                      'https://dfares.notion.site/How-to-enable-popups-f01552bd77984ad582e1d7cc33b9523d'
-                    );
+                    window.open(HOW_TO_ENABLE_POPUPS);
                   },
                   TerminalTextStyle.Green
                 );
@@ -1215,9 +1215,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
                 terminal.current?.printLink(
                   'How to enable popups',
                   () => {
-                    window.open(
-                      'https://dfares.notion.site/How-to-enable-popups-f01552bd77984ad582e1d7cc33b9523d'
-                    );
+                    window.open(HOW_TO_ENABLE_POPUPS);
                   },
                   TerminalTextStyle.Green
                 );

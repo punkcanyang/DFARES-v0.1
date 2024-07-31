@@ -235,3 +235,15 @@ export const MAX_AVATAR_TYPE = 24;
  */
 export const THEGRAPH_API_URL =
   'https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-5';
+
+export const PLAYER_GUIDE =
+  'https://dfares.notion.site/DFAres-Round-4-Guide-c52181824f21461f9fa50a9f7989555c?pvs=74';
+
+export const HOW_TO_TRANSFER_ETH_FROM_L2_TO_REDSTONE =
+  'https://dfares.notion.site/How-to-transfer-ETH-from-L2-to-Redstone-Mainnet-f0be2d7a3d274e8a88f8e83d0ef4e212?pvs=74';
+
+export const HOW_TO_ENABLE_POPUPS =
+  'https://dfares.notion.site/How-to-enable-popups-d0f939dd9a114ae38ea5fbc7ed401828?pvs=74';
+
+export const WIN_CONDITION_AND_PRIZES =
+  'https://dfares.notion.site/1-1-Win-Conditions-Prizes-a284690f35b44a29b0d1100bbaa3e8e0?pvs=74';

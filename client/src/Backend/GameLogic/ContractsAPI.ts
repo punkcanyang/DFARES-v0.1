@@ -1230,6 +1230,10 @@ export class ContractsAPI extends EventEmitter {
     return radius;
   }
 
+  public getBlockNumber(): number {
+    return this.ethConnection.getCurrentBlockNumber();
+  }
+
   // timestamp since epoch (in seconds)
   public async getTokenMintEndTimestamp(): Promise<number> {
     const timestamp = (

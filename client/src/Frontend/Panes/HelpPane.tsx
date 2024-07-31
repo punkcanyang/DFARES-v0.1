@@ -1,4 +1,4 @@
-import { BLOCK_EXPLORER_URL } from '@dfares/constants';
+import { BLOCK_EXPLORER_URL, PLAYER_GUIDE, WIN_CONDITION_AND_PRIZES } from '@dfares/constants';
 import { ModalName } from '@dfares/types';
 import React from 'react';
 import styled from 'styled-components';
@@ -130,10 +130,7 @@ export function HelpPane({ visible, onClose }: { visible: boolean; onClose: () =
           buffing their stats. */}
           <div>
             Please read{' '}
-            <Link
-              to='https://dfares.notion.site/DFAres-Round-3-Guide-for-New-Players-3980998d8f65440085c116ba0df0d99a?pvs=74'
-              color='pink'
-            >
+            <Link to={PLAYER_GUIDE} color='pink'>
               DFAres Round 4 Guide
             </Link>{' '}
             to know how to play.
@@ -161,10 +158,7 @@ export function HelpPane({ visible, onClose }: { visible: boolean; onClose: () =
         <Section>
           <SectionHeader>Prizes and Scoring</SectionHeader>
           Please read{' '}
-          <Link
-            to='https://dfares.notion.site/Win-Conditions-Prizes-49e5518f136647559394201ffd329df5?pvs=74'
-            color='pink'
-          >
+          <Link to={WIN_CONDITION_AND_PRIZES} color='pink'>
             Win Conditions/Prizes
           </Link>{' '}
           to know the prizes.

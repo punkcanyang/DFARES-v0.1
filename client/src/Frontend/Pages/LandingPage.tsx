@@ -1,3 +1,4 @@
+import { PLAYER_GUIDE } from '@dfares/constants';
 import { CONTRACT_ADDRESS } from '@dfares/contracts';
 import { address } from '@dfares/serde';
 import React from 'react';
@@ -32,7 +33,7 @@ const DFArchonLinks = {
   github: 'https://github.com/dfarchon',
   wiki: 'https://dfwiki.net/wiki/Main_Page',
   plugins: 'https://dfares-plugins.netlify.app/',
-  guide: 'https://dfares.notion.site/DFAres-Round-3-Guide-3980998d8f65440085c116ba0df0d99a?pvs=25',
+  guide: PLAYER_GUIDE,
 };
 
 const defaultAddress = address(CONTRACT_ADDRESS);
@@ -114,7 +115,7 @@ export default function LandingPage() {
                     </span>
                     <br />
                     <span style={{ fontSize: '40px' }}>
-                      <Round3Title>Round 4 : Union</Round3Title>
+                      <Round3Title>Round 4 : Union 🌸 </Round3Title>
                     </span>
                   </div>
 

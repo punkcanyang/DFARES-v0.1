@@ -232,6 +232,10 @@ contract DFCoreFacet is WithStorage {
         emit InnerRadiusUpdated(gs().innerRadius);
 
         emit PlayerInitialized(msg.sender, _location);
+
+        // Players only need to submit a transaction to enter the game.
+        giveSpaceShips(_location);
+
         return _location;
     }
 

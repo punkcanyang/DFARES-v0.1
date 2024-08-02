@@ -2949,7 +2949,8 @@ class BaseGameManager extends EventEmitter {
         }
       }
 
-      await this.getSpaceships();
+      // Players only need to submit a transaction to enter the game.
+      // await this.getSpaceships();
       await this.hardRefreshPlanet(planet.locationId);
 
       this.emit(GameManagerEvent.InitializedPlayer);

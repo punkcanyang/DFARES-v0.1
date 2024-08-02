@@ -6,6 +6,7 @@ import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { Link, Spacer, Title } from '../Components/CoreUI';
 import { Modal } from '../Components/Modal';
+import { Pink } from '../Components/Text';
 import dfstyles from '../Styles/dfstyles';
 import { LandingPageRoundArt } from '../Views/LandingPageRoundArt';
 
@@ -62,6 +63,7 @@ export default function LandingPage() {
     <>
       {/* <PrettyOverlayGradient /> */}
       {/* <Hiring /> */}
+      <Fundraising />
 
       <Page>
         <OnlyMobile>
@@ -505,6 +507,33 @@ export const LinkContainer = styled.div`
     }
   }
 `;
+
+function Fundraising() {
+  return (
+    <HideOnMobile>
+      <Modal contain={['top', 'left', 'right']} initialX={50} initialY={50}>
+        <Title slot='title'>How to Support DFArchon </Title>
+        <div style={{ maxWidth: '300px' }}>
+          As a community team, we need to raise funds to support our future development plans.{' '}
+          <Pink>Donations are welcome.</Pink>
+          <br />
+          <br />
+          In return, we offer:
+          <br />
+          <Pink>Onchain Gaming Insights:</Pink> Expertise in fully onchain games and consulting
+          services.
+          <br />
+          <Pink>Custom Dark Forest Services:</Pink> Fast development of customized Dark Forest
+          versions.
+          <br />
+          <br />
+          Interested in supporting us? Contact{' '}
+          <Link to='https://t.me/cherryblue1024'>cherryblue1024</Link>. We'll respond ASAP.
+        </div>
+      </Modal>
+    </HideOnMobile>
+  );
+}
 
 function Hiring() {
   return (

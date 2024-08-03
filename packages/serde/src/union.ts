@@ -21,5 +21,7 @@ export function decodeUnion(rawUnion: RawUnion): Union {
     members: rawUnion.members.map((x) => address(x)),
     invitees: rawUnion.invitees.map((x) => address(x)),
     applicants: rawUnion.applicants.map((x) => address(x)),
+    score: 0,
+    highestRank: undefined,
   };
 }

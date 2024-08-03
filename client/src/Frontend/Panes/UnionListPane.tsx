@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Btn } from '../Components/Btn';
 import { CenterBackgroundSubtext, Spacer } from '../Components/CoreUI';
-import { Sub } from '../Components/Text';
+import { Blue, Sub } from '../Components/Text';
 import { TextPreview } from '../Components/TextPreview';
 import dfstyles from '../Styles/dfstyles';
 import { useUIManager } from '../Utils/AppHooks';
@@ -35,6 +35,7 @@ export function UnionListPane({
   setActiveFrame: SetStateFunction;
 }) {
   const uiManager = useUIManager();
+  const gameManager = uiManager.getGameManager();
   const [unions, setUnions] = useState<Union[]>([]);
 
   useEffect(() => {
@@ -60,8 +61,14 @@ export function UnionListPane({
     };
   }, [uiManager]);
 
-  const headers = ['Id', 'Name', 'Leader', 'Level', 'Amount', 'Details'];
-  const alignments: Array<'r' | 'c' | 'l'> = ['r', 'r', 'r', 'r', 'r', 'r'];
+  const refreshUnions = async () => {
+    await gameManager.refreshScoreboard();
+    const unions = uiManager.getAllUnions().filter((union) => union.unionId !== '0');
+    setUnions(unions);
+  };
+
+  const headers = ['Id', 'Name', 'Leader', 'Level', 'Amount', 'topPlayer', 'unionScore', 'Details'];
+  const alignments: Array<'r' | 'c' | 'l'> = ['r', 'r', 'r', 'r', 'r', 'r', 'r', 'r'];
 
   const columns = [
     //Id
@@ -89,6 +96,12 @@ export function UnionListPane({
 
     //Amount
     (union: Union) => <Sub> {formatNumber(union.members.length)}</Sub>,
+
+    //topPlayer
+    (union: Union) => <Sub> {union.highestRank ? 'rank #' + union.highestRank : 'n/a'}</Sub>,
+
+    //unionScore
+    (union: Union) => <Sub>{formatNumber(union.score)} </Sub>,
 
     //Details
     (union: Union) => (
@@ -120,8 +133,27 @@ export function UnionListPane({
     },
     //Level
     (_a: Union, _b: Union): number => Number(_a.level) - Number(_b.level),
+
     //Amount
     (_a: Union, _b: Union): number => _a.members.length - _b.members.length,
+
+    // topPlayer
+    (_a: Union, _b: Union): number => {
+      if (_a.highestRank === undefined) return 1;
+      if (_b.highestRank === undefined) return -1;
+      return _a.highestRank - _b.highestRank;
+    },
+
+    //unionScore
+    (_a: Union, _b: Union): number => {
+      if (_a.score !== _b.score) return _b.score - _a.score;
+      else {
+        if (_a.highestRank === undefined) return 1;
+        if (_b.highestRank === undefined) return -1;
+        return _a.highestRank - _b.highestRank;
+      }
+    },
+
     //Details
     (_a: Union, _b: Union): number => 0,
   ];
@@ -144,6 +176,15 @@ export function UnionListPane({
           sortFunctions={sortingFunctions}
           alignments={alignments}
         />
+        <br />
+
+        <div>
+          <div>
+            <Blue>INFO:</Blue>For the latest unionss info, click refresh.
+          </div>
+
+          <Btn onClick={refreshUnions}> Refresh Unions Info Now</Btn>
+        </div>
       </TableContainer>
     );
   }

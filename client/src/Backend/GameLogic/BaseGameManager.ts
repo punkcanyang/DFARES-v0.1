@@ -144,7 +144,6 @@ import {
   TowardsCenterPatternV2,
 } from '../Miner/MiningPatterns';
 import { eventLogger, EventType } from '../Network/EventLogger';
-import { loadLeaderboard } from '../Network/LeaderboardApi';
 import { addMessage, deleteMessages, getMessagesOnPlanets } from '../Network/MessageAPI';
 import { loadNetworkHealth } from '../Network/NetworkHealthApi';
 import {
@@ -298,11 +297,6 @@ class BaseGameManager extends EventEmitter {
    * @todo move this into a new `PlayerState` class.
    */
   private playerInterval: ReturnType<typeof setInterval>;
-
-  /**
-   * Handle to an interval that periodically refreshes the scoreboard from our webserver.
-   */
-  private scoreboardInterval: ReturnType<typeof setInterval>;
 
   /**
    * Handle to an interval that periodically refreshes the network's health from our webserver.
@@ -573,7 +567,6 @@ class BaseGameManager extends EventEmitter {
     this.ethConnection = ethConnection;
     // NOTE: event
     // this.diagnosticsInterval = setInterval(this.uploadDiagnostics.bind(this), 10_000);
-    this.scoreboardInterval = setInterval(this.refreshScoreboard.bind(this), 10_000);
 
     //NOTE: network health
     // this.networkHealthInterval = setInterval(this.refreshNetworkHealth.bind(this), 10_000);
@@ -603,7 +596,6 @@ class BaseGameManager extends EventEmitter {
       }
     });
 
-    this.refreshScoreboard();
     // NOTE: network health
     // this.refreshNetworkHealth();
     this.hardRefreshPinkZones();
@@ -626,105 +618,6 @@ class BaseGameManager extends EventEmitter {
     }
   }
 
-  protected async refreshScoreboard() {
-    if (process.env.LEADER_BOARD_URL) {
-      try {
-        const leaderboard = await loadLeaderboard();
-
-        for (const entry of leaderboard.entries) {
-          const player = this.players.get(entry.ethAddress);
-          if (player) {
-            // current player's score is updated via `this.playerInterval`
-            if (player.address !== this.account && entry.score !== undefined) {
-              player.score = entry.score;
-            }
-          }
-        }
-
-        this.playersUpdated$.publish();
-      } catch (e) {
-        // @todo - what do we do if we can't connect to the webserver? in general this should be a
-        // valid state of affairs because arenas is a thing.
-      }
-    } else {
-      try {
-        //myTodo: use claimedLocations
-        // const claimedLocations = this.getClaimedLocations();
-        // const cntMap = new Map<string, number>();
-        // for (const claimedLocation of claimedLocations) {
-        //   const claimer = claimedLocation.claimer;
-        //   const score = claimedLocation.score;
-        //   const player = this.players.get(claimer);
-        //   if (player === undefined) continue;
-        //   let cnt = cntMap.get(claimer);
-        //   if (cnt === undefined) cnt = 0;
-        //   if (cnt === 0) player.score = score;
-        // }
-
-        const knownScoringPlanets = [];
-        for (const planet of this.getAllPlanets()) {
-          if (!isLocatable(planet)) continue;
-          if (planet.destroyed || planet.frozen) continue;
-          if (planet.planetLevel < 3) continue;
-          if (!planet?.location?.coords) continue;
-          if (planet.claimer === EMPTY_ADDRESS) continue;
-          if (planet.claimer === undefined) continue;
-          knownScoringPlanets.push({
-            locationId: planet.locationId,
-            claimer: planet.claimer,
-            score: Math.floor(df.getDistCoords(planet.location.coords, { x: 0, y: 0 })),
-          });
-        }
-
-        // console.log('knownScoringPlanets');
-        // console.log(knownScoringPlanets);
-
-        const cntMap = new Map<string, number>();
-        const haveScorePlayersMap = new Map<string, boolean>();
-
-        for (const planet of knownScoringPlanets) {
-          const claimer = planet.claimer;
-          if (claimer === undefined) continue;
-          const player = this.players.get(claimer);
-          if (player === undefined) continue;
-
-          const cnt = cntMap.get(claimer);
-          let cntNextValue = undefined;
-
-          if (cnt === undefined || cnt === 0) {
-            cntNextValue = 1;
-          } else {
-            cntNextValue = cnt + 1;
-          }
-          cntMap.set(claimer, cntNextValue);
-
-          if (player.score === undefined || cntNextValue === 1) {
-            player.score = planet.score;
-            haveScorePlayersMap.set(claimer, true);
-          } else {
-            player.score = Math.min(player.score, planet.score);
-            haveScorePlayersMap.set(claimer, true);
-          }
-        }
-        for (const playerItem of df.getAllPlayers()) {
-          const result = haveScorePlayersMap.get(playerItem.address);
-
-          const player = this.players.get(playerItem.address);
-          if (player === undefined) continue;
-
-          if (result === false || result === undefined) {
-            player.score = undefined;
-          }
-        }
-
-        this.playersUpdated$.publish();
-      } catch (e) {
-        // @todo - what do we do if we can't connect to the webserver? in general this should be a
-        // valid state of affairs because arenas is a thing.
-      }
-    }
-  }
-
   public getEthConnection() {
     return this.ethConnection;
   }
@@ -740,7 +633,7 @@ class BaseGameManager extends EventEmitter {
     clearInterval(this.playerInterval);
     // NOTE: event
     // clearInterval(this.diagnosticsInterval);
-    clearInterval(this.scoreboardInterval);
+
     // NOTE: network health
     // clearInterval(this.networkHealthInterval);
     clearInterval(this.pinkZoneInterval);

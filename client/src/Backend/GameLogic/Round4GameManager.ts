@@ -1,3 +1,4 @@
+import { EMPTY_ADDRESS } from '@dfares/constants';
 import { monomitter, Monomitter } from '@dfares/events';
 import { isLocatable } from '@dfares/gamelogic';
 import { EthConnection, ThrottledConcurrentQueue } from '@dfares/network';
@@ -85,6 +86,7 @@ import {
   ContractsAPIEvent,
 } from '../../_types/darkforest/api/ContractsAPITypes';
 import { HashConfig } from '../../_types/global/GlobalTypes';
+import { loadLeaderboard } from '../Network/LeaderboardApi';
 import PersistentChunkStore from '../Storage/PersistentChunkStore';
 import SnarkArgsHelper from '../Utils/SnarkArgsHelper';
 import BaseGameManager, { GameManagerEvent } from './BaseGameManager';
@@ -105,6 +107,11 @@ class Round4GameManager extends BaseGameManager {
    * Whenever we refresh the unions, we publish an event here.
    */
   public readonly unionsUpdated$: Monomitter<void>;
+
+  /**
+   * Handle to an interval that periodically refreshes the scoreboard from our webserver.
+   */
+  private scoreboardInterval: ReturnType<typeof setInterval>;
 
   /**
    * Handle to an interval that periodically refreshes some information about the union from the
@@ -169,6 +176,15 @@ class Round4GameManager extends BaseGameManager {
     this.unions = unions;
 
     this.unionsUpdated$ = monomitter();
+
+    this.refreshScoreboard();
+
+    this.scoreboardInterval = setInterval(this.refreshScoreboard.bind(this), 10_000);
+  }
+
+  public destroy(): void {
+    super.destroy();
+    clearInterval(this.scoreboardInterval);
   }
 
   static async create({
@@ -665,26 +681,91 @@ class Round4GameManager extends BaseGameManager {
     return gameManager;
   }
 
-  private async hardRefreshUnion(unionId?: UnionId): Promise<void> {
+  private PlayerRankToPointConversion(rank: number): number {
+    if (rank === 1) return 200;
+    else if (rank === 2) return 160;
+    else if (rank === 3) return 140;
+    else if (rank === 4) return 120;
+    else if (rank === 5) return 100;
+    else if (rank >= 6 && rank <= 10) return 90;
+    else if (rank >= 11 && rank <= 20) return 80;
+    else if (rank >= 21 && rank <= 30) return 70;
+    else if (rank >= 31 && rank <= 50) return 60;
+    else if (rank >= 51 && rank <= 100) return 50;
+    else if (rank >= 101 && rank <= 200) return 40;
+    else if (rank >= 201 && rank <= 300) return 30;
+    else if (rank >= 301 && rank <= 500) return 20;
+    else if (rank >= 501 && rank <= 1000) return 10;
+    else if (rank > 1000) return 5;
+    else return 0;
+  }
+
+  private calculateUnionScore(unionId?: UnionId): number {
+    const union = df.getUnion(unionId);
+    if (!union) return 0;
+
+    let result = 0;
+    for (const member of union.members) {
+      const player = this.getPlayer(member);
+      if (!player) continue;
+      if (!player.rank) continue;
+      const memberPoint = this.PlayerRankToPointConversion(player.rank);
+      result += memberPoint;
+    }
+    return result;
+  }
+
+  private getHighestRank(unionId?: UnionId): number | undefined {
+    const union = df.getUnion(unionId);
+    if (!union) return undefined;
+    const MAX_RANK = Array.from(df.getAllPlayers()).length + 1;
+    let result = MAX_RANK;
+
+    for (const member of union.members) {
+      const player = this.getPlayer(member);
+      if (!player) continue;
+      if (!player.rank) continue;
+      result = Math.min(result, player.rank);
+    }
+    if (result === MAX_RANK) return undefined;
+    else return result;
+  }
+
+  public async hardRefreshUnion(unionId?: UnionId): Promise<void> {
     if (!unionId) return;
 
     const unionFromBlockchain = await this.contractsAPI.getUnionById(unionId);
     if (!unionFromBlockchain) return;
 
+    const score = this.calculateUnionScore(unionId);
+    unionFromBlockchain.score = score;
+
+    const highestRank = this.getHighestRank(unionId);
+    unionFromBlockchain.highestRank = highestRank;
+
     this.unions.set(unionId, unionFromBlockchain);
     this.unionsUpdated$.publish();
   }
 
-  private async hardRefreshUnions(): Promise<void> {
+  public async hardRefreshUnions(): Promise<void> {
     try {
       const unions = await this.getAllUnions(); // Implement getAllUnionIds based on your contract interface
       const updatedUnions: Union[] = [];
 
       for (const union of unions) {
         const uniontemp = await this.contractsAPI.getUnionById(union.unionId); // Implement getUnionById based on your contract interface
-        if (uniontemp) {
-          updatedUnions.push(uniontemp);
-        }
+        if (!uniontemp) continue;
+
+        const unionId = union.unionId;
+
+        const score = this.calculateUnionScore(unionId);
+        uniontemp.score = score;
+
+        const highestRank = this.getHighestRank(unionId);
+        uniontemp.highestRank = highestRank;
+
+        updatedUnions.push(uniontemp);
+        console.log(unionId, score, highestRank);
       }
 
       // Update local storage of unions (this.unions assuming it's a Map<number, Union>)
@@ -696,6 +777,122 @@ class Round4GameManager extends BaseGameManager {
     } catch (error) {
       console.error('Error refreshing unions:', error);
       // Handle error as needed, e.g., show error message to user
+    }
+  }
+
+  public async refreshScoreboard() {
+    //NOTE when round4, don't set LEADER_BOARD_URL
+    if (process.env.LEADER_BOARD_URL) {
+      try {
+        const leaderboard = await loadLeaderboard();
+
+        for (const entry of leaderboard.entries) {
+          const player = this.players.get(entry.ethAddress);
+          if (player) {
+            // current player's score is updated via `this.playerInterval`
+            if (player.address !== this.account && entry.score !== undefined) {
+              player.score = entry.score;
+            }
+          }
+        }
+
+        this.playersUpdated$.publish();
+      } catch (e) {
+        // @todo - what do we do if we can't connect to the webserver? in general this should be a
+        // valid state of affairs because arenas is a thing.
+      }
+    } else {
+      try {
+        //myTodo: use claimedLocations
+        // const claimedLocations = this.getClaimedLocations();
+        // const cntMap = new Map<string, number>();
+        // for (const claimedLocation of claimedLocations) {
+        //   const claimer = claimedLocation.claimer;
+        //   const score = claimedLocation.score;
+        //   const player = this.players.get(claimer);
+        //   if (player === undefined) continue;
+        //   let cnt = cntMap.get(claimer);
+        //   if (cnt === undefined) cnt = 0;
+        //   if (cnt === 0) player.score = score;
+        // }
+
+        const knownScoringPlanets = [];
+        for (const planet of this.getAllPlanets()) {
+          if (!isLocatable(planet)) continue;
+          if (planet.destroyed || planet.frozen) continue;
+          if (planet.planetLevel < 3) continue;
+          if (!planet?.location?.coords) continue;
+          if (planet.claimer === EMPTY_ADDRESS) continue;
+          if (planet.claimer === undefined) continue;
+          knownScoringPlanets.push({
+            locationId: planet.locationId,
+            claimer: planet.claimer,
+            score: Math.floor(df.getDistCoords(planet.location.coords, { x: 0, y: 0 })),
+          });
+        }
+
+        // console.log('knownScoringPlanets');
+        // console.log(knownScoringPlanets);
+
+        const cntMap = new Map<string, number>();
+        const haveScorePlayersMap = new Map<string, boolean>();
+
+        for (const planet of knownScoringPlanets) {
+          const claimer = planet.claimer;
+          if (claimer === undefined) continue;
+          const player = this.players.get(claimer);
+          if (player === undefined) continue;
+
+          const cnt = cntMap.get(claimer);
+          let cntNextValue = undefined;
+
+          if (cnt === undefined || cnt === 0) {
+            cntNextValue = 1;
+          } else {
+            cntNextValue = cnt + 1;
+          }
+          cntMap.set(claimer, cntNextValue);
+
+          if (player.score === undefined || cntNextValue === 1) {
+            player.score = planet.score;
+            haveScorePlayersMap.set(claimer, true);
+          } else {
+            player.score = Math.min(player.score, planet.score);
+            haveScorePlayersMap.set(claimer, true);
+          }
+        }
+        for (const playerItem of df.getAllPlayers()) {
+          const result = haveScorePlayersMap.get(playerItem.address);
+
+          const player = this.players.get(playerItem.address);
+          if (player === undefined) continue;
+
+          if (result === false || result === undefined) {
+            player.score = undefined;
+          }
+        }
+
+        const scoredPlayers = df
+          .getAllPlayers()
+          .filter((player) => player.score !== undefined && player.score !== null)
+          .sort((a, b) => (b.score as number) - (a.score as number));
+
+        for (let i = 0; i < scoredPlayers.length; i++) {
+          const rank = i + 1;
+          const player = this.players.get(scoredPlayers[i].address);
+          if (!player) continue;
+          player.rank = rank;
+        }
+
+        this.playersUpdated$.publish();
+
+        await this.hardRefreshUnions();
+
+        console.log('end of refresh leaderboard');
+      } catch (e) {
+        // @todo - what do we do if we can't connect to the webserver? in general this should be a
+        // valid state of affairs because arenas is a thing.
+      }
     }
   }
 

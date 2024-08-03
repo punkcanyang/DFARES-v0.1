@@ -12,4 +12,6 @@ export type Union = {
   members: EthAddress[];
   invitees: EthAddress[];
   applicants: EthAddress[];
+  score: number;
+  highestRank?: number;
 };

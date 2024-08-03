@@ -26,6 +26,7 @@ export function decodePlayer(rawPlayer: RawPlayer): Player {
     lastActivateArtifactTimestamp: rawPlayer.lastRevealTimestamp.toNumber(),
     lastBuyArtifactTimestamp: rawPlayer.lastRevealTimestamp.toNumber(),
     score: rawPlayer.score.toNumber(),
+    rank: undefined,
     spaceJunk: rawPlayer.spaceJunk.toNumber(),
     spaceJunkLimit: rawPlayer.spaceJunkLimit.toNumber(),
     claimedShips: rawPlayer.claimedShips,

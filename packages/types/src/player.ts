@@ -23,6 +23,7 @@ export type Player = {
   lastKardashevTimestamp: number;
 
   score?: number;
+  rank?: number;
 
   spaceJunk: number;
   spaceJunkLimit: number;

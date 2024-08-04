@@ -287,8 +287,6 @@ contract DFUnionFacet is WithStorage {
         emit InviteAccepted(_unionId, msg.sender);
     }
 
-    // Feature: Players can apply to all unions initially to avoid the cooldown time.
-
     function sendApplication(uint256 _unionId)
         public
         notPaused
@@ -365,6 +363,12 @@ contract DFUnionFacet is WithStorage {
         require(gs().players[_applicant].unionId == 0, "Already part of a union");
         require(!isMember(_unionId, _applicant), "Not union member");
         require(isApplicant(_unionId, _applicant), "In union applicant list");
+
+        require(
+            gs().players[_applicant].leaveUnionTimestamp + gs().unionRejoinCooldown <=
+                block.timestamp,
+            "in rejoin cooldown time"
+        );
 
         Union storage union = gs().unions[_unionId];
         require(union.unionId == _unionId, "Union is disbanded");

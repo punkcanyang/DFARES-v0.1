@@ -40,16 +40,22 @@ export function UnionListPane({
 
   useEffect(() => {
     if (!uiManager) return;
-    const unions = uiManager.getAllUnions().filter((union) => union.unionId !== '0');
-    setUnions(unions);
-  }, [uiManager]);
+    const refreshUnions = async () => {
+      if (!uiManager) return;
+      await gameManager.refreshScoreboard();
+      const unions = uiManager.getAllUnions().filter((union) => union.unionId !== '0');
+      setUnions(unions);
+    };
+    refreshUnions();
+  }, [uiManager, gameManager]);
 
   //refresh unions every 10 seconds
   useEffect(() => {
     if (!uiManager) return;
 
-    const refreshUnions = () => {
+    const refreshUnions = async () => {
       if (!uiManager) return;
+      await gameManager.refreshScoreboard();
       const unions = uiManager.getAllUnions().filter((union) => union.unionId !== '0');
       setUnions(unions);
     };
@@ -59,7 +65,7 @@ export function UnionListPane({
     return () => {
       clearInterval(intervalId);
     };
-  }, [uiManager]);
+  }, [uiManager, gameManager]);
 
   const refreshUnions = async () => {
     await gameManager.refreshScoreboard();

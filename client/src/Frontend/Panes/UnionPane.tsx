@@ -105,9 +105,7 @@ export default function UnionContextPane({
       </Frame>
 
       <Frame visible={activeFrame === 'detail'}>
-        {union?.unionId && (
-          <UnionDetailPane _unionId={selectedUnionId as UnionId} setActiveFrame={setActiveFrame} />
-        )}
+        <UnionDetailPane _unionId={selectedUnionId as UnionId} setActiveFrame={setActiveFrame} />
       </Frame>
 
       <Frame visible={activeFrame === 'manage'}>

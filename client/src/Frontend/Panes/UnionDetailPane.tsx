@@ -88,11 +88,12 @@ export function UnionDetailPane({
   // refresh unions every 10 seconds
   useEffect(() => {
     if (!uiManager) return;
+    if (!union) return;
 
     const refreshUnion = () => {
-      const unionId = _unionId;
-      const union = uiManager.getUnion(unionId);
-      setUnion(union);
+      const unionId = union.unionId;
+      const unionState = uiManager.getUnion(unionId);
+      setUnion(unionState);
     };
 
     const intervalId = setInterval(refreshUnion, 10000);
@@ -187,7 +188,11 @@ export function UnionDetailPane({
     );
 
   if (!unionRejoinCooldown || !levelupUnionFee || !nextApplyUnionAvailableTimestamp)
-    return <LoadingSpinner initialText={'Loading...'} />;
+    return (
+      <UnionDetailContent>
+        <LoadingSpinner initialText={'Loading...'} />
+      </UnionDetailContent>
+    );
 
   return (
     <>
@@ -266,6 +271,13 @@ export function UnionDetailPane({
               <Blue>INFO: </Blue>You have applied to join this union. Please wait patiently or
               contact the union leader.
             </p>
+
+            <p>
+              <Blue>INFO: </Blue>
+              You must wait{' '}
+              <TimeUntil timestamp={nextApplyUnionAvailableTimestamp} ifPassed={'now!'} /> to rejoin
+              another union
+            </p>
           </UnionDetailContent>
         )}
 
@@ -278,8 +290,8 @@ export function UnionDetailPane({
             {!leaveUnionCooldownPassed && (
               <p>
                 <Blue>INFO: </Blue> You must wait{' '}
-                <TimeUntil timestamp={nextApplyUnionAvailableTimestamp} ifPassed={'now!'} />
-                to rejoin another union
+                <TimeUntil timestamp={nextApplyUnionAvailableTimestamp} ifPassed={'now!'} /> to
+                rejoin another union
               </p>
             )}
             <Btn

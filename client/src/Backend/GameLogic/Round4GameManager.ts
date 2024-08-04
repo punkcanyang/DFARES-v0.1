@@ -1119,20 +1119,23 @@ class Round4GameManager extends BaseGameManager {
     }
   }
 
-  public async timeUntilNextApplyUnionAvaiable() {
-    if (!this.account) {
+  //next round todo: remove async later
+  public async timeUntilNextApplyUnionAvaiable(_account?: EthAddress) {
+    const account = _account ?? this.account;
+    if (!account) {
       throw new Error('no account set');
     }
 
-    const myLastLeaveUnionTimestamp = this.players.get(this.account)?.leaveUnionTimestamp;
+    const myLastLeaveUnionTimestamp = this.players.get(account)?.leaveUnionTimestamp;
     if (!myLastLeaveUnionTimestamp) return 0;
 
     const cooldown = (await this.contractsAPI.getUnionRejoinCooldown()).toNumber();
     return (myLastLeaveUnionTimestamp + cooldown) * 1000 - Date.now();
   }
 
-  public async getNextApplyUnionAvailableTimestamp() {
-    const _ = await this.timeUntilNextApplyUnionAvaiable();
+  public async getNextApplyUnionAvailableTimestamp(_account?: EthAddress) {
+    const account = _account ?? this.account;
+    const _ = await this.timeUntilNextApplyUnionAvaiable(account);
     return Date.now() + _;
   }
 
@@ -1346,6 +1349,17 @@ class Round4GameManager extends BaseGameManager {
       for (let i = 0; i < union.applicants.length; i++)
         if (union.applicants[i] === applicant) isApplicant = true;
       if (!isApplicant) throw Error('not in applicant list');
+
+      const myLastLeaveUnionTimestamp = this.players.get(applicant)?.leaveUnionTimestamp;
+      const nextApplyUnionAvailableTimestamp = await this.getNextApplyUnionAvailableTimestamp(
+        applicant
+      );
+      if (myLastLeaveUnionTimestamp && Date.now() < nextApplyUnionAvailableTimestamp) {
+        const date = new Date(nextApplyUnionAvailableTimestamp);
+        const info = 'You can accept this player after ' + date.toLocaleString();
+        alert(info);
+        throw new Error('applicant still in cooldown time');
+      }
 
       localStorage.setItem(
         `${this.getAccount()?.toLowerCase()}--acceptApplication-unionId`,

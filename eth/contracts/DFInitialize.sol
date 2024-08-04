@@ -172,7 +172,7 @@ contract DFInitialize is WithStorage {
 
         LibGameUtils.updateWorldRadius();
         LibGameUtils.updateInnerRadius();
-        
+
         // union initialize
         gs().unionCreationFee = 0.003 ether;
         gs().unionUpgradeFeePerMember = 0.001 ether;

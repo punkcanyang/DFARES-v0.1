@@ -250,7 +250,9 @@ export function UnionManagePane() {
 
       <Row>
         <Btn onClick={handleDisbandUnion}> Disband This Union</Btn>
-        <Btn onClick={handleLevelupUnion}>Levelup Union</Btn>
+        <Btn disabled={union.level >= 3} onClick={handleLevelupUnion}>
+          Levelup Union
+        </Btn>
       </Row>
 
       <UnionManageSection>

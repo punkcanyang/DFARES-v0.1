@@ -31,7 +31,9 @@ export function getNotifsForPlanet(
 
   if (planet?.owner === account && account !== undefined) {
     if (GameObjects.planetCanUpgrade(planet)) notifs.push(PlanetNotifType.PlanetCanUpgrade);
-    if (process.env.DF_WEBSERVER_URL) notifs.push(PlanetNotifType.CanAddEmoji);
+
+    // NOTE: in round 4, webserver don't support emoji
+    // if (process.env.DF_WEBSERVER_URL) notifs.push(PlanetNotifType.CanAddEmoji);
   }
 
   if (planet.claimer !== undefined) notifs.push(PlanetNotifType.Claimed);

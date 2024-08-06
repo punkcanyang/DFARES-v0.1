@@ -681,7 +681,7 @@ class Round4GameManager extends BaseGameManager {
     return gameManager;
   }
 
-  private PlayerRankToPointConversion(rank: number): number {
+  public playerRankToPointConversion(rank: number): number {
     if (rank === 1) return 200;
     else if (rank === 2) return 160;
     else if (rank === 3) return 140;
@@ -709,7 +709,7 @@ class Round4GameManager extends BaseGameManager {
       const player = this.getPlayer(member);
       if (!player) continue;
       if (!player.rank) continue;
-      const memberPoint = this.PlayerRankToPointConversion(player.rank);
+      const memberPoint = this.playerRankToPointConversion(player.rank);
       result += memberPoint;
     }
     return result;

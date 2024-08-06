@@ -1,9 +1,10 @@
-import { Union } from '@dfares/types';
-import React from 'react';
+import { EthAddress, Union } from '@dfares/types';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import GameUIManager from '../../Backend/GameLogic/GameUIManager';
 import { AlignCenterHorizontally, EmSpacer, SpreadApart } from '../Components/CoreUI';
 import dfstyles, { snips } from '../Styles/dfstyles';
+import { SortableTable } from '../Views/SortableTable';
 
 export const UnionDetailSection = styled.div`
   padding: 0.5em 0;
@@ -65,10 +66,106 @@ const LeaderRow = styled.div`
   width: 100%;
 `;
 
+type UnionMemberInfo = {
+  address: EthAddress;
+  role: string; // 'leader' or ''
+  rank: number | undefined;
+  score: number | undefined;
+  contributionScore: number;
+};
+
 export const UnionInfoPane: React.FC<{ union: Union; uiManager: GameUIManager }> = ({
   union,
   uiManager,
 }) => {
+  const gameManager = uiManager.getGameManager();
+  const [unionMemberInfos, setUnionMemberInfos] = useState<UnionMemberInfo[]>([]);
+
+  useEffect(() => {
+    if (!uiManager || !gameManager) return;
+    const refreshData = async () => {
+      await gameManager.refreshScoreboard();
+      const infoArrays: UnionMemberInfo[] = [];
+      for (let i = 0; i < union.members.length; i++) {
+        const address = union.members[i];
+        const player = gameManager.getPlayer(address);
+        if (!player) continue;
+        const role = address === union.leader ? 'leader' : '';
+        const rank = player.rank;
+        const score = player.score;
+        const info: UnionMemberInfo = {
+          address: address,
+          role: role,
+          rank: rank,
+          score: score,
+          contributionScore: rank ? gameManager.playerRankToPointConversion(rank) : 0,
+        };
+        infoArrays.push(info);
+      }
+      setUnionMemberInfos(infoArrays);
+    };
+    refreshData();
+  }, [union, uiManager, gameManager]);
+
+  // refresh infos every 10 seconds
+
+  useEffect(() => {
+    if (!uiManager || !gameManager) return;
+
+    const refreshData = async () => {
+      await gameManager.refreshScoreboard();
+      const infoArrays: UnionMemberInfo[] = [];
+      for (let i = 0; i < union.members.length; i++) {
+        const address = union.members[i];
+        const player = gameManager.getPlayer(address);
+        if (!player) continue;
+        const role = address === union.leader ? 'leader' : '';
+        const rank = player.rank;
+        const score = player.score;
+        const info: UnionMemberInfo = {
+          address: address,
+          role: role,
+          rank: rank,
+          score: score,
+          contributionScore: rank ? gameManager.playerRankToPointConversion(rank) : 0,
+        };
+        infoArrays.push(info);
+      }
+      setUnionMemberInfos(infoArrays);
+    };
+
+    const intervalId = setInterval(refreshData, 10000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [union, uiManager, gameManager]);
+
+  const headers = ['address', 'role', 'rank', 'contri'];
+  const alignments: Array<'r' | 'c' | 'l'> = ['l', 'r', 'r', 'r'];
+  const columns = [
+    //address
+    (unionMemberInfo: UnionMemberInfo) => <span> {unionMemberInfo.address}</span>,
+    (unionMemberInfo: UnionMemberInfo) => <span> {unionMemberInfo.role}</span>,
+    (unionMemberInfo: UnionMemberInfo) => (
+      <span>{unionMemberInfo.rank ? '#' + unionMemberInfo.rank : 'n/a'}</span>
+    ),
+    (unionMemberInfo: UnionMemberInfo) => <span> {unionMemberInfo.contributionScore}</span>,
+  ];
+
+  const sortingFunctions = [
+    //address
+    (_a: UnionMemberInfo, _b: UnionMemberInfo) => (_a < _b ? 1 : -1),
+    (_a: UnionMemberInfo, _b: UnionMemberInfo) =>
+      _a.role === 'leader' ? -1 : _b.role === 'leader' ? -1 : 0,
+    (_a: UnionMemberInfo, _b: UnionMemberInfo) => {
+      if (_a.rank === undefined) return 1;
+      if (_b.rank === undefined) return -1;
+      return _a.rank - _b.rank;
+    },
+    (_a: UnionMemberInfo, _b: UnionMemberInfo) => _b.contributionScore - _a.contributionScore,
+  ];
+
   return (
     <UnionInfoContent>
       <InfoHead>
@@ -136,38 +233,43 @@ export const UnionInfoPane: React.FC<{ union: Union; uiManager: GameUIManager }>
           </SpreadApart>
         </StatRow>
 
-        <LeaderRow>
+        <StatRow>
           <SpreadApart>
-            <AlignCenterHorizontally>
-              <EmSpacer width={1} /> Leader
-            </AlignCenterHorizontally>
-            <AlignCenterHorizontally>
-              {union.leader} <EmSpacer width={1} />
-            </AlignCenterHorizontally>
+            <HalfRow>
+              <SpreadApart>
+                <AlignCenterHorizontally>
+                  <EmSpacer width={1} />
+                  Top Player
+                </AlignCenterHorizontally>
+                <AlignCenterHorizontally>
+                  {union.highestRank ? 'rank #' + union.highestRank : 'n/a'}
+                  <EmSpacer width={1} />
+                </AlignCenterHorizontally>
+              </SpreadApart>
+            </HalfRow>
+            <HalfRow>
+              <SpreadApart>
+                <AlignCenterHorizontally>
+                  <EmSpacer width={1} />
+                  Union Score
+                </AlignCenterHorizontally>
+                <AlignCenterHorizontally>
+                  {union.score}
+                  <EmSpacer width={1} />
+                </AlignCenterHorizontally>
+              </SpreadApart>
+            </HalfRow>
           </SpreadApart>
-        </LeaderRow>
+        </StatRow>
 
-        {union.members.length > 1 && (
-          <StatRow>
-            <ul>
-              {union.members
-                .filter((member) => member !== union.leader)
-                .map((member, i) => (
-                  <li key={member}>
-                    <SpreadApart>
-                      <AlignCenterHorizontally>
-                        <EmSpacer width={1} /> Member #{i + 1}
-                      </AlignCenterHorizontally>
-                      <AlignCenterHorizontally>
-                        {member}
-                        <EmSpacer width={1} />
-                      </AlignCenterHorizontally>
-                    </SpreadApart>
-                  </li>
-                ))}
-            </ul>
-          </StatRow>
-        )}
+        <SortableTable
+          paginated={true}
+          rows={unionMemberInfos}
+          headers={headers}
+          columns={columns}
+          sortFunctions={sortingFunctions}
+          alignments={alignments}
+        ></SortableTable>
       </ElevatedContainer>
     </UnionInfoContent>
   );

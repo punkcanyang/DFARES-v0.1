@@ -83,6 +83,9 @@ export const UnionInfoPane: React.FC<{ union: Union; uiManager: GameUIManager }>
 
   useEffect(() => {
     if (!uiManager || !gameManager) return;
+
+    let isMounted = true;
+
     const refreshData = async () => {
       await gameManager.refreshScoreboard();
       const infoArrays: UnionMemberInfo[] = [];
@@ -102,9 +105,15 @@ export const UnionInfoPane: React.FC<{ union: Union; uiManager: GameUIManager }>
         };
         infoArrays.push(info);
       }
-      setUnionMemberInfos(infoArrays);
+
+      if (isMounted) {
+        setUnionMemberInfos(infoArrays);
+      }
     };
     refreshData();
+    return () => {
+      isMounted = false;
+    };
   }, [union, uiManager, gameManager]);
 
   // refresh infos every 10 seconds

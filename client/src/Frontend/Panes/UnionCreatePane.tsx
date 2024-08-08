@@ -44,7 +44,15 @@ const StyledUnionCreatePane = styled.div`
   }
 `;
 
-export function UnionCreatePane() {
+type SetStateFunction = (value: string) => void;
+
+export function UnionCreatePane({
+  setSelectedUnionId,
+  setActiveFrame,
+}: {
+  setSelectedUnionId: SetStateFunction;
+  setActiveFrame: SetStateFunction;
+}) {
   const uiManager = useUIManager();
   const gameManager = uiManager.getGameManager();
   const account = useAccount(uiManager);
@@ -172,6 +180,21 @@ export function UnionCreatePane() {
             {buttonContent}
           </Btn>
         </div>
+
+        {!checkUnion() && (
+          <div>
+            <Btn
+              size='large'
+              onClick={() => {
+                setSelectedUnionId(player.unionId);
+                console.log(player.unionId);
+                setActiveFrame('detail');
+              }}
+            >
+              Jump to My Union 🌸
+            </Btn>
+          </div>
+        )}
         <Spacer height={8} />
       </StyledUnionCreatePane>
     </UnionCreateContent>

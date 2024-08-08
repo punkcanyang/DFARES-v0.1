@@ -64,9 +64,9 @@ export function UnionDetailPane({
   useEffect(() => {
     if (!uiManager) return;
     const unionId = _unionId;
-    const union = uiManager.getUnion(unionId);
-    setUnion(union);
-  }, [_unionId, uiManager]);
+    const unionState = uiManager.getUnion(unionId);
+    setUnion(unionState);
+  }, [_unionId, union, uiManager, account]);
 
   // fetch configs
   useEffect(() => {
@@ -85,23 +85,22 @@ export function UnionDetailPane({
     fetchConfig();
   }, [union, gameManager, uiManager]);
 
-  // refresh unions every 10 seconds
+  // refresh unions every 5 seconds
   useEffect(() => {
     if (!uiManager) return;
-    if (!union) return;
 
     const refreshUnion = () => {
-      const unionId = union.unionId;
+      const unionId = _unionId;
       const unionState = uiManager.getUnion(unionId);
       setUnion(unionState);
     };
 
-    const intervalId = setInterval(refreshUnion, 10000);
+    const intervalId = setInterval(refreshUnion, 5_000);
 
     return () => {
       clearInterval(intervalId);
     };
-  }, [_unionId, uiManager]);
+  }, [_unionId, union, uiManager, account]);
 
   const validUnion = (union: Union | undefined): boolean => {
     if (!union) return false;
@@ -174,16 +173,10 @@ export function UnionDetailPane({
     }
   };
 
-  if (!account || !player || !union)
+  if (!account || !player || !union || !validUnion(union))
     return (
       <UnionDetailContent>
-        <LoadingSpinner initialText={"You haven't joined a union yet... "} />
-      </UnionDetailContent>
-    );
-  if (!validUnion(union))
-    return (
-      <UnionDetailContent>
-        <LoadingSpinner initialText={"You haven't joined a union yet... "} />
+        <LoadingSpinner initialText={'Please wait 12 s or contact the admin...'} />
       </UnionDetailContent>
     );
 
@@ -254,8 +247,8 @@ export function UnionDetailPane({
               <p>
                 <Blue>INFO: </Blue>
                 You must wait{' '}
-                <TimeUntil timestamp={nextApplyUnionAvailableTimestamp} ifPassed={'now!'} />
-                &amp;nbsp; to rejoin another union
+                <TimeUntil timestamp={nextApplyUnionAvailableTimestamp} ifPassed={'now!'} /> to
+                rejoin another union
               </p>
             )}
 

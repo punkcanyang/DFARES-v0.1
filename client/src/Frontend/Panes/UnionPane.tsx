@@ -92,12 +92,12 @@ export default function UnionContextPane({
       <ButtonContainer>
         {!inUnion() && <Btn onClick={() => handleFrameChange('create')}>Create</Btn>}
         <Btn onClick={() => handleFrameChange('list')}> List</Btn>
-        <Btn onClick={() => handleFrameChange('detail')}> Detail</Btn>
+        {/* <Btn onClick={() => handleFrameChange('detail')}> Detail</Btn> */}
         <Btn onClick={() => handleFrameChange('manage')}>Manage</Btn>
       </ButtonContainer>
 
       <Frame visible={activeFrame === 'create'}>
-        <UnionCreatePane />
+        <UnionCreatePane setSelectedUnionId={setSelectedUnionId} setActiveFrame={setActiveFrame} />
       </Frame>
 
       <Frame visible={activeFrame === 'list'}>

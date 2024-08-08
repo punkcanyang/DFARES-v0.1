@@ -239,9 +239,12 @@ export function UnionManagePane() {
     }
   };
 
-  if (!account || !player || !union) return <>You haven't joined a union yet</>;
-  if (!validUnion(union)) return <>You haven't joined a union yet</>;
-  if (!isLeader(union, account)) return <>You are not the leader of one union</>;
+  if (!account || !player || !union)
+    return <UnionManageContent>You haven't joined a union yet</UnionManageContent>;
+  if (!validUnion(union))
+    return <UnionManageContent>You haven't joined a union yet</UnionManageContent>;
+  if (!isLeader(union, account))
+    return <UnionManageContent>You are not the leader of one union</UnionManageContent>;
 
   return (
     <UnionManageContent>

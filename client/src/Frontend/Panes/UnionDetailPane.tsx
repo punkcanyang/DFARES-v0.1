@@ -43,9 +43,11 @@ type SetStateFunction = (value: string) => void;
 
 export function UnionDetailPane({
   _unionId,
+  setSelectedUnionId,
   setActiveFrame,
 }: {
   _unionId: UnionId;
+  setSelectedUnionId: SetStateFunction;
   setActiveFrame: SetStateFunction;
 }) {
   const uiManager = useUIManager();
@@ -66,7 +68,7 @@ export function UnionDetailPane({
     const unionId = _unionId;
     const unionState = uiManager.getUnion(unionId);
     setUnion(unionState);
-  }, [_unionId, union, uiManager, account]);
+  }, [_unionId, uiManager, account]);
 
   // fetch configs
   useEffect(() => {
@@ -199,7 +201,7 @@ export function UnionDetailPane({
               if (!player) return;
               const union = uiManager.getUnion(player.unionId);
               if (!union) return;
-              setUnion(union);
+              setSelectedUnionId(union.unionId);
             }}
           >
             Jump To My Union
@@ -265,12 +267,13 @@ export function UnionDetailPane({
               contact the union leader.
             </p>
 
-            <p>
-              <Blue>INFO: </Blue>
-              You must wait{' '}
-              <TimeUntil timestamp={nextApplyUnionAvailableTimestamp} ifPassed={'now!'} /> to rejoin
-              another union
-            </p>
+            {!leaveUnionCooldownPassed && (
+              <p>
+                <Blue>INFO: </Blue> You must wait{' '}
+                <TimeUntil timestamp={nextApplyUnionAvailableTimestamp} ifPassed={'now!'} /> to
+                rejoin another union
+              </p>
+            )}
           </UnionDetailContent>
         )}
 

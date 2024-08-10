@@ -1561,6 +1561,8 @@ class Round4GameManager extends BaseGameManager {
         throw Error('not the union leader');
       }
 
+      alert('This is a dangerous operation. Are you sure you want to disband the union?');
+
       localStorage.setItem(`${this.getAccount()?.toLowerCase()}--disbandUnion-unionId`, unionId);
 
       const txIntent: UnconfirmedDisbandUnion = {

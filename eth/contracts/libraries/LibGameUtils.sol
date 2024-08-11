@@ -215,9 +215,9 @@ library LibGameUtils {
     }
 
     function _getInnerRadius() public view returns (uint256) {
-        uint256 initialRadius = gameConstants().MAX_LEVEL_DIST[1];
+        uint256 initialRadius = gameConstants().MAX_LEVEL_DIST[1] - 1000;
         uint256 endTimestamp = gameConstants().CLAIM_END_TIMESTAMP - 24 hours;
-        uint256 gameDuration = 6 days;
+        uint256 gameDuration = 5 days; // 6 days - 24 hours
         uint256 duration = endTimestamp - block.timestamp;
 
         // Round 4 test
@@ -280,8 +280,12 @@ library LibGameUtils {
             artifactType = ArtifactType.Avatar;
         }
 
-        if(artifactRarity == ArtifactRarity.Mythic || artifactRarity == ArtifactRarity.Legendary || artifactRarity == ArtifactRarity.Epic){
-            if(artifactType == ArtifactType.Avatar) artifactType = ArtifactType.Wormhole;
+        if (
+            artifactRarity == ArtifactRarity.Mythic ||
+            artifactRarity == ArtifactRarity.Legendary ||
+            artifactRarity == ArtifactRarity.Epic
+        ) {
+            if (artifactType == ArtifactType.Avatar) artifactType = ArtifactType.Wormhole;
         }
 
         // if (level <= 1) {

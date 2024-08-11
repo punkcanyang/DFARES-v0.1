@@ -256,7 +256,7 @@ library LibGameUtils {
 
         uint256 level = bonus + planetLevel;
         ArtifactRarity artifactRarity = artifactRarityFromPlanetLevel(level);
-        ArtifactType artifactType = ArtifactType.Pyramid;
+        ArtifactType artifactType = ArtifactType.Wormhole;
 
         if (lastByteOfSeed < 455) {
             artifactType = ArtifactType.Wormhole;
@@ -278,6 +278,10 @@ library LibGameUtils {
             artifactType = ArtifactType.Avatar;
         } else {
             artifactType = ArtifactType.Avatar;
+        }
+
+        if(artifactRarity == ArtifactRarity.Mythic || artifactRarity == ArtifactRarity.Legendary || artifactRarity == ArtifactRarity.Epic){
+            if(artifactType == ArtifactType.Avatar) artifactType = ArtifactType.Wormhole;
         }
 
         // if (level <= 1) {

@@ -310,10 +310,11 @@ library LibArtifactUtils {
 
             artifact.linkTo = linkTo;
         } else if (artifact.artifactType == ArtifactType.PlanetaryShield) {
-            require(
-                2 * uint256(artifact.rarity) >= planet.planetLevel,
-                "artifact is not powerful enough to apply effect to this planet level"
-            );
+            //NOTE: round 4 remove the rarity limit to PlanetaryShield
+            // require(
+            //     2 * uint256(artifact.rarity) >= planet.planetLevel,
+            //     "artifact is not powerful enough to apply effect to this planet level"
+            // );
         } else if (artifact.artifactType == ArtifactType.PhotoidCannon) {
             //NOTE: round 4 remove the rarity limit to Photoid Cannon
             // require(

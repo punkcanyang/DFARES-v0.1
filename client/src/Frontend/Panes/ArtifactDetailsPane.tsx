@@ -497,10 +497,10 @@ function ArtifactDescription({
             <Green>INTRO: </Green>Activate the planetary shield to gain a defense bonus on your
             planet, at the expense of range and speed.
           </div>
-          <div>
+          {/* <div>
             <Green>LEVEL: </Green>Because this one is <White>{rarityName}</White>, it can activate
             on planets up to level <White>{maxLevelPlanetaryShield}</White>.
-          </div>
+          </div> */}
           <div>
             <Green>DEACTIVATION: </Green>When this artifact is deactivated, it will disappear and
             your planet's stats are reverted--so use it wisely!

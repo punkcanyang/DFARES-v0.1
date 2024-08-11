@@ -258,34 +258,46 @@ library LibGameUtils {
         ArtifactRarity artifactRarity = artifactRarityFromPlanetLevel(level);
         ArtifactType artifactType = ArtifactType.Wormhole;
 
-        if (lastByteOfSeed < 455) {
-            artifactType = ArtifactType.Wormhole;
-        } else if (lastByteOfSeed < 910) {
-            artifactType = ArtifactType.PlanetaryShield;
-        } else if (lastByteOfSeed < 1365) {
-            artifactType = ArtifactType.PhotoidCannon;
-        } else if (lastByteOfSeed < 1820) {
-            artifactType = ArtifactType.BloomFilter;
-        } else if (lastByteOfSeed < 2275) {
-            artifactType = ArtifactType.BlackDomain;
-        } else if (lastByteOfSeed < 2730) {
-            artifactType = ArtifactType.StellarShield;
-        } else if (lastByteOfSeed < 3185) {
-            artifactType = ArtifactType.Bomb;
-        } else if (lastByteOfSeed < 3640) {
-            artifactType = ArtifactType.Kardashev;
-        } else if (lastByteOfSeed < 4095) {
-            artifactType = ArtifactType.Avatar;
+        if (artifactRarity == ArtifactRarity.Common || artifactRarity == ArtifactRarity.Rare) {
+            if (lastByteOfSeed < 455) {
+                artifactType = ArtifactType.Wormhole;
+            } else if (lastByteOfSeed < 910) {
+                artifactType = ArtifactType.PlanetaryShield;
+            } else if (lastByteOfSeed < 1365) {
+                artifactType = ArtifactType.PhotoidCannon;
+            } else if (lastByteOfSeed < 1820) {
+                artifactType = ArtifactType.BloomFilter;
+            } else if (lastByteOfSeed < 2275) {
+                artifactType = ArtifactType.BlackDomain;
+            } else if (lastByteOfSeed < 2730) {
+                artifactType = ArtifactType.StellarShield;
+            } else if (lastByteOfSeed < 3185) {
+                artifactType = ArtifactType.Bomb;
+            } else if (lastByteOfSeed < 3640) {
+                artifactType = ArtifactType.Kardashev;
+            } else if (lastByteOfSeed < 4095) {
+                artifactType = ArtifactType.Avatar;
+            } else {
+                artifactType = ArtifactType.Avatar;
+            }
         } else {
-            artifactType = ArtifactType.Avatar;
-        }
-
-        if (
-            artifactRarity == ArtifactRarity.Mythic ||
-            artifactRarity == ArtifactRarity.Legendary ||
-            artifactRarity == ArtifactRarity.Epic
-        ) {
-            if (artifactType == ArtifactType.Avatar) artifactType = ArtifactType.Wormhole;
+            if (lastByteOfSeed < 512) {
+                artifactType = ArtifactType.Wormhole;
+            } else if (lastByteOfSeed < 1024) {
+                artifactType = ArtifactType.PlanetaryShield;
+            } else if (lastByteOfSeed < 1536) {
+                artifactType = ArtifactType.PhotoidCannon;
+            } else if (lastByteOfSeed < 2048) {
+                artifactType = ArtifactType.BloomFilter;
+            } else if (lastByteOfSeed < 2560) {
+                artifactType = ArtifactType.BlackDomain;
+            } else if (lastByteOfSeed < 3072) {
+                artifactType = ArtifactType.StellarShield;
+            } else if (lastByteOfSeed < 3584) {
+                artifactType = ArtifactType.Bomb;
+            } else {
+                artifactType = ArtifactType.Kardashev;
+            }
         }
 
         // if (level <= 1) {

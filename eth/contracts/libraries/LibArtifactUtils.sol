@@ -451,8 +451,16 @@ library LibArtifactUtils {
                 deactivateArtifactWithoutCheckOwner(toPlanet.locationId);
             }
         } else if (artifact.artifactType == ArtifactType.Kardashev) {
-            //
+            require(
+                2 * uint256(artifact.rarity) >= planet.planetLevel,
+                "artifact is not powerful enough to apply effect to this planet level"
+            );
         } else if (artifact.artifactType == ArtifactType.Bomb) {
+            require(
+                2 * uint256(artifact.rarity) >= planet.planetLevel,
+                "artifact is not powerful enough to apply effect to this planet level"
+            );
+
             // require(linkTo != 0, "you must provide a linkTo to activate a Bomb");
             // planet.owner = gs().planets[linkTo].owner;
             // gs().planets[linkTo].owner = msg.sender;

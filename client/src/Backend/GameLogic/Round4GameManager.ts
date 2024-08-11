@@ -654,7 +654,8 @@ class Round4GameManager extends BaseGameManager {
         gameManager.onTxCancelled(tx);
       })
       .on(ContractsAPIEvent.RadiusUpdated, async () => {
-        gameManager.hardRefreshRadius();
+        // round 4 hotfix
+        // gameManager.hardRefreshRadius();
       });
 
     const unconfirmedTxs = await persistentChunkStore.getUnconfirmedSubmittedEthTxs();

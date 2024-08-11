@@ -37,4 +37,5 @@ export * from './planet';
 export * from './player';
 export * from './reveal';
 export * from './transactions';
+export * from './union';
 export * from './upgrade';

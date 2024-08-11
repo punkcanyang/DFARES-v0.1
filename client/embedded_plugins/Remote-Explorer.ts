@@ -329,6 +329,7 @@ class RemoteExplorerPlugin implements DFPlugin {
       df.getChunkStore(),
       pattern,
       df.getWorldRadius(),
+      df.getInnerRadius(),
       df.planetRarity,
       df.getHashConfig(),
       false,

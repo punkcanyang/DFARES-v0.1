@@ -1,4 +1,4 @@
-import type { EthAddress, LocationId } from './identifier';
+import type { EthAddress, LocationId, UnionId } from './identifier';
 
 /**
  * Represents a player; corresponds fairly closely with the analogous contract
@@ -23,6 +23,7 @@ export type Player = {
   lastKardashevTimestamp: number;
 
   score?: number;
+  rank?: number;
 
   spaceJunk: number;
   spaceJunkLimit: number;
@@ -40,4 +41,6 @@ export type Player = {
   kardashevAmount: number;
   buyPlanetAmount: number;
   buySpaceshipAmount: number;
+  unionId: UnionId;
+  leaveUnionTimestamp: number;
 };

@@ -10,6 +10,7 @@ import {
   TOGGLE_SETTINGS_PANE,
   TOGGLE_TRADE_PANE,
   TOGGLE_TRANSACTIONS_PANE,
+  TOGGLE_UNION_PANE,
   TOGGLE_YOUR_ARTIFACTS_PANE,
   TOGGLE_YOUR_PLANETS_DEX_PANE,
 } from '../Utils/ShortcutConstants';
@@ -23,6 +24,7 @@ export function SidebarPane({
   yourArtifactsHook,
   planetdexHook,
   transactionLogHook,
+  unionHook,
 }: {
   tradeHook: Hook<boolean>;
   settingsHook: Hook<boolean>;
@@ -31,6 +33,7 @@ export function SidebarPane({
   yourArtifactsHook: Hook<boolean>;
   planetdexHook: Hook<boolean>;
   transactionLogHook: Hook<boolean>;
+  unionHook: Hook<boolean>;
 }) {
   const [sidebarHovered, setSidebarHovered] = useState<boolean>(false);
 
@@ -104,6 +107,15 @@ export function SidebarPane({
           size='stretch'
           shortcutKey={TOGGLE_TRANSACTIONS_PANE}
           shortcutText={sidebarHovered ? TOGGLE_TRANSACTIONS_PANE : undefined}
+        />
+        <EmSpacer height={0.5} />
+        <ModalToggleButton
+          modal={ModalName.UnionContextPane}
+          hook={unionHook}
+          text={sidebarHovered ? 'Union' : undefined}
+          size='stretch'
+          shortcutKey={TOGGLE_UNION_PANE}
+          shortcutText={sidebarHovered ? TOGGLE_UNION_PANE : undefined}
         />
       </BorderlessPane>
     </WindowTogglesPaneContainer>

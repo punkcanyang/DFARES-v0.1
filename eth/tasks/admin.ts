@@ -132,6 +132,19 @@ async function gameSetRadius(args: { radius: number }, hre: HardhatRuntimeEnviro
   await setRadiusReceipt.wait();
 }
 
+task('admin:setInnerRadius', 'change the radius')
+  .addPositionalParam('radius', 'the radius', undefined, types.int)
+  .setAction(gameSetInnerRadius);
+
+async function gameSetInnerRadius(args: { radius: number }, hre: HardhatRuntimeEnvironment) {
+  await hre.run('utils:assertChainId');
+
+  const contract = await hre.ethers.getContractAt('DarkForest', hre.contracts.CONTRACT_ADDRESS);
+
+  const setRadiusReceipt = await contract.adminSetInnerRadius(args.radius);
+  await setRadiusReceipt.wait();
+}
+
 task('admin:changeCaptureZoneRadius', 'change capture zone radius')
   .addPositionalParam('radius', 'the radius', undefined, types.int)
   .setAction(changeCaptureZoneRadius);
@@ -502,4 +515,47 @@ async function adminSetFinalScoreAndRank(
   } catch (e) {
     console.log(e);
   }
+}
+
+/**
+ * Union
+ */
+
+task('admin:setUnionCreationFee', 'change union creation fee')
+  .addPositionalParam('fee', 'the fee', undefined, types.int)
+  .setAction(adminSetUnionCreationFee);
+
+async function adminSetUnionCreationFee(args: { fee: number }, hre: HardhatRuntimeEnvironment) {
+  await hre.run('utils:assertChainId');
+  const contract = await hre.ethers.getContractAt('DarkForest', hre.contracts.CONTRACT_ADDRESS);
+  const receipt = await contract.adminSetUnionCreationFee(args.fee);
+  await receipt.wait();
+}
+
+task('admin:setUnionUpgradeFeePreMember', 'change union creation fee')
+  .addPositionalParam('fee', 'the fee', undefined, types.int)
+  .setAction(adminSetUnionUpgradeFeePreMember);
+
+async function adminSetUnionUpgradeFeePreMember(
+  args: { fee: number },
+  hre: HardhatRuntimeEnvironment
+) {
+  await hre.run('utils:assertChainId');
+  const contract = await hre.ethers.getContractAt('DarkForest', hre.contracts.CONTRACT_ADDRESS);
+  const receipt = await contract.adminSetUnionUpgradeFeePreMember(args.fee);
+  await receipt.wait();
+}
+
+task('admin:adminSetUnionRejoinCooldown', 'change union creation fee')
+  .addPositionalParam('cooldown', 'the cooldown', undefined, types.int)
+  .setAction(adminSetUnionRejoinCooldown);
+
+async function adminSetUnionRejoinCooldown(
+  args: { cooldown: number },
+  hre: HardhatRuntimeEnvironment
+) {
+  await hre.run('utils:assertChainId');
+  const contract = await hre.ethers.getContractAt('DarkForest', hre.contracts.CONTRACT_ADDRESS);
+  const receipt = await contract.adminSetUnionRejoinCooldown(args.cooldown);
+  await receipt.wait();
 }

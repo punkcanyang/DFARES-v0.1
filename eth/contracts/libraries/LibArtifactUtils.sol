@@ -298,7 +298,7 @@ library LibArtifactUtils {
             require(!gs().planets[linkTo].destroyed, "planet destroyed");
             require(!gs().planets[linkTo].frozen, "planet frozen");
 
-            //round 3 remove the rarity limit
+            //round 4 remove the rarity limit
             // require(
             //     2 * uint256(artifact.rarity) >= planet.planetLevel,
             //     "artifact is not powerful enough to apply effect to this planet level"
@@ -310,12 +310,13 @@ library LibArtifactUtils {
 
             artifact.linkTo = linkTo;
         } else if (artifact.artifactType == ArtifactType.PlanetaryShield) {
-            require(
-                2 * uint256(artifact.rarity) >= planet.planetLevel,
-                "artifact is not powerful enough to apply effect to this planet level"
-            );
+            //NOTE: round 4 remove the rarity limit to PlanetaryShield
+            // require(
+            //     2 * uint256(artifact.rarity) >= planet.planetLevel,
+            //     "artifact is not powerful enough to apply effect to this planet level"
+            // );
         } else if (artifact.artifactType == ArtifactType.PhotoidCannon) {
-            //NOTE: round 3 remove the rarity limit to Photoid Cannon
+            //NOTE: round 4 remove the rarity limit to Photoid Cannon
             // require(
             //     2 * uint256(artifact.rarity) >= planet.planetLevel,
             //     "artifact is not powerful enough to apply effect to this planet level"
@@ -450,8 +451,16 @@ library LibArtifactUtils {
                 deactivateArtifactWithoutCheckOwner(toPlanet.locationId);
             }
         } else if (artifact.artifactType == ArtifactType.Kardashev) {
-            //
+            require(
+                2 * uint256(artifact.rarity) >= planet.planetLevel,
+                "artifact is not powerful enough to apply effect to this planet level"
+            );
         } else if (artifact.artifactType == ArtifactType.Bomb) {
+            require(
+                2 * uint256(artifact.rarity) >= planet.planetLevel,
+                "artifact is not powerful enough to apply effect to this planet level"
+            );
+
             // require(linkTo != 0, "you must provide a linkTo to activate a Bomb");
             // planet.owner = gs().planets[linkTo].owner;
             // gs().planets[linkTo].owner = msg.sender;
@@ -633,7 +642,7 @@ library LibArtifactUtils {
         );
         require(!isSpaceship(artifact.artifactType), "cannot withdraw spaceships");
 
-        // NOTE: round 3 can withdraw Avatar artifact
+        // NOTE: round 4 can withdraw Avatar artifact
         // require(artifact.artifactType != ArtifactType.Avatar, "cannot withdraw avatar artifact");
 
         LibGameUtils._takeArtifactOffPlanet(artifactId, locationId);

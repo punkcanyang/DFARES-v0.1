@@ -9,6 +9,8 @@ import {
 export async function getMessagesOnPlanets(
   request: PlanetMessageRequest
 ): Promise<PlanetMessageResponse> {
+  return {};
+
   if (request.planets.length === 0 || !process.env.DF_WEBSERVER_URL) {
     return {};
   }

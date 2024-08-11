@@ -20,6 +20,9 @@ contract DFTradeFacet is WithStorage {
     event PlanetBought(address player, uint256 loc);
     event SpaceshipBought(uint256 locationId, address owner, ArtifactType artifactType);
 
+    event WorldRadiusUpdated(uint256 radius);
+    event InnerRadiusUpdated(uint256 radius);
+
     modifier notPaused() {
         require(!gs().paused, "Game is paused");
         _;
@@ -77,6 +80,11 @@ contract DFTradeFacet is WithStorage {
         require(planet.owner == address(0), "no owner before");
         require(_radius <= gs().worldRadius, "Init radius is bigger than the current world radius");
 
+        require(
+            _distFromOriginSquare >= gs().innerRadius * gs().innerRadius,
+            "Init radius is smaller than the current world radius"
+        );
+
         uint256[5] memory MAX_LEVEL_DIST = gameConstants().MAX_LEVEL_DIST;
         require(_radius > MAX_LEVEL_DIST[1], "Player can only spawn at the edge of universe");
 
@@ -113,6 +121,10 @@ contract DFTradeFacet is WithStorage {
         planet.owner = msg.sender;
         planet.population = planet.populationCap;
         LibGameUtils.updateWorldRadius();
+        LibGameUtils.updateInnerRadius();
+        emit WorldRadiusUpdated(gs().worldRadius);
+        emit InnerRadiusUpdated(gs().innerRadius);
+
         emit PlanetBought(msg.sender, planetId);
         ls().buyPlanetCnt++;
         ls().playerLog[msg.sender].buyPlanetCnt++;

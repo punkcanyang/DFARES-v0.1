@@ -9,6 +9,8 @@ import {
   Player,
   QueuedArrival,
   RevealedCoords,
+  Union,
+  UnionId,
   VoyageId,
 } from '@dfares/types';
 import _ from 'lodash';
@@ -26,7 +28,9 @@ import { ContractsAPI } from './ContractsAPI';
 export interface InitialGameState {
   contractConstants: ContractConstants;
   players: Map<string, Player>;
+  unions: Map<UnionId, Union>;
   worldRadius: number;
+  innerRadius: number;
   allTouchedPlanetIds: LocationId[];
   allRevealedCoords: RevealedCoords[];
   allClaimedCoords: ClaimedCoords[];
@@ -89,6 +93,7 @@ export class InitialGameStateDownloader {
 
     const planetIdsLoadingBar = this.makeProgressListener('Planet IDs');
     const playersLoadingBar = this.makeProgressListener('Players');
+    const unionsLoadingBar = this.makeProgressListener('Unions');
     const revealedPlanetsLoadingBar = this.makeProgressListener('Revealed Planet IDs');
     const revealedPlanetsCoordsLoadingBar = this.makeProgressListener(
       'Revealed Planet Coordinates'
@@ -110,8 +115,10 @@ export class InitialGameStateDownloader {
 
     const contractConstants = contractsAPI.getConstants();
     const worldRadius = contractsAPI.getWorldRadius();
+    const innerRadius = contractsAPI.getInnerRadius();
 
     const players = contractsAPI.getPlayers(playersLoadingBar);
+    const unions = contractsAPI.getUnions(unionsLoadingBar);
 
     const arrivals: Map<VoyageId, QueuedArrival> = new Map();
     const planetVoyageIdMap: Map<LocationId, VoyageId[]> = new Map();
@@ -239,7 +246,9 @@ export class InitialGameStateDownloader {
     const initialState: InitialGameState = {
       contractConstants: await contractConstants,
       players: await players,
+      unions: await unions,
       worldRadius: await worldRadius,
+      innerRadius: await innerRadius,
       allTouchedPlanetIds,
       allRevealedCoords,
       allClaimedCoords,

@@ -14,18 +14,6 @@ export type Logo = {
 const URL = PICTURE_URL;
 
 //1
-const ZEROxparc = {
-  legacy: false,
-  topLayer: [URL + '/img/logo/0xparc.png'],
-  bottomLayer: [],
-  name: '0xPARC',
-  desc: 'Program for Applied Research in Cryptography: \
-    supporting application-level R&D on Ethereum and decentralized platforms.',
-  color: 'white',
-  website: 'https://0xparc.org/',
-};
-
-//2
 const DF = {
   legacy: false,
   topLayer: [URL + '/img/logo/DF.png'],
@@ -43,108 +31,7 @@ const DF = {
   website: 'https://twitter.com/darkforest_eth',
 };
 
-//3
-const Lattice = {
-  legacy: false,
-  topLayer: [URL + '/img/logo/Lattice.png'],
-  bottomLayer: [],
-  name: 'Lattice',
-  desc: 'Lattice is an engineering and product focused company pushing the limits of Ethereum applications and infrastructure. \
-  They are building MUD, Redstone, and Sky Strife.',
-  color: '#5c9af6',
-  website: 'https://lattice.xyz/',
-};
-
-//4
-const Redstone = {
-  legacy: false,
-  topLayer: [URL + '/img/logo/Redstone.png'],
-  bottomLayer: [],
-  name: 'Redstone',
-  desc: 'Redstone runs applications on an OP Stack chain optimized for games,\
-   autonomous worlds, and other ambitious onchain applications.',
-  color: '#f34242',
-  website: 'https://redstone.xyz/',
-};
-
-//5
-const Mud = {
-  legacy: false,
-  topLayer: [URL + '/img/logo/Mud.png'],
-  bottomLayer: [],
-  name: 'MUD',
-  desc: 'MUD provides you with the tools to build ambitious onchain applications.',
-  color: '#ff7612',
-  website: 'https://mud.dev/',
-};
-
-//6
-const Biomes = {
-  legacy: false,
-  topLayer: [URL + '/img/logo/Biomes.png'],
-  bottomLayer: [],
-  name: 'Biomes',
-  desc: 'Create and Play Onchain Biomes.',
-  color: '#42a232',
-  website: 'https://twitter.com/biomesAW',
-};
-
-//7
-const ThisCursedMachine = {
-  legacy: false,
-  topLayer: [URL + '/img/logo/MovingCastles.png'],
-  bottomLayer: [],
-  name: 'Moving Castles',
-  desc: 'Game studio for the tactical research and development of autonomous worlds.',
-  color: 'white',
-  website: 'https://twitter.com/movingcastles_/',
-};
-
-//8
-const SkyStrife = {
-  legacy: false,
-  topLayer: [URL + '/img/logo/SkyStrife.png'],
-  bottomLayer: [],
-  name: 'Sky Strife',
-  desc: 'The free-to-play, fully onchain real-time strategy game.',
-  color: 'white',
-  website: 'https://www.skystrife.xyz/',
-};
-
-// 9
-const SmallBrainGames = {
-  legacy: false,
-  topLayer: [URL + '/img/logo/SmallBrain.png'],
-  bottomLayer: [],
-  name: 'Small Brain Games',
-  desc: 'Building a new on-chain game every 6 weeks.',
-  color: 'white',
-  website: 'https://twitter.com/0xsmallbrain',
-};
-
-//10
-const DownStream = {
-  legacy: false,
-  topLayer: [URL + '/img/logo/DownStream.png'],
-  bottomLayer: [],
-  name: 'DownStream',
-  desc: "Help a super intelligent AI rebuild after an unfortunate accident. The world's first Post Singularity Civilisation Simulator, by @PlaymintUK",
-  color: '#fb7001',
-  website: 'https://downstream.game/',
-};
-
-//11
-const Dear = {
-  legacy: false,
-  topLayer: [URL + '/img/logo/Dear.png'],
-  bottomLayer: [],
-  name: 'Dear',
-  desc: 'A digital creature living on blockchain.',
-  color: 'white',
-  website: 'https://twitter.com/dear_dyr',
-};
-
-//12
+//2
 const DFARES = {
   legacy: false,
   topLayer: [URL + '/img/logo/DFARES.png'],
@@ -156,7 +43,7 @@ const DFARES = {
   website: 'https://dfares.xyz/',
 };
 
-//13
+//3
 const DFArchon = {
   legacy: false,
   topLayer: [URL + '/img/logo/DFArchon.png'],
@@ -173,54 +60,53 @@ const DFArchon = {
   website: 'https://twitter.com/DFArchon',
 };
 
-//14
-const GGQuest = {
+//4
+const Redstone = {
   legacy: false,
-  topLayer: [URL + '/img/logo/ggQuest.png'],
-  name: 'GGQuest',
-  desc: 'GGQuest is the ultimate on-chain progression system for gamers. \
-  We track & aggregate all gaming-related data across various platforms & \
-  ecosystems and showcase them under one unified dashboard- Quest ID.\
-   This can help build reputation & unlock personalized gaming experiences.',
-  color: '#fff',
+  topLayer: [URL + '/img/logo/Redstone.png'],
   bottomLayer: [],
-  website: 'https://twitter.com/gg_quest_gg',
+  name: 'Redstone',
+  desc: 'Redstone runs applications on an OP Stack chain optimized for games,\
+   autonomous worlds, and other ambitious onchain applications.',
+  color: '#f34242',
+  website: 'https://redstone.xyz/',
 };
 
-//15
-const YeomenAI = {
+//5
+const Lattice = {
   legacy: false,
-  topLayer: [URL + '/img/logo/YeomenAI.png'],
-  name: 'Yeomen AI',
-  desc: 'Web3 Data & Analytics',
+  topLayer: [URL + '/img/logo/Lattice.png'],
+  bottomLayer: [],
+  name: 'Lattice',
+  desc: 'Lattice is an engineering and product focused company pushing the limits of Ethereum applications and infrastructure. \
+  They are building MUD, Redstone, and Sky Strife.',
+  color: '#5c9af6',
+  website: 'https://lattice.xyz/',
+};
+
+//6
+const Mud = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/Mud.png'],
+  bottomLayer: [],
+  name: 'MUD',
+  desc: 'MUD provides you with the tools to build ambitious onchain applications.',
+  color: '#ff7612',
+  website: 'https://mud.dev/',
+};
+
+//7
+const Dear = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/Dear.png'],
+  bottomLayer: [],
+  name: 'Dear',
+  desc: 'A digital creature living on blockchain.',
   color: 'white',
-  bottomLayer: [],
-  website: 'https://yeomen.ai/',
+  website: 'https://twitter.com/dear_dyr',
 };
 
-//16
-const Redswap = {
-  legacy: false,
-  topLayer: [URL + '/img/logo/Redswap.png'],
-  name: 'Redswap ',
-  desc: 'Public Good DEX on @redstonexyz',
-  color: '#f34242',
-  bottomLayer: [],
-  website: 'https://twitter.com/0xRedswap',
-};
-
-//17
-const RedstoneMarket = {
-  legacy: false,
-  topLayer: [URL + '/img/logo/RedstoneMarket.png'],
-  name: 'Redstone Market',
-  desc: 'The Redstone NFT Marketplace by @reservoir0x',
-  color: '#f34242',
-  bottomLayer: [],
-  website: 'https://twitter.com/redstonemarket',
-};
-
-//18
+//8
 const PixeLAW = {
   legacy: false,
   topLayer: [URL + '/img/logo/PixeLAW.png'],
@@ -231,7 +117,18 @@ const PixeLAW = {
   website: 'https://pixelaw.xyz/',
 };
 
-//19
+// 9
+const Biomes = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/Biomes.png'],
+  bottomLayer: [],
+  name: 'Biomes',
+  desc: 'Create and Play Onchain Biomes.',
+  color: '#42a232',
+  website: 'https://twitter.com/biomesAW',
+};
+
+//10
 const Mask = {
   legacy: false,
   topLayer: [URL + '/img/logo/Mask.svg'],
@@ -242,7 +139,7 @@ const Mask = {
   website: 'https://twitter.com/realMaskNetwork',
 };
 
-//20
+//11
 const AGLDDAO = {
   legacy: false,
   topLayer: [URL + '/img/logo/AGLDDAO.png'],
@@ -255,7 +152,7 @@ const AGLDDAO = {
   website: 'https://twitter.com/GoldAdventure',
 };
 
-//21
+//12
 const AWHouse = {
   legacy: false,
   topLayer: [URL + '/img/logo/AWHouse.png'],
@@ -266,7 +163,7 @@ const AWHouse = {
   website: 'https://twitter.com/AW_house',
 };
 
-//22
+//13
 const OrdenGG = {
   legacy: false,
   topLayer: [URL + '/img/logo/OrdenGG.png'],
@@ -278,7 +175,29 @@ const OrdenGG = {
   website: 'https://twitter.com/orden_gg',
 };
 
-//23
+//14
+const Boys = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/Boys.png'],
+  name: 'Boys',
+  desc: 'Boys Boys Boys Boys',
+  color: 'white',
+  bottomLayer: [],
+  website: 'https://x.com/Boyschain_',
+};
+
+//15
+const ZenbitVG = {
+  legacy: false,
+  topLayer: [URL + '/img/logo/ZenbitVG.png'],
+  name: 'Zenbit VG',
+  desc: 'A gaming DAO to onboard global talents and compete in selected web3 games 🎮',
+  color: 'white',
+  bottomLayer: [],
+  website: 'https://x.com/zenbitMX',
+};
+
+//16
 const DFDAO = {
   legacy: false,
   topLayer: [URL + '/img/logo/DFDAO.png'],
@@ -290,20 +209,7 @@ const DFDAO = {
   website: 'https://twitter.com/d_fdao',
 };
 
-//24
-const FunBlocks = {
-  legacy: false,
-  topLayer: [URL + '/img/logo/FunBlocks.png'],
-  bottomLayer: [],
-  name: 'FunBlocks',
-  desc: 'FunBlocks is a media which covers the most recent trends and innovations in fully on-chain games.\
-  We believe that the ultimate goal of blockchain gaming is to bring joy and fun to players!',
-
-  color: '#d8f2ff',
-  website: 'https://twitter.com/0xFunBlocks',
-};
-
-//25
+//17
 const WASD = {
   legacy: false,
   topLayer: [URL + '/img/logo/WASD.png'],
@@ -317,7 +223,7 @@ const WASD = {
   website: 'https://twitter.com/WASD_0x',
 };
 
-//26
+//18
 const FunCraft = {
   legacy: false,
   topLayer: [URL + '/img/logo/FunCraft.png'],
@@ -328,18 +234,7 @@ const FunCraft = {
   website: 'https://twitter.com/Funcraftguild',
 };
 
-//27
-const WorldExplorers = {
-  legacy: false,
-  topLayer: [URL + '/img/logo/WorldExplorers.png'],
-  name: 'World Explorers',
-  desc: "Player community and guild focused on exploring fully onchain games and Autonomous Worlds. We're currently the reigning world champions for SkyStrife. ",
-  color: '#fff',
-  bottomLayer: [],
-  website: 'https://twitter.com/awexplorers',
-};
-
-//28
+//19
 const AWResearch = {
   legacy: false,
   topLayer: [URL + '/img/logo/AWResearch.png'],
@@ -353,7 +248,7 @@ const AWResearch = {
   website: 'https://twitter.com/AW_Research',
 };
 
-//29
+//20
 const ComposableLabs = {
   legacy: false,
   topLayer: [URL + '/img/logo/ComposableLabs.png'],
@@ -365,7 +260,7 @@ const ComposableLabs = {
   website: 'https://twitter.com/composablehub',
 };
 
-//30
+//21
 const MetaCat = {
   legacy: false,
   topLayer: [URL + '/img/logo/MetaCat.png'],
@@ -376,58 +271,42 @@ const MetaCat = {
   website: 'https://twitter.com/Metacat007',
 };
 
-//31
-const Web3MQ = {
+//22
+const WorldExplorers = {
   legacy: false,
-  topLayer: [URL + '/img/logo/web3mq.png'],
+  topLayer: [URL + '/img/logo/WorldExplorers.png'],
+  name: 'World Explorers',
+  desc: "Player community and guild focused on exploring fully onchain games and Autonomous Worlds. We're currently the reigning world champions for SkyStrife. ",
+  color: '#fff',
   bottomLayer: [],
-  name: 'Web3MQ',
-  desc: 'Message relay network for Web3 based on current test results,\
-  offering a trustless and seamless interactive experience. \
-  With its interoperability, permissionless composability, and other features,\
-   Web3MQ lowers integration barriers and provides developers with\
-    convenient customization options. Web3MQ offers solutions for games, \
-    social applications, and wallets, making it the next-generation provider\
-     for fully on-chain gaming communication. ',
-
-  color: '#9A26F9',
-  website: 'https://twitter.com/Web3MQ',
+  website: 'https://twitter.com/awexplorers',
 };
 
 export const logoFromType = (type: LogoType): Logo => logos[type];
 
 export const logos: Record<LogoType, Logo> = {
-  [LogoType.Zeroxparc]: ZEROxparc,
   [LogoType.DarkForest]: DF,
-  [LogoType.Lattice]: Lattice,
-  [LogoType.Redstone]: Redstone,
-  [LogoType.Mud]: Mud,
-  [LogoType.Biomes]: Biomes,
-  [LogoType.ThisCursedMachine]: ThisCursedMachine,
-  [LogoType.SkyStrife]: SkyStrife,
-  [LogoType.SmallBrainGames]: SmallBrainGames,
-  [LogoType.DownStream]: DownStream,
-  [LogoType.Dear]: Dear,
   [LogoType.DFARES]: DFARES,
   [LogoType.DFArchon]: DFArchon,
-  [LogoType.GGQuest]: GGQuest,
-  [LogoType.YeomenAI]: YeomenAI,
-  [LogoType.Redswap]: Redswap,
-  [LogoType.RedstoneMarket]: RedstoneMarket,
+  [LogoType.Redstone]: Redstone,
+  [LogoType.Lattice]: Lattice,
+  [LogoType.Mud]: Mud,
+  [LogoType.Dear]: Dear,
   [LogoType.PixeLAW]: PixeLAW,
+  [LogoType.Biomes]: Biomes,
   [LogoType.Mask]: Mask,
   [LogoType.AGLDDAO]: AGLDDAO,
   [LogoType.AWHouse]: AWHouse,
   [LogoType.OrdenGG]: OrdenGG,
+  [LogoType.Boys]: Boys,
+  [LogoType.ZenbitVG]: ZenbitVG,
   [LogoType.DFDAO]: DFDAO,
-  [LogoType.FunBlocks]: FunBlocks,
   [LogoType.WASD]: WASD,
   [LogoType.FunCraft]: FunCraft,
-  [LogoType.WorldExplorers]: WorldExplorers,
   [LogoType.AWResearch]: AWResearch,
   [LogoType.ComposableLabs]: ComposableLabs,
   [LogoType.MetaCat]: MetaCat,
-  [LogoType.Web3MQ]: Web3MQ,
+  [LogoType.WorldExplorers]: WorldExplorers,
 };
 
 // export const avatarFromArtifactIdAndImageType = (

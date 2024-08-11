@@ -214,6 +214,22 @@ library LibGameUtils {
         }
     }
 
+    function _getInnerRadius() public view returns (uint256) {
+        uint256 initialRadius = gameConstants().MAX_LEVEL_DIST[1] - 1000;
+        uint256 endTimestamp = gameConstants().CLAIM_END_TIMESTAMP - 24 hours;
+        uint256 gameDuration = 5 days; // 6 days - 24 hours
+        uint256 duration = endTimestamp - block.timestamp;
+
+        // Round 4 test
+        // endTimestamp = gameConstants().CLAIM_END_TIMESTAMP - 6 days  - 12 hours;
+        // gameDuration = 8 hours;
+        // duration = endTimestamp - block.timestamp;
+
+        if (block.timestamp >= endTimestamp) return 0;
+        else if (block.timestamp <= endTimestamp - gameDuration) return initialRadius;
+        else return (initialRadius * duration) / gameDuration;
+    }
+
     function _randomArtifactTypeAndLevelBonus(
         uint256 artifactSeed,
         Biome biome,
@@ -240,28 +256,48 @@ library LibGameUtils {
 
         uint256 level = bonus + planetLevel;
         ArtifactRarity artifactRarity = artifactRarityFromPlanetLevel(level);
-        ArtifactType artifactType = ArtifactType.Pyramid;
+        ArtifactType artifactType = ArtifactType.Wormhole;
 
-        if (lastByteOfSeed < 455) {
-            artifactType = ArtifactType.Wormhole;
-        } else if (lastByteOfSeed < 910) {
-            artifactType = ArtifactType.PlanetaryShield;
-        } else if (lastByteOfSeed < 1365) {
-            artifactType = ArtifactType.PhotoidCannon;
-        } else if (lastByteOfSeed < 1820) {
-            artifactType = ArtifactType.BloomFilter;
-        } else if (lastByteOfSeed < 2275) {
-            artifactType = ArtifactType.BlackDomain;
-        } else if (lastByteOfSeed < 2730) {
-            artifactType = ArtifactType.StellarShield;
-        } else if (lastByteOfSeed < 3185) {
-            artifactType = ArtifactType.Bomb;
-        } else if (lastByteOfSeed < 3640) {
-            artifactType = ArtifactType.Kardashev;
-        } else if (lastByteOfSeed < 4095) {
-            artifactType = ArtifactType.Avatar;
+        if (artifactRarity == ArtifactRarity.Common || artifactRarity == ArtifactRarity.Rare) {
+            if (lastByteOfSeed < 455) {
+                artifactType = ArtifactType.Wormhole;
+            } else if (lastByteOfSeed < 910) {
+                artifactType = ArtifactType.PlanetaryShield;
+            } else if (lastByteOfSeed < 1365) {
+                artifactType = ArtifactType.PhotoidCannon;
+            } else if (lastByteOfSeed < 1820) {
+                artifactType = ArtifactType.BloomFilter;
+            } else if (lastByteOfSeed < 2275) {
+                artifactType = ArtifactType.BlackDomain;
+            } else if (lastByteOfSeed < 2730) {
+                artifactType = ArtifactType.StellarShield;
+            } else if (lastByteOfSeed < 3185) {
+                artifactType = ArtifactType.Bomb;
+            } else if (lastByteOfSeed < 3640) {
+                artifactType = ArtifactType.Kardashev;
+            } else if (lastByteOfSeed < 4095) {
+                artifactType = ArtifactType.Avatar;
+            } else {
+                artifactType = ArtifactType.Avatar;
+            }
         } else {
-            artifactType = ArtifactType.Avatar;
+            if (lastByteOfSeed < 512) {
+                artifactType = ArtifactType.Wormhole;
+            } else if (lastByteOfSeed < 1024) {
+                artifactType = ArtifactType.PlanetaryShield;
+            } else if (lastByteOfSeed < 1536) {
+                artifactType = ArtifactType.PhotoidCannon;
+            } else if (lastByteOfSeed < 2048) {
+                artifactType = ArtifactType.BloomFilter;
+            } else if (lastByteOfSeed < 2560) {
+                artifactType = ArtifactType.BlackDomain;
+            } else if (lastByteOfSeed < 3072) {
+                artifactType = ArtifactType.StellarShield;
+            } else if (lastByteOfSeed < 3584) {
+                artifactType = ArtifactType.Bomb;
+            } else {
+                artifactType = ArtifactType.Kardashev;
+            }
         }
 
         // if (level <= 1) {
@@ -746,6 +782,11 @@ library LibGameUtils {
         if (!gameConstants().WORLD_RADIUS_LOCKED) {
             gs().worldRadius = _getRadius();
         }
+    }
+
+    function updateInnerRadius() public {
+        if (gs().adminSetInnerRadius != 0) gs().innerRadius = gs().adminSetInnerRadius;
+        else gs().innerRadius = _getInnerRadius();
     }
 
     function isPopCapBoost(uint256 _location) public pure returns (bool) {

@@ -40,6 +40,8 @@ contract DFCoreFacet is WithStorage {
     event ArtifactWithdrawn(address player, uint256 artifactId, uint256 loc);
     event ArtifactActivated(address player, uint256 artifactId, uint256 loc, uint256 linkTo); // also emitted in LibPlanet
     event ArtifactDeactivated(address player, uint256 artifactId, uint256 loc, uint256 linkTo); // also emitted in LibPlanet
+    event WorldRadiusUpdated(uint256 radius);
+    event InnerRadiusUpdated(uint256 radius);
     //////////////////////
     /// ACCESS CONTROL ///
     //////////////////////
@@ -219,11 +221,21 @@ contract DFCoreFacet is WithStorage {
             0,
             0,
             0,
+            0,
+            0,
             0
         );
 
         LibGameUtils.updateWorldRadius();
+        LibGameUtils.updateInnerRadius();
+        emit WorldRadiusUpdated(gs().worldRadius);
+        emit InnerRadiusUpdated(gs().innerRadius);
+
         emit PlayerInitialized(msg.sender, _location);
+
+        // Players only need to submit a transaction to enter the game.
+        giveSpaceShips(_location);
+
         return _location;
     }
 

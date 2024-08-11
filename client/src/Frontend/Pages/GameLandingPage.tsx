@@ -1,4 +1,11 @@
-import { BLOCKCHAIN_BRIDGE, BLOCK_EXPLORER_URL, TOKEN_NAME } from '@dfares/constants';
+import {
+  BLOCKCHAIN_BRIDGE,
+  BLOCK_EXPLORER_URL,
+  HOW_TO_ENABLE_POPUPS,
+  HOW_TO_TRANSFER_ETH_FROM_L2_TO_REDSTONE,
+  PLAYER_GUIDE,
+  TOKEN_NAME,
+} from '@dfares/constants';
 import { CONTRACT_ADDRESS } from '@dfares/contracts';
 import { DarkForest } from '@dfares/contracts/typechain';
 import { EthConnection, neverResolves, weiToEth } from '@dfares/network';
@@ -9,8 +16,9 @@ import { utils, Wallet } from 'ethers';
 import { reverse } from 'lodash';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { RouteComponentProps, useHistory } from 'react-router-dom';
+import { GameManagerEvent } from '../../Backend/GameLogic/BaseGameManager';
 import { makeContractsAPI } from '../../Backend/GameLogic/ContractsAPI';
-import GameManager, { GameManagerEvent } from '../../Backend/GameLogic/GameManager';
+import GameManager from '../../Backend/GameLogic/GameManager';
 import GameUIManager from '../../Backend/GameLogic/GameUIManager';
 import TutorialManager, { TutorialState } from '../../Backend/GameLogic/TutorialManager';
 import { addAccount, getAccounts } from '../../Backend/Network/AccountManager';
@@ -42,7 +50,6 @@ import { GameWindowLayout } from '../Views/GameWindowLayout';
 import { Terminal, TerminalHandle } from '../Views/Terminal';
 import { BrowserCompatibleState, BrowserIssues } from './components/BrowserIssues';
 import { MiniMap, MiniMapHandle } from './components/MiniMap';
-
 const enum TerminalPromptStep {
   NONE,
   COMPATIBILITY_CHECKS_PASSED,
@@ -140,9 +147,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
         terminal.current?.printLink(
           'Please Click Here',
           () => {
-            window.open(
-              'https://dfares.notion.site/DFAres-Round-3-Guide-3980998d8f65440085c116ba0df0d99a'
-            );
+            window.open(PLAYER_GUIDE);
           },
           TerminalTextStyle.Blue
         );
@@ -521,9 +526,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
           terminal.current?.printLink(
             'How to get ETH on the Redstone mainnet for your account',
             () => {
-              window.open(
-                'https://dfares.notion.site/How-to-transfer-ETH-from-L2-to-Redstone-Mainnet-89198e3016a444779c121efa2590bddd?pvs=74'
-              );
+              window.open(HOW_TO_TRANSFER_ETH_FROM_L2_TO_REDSTONE);
             },
             TerminalTextStyle.Green
           );
@@ -882,7 +885,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       terminal.current?.newline();
       terminal.current?.println('Welcome to DARK FOREST ARES.');
       terminal.current?.newline();
-      //NOTE: round 3 don't collect those information
+      //NOTE: round 4 don't collect those information
       // terminal.current?.println('We collect a minimal set of statistics such as SNARK proving');
       // terminal.current?.println('times and average transaction times across browsers, to help ');
       // terminal.current?.println('us optimize performance and fix bugs. You can opt out of this');
@@ -1070,9 +1073,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
                 terminal.current?.printLink(
                   'How to enable popups',
                   () => {
-                    window.open(
-                      'https://dfares.notion.site/How-to-enable-popups-f01552bd77984ad582e1d7cc33b9523d'
-                    );
+                    window.open(HOW_TO_ENABLE_POPUPS);
                   },
                   TerminalTextStyle.Green
                 );
@@ -1214,9 +1215,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
                 terminal.current?.printLink(
                   'How to enable popups',
                   () => {
-                    window.open(
-                      'https://dfares.notion.site/How-to-enable-popups-f01552bd77984ad582e1d7cc33b9523d'
-                    );
+                    window.open(HOW_TO_ENABLE_POPUPS);
                   },
                   TerminalTextStyle.Green
                 );
@@ -1507,7 +1506,7 @@ export function GameLandingPage({ match, location }: RouteComponentProps<{ contr
       </GameWindowWrapper>
       <TerminalWrapper initRender={initRenderState} terminalEnabled={terminalVisible}>
         <MythicLabelText
-          text={`Welcome To Dark Forest Ares v0.1.3: Kardashev`}
+          text={`Welcome To Dark Forest Ares v0.1.4: Union`}
           style={{
             fontFamily: "'Start Press 2P', sans-serif",
             display: initRenderState !== InitRenderState.COMPLETE ? 'block' : 'none',

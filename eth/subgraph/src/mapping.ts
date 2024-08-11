@@ -558,6 +558,7 @@ function refreshPlayers(meta: Meta): void {
       player.claimedShips = contractPlayer.claimedShips;
       player.activateArtifactAmount = contractPlayer.activateArtifactAmount.toI32();
       player.buyArtifactAmount = contractPlayer.buyArtifactAmount.toI32();
+      player.union = contractPlayer.union;
       player.save();
     }
   }

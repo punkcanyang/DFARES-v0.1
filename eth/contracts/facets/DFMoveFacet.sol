@@ -31,6 +31,9 @@ contract DFMoveFacet is WithStorage {
         uint256 abandoning
     );
 
+    event WorldRadiusUpdated(uint256 radius);
+    event InnerRadiusUpdated(uint256 radius);
+
     function move(
         uint256[2] memory _a,
         uint256[2][2] memory _b,
@@ -74,7 +77,15 @@ contract DFMoveFacet is WithStorage {
         }
 
         // check radius
+
+        //Round 4 Todo: need to check the zk circuits here
         require(newRadius <= gs().worldRadius, "Attempting to move out of bounds");
+
+        uint256 targetDistFromOriginSquare = _input[10];
+        require(
+            targetDistFromOriginSquare >= gs().innerRadius * gs().innerRadius,
+            "Attempting to move out of bounds"
+        );
 
         // Refresh fromPlanet first before doing any action on it
         LibPlanet.refreshPlanet(args.oldLoc);
@@ -102,6 +113,10 @@ contract DFMoveFacet is WithStorage {
         _executeMove(args);
 
         LibGameUtils.updateWorldRadius();
+        LibGameUtils.updateInnerRadius();
+        emit WorldRadiusUpdated(gs().worldRadius);
+        emit InnerRadiusUpdated(gs().innerRadius);
+
         emit ArrivalQueued(
             msg.sender,
             gs().planetEventsCount,
@@ -166,7 +181,7 @@ contract DFMoveFacet is WithStorage {
 
         uint256 travelTime = effectiveDistTimesHundred /
             ((gs().planets[args.oldLoc].speed * gs().dynamicTimeFactor) / 100);
-
+        uint256 unionId = gs().players[gs().planets[args.oldLoc].owner].unionId;
         // don't allow 0 second voyages, so that arrival can't be processed in same block
         if (travelTime == 0) {
             travelTime = 1;
@@ -205,7 +220,8 @@ contract DFMoveFacet is WithStorage {
                 silverMoved,
                 travelTime,
                 args.movedArtifactId,
-                arrivalType
+                arrivalType,
+                unionId
             )
         );
         LibGameUtils._debuffPlanet(args.oldLoc, temporaryUpgrade);
@@ -474,6 +490,9 @@ contract DFMoveFacet is WithStorage {
         // space ship moves are implemented as 0-energy moves
         require(popArriving > 0 || isSpaceship, "Not enough forces to make move");
         require(isSpaceship ? args.popMoved == 0 : true, "spaceship moves must be 0 energy moves");
+
+        uint256 unionId = gs().players[args.player].unionId;
+
         gs().planetArrivals[gs().planetEventsCount] = ArrivalData({
             id: gs().planetEventsCount,
             player: args.player, // player address or address(0) for ship moves
@@ -485,7 +504,13 @@ contract DFMoveFacet is WithStorage {
             arrivalTime: block.timestamp + args.travelTime,
             arrivalType: args.arrivalType,
             carriedArtifactId: args.movedArtifactId,
-            distance: args.actualDist
+            distance: args.actualDist,
+            unionId: unionId,
+            name: gs().unions[unionId].name,
+            leader: gs().unions[unionId].leader,
+            level: gs().unions[unionId].level,
+            members: gs().unions[unionId].members,
+            invitees: gs().unions[unionId].invitees
         });
 
         gs().targetPlanetArrivalIds[args.newLoc].push(gs().planetEventsCount);

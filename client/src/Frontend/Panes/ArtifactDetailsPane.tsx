@@ -434,8 +434,8 @@ function ArtifactDescription({
 
   const wormholeShrinkLevels = [0, 2, 4, 8, 16, 32];
 
-  const maxLevelsPlanetaryShield = [0, 2, 4, 6, 8, 9];
-  const maxLevelPlanetaryShield = maxLevelsPlanetaryShield[artifact.rarity];
+  // const maxLevelsPlanetaryShield = [0, 2, 4, 6, 8, 9];
+  // const maxLevelPlanetaryShield = maxLevelsPlanetaryShield[artifact.rarity];
 
   const maxLevelsBlackDomain = [0, 2, 4, 6, 8, 9];
   const maxLevelBlackDomain = maxLevelsBlackDomain[artifact.rarity];
@@ -454,6 +454,12 @@ function ArtifactDescription({
 
   const maxLevelsStellarShield = [0, 2, 4, 6, 8, 9];
   const maxLevelStellarShield = maxLevelsStellarShield[artifact.rarity];
+
+  const maxLevelsKardashev = [0, 2, 4, 6, 8, 9];
+  const maxLevelKardashev = maxLevelsKardashev[artifact.rarity];
+
+  const maxLevelsBomb = [0, 2, 4, 6, 8, 9];
+  const maxLevelBomb = maxLevelsBomb[artifact.rarity];
 
   const genericSpaceshipDescription = <>Can move between planets without sending energy.</>;
 
@@ -497,10 +503,10 @@ function ArtifactDescription({
             <Green>INTRO: </Green>Activate the planetary shield to gain a defense bonus on your
             planet, at the expense of range and speed.
           </div>
-          <div>
+          {/* <div>
             <Green>LEVEL: </Green>Because this one is <White>{rarityName}</White>, it can activate
             on planets up to level <White>{maxLevelPlanetaryShield}</White>.
-          </div>
+          </div> */}
           <div>
             <Green>DEACTIVATION: </Green>When this artifact is deactivated, it will disappear and
             your planet's stats are reverted--so use it wisely!
@@ -658,7 +664,10 @@ function ArtifactDescription({
             <Green>INTRO: </Green> after activating Kardashev artifact then you can do kardashev
             operation on this planet to create blue circle.
           </div>
-
+          <div>
+            <Green>LEVEL: </Green>Because this one is <White>{rarityName}</White>, it can activate
+            on planets up to level <White>{maxLevelKardashev}</White>.
+          </div>
           <div>
             <Green>DEACTIVATION: </Green>This artifact will not disappear after deactivation.
           </div>
@@ -677,7 +686,10 @@ function ArtifactDescription({
             <Green>INTRO: </Green> after activating Bomb artifact then you can drop bomb on this
             planet to create pink circle.
           </div>
-
+          <div>
+            <Green>LEVEL: </Green>Because this one is <White>{rarityName}</White>, it can activate
+            on planets up to level <White>{maxLevelBomb}</White>.
+          </div>
           <div>
             <Green>DEACTIVATION: </Green>This artifact will not disappear after deactivation.
           </div>

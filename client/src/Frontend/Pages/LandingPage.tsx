@@ -1,3 +1,4 @@
+import { PLAYER_GUIDE } from '@dfares/constants';
 import { CONTRACT_ADDRESS } from '@dfares/contracts';
 import { address } from '@dfares/serde';
 import React from 'react';
@@ -5,6 +6,7 @@ import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { Link, Spacer, Title } from '../Components/CoreUI';
 import { Modal } from '../Components/Modal';
+import { Pink } from '../Components/Text';
 import dfstyles from '../Styles/dfstyles';
 import { LandingPageRoundArt } from '../Views/LandingPageRoundArt';
 
@@ -32,7 +34,7 @@ const DFArchonLinks = {
   github: 'https://github.com/dfarchon',
   wiki: 'https://dfwiki.net/wiki/Main_Page',
   plugins: 'https://dfares-plugins.netlify.app/',
-  guide: 'https://dfares.notion.site/DFAres-Round-3-Guide-3980998d8f65440085c116ba0df0d99a?pvs=25',
+  guide: PLAYER_GUIDE,
 };
 
 const defaultAddress = address(CONTRACT_ADDRESS);
@@ -61,6 +63,7 @@ export default function LandingPage() {
     <>
       {/* <PrettyOverlayGradient /> */}
       {/* <Hiring /> */}
+      <Fundraising />
 
       <Page>
         <OnlyMobile>
@@ -114,7 +117,7 @@ export default function LandingPage() {
                     </span>
                     <br />
                     <span style={{ fontSize: '40px' }}>
-                      <Round3Title>Round 3 : Kardashev</Round3Title>
+                      <Round3Title>Round 4 : Union 🌸 </Round3Title>
                     </span>
                   </div>
 
@@ -504,6 +507,33 @@ export const LinkContainer = styled.div`
     }
   }
 `;
+
+function Fundraising() {
+  return (
+    <HideOnMobile>
+      <Modal contain={['top', 'left', 'right']} initialX={50} initialY={50}>
+        <Title slot='title'>How to Support DFArchon </Title>
+        <div style={{ maxWidth: '300px' }}>
+          As a community team, we need to raise funds to support our future development plans.{' '}
+          <Pink>Donations are welcome.</Pink>
+          <br />
+          <br />
+          In return, we offer:
+          <br />
+          <Pink>Onchain Gaming Insights:</Pink> Expertise in fully onchain games and consulting
+          services.
+          <br />
+          <Pink>Custom Dark Forest Services:</Pink> Fast development of customized Dark Forest
+          versions.
+          <br />
+          <br />
+          Interested in supporting us? Contact{' '}
+          <Link to='https://t.me/cherryblue1024'>cherryblue1024</Link>. We'll respond ASAP.
+        </div>
+      </Modal>
+    </HideOnMobile>
+  );
+}
 
 function Hiring() {
   return (

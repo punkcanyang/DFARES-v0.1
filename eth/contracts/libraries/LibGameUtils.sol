@@ -215,14 +215,19 @@ library LibGameUtils {
     }
 
     function _getInnerRadius() public view returns (uint256) {
-        uint256 delta = 2 * (block.number - gameConstants().GAME_START_BLOCK);
-        // Round 4 Todo: change the config
-        // 2s = 1 block
-        // take 6 hours to become 0
-        uint256 timeInSeconds = 21600; // 6 * 60 * 60;
-        if (delta >= timeInSeconds) return 0;
-        uint256 innerRadiusStart = gameConstants().MAX_LEVEL_DIST[1];
-        return innerRadiusStart - (innerRadiusStart * delta) / timeInSeconds;
+        uint256 initialRadius = gameConstants().MAX_LEVEL_DIST[1];
+        uint256 endTimestamp = gameConstants().CLAIM_END_TIMESTAMP - 24 hours;
+        uint256 gameDuration = 6 days;
+        uint256 duration = endTimestamp - block.timestamp;
+
+        // Round 4 test
+        // endTimestamp = gameConstants().CLAIM_END_TIMESTAMP - 6 days  - 12 hours;
+        // gameDuration = 8 hours;
+        // duration = endTimestamp - block.timestamp;
+
+        if (block.timestamp >= endTimestamp) return 0;
+        else if (block.timestamp <= endTimestamp - gameDuration) return initialRadius;
+        else return (initialRadius * duration) / gameDuration;
     }
 
     function _randomArtifactTypeAndLevelBonus(

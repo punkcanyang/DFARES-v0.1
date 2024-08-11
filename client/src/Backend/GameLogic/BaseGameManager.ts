@@ -254,7 +254,7 @@ class BaseGameManager extends EventEmitter {
   /**
    * @todo change this to the correct timestamp each round.
    */
-  protected readonly endTimeSeconds: number = new Date('2025-05-12T15:00:00.000Z').getTime() / 1000;
+  protected readonly endTimeSeconds: number = new Date('2024-08-17T14:00:00.000Z').getTime() / 1000;
   // protected readonly endTimeSeconds: number = 1715526000;
   //1948939200; // new Date("2031-10-05T04:00:00.000Z").getTime() / 1000
 

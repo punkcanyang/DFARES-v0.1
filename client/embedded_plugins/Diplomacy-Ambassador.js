@@ -5,23 +5,15 @@
 // By 9STX6
 // Remixed  highlight-my-planets (Heatmap plugin and circle)
 
-var removeAllChildNodes = (parent) => {
-  while (parent.firstChild) {
-    parent.removeChild(parent.firstChild);
-  }
-};
-let playersEnemy = [];
-// EMPTY_ADDRESS,
-let playersNeutral = [];
-
-let playersFriendly = [];
-
 class DiplomacyAmbassador {
   constructor() {
+    this.playersFriendly = [];
+    this.playersNeutral = [];
+    this.playersEnemy = [];
     this.highlightStyle = 0;
     this.rangePercent = 8;
-    this.alpha = 0;
-    this.globalAlpha = 1;
+    this.alpha = 0.01;
+    this.globalAlpha = 0.5;
     this.ownColor = '#ffffff';
     this.FriendlyColor = '#00FF00';
     this.NeutralColor = '#FFFF00';
@@ -34,6 +26,15 @@ class DiplomacyAmbassador {
     this.FriendlyColorHandler = this.FriendlyColorHandler.bind(this);
     this.NeutralColorHandler = this.NeutralColorHandler.bind(this);
     this.EnemyColorHandler = this.EnemyColorHandler.bind(this);
+
+    // Initialize Data and Start Periodic Updates
+    this.updatePlanetData();
+    this.timerId = setInterval(() => this.updatePlanetData(), 30000);
+  }
+  removeAllChildNodes(parent) {
+    while (parent.firstChild) {
+      parent.removeChild(parent.firstChild);
+    }
   }
 
   hexToHsl(H) {
@@ -109,8 +110,28 @@ class DiplomacyAmbassador {
           </label>`;
   }
 
+  // Data Fetching and Updating
+  updatePlanetData() {
+    this.planetsOwner = df.getMyPlanets();
+
+    this.planetsFriendly = Array.from(
+      df
+        .getAllOwnedPlanets(this.playersFriendly)
+        .filter((p) => this.playersFriendly.includes(p.owner))
+    );
+
+    this.planetsNeutral = Array.from(
+      df
+        .getAllOwnedPlanets(this.playersNeutral)
+        .filter((p) => this.playersNeutral.includes(p.owner))
+    );
+    this.planetsEnemy = Array.from(
+      df.getAllOwnedPlanets(this.playersEnemy).filter((p) => this.playersEnemy.includes(p.owner))
+    );
+  }
+
   renderSourceListFriendly(sourceContainerFriendly, playersFriendly) {
-    removeAllChildNodes(sourceContainerFriendly, playersFriendly);
+    this.removeAllChildNodes(sourceContainerFriendly, playersFriendly);
     for (const item of playersFriendly) {
       sourceContainerFriendly.append(item.substr(0, 20));
       // deleteButton for remove pair from the list
@@ -134,7 +155,7 @@ class DiplomacyAmbassador {
   }
 
   renderSourceListNeutral(sourceContainerNeutral, playersNeutral) {
-    removeAllChildNodes(sourceContainerNeutral, playersNeutral);
+    this.removeAllChildNodes(sourceContainerNeutral, playersNeutral);
     for (const item of playersNeutral) {
       sourceContainerNeutral.append(item.substr(0, 20));
       // deleteButton for remove pair from the list
@@ -158,7 +179,7 @@ class DiplomacyAmbassador {
   }
 
   renderSourceListEnemy(sourceContainerEnemy, playersEnemy) {
-    removeAllChildNodes(sourceContainerEnemy, playersEnemy);
+    this.removeAllChildNodes(sourceContainerEnemy, playersEnemy);
     for (const item of playersEnemy) {
       sourceContainerEnemy.append(item.substr(0, 20));
       // deleteButton for remove pair from the list
@@ -269,12 +290,16 @@ class DiplomacyAmbassador {
 
       if (selected) {
         let tempID = selected.owner;
-        playersNeutral = playersNeutral.filter((e) => e !== tempID);
-        playersEnemy = playersEnemy.filter((e) => e !== tempID);
-        playersFriendly.push(tempID);
-        this.renderSourceListFriendly(sourceContainerFriendly, playersFriendly);
-        this.renderSourceListNeutral(sourceContainerNeutral, playersNeutral);
-        this.renderSourceListEnemy(sourceContainerEnemy, playersEnemy);
+        if (this.playersFriendly.find((e) => e === tempID)) {
+          return df.terminal.current.println(`Already part of Friendly`, 5);
+        }
+        this.playersNeutral = this.playersNeutral.filter((e) => e !== tempID);
+        this.playersEnemy = this.playersEnemy.filter((e) => e !== tempID);
+        this.playersFriendly.push(tempID);
+        this.updatePlanetData();
+        this.renderSourceListFriendly(sourceContainerFriendly, this.playersFriendly);
+        this.renderSourceListNeutral(sourceContainerNeutral, this.playersNeutral);
+        this.renderSourceListEnemy(sourceContainerEnemy, this.playersEnemy);
       } else {
         df.terminal.current.println(`Planet not selected`, 5);
       }
@@ -289,12 +314,16 @@ class DiplomacyAmbassador {
 
       if (selected) {
         let tempID = selected.owner;
-        playersFriendly = playersFriendly.filter((e) => e !== tempID);
-        playersEnemy = playersEnemy.filter((e) => e !== tempID);
-        playersNeutral.push(tempID);
-        this.renderSourceListFriendly(sourceContainerFriendly, playersFriendly);
-        this.renderSourceListNeutral(sourceContainerNeutral, playersNeutral);
-        this.renderSourceListEnemy(sourceContainerEnemy, playersEnemy);
+        if (this.playersNeutral.find((e) => e === tempID)) {
+          return df.terminal.current.println(`Already part of Neutral`, 5);
+        }
+        this.playersFriendly = this.playersFriendly.filter((e) => e !== tempID);
+        this.playersEnemy = this.playersEnemy.filter((e) => e !== tempID);
+        this.playersNeutral.push(tempID);
+        this.updatePlanetData();
+        this.renderSourceListFriendly(sourceContainerFriendly, this.playersFriendly);
+        this.renderSourceListNeutral(sourceContainerNeutral, this.playersNeutral);
+        this.renderSourceListEnemy(sourceContainerEnemy, this.playersEnemy);
       } else {
         df.terminal.current.println(`Planet not selected`, 5);
       }
@@ -309,12 +338,16 @@ class DiplomacyAmbassador {
 
       if (selected) {
         let tempID = selected.owner;
-        playersFriendly = playersFriendly.filter((e) => e !== tempID);
-        playersNeutral = playersNeutral.filter((e) => e !== tempID);
-        playersEnemy.push(tempID);
-        this.renderSourceListFriendly(sourceContainerFriendly, playersFriendly);
-        this.renderSourceListNeutral(sourceContainerNeutral, playersNeutral);
-        this.renderSourceListEnemy(sourceContainerEnemy, playersEnemy);
+        if (this.playersEnemy.find((e) => e === tempID)) {
+          return df.terminal.current.println(`Already part of Enemy`, 5);
+        }
+        this.playersFriendly = this.playersFriendly.filter((e) => e !== tempID);
+        this.playersNeutral = this.playersNeutral.filter((e) => e !== tempID);
+        this.playersEnemy.push(tempID);
+        this.updatePlanetData();
+        this.renderSourceListFriendly(sourceContainerFriendly, this.playersFriendly);
+        this.renderSourceListNeutral(sourceContainerNeutral, this.playersNeutral);
+        this.renderSourceListEnemy(sourceContainerEnemy, this.playersEnemy);
       } else {
         df.terminal.current.println(`Planet not selected`, 5);
       }
@@ -325,8 +358,9 @@ class DiplomacyAmbassador {
     clearButtonFriendly.style.marginBottom = '10px';
     clearButtonFriendly.innerHTML = 'Clean Friendly';
     clearButtonFriendly.onclick = () => {
-      playersFriendly = [];
-      this.renderSourceListFriendly(sourceContainerFriendly, playersFriendly);
+      this.playersFriendly = [];
+      this.updatePlanetData();
+      this.renderSourceListFriendly(sourceContainerFriendly, this.playersFriendly);
       sourceContainerFriendly.innerText = 'Current Friendly source: none';
     };
 
@@ -335,8 +369,9 @@ class DiplomacyAmbassador {
     clearButtonNeutral.style.marginBottom = '10px';
     clearButtonNeutral.innerHTML = 'Clean Neutral';
     clearButtonNeutral.onclick = () => {
-      playersNeutral = [];
-      this.renderSourceListNeutral(sourceContainerNeutral, playersNeutral);
+      this.playersNeutral = [];
+      this.updatePlanetData();
+      this.renderSourceListNeutral(sourceContainerNeutral, this.playersNeutral);
       sourceContainerNeutral.innerText = 'Current Neutral source: none';
     };
 
@@ -345,8 +380,9 @@ class DiplomacyAmbassador {
     clearButtonEnemy.style.marginBottom = '10px';
     clearButtonEnemy.innerHTML = 'Clean Enemy';
     clearButtonEnemy.onclick = () => {
-      playersEnemy = [];
-      this.renderSourceListEnemy(sourceContainerEnemy, playersEnemy);
+      this.playersEnemy = [];
+      this.updatePlanetData();
+      this.renderSourceListEnemy(sourceContainerEnemy, this.playersEnemy);
       sourceContainerEnemy.innerText = 'Current Enemy source: none';
     };
 
@@ -363,12 +399,13 @@ class DiplomacyAmbassador {
           var reader = new FileReader();
           reader.onload = () => {
             const obj = JSON.parse(reader.result);
-            playersFriendly = obj.playersFriendly;
-            playersNeutral = obj.playersNeutral;
-            playersEnemy = obj.playersEnemy;
-            this.renderSourceListFriendly(sourceContainerFriendly, playersFriendly);
-            this.renderSourceListNeutral(sourceContainerNeutral, playersNeutral);
-            this.renderSourceListEnemy(sourceContainerEnemy, playersEnemy);
+            this.playersFriendly = obj.playersFriendly;
+            this.playersNeutral = obj.playersNeutral;
+            this.playersEnemy = obj.playersEnemy;
+            this.updatePlanetData();
+            this.renderSourceListFriendly(sourceContainerFriendly, this.playersFriendly);
+            this.renderSourceListNeutral(sourceContainerNeutral, this.playersNeutral);
+            this.renderSourceListEnemy(sourceContainerEnemy, this.playersEnemy);
           };
           reader.readAsText(file);
         } catch (err) {
@@ -380,11 +417,17 @@ class DiplomacyAmbassador {
     };
 
     let SaveButton = document.createElement('button');
+
     SaveButton.style.width = '45%';
     SaveButton.style.marginBottom = '10px';
     SaveButton.innerHTML = 'Save Diplomacy';
     SaveButton.onclick = () => {
-      let save = JSON.stringify({ playersFriendly, playersNeutral, playersEnemy });
+      let save = JSON.stringify({
+        playersFriendly: this.playersFriendly,
+        playersNeutral: this.playersNeutral,
+        playersEnemy: this.playersEnemy,
+      });
+
       var blob = new Blob([save], { type: 'application/json' }),
         anchor = document.createElement('a');
       anchor.download =
@@ -416,7 +459,6 @@ class DiplomacyAmbassador {
 
   highlightStyleHandler() {
     this.highlightStyle = this.selectHighlightStyle.value;
-
     //I couldn't find a better way...
     if (this.highlightStyle === 0) {
       document.querySelector('label.alpha').style.display = 'inline-block';
@@ -463,267 +505,85 @@ class DiplomacyAmbassador {
     const origFillStyle = ctx.fillStyle;
     const origSrokeStyle = ctx.strokeStyle;
     const viewport = ui.getViewport();
-    const planetsOwner = df
-      .getMyPlanets()
-      .filter((planet) => viewport.isInViewport(planet.location.coords));
-    let planetsFriendly = Array.from(df.getAllPlanets()).filter((p) =>
-      playersFriendly.includes(p.owner)
-    );
-    let planetsNeutral = Array.from(df.getAllPlanets()).filter((p) =>
-      playersNeutral.includes(p.owner)
-    );
-    let planetsEnemy = Array.from(df.getAllPlanets()).filter((p) => playersEnemy.includes(p.owner));
-    if (this.highlightStyle === 0)
-      for (const p of planetsOwner) {
+
+    const worldToCanvas = (coords) => viewport.worldToCanvasCoords(coords);
+    const toCanvasX = (x) => viewport.worldToCanvasX(x);
+    const toCanvasY = (y) => viewport.worldToCanvasY(y);
+    const toCanvasDist = (dist) => viewport.worldToCanvasDist(dist);
+
+    const fac = Math.max(0, Math.log2(this.rangePercent / 5));
+    const drawRangeCircle = (ctx, x, y, trueRange, hsl) => {
+      ctx.beginPath();
+      ctx.arc(x, y, trueRange, 0, 2 * Math.PI);
+      const gradient = ctx.createRadialGradient(x, y, 0, x, y, trueRange);
+      gradient.addColorStop(0, `hsla(${hsl}, 1)`);
+      gradient.addColorStop(1, `hsla(${hsl}, ${this.alpha})`);
+      ctx.fillStyle = gradient;
+      ctx.fill();
+    };
+
+    const drawPlanet = (ctx, x, y, planetLevel, color, isDashed = false) => {
+      ctx.fillStyle = color;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+
+      if (isDashed) ctx.setLineDash([5, 5]);
+
+      ctx.beginPath();
+      ctx.arc(
+        toCanvasX(x),
+        toCanvasY(y),
+        toCanvasDist(ui.getRadiusOfPlanetLevel(planetLevel)),
+        0,
+        2 * Math.PI
+      );
+      ctx.fill();
+      ctx.closePath();
+
+      if (isDashed) ctx.setLineDash([]);
+    };
+
+    // Reusable function to render planets with different highlight styles
+    const renderPlanets = (ctx, planets, color, highlightStyle) => {
+      const hsl = this.hexToHsl(color);
+
+      for (const p of planets) {
         if (!p.location) continue;
-        // draw range circle
-        let { x, y } = viewport.worldToCanvasCoords(p.location.coords);
-        const hsl = this.hexToHsl(this.ownColor);
 
-        const fac = Math.max(0, Math.log2(this.rangePercent / 5));
+        const { x, y } = worldToCanvas(p.location.coords);
         const range = fac * p.range;
-        const trueRange = viewport.worldToCanvasDist(range);
+        const trueRange = toCanvasDist(range);
 
-        ctx.globalAlpha = this.globalAlpha;
-        ctx.beginPath();
-        ctx.arc(x, y, trueRange, 0, 2 * Math.PI);
-        const gradient = ctx.createRadialGradient(x, y, 0, x, y, trueRange);
-        gradient.addColorStop(0, `hsla(${hsl}, 1)`);
-        gradient.addColorStop(1, `hsla(${hsl}, ${this.alpha})`);
-        ctx.fillStyle = gradient;
-        ctx.fill();
-
-        // reset ctx
-        ctx.fillStyle = origFillStyle;
-        ctx.strokeStyle = origSrokeStyle;
-        ctx.globalAlpha = origGlobalAlpha;
-      }
-    else {
-      ctx.fillStyle = this.ownColor;
-      ctx.strokeStyle = this.ownColor;
-
-      for (let planet of planetsOwner) {
-        if (!planet.location) continue;
-        let { x, y } = planet.location.coords;
-
-        // add red circle when level <= 4
-        if (planet.planetLevel <= 4) {
-          ctx.lineWidth = 1.5;
-          ctx.strokeStyle = 'dashed';
-          ctx.beginPath();
-          ctx.arc(
-            viewport.worldToCanvasX(x),
-            viewport.worldToCanvasY(y),
-            viewport.worldToCanvasDist(ui.getRadiusOfPlanetLevel(3) * 6),
-            0,
-            2 * Math.PI
-          );
-          // ctx.fill();
-          ctx.stroke();
-          ctx.closePath();
+        if (highlightStyle === 0 && this.alpha && trueRange) {
+          // Draw range circle
+          drawRangeCircle(ctx, x, y, trueRange, hsl);
+        } else {
+          // Draw planet
+          const isDashed = p.planetLevel <= 4;
+          drawPlanet(ctx, x, y, p.planetLevel, color, isDashed);
         }
-
-        ctx.beginPath();
-        ctx.arc(
-          viewport.worldToCanvasX(x),
-          viewport.worldToCanvasY(y),
-          viewport.worldToCanvasDist(ui.getRadiusOfPlanetLevel(planet.planetLevel)),
-          0,
-          2 * Math.PI
-        );
-        ctx.fill();
-        // ctx.stroke();
-        ctx.closePath();
       }
+    };
+
+    // Drawing planets
+    ctx.globalAlpha = this.globalAlpha;
+
+    renderPlanets(ctx, this.planetsOwner, this.ownColor, this.highlightStyle);
+
+    if (this.playersFriendly.length > 0) {
+      renderPlanets(ctx, this.planetsFriendly, this.FriendlyColor, this.highlightStyle);
     }
-    if (this.highlightStyle === 0)
-      for (const p of planetsFriendly) {
-        if (!p.location) continue;
-        // draw range circle
-        let { x, y } = viewport.worldToCanvasCoords(p.location.coords);
-        const hsl = this.hexToHsl(this.FriendlyColor);
-
-        const fac = Math.max(0, Math.log2(this.rangePercent / 5));
-        const range = fac * p.range;
-        const trueRange = viewport.worldToCanvasDist(range);
-
-        ctx.globalAlpha = this.globalAlpha;
-        ctx.beginPath();
-        ctx.arc(x, y, trueRange, 0, 2 * Math.PI);
-        const gradient = ctx.createRadialGradient(x, y, 0, x, y, trueRange);
-        gradient.addColorStop(0, `hsla(${hsl}, 1)`);
-        gradient.addColorStop(1, `hsla(${hsl}, ${this.alpha})`);
-        ctx.fillStyle = gradient;
-        ctx.fill();
-
-        // reset ctx
-        ctx.fillStyle = origFillStyle;
-        ctx.strokeStyle = origSrokeStyle;
-        ctx.globalAlpha = origGlobalAlpha;
-      }
-    else {
-      ctx.fillStyle = this.FriendlyColor;
-      ctx.strokeStyle = this.FriendlyColor;
-
-      for (let planet of planetsFriendly) {
-        if (!planet.location) continue;
-        let { x, y } = planet.location.coords;
-
-        // add red circle when level <= 4
-        if (planet.planetLevel <= 4) {
-          ctx.lineWidth = 1.5;
-          ctx.strokeStyle = 'dashed';
-          ctx.beginPath();
-          ctx.arc(
-            viewport.worldToCanvasX(x),
-            viewport.worldToCanvasY(y),
-            viewport.worldToCanvasDist(ui.getRadiusOfPlanetLevel(3) * 6),
-            0,
-            2 * Math.PI
-          );
-          // ctx.fill();
-          ctx.stroke();
-          ctx.closePath();
-        }
-
-        ctx.beginPath();
-        ctx.arc(
-          viewport.worldToCanvasX(x),
-          viewport.worldToCanvasY(y),
-          viewport.worldToCanvasDist(ui.getRadiusOfPlanetLevel(planet.planetLevel)),
-          0,
-          2 * Math.PI
-        );
-        ctx.fill();
-        // ctx.stroke();
-        ctx.closePath();
-      }
+    if (this.playersNeutral.length > 0) {
+      renderPlanets(ctx, this.planetsNeutral, this.NeutralColor, this.highlightStyle);
     }
-    if (this.highlightStyle === 0)
-      for (const p of planetsNeutral) {
-        if (!p.location) continue;
-        // draw range circle
-        let { x, y } = viewport.worldToCanvasCoords(p.location.coords);
-        const hsl = this.hexToHsl(this.NeutralColor);
-
-        const fac = Math.max(0, Math.log2(this.rangePercent / 5));
-        const range = fac * p.range;
-        const trueRange = viewport.worldToCanvasDist(range);
-
-        ctx.globalAlpha = this.globalAlpha;
-        ctx.beginPath();
-        ctx.arc(x, y, trueRange, 0, 2 * Math.PI);
-        const gradient = ctx.createRadialGradient(x, y, 0, x, y, trueRange);
-        gradient.addColorStop(0, `hsla(${hsl}, 1)`);
-        gradient.addColorStop(1, `hsla(${hsl}, ${this.alpha})`);
-        ctx.fillStyle = gradient;
-        ctx.fill();
-
-        // reset ctx
-        ctx.fillStyle = origFillStyle;
-        ctx.strokeStyle = origSrokeStyle;
-        ctx.globalAlpha = origGlobalAlpha;
-      }
-    else {
-      ctx.fillStyle = this.NeutralColor;
-      ctx.strokeStyle = this.NeutralColor;
-
-      for (let planet of planetsNeutral) {
-        if (!planet.location) continue;
-        let { x, y } = planet.location.coords;
-
-        // add red circle when level <= 4
-        if (planet.planetLevel <= 4) {
-          ctx.lineWidth = 1.5;
-          ctx.strokeStyle = 'dashed';
-          ctx.beginPath();
-          ctx.arc(
-            viewport.worldToCanvasX(x),
-            viewport.worldToCanvasY(y),
-            viewport.worldToCanvasDist(ui.getRadiusOfPlanetLevel(3) * 6),
-            0,
-            2 * Math.PI
-          );
-          // ctx.fill();
-          ctx.stroke();
-          ctx.closePath();
-        }
-
-        ctx.beginPath();
-        ctx.arc(
-          viewport.worldToCanvasX(x),
-          viewport.worldToCanvasY(y),
-          viewport.worldToCanvasDist(ui.getRadiusOfPlanetLevel(planet.planetLevel)),
-          0,
-          2 * Math.PI
-        );
-        ctx.fill();
-        // ctx.stroke();
-        ctx.closePath();
-      }
+    if (this.playersEnemy.length > 0) {
+      renderPlanets(ctx, this.planetsEnemy, this.EnemyColor, this.highlightStyle);
     }
-    if (this.highlightStyle === 0)
-      for (const p of planetsEnemy) {
-        if (!p.location) continue;
-        // draw range circle
-        let { x, y } = viewport.worldToCanvasCoords(p.location.coords);
-        const hsl = this.hexToHsl(this.EnemyColor);
 
-        const fac = Math.max(0, Math.log2(this.rangePercent / 5));
-        const range = fac * p.range;
-        const trueRange = viewport.worldToCanvasDist(range);
-
-        ctx.globalAlpha = this.globalAlpha;
-        ctx.beginPath();
-        ctx.arc(x, y, trueRange, 0, 2 * Math.PI);
-        const gradient = ctx.createRadialGradient(x, y, 0, x, y, trueRange);
-        gradient.addColorStop(0, `hsla(${hsl}, 1)`);
-        gradient.addColorStop(1, `hsla(${hsl}, ${this.alpha})`);
-        ctx.fillStyle = gradient;
-        ctx.fill();
-
-        // reset ctx
-        ctx.fillStyle = origFillStyle;
-        ctx.strokeStyle = origSrokeStyle;
-        ctx.globalAlpha = origGlobalAlpha;
-      }
-    else {
-      ctx.fillStyle = this.EnemyColor;
-      ctx.strokeStyle = this.EnemyColor;
-
-      for (let planet of planetsEnemy) {
-        if (!planet.location) continue;
-        let { x, y } = planet.location.coords;
-
-        // add red circle when level <= 4
-        if (planet.planetLevel <= 4) {
-          ctx.lineWidth = 1.5;
-          ctx.strokeStyle = 'dashed';
-          ctx.beginPath();
-          ctx.arc(
-            viewport.worldToCanvasX(x),
-            viewport.worldToCanvasY(y),
-            viewport.worldToCanvasDist(ui.getRadiusOfPlanetLevel(3) * 6),
-            0,
-            2 * Math.PI
-          );
-          // ctx.fill();
-          ctx.stroke();
-          ctx.closePath();
-        }
-
-        ctx.beginPath();
-        ctx.arc(
-          viewport.worldToCanvasX(x),
-          viewport.worldToCanvasY(y),
-          viewport.worldToCanvasDist(ui.getRadiusOfPlanetLevel(planet.planetLevel)),
-          0,
-          2 * Math.PI
-        );
-        ctx.fill();
-        ctx.closePath();
-      }
-    }
+    // Reset globalAlpha and other context properties
+    ctx.globalAlpha = origGlobalAlpha;
+    ctx.fillStyle = origFillStyle;
+    ctx.strokeStyle = origSrokeStyle;
   }
 
   destroy() {
@@ -731,6 +591,7 @@ class DiplomacyAmbassador {
     this.sliderRange.removeEventListener('input', this.rangeHandler);
     this.sliderAlpha.removeEventListener('input', this.alphaHandler);
     this.sliderGlobalAlpha.removeEventListener('input', this.globalAlphaHandler);
+    this.timerId = null;
   }
 }
 export default DiplomacyAmbassador;

@@ -3909,7 +3909,7 @@ class BaseGameManager extends EventEmitter {
         throw new Error('attempted to move out of bounds');
       }
 
-      if (newX ** 2 + newY ** 2 <= this.innerRadius ** 2) {
+      if (newX ** 2 + newY ** 2 < this.innerRadius ** 2) {
         throw new Error('attempted to move out of bounds');
       }
 
@@ -3959,6 +3959,9 @@ class BaseGameManager extends EventEmitter {
 
         console.log('target dist:', targetDistFromOrign);
         console.log('inner radius:', this.innerRadius);
+        console.log('TEST TEST');
+        console.log(args[3][10]);
+        console.log('new Radius: ', args[3][3]);
 
         return args;
       };

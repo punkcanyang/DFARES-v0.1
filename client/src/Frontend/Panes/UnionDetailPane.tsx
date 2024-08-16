@@ -6,7 +6,7 @@ import { Btn } from '../Components/Btn';
 import { LoadingSpinner } from '../Components/LoadingSpinner';
 import { Blue, Green } from '../Components/Text';
 import { formatDuration, TimeUntil } from '../Components/TimeUntil';
-import { useAccount, usePlayer, useUIManager } from '../Utils/AppHooks';
+import { useAccount, usePlayer, useUIManager, useUnion } from '../Utils/AppHooks';
 import { UnionInfoPane } from './UnionInfoPane';
 
 const UnionDetailContent = styled.div`
@@ -54,21 +54,14 @@ export function UnionDetailPane({
   const gameManager = uiManager.getGameManager();
   const account = useAccount(uiManager);
   const player = usePlayer(uiManager).value;
+  const union = useUnion(uiManager, _unionId).value;
 
-  const [union, setUnion] = useState<Union>();
   const [isProcessing, setIsProcessing] = useState(false);
 
   const [unionRejoinCooldown, setUnionRejoinCooldown] = useState<number>();
   const [levelupUnionFee, setLevelupUnionFee] = useState<number>();
   const [nextApplyUnionAvailableTimestamp, setNextApplyUnionAvailableTimestamp] =
     useState<number>();
-
-  useEffect(() => {
-    if (!uiManager) return;
-    const unionId = _unionId;
-    const unionState = uiManager.getUnion(unionId);
-    setUnion(unionState);
-  }, [_unionId, uiManager, account]);
 
   // fetch configs
   useEffect(() => {
@@ -86,23 +79,6 @@ export function UnionDetailPane({
 
     fetchConfig();
   }, [union, gameManager, uiManager]);
-
-  // refresh unions every 5 seconds
-  useEffect(() => {
-    if (!uiManager) return;
-
-    const refreshUnion = () => {
-      const unionId = _unionId;
-      const unionState = uiManager.getUnion(unionId);
-      setUnion(unionState);
-    };
-
-    const intervalId = setInterval(refreshUnion, 5_000);
-
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [_unionId, union, uiManager, account]);
 
   const validUnion = (union: Union | undefined): boolean => {
     if (!union) return false;

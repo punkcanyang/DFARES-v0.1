@@ -85,6 +85,7 @@ export function useUnions(uiManager: GameUIManager): Wrapper<Union[]> {
  * Hook which gets you the union
  */
 export function useUnion(uiManager: GameUIManager, unionId: UnionId): Wrapper<Union | undefined> {
+  console.log(unionId);
   const [union, setUnion] = useState<Wrapper<Union | undefined>>(
     () => new Wrapper(uiManager.getUnion(unionId))
   );

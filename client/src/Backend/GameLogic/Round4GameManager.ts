@@ -876,13 +876,14 @@ class Round4GameManager extends BaseGameManager {
         const scoredPlayers = df
           .getAllPlayers()
           .filter((player) => player.score !== undefined && player.score !== null)
-          .sort((a, b) => (b.score as number) - (a.score as number));
+          .sort((a, b) => (a.score as number) - (b.score as number));
 
         for (let i = 0; i < scoredPlayers.length; i++) {
           const rank = i + 1;
           const player = this.players.get(scoredPlayers[i].address);
           if (!player) continue;
           player.rank = rank;
+          console.log(player.address, player.score, rank);
         }
 
         this.playersUpdated$.publish();

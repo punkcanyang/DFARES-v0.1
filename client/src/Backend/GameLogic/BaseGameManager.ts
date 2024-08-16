@@ -3959,9 +3959,6 @@ class BaseGameManager extends EventEmitter {
 
         console.log('target dist:', targetDistFromOrign);
         console.log('inner radius:', this.innerRadius);
-        console.log('TEST TEST');
-        console.log(args[3][10]);
-        console.log('new Radius: ', args[3][3]);
 
         return args;
       };

@@ -1,13 +1,13 @@
 import { formatNumber } from '@dfares/gamelogic';
 import { Union } from '@dfares/types';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { Btn } from '../Components/Btn';
 import { CenterBackgroundSubtext, Spacer } from '../Components/CoreUI';
-import { Blue, Sub } from '../Components/Text';
+import { Sub } from '../Components/Text';
 import { TextPreview } from '../Components/TextPreview';
 import dfstyles from '../Styles/dfstyles';
-import { useUIManager } from '../Utils/AppHooks';
+import { useUIManager, useUnions } from '../Utils/AppHooks';
 import { SortableTable } from '../Views/SortableTable';
 
 const UnionListContent = styled.div`
@@ -35,43 +35,7 @@ export function UnionListPane({
   setActiveFrame: SetStateFunction;
 }) {
   const uiManager = useUIManager();
-  const gameManager = uiManager.getGameManager();
-  const [unions, setUnions] = useState<Union[]>([]);
-
-  useEffect(() => {
-    if (!uiManager) return;
-    const refreshUnions = async () => {
-      if (!uiManager) return;
-      await gameManager.refreshScoreboard();
-      const unions = uiManager.getAllUnions().filter((union) => union.unionId !== '0');
-      setUnions(unions);
-    };
-    refreshUnions();
-  }, [uiManager, gameManager]);
-
-  //refresh unions every 10 seconds
-  useEffect(() => {
-    if (!uiManager) return;
-
-    const refreshUnions = async () => {
-      if (!uiManager) return;
-      await gameManager.refreshScoreboard();
-      const unions = uiManager.getAllUnions().filter((union) => union.unionId !== '0');
-      setUnions(unions);
-    };
-
-    const intervalId = setInterval(refreshUnions, 10000);
-
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [uiManager, gameManager]);
-
-  const refreshUnions = async () => {
-    await gameManager.refreshScoreboard();
-    const unions = uiManager.getAllUnions().filter((union) => union.unionId !== '0');
-    setUnions(unions);
-  };
+  const unions = useUnions(uiManager).value;
 
   const headers = ['Id', 'Name', 'Leader', 'Level', 'Amount', 'topPlayer', 'unionScore', 'Details'];
   const alignments: Array<'r' | 'c' | 'l'> = ['r', 'r', 'r', 'r', 'r', 'r', 'r', 'r'];
@@ -183,14 +147,6 @@ export function UnionListPane({
           alignments={alignments}
         />
         <br />
-
-        <div>
-          <div>
-            <Blue>INFO:</Blue>For the latest unionss info, click refresh.
-          </div>
-
-          <Btn onClick={refreshUnions}> Refresh Unions Info Now</Btn>
-        </div>
       </TableContainer>
     );
   }

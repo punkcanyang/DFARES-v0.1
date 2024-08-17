@@ -750,11 +750,11 @@ class Round4GameManager extends BaseGameManager {
 
   public async hardRefreshUnions(): Promise<void> {
     try {
-      const unions = await this.getAllUnions(); // Implement getAllUnionIds based on your contract interface
+      const unions = this.getAllUnions(); // Implement getAllUnionIds based on your contract interface
       const updatedUnions: Union[] = [];
 
       for (const union of unions) {
-        const uniontemp = await this.contractsAPI.getUnionById(union.unionId); // Implement getUnionById based on your contract interface
+        const uniontemp = this.getUnion(union.unionId); // Implement getUnionById based on your contract interface
         if (!uniontemp) continue;
 
         const unionId = union.unionId;
@@ -773,6 +773,14 @@ class Round4GameManager extends BaseGameManager {
       updatedUnions.forEach((union) => {
         this.unions.set(union.unionId, union);
       });
+
+      for (let i = 0; i < updatedUnions.length; i++) {
+        const newUnion = updatedUnions[i];
+        const union = this.unions.get(newUnion.unionId);
+        if (!union) continue;
+        union.score = newUnion.score;
+        union.highestRank = newUnion.highestRank;
+      }
 
       this.unionsUpdated$.publish(); // Assuming this triggers an update in your UI or state management
     } catch (error) {

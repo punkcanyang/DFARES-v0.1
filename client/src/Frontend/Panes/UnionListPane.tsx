@@ -35,7 +35,14 @@ export function UnionListPane({
   setActiveFrame: SetStateFunction;
 }) {
   const uiManager = useUIManager();
-  const unions = useUnions(uiManager).value;
+  const unions = useUnions(uiManager).value.sort((_a: Union, _b: Union): number => {
+    if (_a.score !== _b.score) return _b.score - _a.score;
+    else {
+      if (_a.highestRank === undefined) return 1;
+      if (_b.highestRank === undefined) return -1;
+      return _a.highestRank - _b.highestRank;
+    }
+  });
 
   const headers = ['Id', 'Name', 'Leader', 'Level', 'Amount', 'topPlayer', 'unionScore', 'Details'];
   const alignments: Array<'r' | 'c' | 'l'> = ['r', 'r', 'r', 'r', 'r', 'r', 'r', 'r'];

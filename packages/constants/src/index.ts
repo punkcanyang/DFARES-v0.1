@@ -34,11 +34,11 @@ import {
 } from '@dfares/types';
 import bigInt, { BigInteger } from 'big-integer';
 
-export const TOKEN_NAME = 'ETH';
-export const BLOCKCHAIN_NAME = 'Redstone';
+export const TOKEN_NAME = '$S';
+export const BLOCKCHAIN_NAME = 'Sonic';
 export const HOST_TEAM_NAME = 'DF Archon';
 
-export const GAS_ADJUST_DELTA = '0.00000001'; // '0.000000001'; //'1'; //'0.00000005';
+export const GAS_ADJUST_DELTA = '0.1'; // 增加到更高的值
 
 export const FIXED_DIGIT_NUMBER = 9;
 
@@ -140,9 +140,9 @@ export const GAS_PRICE_API = 'https://blockscout.com/xdai/mainnet/api/v1/gas-pri
  * In case we cannot load gas prices from xDai, these are the default auto gas prices.
  */
 export const DEFAULT_GAS_PRICES: GasPrices = {
-  slow: Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('1')), // 1,
-  average: Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('3')), //3,
-  fast: Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('10')), //10,
+  slow: Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('0.00000005')), // 1,
+  average: Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('2')), //3,
+  fast: Number(parseFloat(GAS_ADJUST_DELTA) * parseInt('5')), //10,
 } as const;
 
 /**
@@ -155,13 +155,13 @@ export const MAX_AUTO_GAS_PRICE_GWEI = 15 as const;
  * The URL to the block explorer for the chain being used. Prepended to transaction links, etc
  */
 // Careful, don't add a slash to the end of this.
-export const BLOCK_EXPLORER_URL = 'https://explorer.redstone.xyz' as const;
+export const BLOCK_EXPLORER_URL = 'https://testnet.sonicscan.org/' as const;
 
 /**
  * The URL to the bridge for the chain being used. Prepended to transaction links, etc
  */
 
-export const BLOCKCHAIN_BRIDGE = 'https://relay.link/bridge/redstone/' as const;
+export const BLOCKCHAIN_BRIDGE = 'https://gateway.soniclabs.com/' as const;
 /**
  * The amount of time between gas price refreshes when fetching prices from the oracle.
  */

@@ -114,17 +114,40 @@ const redstone = {
   gasPrice: 100,
 };
 
+const sonicTestnet = {
+  url: process.env.SONIC_TESTNET_RPC_URL,
+  accounts: {
+    mnemonic: process.env.DEPLOYER_MNEMONIC,
+  },
+  chainId: Number(process.env.SONIC_TESTNET_CHAINID),
+  gasMultiplier: 1,
+  gasPrice: 2000000000,
+  timeout: 120000,
+};
+
+const sonic = {
+  url: process.env.SONIC_RPC_URL,
+  accounts: {
+    mnemonic: process.env.DEPLOYER_MNEMONIC,
+  },
+  chainId: Number(process.env.SONIC_CHAINID),
+  gasMultiplier: 5,
+  gasPrice: 100,
+};
+
 const config: HardhatUserConfig = {
   defaultNetwork: 'hardhat',
   networks: {
     // Check for a DEPLOYER_MNEMONIC before we add xdai/mainnet network to the list of networks
     // Ex: If you try to deploy to xdai without DEPLOYER_MNEMONIC, you'll see this error:
     // > Error HH100: Network xdai doesn't exist
-    ...(DEPLOYER_MNEMONIC ? { xdai } : undefined),
-    ...(DEPLOYER_MNEMONIC ? { mainnet } : undefined),
-    ...(DEPLOYER_MNEMONIC ? { altlayer } : undefined),
-    ...(DEPLOYER_MNEMONIC ? { redstoneTestnet } : undefined),
-    ...(DEPLOYER_MNEMONIC ? { redstone } : undefined),
+    // ...(DEPLOYER_MNEMONIC ? { xdai } : undefined),
+    // ...(DEPLOYER_MNEMONIC ? { mainnet } : undefined),
+    // ...(DEPLOYER_MNEMONIC ? { altlayer } : undefined),
+    // ...(DEPLOYER_MNEMONIC ? { redstoneTestnet } : undefined),
+    // ...(DEPLOYER_MNEMONIC ? { redstone } : undefined),
+    ...(DEPLOYER_MNEMONIC ? { sonicTestnet } : undefined),
+    // ...(DEPLOYER_MNEMONIC ? { sonic } : undefined),
     localhost: {
       url: 'http://localhost:8545/',
       accounts: {

@@ -114,8 +114,10 @@ module.exports = {
     }),
     // The string values are fallbacks if the env variable is not set
     new EnvironmentPlugin({
-      NODE_ENV: 'development',
-      DEFAULT_RPC: 'https://rpc-df.xdaichain.com/',
+      // 如果NODE_ENV已经设置，使用它，否则使用'development'
+      // 这样可以避免与命令行参数冲突
+      NODE_ENV: process.env.NODE_ENV || 'development',
+      DEFAULT_RPC: 'https://rpc.blaze.soniclabs.com/',
       // This must be null to indicate to webpack that this environment variable is optional
       DF_WEBSERVER_URL: null,
       LEADER_BOARD_URL: null,
